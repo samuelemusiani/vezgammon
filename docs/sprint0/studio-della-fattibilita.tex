@@ -1,5 +1,4 @@
 \documentclass{article}
-\usepackage{graphicx} % Required for inserting images
 
 \title{Studio di Fattibilità per il Progetto di Ingegneria del Software}
 
@@ -14,13 +13,13 @@
 \begin{enumerate}
     \item    Creare una web app in cui gli utenti possano giocare a backgammon online.
     \item    Seguire la metodologia Agile, con consegne ogni 2 settimane.
-    \item    Utilizzare Go per il backend, Vue per il frontend e SQL per il database.
+    \item    Utilizzare Go per il backend, Vue per il frontend, un database relazionale e Docker per la containerizzazione.
 \end{enumerate}
 
 \section{Vincoli temporali:}
 
 \begin{enumerate}
-    \item   Durata: 1 mese e mezzo ca (6 settimane).
+    \item   Durata: 1 mese e mezzo circa (6 settimane).
     \item   Team: 6 persone.
     \item   Sprint: Ogni 2 settimane (3 sprint in totale).
     \item   Consegne: Ogni sprint deve concludersi con le funzionalità assegnate nelle user stories o un set di funzionalità completate.
@@ -29,9 +28,9 @@
 \section{Analisi tecnica:}
 
 \begin{enumerate}
-    \item Backend in Go: Go è ben adatto per applicazioni backend grazie alle sue prestazioni e alla gestione della concorrenza, ideale per gestire le dinamiche di gioco in tempo reale come il backgammon.
+    \item Backend in Go: Go è adatto per applicazioni backend grazie alle sue prestazioni e alla gestione della concorrenza, ideale per gestire le dinamiche di gioco in tempo reale come il backgammon.
     \item Frontend in Vue: Vue è un framework reattivo perfetto per creare interfacce utente dinamiche, ideale per l'interfaccia del gioco.
-    \item Database SQL: SQL sarà utilizzato per memorizzare utenti, partite, risultati e progressi dei giocatori.
+    \item Database relazionale: sarà utilizzato per memorizzare utenti, partite, risultati e progressi dei giocatori.
 \end{enumerate}
 
 \section{Risorse necessarie:}
@@ -41,7 +40,7 @@
         \begin{enumerate}
             \item 2 sviluppatori backend (Go).
             \item 2 sviluppatori frontend (Vue).
-            \item 1 esperto di database (SQL).
+            \item 1 esperto di database.
             \item 1 tester/coordinatore Agile.
             \item 1 Scrum Master per il coordinamento dei developer.
             \item 1 Product Owner per gestire il rapporto con gli Stakeholders
@@ -49,27 +48,30 @@
     \item Strumenti:
         \begin{enumerate}
             \item GitLab per la gestione del repository.
-            \item Docker per il deployment.
-            \item Jenkins per l'Integrazione Continua (CI).
+            \item Docker per la containerizzazione.
+            \item Jenkins per l'Integrazione Continua (CI) e il deployment.
             \item SonarQube per garantire la qualità del codice e rispettare le convenzioni.
-            \item Ambienti di sviluppo per Go, Vue e SQL.
+            \item Ambienti di sviluppo per Go e Vue.
         \end{enumerate}
 \end{enumerate}
 
 \section{Fattori di rischio:}
 
 \begin{enumerate}
-    \item Coordinamento: Il team dovrà assicurarsi di rispettare le scadenze e sincronizzare il lavoro tra tutte le parti. Ritardi in un'area (es. backend) potrebbero influire sulle altre (es. frontend).
-   \item Competenze tecniche: Assicurarsi che tutti i membri abbiano familiarità con le tecnologie scelte (Go, Vue, SQL). Se qualcuno non ha esperienza, potrebbe essere necessario del tempo extra per apprendere.
-   \item Integrazione: L'integrazione tra frontend e backend potrebbe richiedere più tempo del previsto se emergono bug o incompatibilità.
-   \item Deployment e CI: L'implementazione di Docker per il deployment e Jenkins per la CI aggiunge complessità. Garantire che la pipeline di integrazione continua funzioni senza intoppi potrebbe richiedere sforzi extra.
-   \item Qualità e standard: Seguire gli standard di codifica con SonarQube richiederà attenzione ai dettagli e potrebbe richiedere modifiche se il codice non rispetta subito gli standard.
-   \item Gestione del tempo: Riuscire a rispettare le consegne ogni 2 settimane mantenendo alta la qualità del codice e delle prestazioni è una sfida. Se un obiettivo di sprint non viene raggiunto, potrebbe avere effetti a cascata sugli sprint successivi.
-   \item Esperienza utente: Durante lo sviluppo dell'interfaccia in Vue, garantire interazioni fluide e la gestione dinamica del gioco in tempo reale (es. azioni a turni, aggiornamenti dello stato del gioco) sarà un fattore cruciale per il successo del progetto.
+    \item \textbf{Coordinamento:} Il team dovrà assicurarsi di rispettare le scadenze e sincronizzare il lavoro tra tutte le parti. Ritardi in un'area (es. backend) potrebbero influire sulle altre (es. frontend).
+   \item \textbf{Competenze tecniche:} Assicurarsi che tutti i developers abbiano familiarità con le tecnologie scelte (Go, Vue) in base al loro ruolo interno. Se qualcuno non ha esperienza, potrebbe essere necessario del tempo extra.
+   \item \textbf{Integrazione:} L'integrazione tra frontend e backend potrebbe richiedere più tempo del previsto se emergono bug o incompatibilità.
+   \item \textbf{Utilizzo di nuovi strumenti:} L'utilizzo di Jenkins, Taiga e SonarQube ha sicuramente benefici a lungo andare, ma nel breve termine è necessario spendere tempo per configurarli e comprendere il loro funzionamento.
+   \item \textbf{Gestione del tempo:} Riuscire a rispettare le consegne ogni 2 settimane mantenendo alta la qualità del codice e delle prestazioni è una sfida. Se delle task di uno sprint non vengono completate, questo potrebbe avere effetti a cascata sugli sprint successivi.
+   \item \textbf{Esperienza utente:} Durante lo sviluppo dell'interfaccia in Vue, garantire interazioni fluide e la gestione dinamica del gioco in tempo reale (es. azioni a turni, aggiornamenti dello stato del gioco) sarà un fattore cruciale per il successo del progetto.
 \end{enumerate}
 
 \section{Conclusione:}
-    Il progetto è fattibile entro i 3 Sprint previsti grazie alla suddivisione del lavoro e al numero di persone nel team. Tuttavia, sarà fondamentale coordinare bene il lavoro tra frontend, backend e database per rispettare le scadenze. 
-   L'uso di GitLab, Taiga, Docker, Jenkins e SonarQube aggiunge complessità, ma garantisce una solida base per il deployment, l'integrazione continua e la verifica della qualità del codice.
-
+    Per riuscire a concludere con successo questo progetto sarà fondamentale la coordinazione tra i membri del team, cercando di evitare il più possibile conflitti interni.
+    
+    Ogni membro del gruppo dovrà impegnarsi per completare le sue attività, ma allo stesso tempo essere disponibile ad aiutare i colleghi in caso di necessità.
+    
+    L'uso di molti software nuovi è una sfida importante: sarà cruciale affrontarla nel modo corretto e dedicare del tempo iniziale alla formazione e alla configurazione degli strumenti per evitare rallentamenti nelle fasi successive del progetto.
+    
+    Con una gestione attenta dei rischi identificati e un team coeso, il progetto ha buone probabilità di essere completato con successo nei tempi previsti.
 \end{document}
