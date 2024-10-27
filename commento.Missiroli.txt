@@ -1,0 +1,11 @@
+
+
+
+README: Non modificato
+SCRUMBLE : Manca
+DIAGRAMMI: Nessuno
+USER STORIES: Abbastanza buone, stimate e paiono sensate. Forse potreste dettagliare meglio i vari "come utente" che sono sempre bruttini. Inoltre avete gestito in modo interessante lo sprint0 in modo da organizzare il lavoro di preparazione. Ci sta, ma ricordare che quelle sono tutte questioni tecniche, e quindi non sono USER stories, in pratica. In Taiga sono realizzati con i task slegati dalla storia.
+
+Manca peraltro la preparazione dello sprint 1 (DOD, DOR, Sprint Backlog)
+
+Mi aspetto aggionamenti in tempi brevi
