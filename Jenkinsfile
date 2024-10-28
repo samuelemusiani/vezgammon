@@ -12,5 +12,15 @@ pipeline {
       }
     }
   }
+  stage('SonarQube Analysis') {
+    steps {
+      script {
+        scannerHome = tool 'SonarScanner';
+      }
+      withSonarQubeEnv('vezgammon') {
+        sh "${scannerHome}/bin/sonar-scanner"
+      }
+    }
+  }
 }
 
