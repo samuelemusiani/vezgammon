@@ -1,8 +1,5 @@
-<script setup lang="ts">
-</script>
+<script setup lang="ts"></script>
 
 <template>
-  <main>
-    Hello from vezgammon
-  </main>
+  <main>Hello from vezgammon</main>
 </template>
