@@ -15,7 +15,7 @@ pipeline {
     }
     stage('Check formatting') {
       steps {
-        sh 'cd front && npx prettier --check ./src'
+        sh 'cd client && npx prettier --check ./src'
         sh 'test -z $(gofmt -l .)'
       }
     }
