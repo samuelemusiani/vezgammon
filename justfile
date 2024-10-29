@@ -1,23 +1,18 @@
-
-default: build
-
-
 build: build-client copy-client build-server
-
-start: build
-    cd server && ./server
+  cp ./server/config.toml ./build
 
 build-server:
-    cd server && go build
-
-start-server: build-server
-    cd server && ./server
+    mkdir build
+    go build -o ./build/vezgammon ./server
 
 build-client:
-    cd client && npm run build
-
-start-client:
-    cd client && npm run dev
+    cd client && npm install && npm run build
 
 copy-client:
     cp -r client/dist server/dist
+
+start-server:
+    go run ./server
+
+start-client:
+    cd client && npm run dev
