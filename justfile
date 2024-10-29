@@ -12,7 +12,7 @@ copy-client:
     cp -r client/dist server/dist
 
 start-server:
-    go run ./server
+    go run ./server ./server/config.toml
 
 start-client:
     cd client && npm run dev
