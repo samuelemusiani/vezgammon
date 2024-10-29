@@ -14,8 +14,10 @@ pipeline {
       }
     }
     stage('Check formatting') {
-      sh 'test -z $(gofmt -l .)'
-      sh 'cd front && npx prettier --check ./src'
+      steps {
+        sh 'cd front && npx prettier --check ./src'
+        sh 'test -z $(gofmt -l .)'
+      }
     }
     stage('Build') {
       steps {
