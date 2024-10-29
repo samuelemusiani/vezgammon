@@ -4,30 +4,18 @@ import (
 	"embed"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
 )
 
-//go:embed dist
+// go:embed dist
 var frontend embed.FS
 
 func main() {
-	path := "./config.toml"
 
-	if len(os.Args) > 1 {
-		path = os.Args[1]
-	}
-
-	err := parseConf(path)
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	conf := getConf()
-	router := gin.Default()
+	initServer()
 
 	// middleware for static files (frontend)
 	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
