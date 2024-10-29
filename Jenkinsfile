@@ -3,12 +3,19 @@ pipeline {
 
   tools {
     go '1.23.2'
+    nodejs '23.1.0'
   }
 
   stages {
-    stage('Test go') {
+    stage('Install just') {
       steps {
-        sh 'go test -v ./...'
+        sh 'wget https://github.com/casey/just/releases/download/1.36.0/just-1.36.0-x86_64-unknown-linux-musl.tar.gz -O just.tar.gz'
+        sh 'tar -zxvf just.tar.gz just'
+      }
+    }
+    stage('Build and test') {
+      steps {
+        sh './just'
       }
     }
     stage('SonarQube Analysis') {
