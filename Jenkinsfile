@@ -13,9 +13,20 @@ pipeline {
         sh 'tar -zxvf just.tar.gz just'
       }
     }
-    stage('Build and test') {
+    stage('Check formatting') {
+      steps {
+        sh 'cd client && npx prettier --check ./src'
+        sh 'test -z $(gofmt -l .)'
+      }
+    }
+    stage('Build') {
       steps {
         sh './just'
+      }
+    }
+    stage('Test go') {
+      steps {
+        sh 'go test -v ./...'
       }
     }
     stage('SonarQube Analysis') {
