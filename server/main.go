@@ -3,16 +3,11 @@ package main
 import (
 	"embed"
 	"log"
-	"net/http"
 	"os"
 
+	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
-	//"errors"
 )
-
-func checkServer(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, "Server running")
-}
 
 //go:embed dist
 var frontend embed.FS
@@ -31,10 +26,11 @@ func main() {
 
 	conf := getConf()
 	router := gin.Default()
-	router.GET("/api/ready", checkServer)
 
-	// http server for static files (frontend)
-	router.StaticFS("/", http.FS(frontend))
+	// middleware for static files (frontend)
+	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
+
+	router.GET("/api/ready", checkServer)
 
 	router.Run(conf.Server.Bind)
 }
