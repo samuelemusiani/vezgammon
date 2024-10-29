@@ -14,7 +14,7 @@ pipeline {
     }
     stage('Build and test') {
       steps {
-        sh 'just'
+        sh './just'
       }
     }
     stage('SonarQube Analysis') {
