@@ -1,8 +1,9 @@
 build: clean build-client copy-client build-server
-  cp ./server/config.toml ./build
+  cp -u ./server/config.toml ./build
 
 clean:
-  rm -rf ./build/
+  rm -rf ./build/vezgammon
+  rm -rf ./server/dist
 
 build-server:
     mkdir -p build
