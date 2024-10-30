@@ -5,6 +5,7 @@ import router from '@/router'
 const email = ref('')
 const passwd1 = ref('')
 const passwd2 = ref('')
+const username = ref('')
 const firstname = ref('')
 const lastname = ref('')
 
@@ -21,19 +22,20 @@ async function register() {
       body: JSON.stringify({
         email: email.value,
         password: passwd1.value,
+        username: username.value,
         firstname: firstname.value,
         lastname: lastname.value,
       }),
     })
 
     if (!response.ok) {
-      throw new Error('During login: ' + (await response.text()))
+      throw new Error('During registration: ' + (await response.text()))
     }
 
-    router.push({ name: 'home' })
+    router.push({ name: 'login' })
   } catch (e) {
     console.error(e)
-    err.value = 'Error during login'
+    err.value = 'Error during registration'
   }
 }
 
@@ -59,8 +61,8 @@ function validate() {
   } else if (passwd1.value != passwd2.value) {
     e = 'Passwords do not match'
     ok = false
-  } else if (firstname.value.length < 3) {
-    e = 'Name too short'
+  } else if (username.value.length < 3) {
+    e = 'Username too short'
     ok = false
   }
   err.value = e
@@ -125,6 +127,23 @@ function validate() {
             </div>
 
             <div class="form-control mt-5">
+              <label for="input-mail" class="label">
+                <span class="label-text"> Username </span>
+              </label>
+              <div
+                class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
+              >
+                <input
+                  id="input-username"
+                  type="text"
+                  class="X-required grow invalid:text-error"
+                  v-model="username"
+                  placeholder="Master725"
+                />
+              </div>
+            </div>
+
+            <div class="form-control mt-5">
               <label for="input-name" class="label">
                 <span class="label-text"> First Name </span>
               </label>
@@ -134,7 +153,7 @@ function validate() {
                 <input
                   id="input-name"
                   type="text"
-                  class="X-required grow invalid:text-error"
+                  class="grow invalid:text-error"
                   placeholder="Alex"
                   v-model="firstname"
                 />
