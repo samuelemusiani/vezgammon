@@ -1,8 +1,8 @@
 <script setup lang="ts"></script>
 
 <template>
-  <div class="bg-base-200 min-h-screen flex justify-center items-center">
-    <div class="bg-base-100 card w-96 shadow-xl">
+  <div class="flex min-h-screen items-center justify-center bg-base-200">
+    <div class="card w-96 bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">Login</h2>
         <form>
@@ -33,7 +33,7 @@
               />
             </div>
             <div class="label">
-              <a href="#" class="label-text-alt link link-hover"
+              <a href="#" class="link-hover link label-text-alt"
                 >Forgot password?</a
               >
             </div>

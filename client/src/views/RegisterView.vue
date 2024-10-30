@@ -70,8 +70,8 @@ function validate() {
 </script>
 
 <template>
-  <div class="bg-base-200 min-h-screen flex justify-center items-center">
-    <div class="bg-base-100 card w-96 shadow-xl">
+  <div class="flex min-h-screen items-center justify-center bg-base-200">
+    <div class="card w-96 bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">Register</h2>
         <form @click.prevent="">
@@ -85,7 +85,7 @@ function validate() {
               <input
                 id="input-mail"
                 type="email"
-                class="grow invalid:text-error X-required"
+                class="X-required grow invalid:text-error"
                 v-model="email"
                 placeholder="email@example.com"
               />
@@ -102,7 +102,7 @@ function validate() {
               <input
                 id="input-password1"
                 type="password"
-                class="grow invalid:text-error X-required"
+                class="X-required grow invalid:text-error"
                 minlength="8"
                 v-model="passwd1"
                 placeholder="Choose a password"
@@ -117,7 +117,7 @@ function validate() {
               <input
                 id="input-password2"
                 type="password"
-                class="grow invalid:text-error X-required"
+                class="X-required grow invalid:text-error"
                 minlength="8"
                 v-model="passwd2"
                 placeholder="Confirm password"
@@ -134,7 +134,7 @@ function validate() {
                 <input
                   id="input-name"
                   type="text"
-                  class="grow invalid:text-error X-required"
+                  class="X-required grow invalid:text-error"
                   placeholder="Alex"
                   v-model="firstname"
                 />
@@ -155,7 +155,7 @@ function validate() {
             </div>
           </div>
 
-          <div class="text-error mt-2">
+          <div class="mt-2 text-error">
             {{ err }}
           </div>
 
