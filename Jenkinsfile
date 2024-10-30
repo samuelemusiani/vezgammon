@@ -30,6 +30,9 @@ pipeline {
       }
     }
     stage('SonarQube Analysis') {
+      when {
+        branch 'main'
+      }
       steps {
         script {
           scannerHome = tool 'SonarScanner';
