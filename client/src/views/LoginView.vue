@@ -21,11 +21,12 @@
           </div>
 
           <div class="form-control">
-            <div class="label">
+            <label for="input-password" class="label">
               <span class="label-text"> Password </span>
-            </div>
+            </label>
             <div class="input input-bordered flex items-center gap-2">
               <input
+                id="input-password"
                 type="password"
                 class="grow"
                 placeholder="Enter password"
