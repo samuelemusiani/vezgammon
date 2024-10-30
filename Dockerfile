@@ -23,9 +23,7 @@ COPY go.sum go.sum
 
 RUN just build-server
 
-RUN ls -l
-
-FROM alpine
+FROM scratch
 
 WORKDIR /app
 
