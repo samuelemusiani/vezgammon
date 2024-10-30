@@ -23,7 +23,7 @@ export function newGame(): Game {
   return {
     starter: null,
     moves: [],
-    winner: null
+    winner: null,
   } as Game
 }
 
@@ -33,6 +33,6 @@ export function rollDice(): DiceRoll {
 
   return {
     first: f,
-    second: s
+    second: s,
   } as DiceRoll
 }
