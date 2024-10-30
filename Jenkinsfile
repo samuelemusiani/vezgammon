@@ -30,6 +30,11 @@ pipeline {
         sh 'go test -v ./...'
       }
     }
+    stage('Test Vue') {
+      steps {
+        sh 'cd client && npm run test'
+      }
+    }
     stage('SonarQube Analysis') {
       when {
         branch 'main'
