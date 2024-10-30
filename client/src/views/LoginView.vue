@@ -7,34 +7,35 @@
         <h2 class="card-title">Login</h2>
         <form>
           <div class="form-control">
-            <label class="label">
+            <label for="input-mail" class="label">
               <span class="label-text"> Email </span>
             </label>
-            <label class="input input-bordered flex items-center gap-2">
+            <div class="input input-bordered flex items-center gap-2">
               <input
+                id="input-mail"
                 type="email"
                 class="grow"
                 placeholder="email@example.com"
               />
-            </label>
+            </div>
           </div>
 
           <div class="form-control">
-            <label class="label">
+            <div class="label">
               <span class="label-text"> Password </span>
-            </label>
-            <label class="input input-bordered flex items-center gap-2">
+            </div>
+            <div class="input input-bordered flex items-center gap-2">
               <input
                 type="password"
                 class="grow"
                 placeholder="Enter password"
               />
-            </label>
-            <label class="label">
+            </div>
+            <div class="label">
               <a href="#" class="label-text-alt link link-hover"
                 >Forgot password?</a
               >
-            </label>
+            </div>
           </div>
           <div class="form-control mt-6">
             <button class="btn btn-primary">Login</button>
