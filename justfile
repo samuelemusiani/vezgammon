@@ -1,5 +1,4 @@
 build: clean build-client copy-client build-server
-  cp -u ./server/config.toml ./build
 
 clean:
   rm -rf ./build/vezgammon
@@ -8,6 +7,7 @@ clean:
 build-server:
     mkdir -p build
     go build -o ./build/vezgammon ./server
+    cp -u ./server/config/config.toml ./build
 
 build-client:
     cd client && npm install && npm run build

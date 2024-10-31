@@ -23,11 +23,11 @@ COPY go.sum go.sum
 
 RUN just build-server
 
-FROM scratch
+FROM alpine
 
 WORKDIR /app
 
 COPY --from=build-server /app/build .
-COPY server/config.toml .
+COPY server/config/config.toml .
 
 CMD [ "./vezgammon",  "config.toml" ]
