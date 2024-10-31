@@ -15,6 +15,7 @@ pipeline {
     }
     stage('Check formatting') {
       steps {
+        sh 'cd client && npm install'
         sh 'cd client && npx prettier --check ./src'
         sh 'test -z $(gofmt -l .)'
       }
