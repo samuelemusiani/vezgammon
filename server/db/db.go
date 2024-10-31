@@ -18,16 +18,13 @@ func Init(conf *config.Config) error {
 	var err error
 
 	if conf.Docker {
-		user = "postgress"
+		user = "postgres"
 		buff, err := os.ReadFile("/run/secrets/db-password")
 		if err != nil {
 			return err
 		}
 		password = string(buff)
-
-		address = "db:54321"
-
-		//url = postgres://postgres:%s@db:5432/example?sslmode=disable", string(bin)
+		address = "db:5432"
 	} else {
 		user = conf.Database.User
 		password = conf.Database.Password
