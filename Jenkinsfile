@@ -51,7 +51,7 @@ pipeline {
         sh 'ssh debian@site.vezgammon.it "rm -rf repo"'
         sh 'scp -r . debian@site.vezgammon.it:repo'
         sh 'ssh debian@site.vezgammon.it "cd repo && docker compose down -v"'
-        sh 'ssh debian@site.vezgammon.it "dd if=/dev/random bs=1 count=32 | base32 | sed \'s/=//g\' > repo/db/password.txt"'
+        sh 'ssh debian@site.vezgammon.it "mkdir -p repo/db && dd if=/dev/random bs=1 count=32 | base32 | sed \'s/=//g\' > repo/db/password.txt"'
         sh 'ssh debian@site.vezgammon.it "cd repo && docker compose up -d"'
       }
     }
