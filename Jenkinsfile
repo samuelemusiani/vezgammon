@@ -49,7 +49,10 @@ pipeline {
       //}
       steps {
         sh 'ssh debian@130.136.3.191 "rm -rf repo"'
-        sh 'scp -r . debian@130.136.3.191:repo '
+        sh 'scp -r . debian@130.136.3.191:repo'
+        sh 'scp -r . debian@130.136.3.191 "cd repo && docker compose down -v"'
+        sh 'scp -r . debian@130.136.3.191 "dd if=/dev/random bs=1 count=32 | base32 | sed \'s/=//g\' > repo/db/password.txt"'
+        sh 'scp -r . debian@130.136.3.191 "cd repo && docker compose up -d"'
       }
     }
   }
