@@ -43,6 +43,15 @@ pipeline {
         }
       }
     }
+    stage('Deploy') {
+      when {
+        branch 'main'
+      }
+      steps {
+        sh 'ssh debian@130.136.3.191 "rm -rf repo"'
+        sh 'scp -r . debian@130.136.3.191:repo '
+      }
+    }
   }
 }
 
