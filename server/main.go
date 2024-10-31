@@ -3,9 +3,13 @@ package main
 import (
 	"embed"
 	"log"
+	"log/slog"
 	"net/http"
 	"os"
 	"strings"
+	"vezgammon/server/config"
+	"vezgammon/server/db"
+	"vezgammon/server/handler"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -15,24 +19,33 @@ import (
 var frontend embed.FS
 
 func main() {
+	slog.SetLogLoggerLevel(slog.LevelDebug)
 	path := "./config.toml"
 
 	if len(os.Args) > 1 {
 		path = os.Args[1]
 	}
 
-	err := parseConf(path)
+	err := config.Parse(path)
 	if err != nil {
 		log.Fatal(err)
 	}
 
-	conf := getConf()
+	conf := config.Get()
+
+	err = db.Init(conf)
+	if err != nil {
+		log.Fatal(err)
+	}
+
 	router := gin.Default()
 
 	// middleware for static files (frontend)
 	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
 
 	router.GET("/api/ready", checkServer)
+	router.POST("/api/register", handler.Register)
+	router.GET("/api/users", handler.GetAllUsers)
 
 	// Read index.html into memory
 	index, err := frontend.ReadFile("dist/index.html")
@@ -50,5 +63,6 @@ func main() {
 		c.Data(http.StatusOK, "text/html", index)
 	})
 
+	log.Println("listening on ", conf.Server.Bind)
 	router.Run(conf.Server.Bind)
 }
