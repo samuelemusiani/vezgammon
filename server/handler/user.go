@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log/slog"
 	"net/http"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
@@ -15,6 +16,7 @@ import (
 func Register(c *gin.Context) {
 	buff, err := io.ReadAll(c.Request.Body)
 	if err != nil {
+		slog.With("err", err).Error("Reading body")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -30,6 +32,7 @@ func Register(c *gin.Context) {
 	var tempu customUser
 	err = json.Unmarshal(buff, &tempu)
 	if err != nil {
+		slog.With("err", err).Debug("Bad request unmarshal request body")
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
@@ -39,6 +42,7 @@ func Register(c *gin.Context) {
 		if errors.Is(err, bcrypt.ErrPasswordTooLong) {
 			c.JSON(http.StatusBadRequest, err)
 		} else {
+			slog.With("err", err).Error("Hashing password")
 			c.JSON(http.StatusInternalServerError, err)
 		}
 		return
@@ -53,9 +57,21 @@ func Register(c *gin.Context) {
 
 	retu, err := db.CreateUser(u, string(hash))
 	if err != nil {
+		slog.With("err", err).Error("Creating user in db")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	c.JSON(http.StatusCreated, retu)
+}
+
+func GetAllUsers(c *gin.Context) {
+	users, err := db.GetUsers()
+	if err != nil {
+		slog.With("err", err).Error("Getting users")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, users)
 }

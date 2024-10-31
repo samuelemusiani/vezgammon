@@ -4,31 +4,51 @@ import "vezgammon/server/types"
 
 func initUser() error {
 	q := `
-	CREATE TABLE IF NOT EXISTS users (
+	CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY, 
 		username BPCHAR NOT NULL, 
 		password BPCHAR NOT NULL,
 		firstname BPCHAR NOT NULL,
 		lastname BPCHAR,
-		mail BPCHAR UNIQUE,
+		mail BPCHAR UNIQUE
 	)`
 	_, err := conn.Exec(q)
 	return err
 }
 
-func CreateUser(u types.User, password string) (*types.User, error) {
-	q := `
-	INSERT INTO users (username, password, firstname, lastname, mail) values (?, ?, ?, ?, ?)
-	`
-	res, err := conn.Exec(q, u.Username, password, u.Firstname, u.Lastname, u.Mail)
+func GetUsers() ([]types.User, error) {
+	q := "SELECT * FROM users"
+	rows, err := conn.Query(q)
 	if err != nil {
 		return nil, err
 	}
 
-	id, err := res.LastInsertId()
+	var users []types.User
+
+	for rows.Next() {
+		var tmp types.User
+		var pass string
+		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, tmp)
+	}
+
+	return users, nil
+}
+
+func CreateUser(u types.User, password string) (*types.User, error) {
+	q := `INSERT INTO users(username, password, firstname, lastname, mail) VALUES($1, $2, $3, $4, $5) RETURNING id`
+	res := conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail)
+
+	var id int64
+	err := res.Scan(&id)
 	if err != nil {
 		return nil, err
 	}
+
 	u.ID = id
 	return &u, nil
 }
