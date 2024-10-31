@@ -1,0 +1,84 @@
+\documentclass{article}
+\usepackage{graphicx} % Required for inserting images
+
+\title{Vezgammon - Definition of Done}
+\author{Product Owner: Diego Barbieri}
+\date{October 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Code Base Requirements}
+
+\subsection{Code Quality}
+\begin{itemize}
+    \item All code must follow camelCase naming conventions.
+    \item Each module must have and pass its unit tests (and mocks if developed using TDD).
+    \item No critical or major code smells or errors detected by static analysis tools (e.g., SonarQube).
+    \item All APIs must provide a preview with Swagger and include specific API tests.
+    \item For the main front-end pages, basic functionality must be tested through front-end testing.
+\end{itemize}
+
+\subsection{Documentation}
+\begin{itemize}
+    \item Documentation for each module: a markdown preview of the interface aligned with the UML class diagram.
+    \item Main README updated with the latest features.
+\end{itemize}
+
+\subsection{Merge Request}
+\begin{itemize}
+    \item Every merge request (MR) must be approved by the Scrum Master (SM) or Product Owner (PO).
+    \item The MR must pass all tests in the Jenkins testing pipeline.
+\end{itemize}
+
+\subsection{User Interface}
+\begin{itemize}
+    \item Meets WCAG 2.1 AA standards: compatible with all modern browsers.
+    \item Responsive on laptops, tablets, and smartphones (portrait view only).
+\end{itemize}
+
+\subsection{Performance}
+\begin{itemize}
+    \item The app maintains acceptable performance (less than 2 seconds load time for the main game interface).
+\end{itemize}
+
+\section{Functional Requirements}
+
+\subsection{User Interface}
+\begin{itemize}
+    \item Game board displays correctly on all standard screen sizes (desktop, tablet, mobile).
+    \item Pieces, dice, and other game elements are visually clear and respond to user interactions.
+    \item Dark mode and light mode supported if specified.
+    \item Responsive animations and transitions meet UX standards.
+\end{itemize}
+
+\subsection{Game Logic}
+\begin{itemize}
+    \item Users can start a new game and select opponent type (AI or another player).
+    \item Players can roll the dice and move pieces according to Backgammon rules.
+    \item Game correctly enforces Backgammon rules, including:
+    \begin{itemize}
+        \item \textbf{Setup:} Initial setup and movement.
+        \item \textbf{Actions:} Capturing and releasing pieces.
+        \item \textbf{Win:} Winning conditions (e.g., bearing off all pieces).
+    \end{itemize}
+    \item Game history or logs are available for review, showing moves made by each player.
+\end{itemize}
+\section{Deployment Requirements}
+\subsection{Environment Compatibility}
+\begin{itemize}
+    \item Application successfully runs in the development and production environments.
+    \item Application must need a configuration file, easy to configure that matches the deployment architecture.
+\end{itemize}
+\subsection{Build and Release}
+\begin{itemize}
+    \item The application is buildable without errors or warnings.
+    \item The app is configured for continuous integration and deployment, with automated testing on all merges.
+\end{itemize}
+\subsection{Monitoring and Logging}
+\begin{itemize}
+    \item Real-time error monitoring and logging are set up (e.g., with Sentry).
+    \item Logs capture critical events such as game starts, disconnections, and user errors.
+\end{itemize}
+\end{document}
