@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log/slog"
 	"os"
+	"strings"
 	"time"
 	"vezgammon/server/config"
 
@@ -30,6 +31,8 @@ func Init(conf *config.Config) error {
 		password = conf.Database.Password
 		address = conf.Database.Address
 	}
+
+	password = strings.TrimSpace(password)
 
 	url := fmt.Sprintf("postgres://%s:%s@%s/vezgammon?sslmode=disable", user, password, address)
 	slog.With("url", url).Debug("connecting to db")
