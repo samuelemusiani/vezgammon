@@ -1,6 +1,15 @@
 package db
 
-import "vezgammon/server/types"
+import (
+	"crypto/rand"
+	"database/sql"
+	"encoding/hex"
+	"fmt"
+	"golang.org/x/crypto/bcrypt"
+	"log/slog"
+	"time"
+	"vezgammon/server/types"
+)
 
 func initUser() error {
 	q := `
@@ -12,6 +21,19 @@ func initUser() error {
 		lastname BPCHAR,
 		mail BPCHAR UNIQUE
 	)`
+	_, err := conn.Exec(q)
+	return err
+}
+
+func initCookie() error {
+	q := `
+    CREATE TABLE sessions (
+    id SERIAL PRIMARY KEY,
+    userid INTEGER REFERENCES users(id),
+    token TEXT UNIQUE NOT NULL,
+    expires_at TIMESTAMP NOT NULL
+  )
+	`
 	_, err := conn.Exec(q)
 	return err
 }
@@ -40,22 +62,67 @@ func GetUsers() ([]types.User, error) {
 }
 
 func LoginUser(username string, password string) (*types.User, error) {
-	q := `SELECT id, username, password 
-        FROM users 
-        WHERE username = $1 AND password = $2`
-	row, err := conn.Query(q)
-	if err != nil {
-		return nil, err
-	}
+	q := `SELECT id, username, firstname, lastname, mail, password 
+          FROM users 
+          WHERE username = $1`
 
 	var tmp types.User
 	var pass string
-	err = row.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail)
+	err := conn.QueryRow(q, username).Scan(
+		&tmp.ID,
+		&tmp.Username,
+		&tmp.Firstname,
+		&tmp.Lastname,
+		&tmp.Mail,
+		&pass,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("utente non trovato")
+		}
+		return nil, err
+	}
+
+	slog.With(tmp).Debug("password e hash", pass, password)
+	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(password))
 	if err != nil {
 		return nil, err
 	}
 
 	return &tmp, nil
+}
+
+func GenerateSessionToken() string {
+	b := make([]byte, 32)
+	rand.Read(b)
+	return hex.EncodeToString(b)
+}
+
+func SaveSessionToken(userID int64, token string) error {
+	// Implementa la logica per salvare il token
+
+	q := `INSERT INTO sessions (user_id, token, expires_at) 
+          VALUES ($1, $2, $3)`
+
+	expiresAt := time.Now().Add(1 * time.Hour)
+	_, err := conn.Exec(q, userID, token, expiresAt)
+	return err
+}
+
+func ValidateSessionToken(token string) (int64, error) {
+	// Implementa la logica per validare il token
+
+	q := `SELECT user_id FROM sessions 
+          WHERE token = $1 AND expires_at > NOW()`
+
+	var userID int64
+	err := conn.QueryRow(q, token).Scan(&userID)
+	if err != nil {
+		return 0, err
+	}
+
+	return userID, nil
 }
 
 func CreateUser(u types.User, password string) (*types.User, error) {

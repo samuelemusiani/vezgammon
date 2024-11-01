@@ -61,6 +61,8 @@ func Init(conf *config.Config) error {
 
 	// database initialization
 	err = initUser()
+	// cookie initializazion
+	err = initCookie()
 
 	return err
 }
