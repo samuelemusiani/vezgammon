@@ -9,6 +9,12 @@ build-server:
     go build -o ./build/vezgammon ./server
     cp -u ./server/config/config.toml ./build
 
+test-server:
+    sudo docker run --name postgres-test -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=vezgammon -p 5432:5432 -d postgres
+    go test -v ./server
+    sudo docker container kill postgres-test
+    sudo docker container rm   postgres-test
+
 build-client:
     cd client && npm install && npm run build
 

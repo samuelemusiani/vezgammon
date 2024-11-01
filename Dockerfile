@@ -11,6 +11,8 @@ RUN just build-client
 
 FROM golang:1.23.2-alpine as build-server
 
+RUN export GIN_MODE=release
+
 WORKDIR /app
 
 RUN apk add just
