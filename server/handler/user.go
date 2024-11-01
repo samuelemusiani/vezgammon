@@ -65,6 +65,45 @@ func Register(c *gin.Context) {
 	c.JSON(http.StatusCreated, retu)
 }
 
+func Login(c *gin.Context) {
+	//buff contiene username e password
+	buff, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		slog.With("err", err).Error("Reading body")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	//check username/email
+	type loginUserType struct {
+		Password string `json:"password"`
+		Username string `json:"username"`
+	}
+
+	var loginUser loginUserType
+	err = json.Unmarshal(buff, &loginUser)
+	if err != nil {
+		slog.With("err", err).Debug("Bad request unmarshal request body")
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	//hash password
+	hash, err := bcrypt.GenerateFromPassword([]byte(loginUser.Password), bcrypt.DefaultCost)
+
+	//send the hashed password and check
+	var user *types.User
+	user, err = db.LoginUser(loginUser.Username, string(hash))
+	if err != nil {
+		slog.With("err", err).Error("Wrong Password or Username not existing")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	//login or reject
+	c.JSON(http.StatusOK, user)
+}
+
 func GetAllUsers(c *gin.Context) {
 	users, err := db.GetUsers()
 	if err != nil {

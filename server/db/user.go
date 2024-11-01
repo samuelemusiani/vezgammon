@@ -39,6 +39,25 @@ func GetUsers() ([]types.User, error) {
 	return users, nil
 }
 
+func LoginUser(username string, password string) (*types.User, error) {
+	q := `SELECT id, username, password 
+        FROM users 
+        WHERE username = $1 AND password = $2`
+	row, err := conn.Query(q)
+	if err != nil {
+		return nil, err
+	}
+
+	var tmp types.User
+	var pass string
+	err = row.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail)
+	if err != nil {
+		return nil, err
+	}
+
+	return &tmp, nil
+}
+
 func CreateUser(u types.User, password string) (*types.User, error) {
 	q := `INSERT INTO users(username, password, firstname, lastname, mail) VALUES($1, $2, $3, $4, $5) RETURNING id`
 	res := conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail)

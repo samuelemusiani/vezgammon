@@ -46,6 +46,7 @@ func main() {
 	router.GET("/api/ready", checkServer)
 	router.POST("/api/register", handler.Register)
 	router.GET("/api/users", handler.GetAllUsers)
+	router.POST("/api/login", handler.Login)
 
 	// Read index.html into memory
 	index, err := frontend.ReadFile("dist/index.html")
