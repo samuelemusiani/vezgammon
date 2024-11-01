@@ -25,9 +25,10 @@ pipeline {
         sh './just'
       }
     }
-    stage('Test go') {
+    stage('Test') {
       steps {
-        sh 'go test -v ./...'
+        sh 'sed -i "s/sudo//g" justfile'
+        sh './just test'
       }
     }
     stage('SonarQube Analysis') {
