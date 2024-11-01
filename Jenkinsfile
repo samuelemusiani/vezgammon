@@ -6,6 +6,11 @@ pipeline {
     nodejs '23.1.0'
   }
 
+  environment {
+    DOCKER_HOST="unix:///run/user/1001/docker.sock"
+    PATH="/usr/bin:$PATH"
+  }
+
   stages {
     stage('Install just') {
       steps {
@@ -25,9 +30,10 @@ pipeline {
         sh './just'
       }
     }
-    stage('Test go') {
+    stage('Test') {
       steps {
-        sh 'go test -v ./...'
+        sh 'sed -i "s/sudo //g" justfile'
+        sh './just test'
       }
     }
     stage('SonarQube Analysis') {
