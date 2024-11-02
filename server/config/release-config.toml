@@ -1,0 +1,4 @@
+docker = true
+
+[server]
+bind = ":8080"

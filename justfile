@@ -16,7 +16,7 @@ copy-client:
     cp -r client/dist server/dist
 
 start-server:
-    go run ./server ./server/config.toml
+    go run ./server ./server/config/test-config.toml
 
 start-client:
     cd client && npm run dev
@@ -24,8 +24,7 @@ start-client:
 test: test-server
 
 test-server:
-    sudo docker run --name postgres-test -e POSTGRES_USER=test -e POSTGRES_PASSWORD=test -e POSTGRES_DB=vezgammon -p 5432:5432 -d postgres
+    sudo docker-compose -f docker-compose-test.yml up -d
     go test -v ./server/... || true
-    sudo docker container kill postgres-test
-    sudo docker container rm   postgres-test
+    sudo docker-compose -f docker-compose-test.yml down
 
