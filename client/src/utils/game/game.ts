@@ -10,12 +10,18 @@ export const BOARD: BoardDimensions = {
   checkerRadius: 20,
 }
 
-export const createWhiteChecker = (position: number, stackIndex: number): Checker => ({
+export const createWhiteChecker = (
+  position: number,
+  stackIndex: number,
+): Checker => ({
   color: 'white',
   position,
   stackIndex,
 })
-export const createBlackChecker = (position: number, stackIndex: number): Checker => ({
+export const createBlackChecker = (
+  position: number,
+  stackIndex: number,
+): Checker => ({
   color: 'black',
   position,
   stackIndex,

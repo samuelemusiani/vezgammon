@@ -1,13 +1,19 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import type { BoardDimensions, Checker } from '@/utils/game/types'
-import { createDefaultBoard, BOARD, getTrianglePath, getTriangleColor, getCheckerX, getCheckerY } from '@/utils/game/game'
+import {
+  createDefaultBoard,
+  BOARD,
+  getTrianglePath,
+  getTriangleColor,
+  getCheckerX,
+  getCheckerY,
+} from '@/utils/game/game'
 
 // Initialize checkers
 const checkers = ref(createDefaultBoard())
-
 </script>
- 
+
 <template>
   <div
     class="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
