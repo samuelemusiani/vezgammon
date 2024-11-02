@@ -9,7 +9,9 @@ import {
   getCheckerX,
   BOARD,
   getCheckerY,
+  updateGameState,
 } from './game'
+import type { GameState } from './types'
 
 test('create white checker', () => {
   const position = 30
@@ -121,4 +123,57 @@ test('get checker Y position', () => {
       BOARD.checkerRadius -
       BOARD.checkerRadius * 1.8,
   )
+})
+test('updateGameState test double dice', () => {
+  const gameState: GameState = {
+    currentPlayer: 'white',
+    dice: {
+      value: [6, 6],
+      used: [false, false, false, false],
+      double: true,
+    },
+    board: createDefaultBoard(),
+  }
+
+  updateGameState(gameState, 12, 0, 4)
+  expect(gameState.dice.used).toEqual([true, true, false, false])
+
+  updateGameState(gameState, 24, 12, 2)
+  expect(gameState.dice.used).toEqual([true, true, true, true])
+  expect(gameState.currentPlayer).toBe('black')
+})
+
+test('updateGameState single dice move', () => {
+  const gameState: GameState = {
+    currentPlayer: 'white',
+    dice: {
+      value: [4, 3],
+      used: [false, false],
+      double: false,
+    },
+    board: createDefaultBoard(),
+  }
+
+  updateGameState(gameState, 4, 0, 2)
+  expect(gameState.dice.used).toEqual([true, false])
+
+  updateGameState(gameState, 7, 4, 1)
+  expect(gameState.dice.used).toEqual([true, true])
+  expect(gameState.currentPlayer).toBe('black')
+})
+
+test('updateGameState combined dice move', () => {
+  const gameState: GameState = {
+    currentPlayer: 'white',
+    dice: {
+      value: [6, 3],
+      used: [false, false],
+      double: false,
+    },
+    board: createDefaultBoard(),
+  }
+
+  updateGameState(gameState, 9, 0, 2)
+  expect(gameState.dice.used).toEqual([true, true])
+  expect(gameState.currentPlayer).toBe('black')
 })

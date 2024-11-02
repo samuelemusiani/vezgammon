@@ -1,4 +1,4 @@
-import type { BoardDimensions, Checker } from './types'
+import type { BoardDimensions, Checker, GameState } from './types'
 
 export const BOARD: BoardDimensions = {
   width: 800,
@@ -8,6 +8,15 @@ export const BOARD: BoardDimensions = {
   centerBarWidth: 20,
   padding: 20,
   checkerRadius: 20,
+}
+
+export const newGame = () => {
+  const gameState: GameState = {
+    currentPlayer: 'white',
+    dice: { value: [0, 0], used: [false, false], double: false },
+    board: createDefaultBoard(),
+  }
+  return gameState
 }
 
 export const createWhiteChecker = (
@@ -27,6 +36,7 @@ export const createBlackChecker = (
   stackIndex,
 })
 
+// Create the default board with checkers in their initial positions
 export const createDefaultBoard = (): Checker[] => {
   let tmp = []
   for (let i = 0; i < 5; i++) {
@@ -94,4 +104,59 @@ export const getCheckerY = (position: number, stackIndex: number) => {
       BOARD.height - BOARD.padding - BOARD.checkerRadius - stackIndex * spacing
     )
   }
+}
+
+// Function to update game state after a move has been made
+export const updateGameState = (
+  gameState: GameState,
+  newCheckerPos: number,
+  oldCheckerPos: number,
+  movesAvailable: number,
+) => {
+  if (!gameState.dice) return
+  const move = Math.abs(newCheckerPos - oldCheckerPos)
+
+  const isDouble = gameState.dice.double
+
+  if (isDouble) {
+    const n = move / gameState.dice.value[0]
+
+    for (let i = 0; i < n; i++) {
+      const unusedIndex = gameState.dice.used.findIndex(used => !used)
+      if (unusedIndex !== -1) {
+        gameState.dice.used[unusedIndex] = true
+        movesAvailable--
+      }
+    }
+  } else {
+    if (
+      move === gameState.dice.value[0] + gameState.dice.value[1] &&
+      !gameState.dice.used[0] &&
+      !gameState.dice.used[1]
+    ) {
+      gameState.dice.used = [true, true]
+      movesAvailable = 0
+    } else if (move === gameState.dice.value[0] && !gameState.dice.used[0]) {
+      gameState.dice.used[0] = true
+      movesAvailable--
+    } else if (move === gameState.dice.value[1] && !gameState.dice.used[1]) {
+      gameState.dice.used[1] = true
+      movesAvailable--
+    }
+  }
+
+  if (
+    movesAvailable === 0 ||
+    (isDouble
+      ? gameState.dice.used.every(used => used)
+      : gameState.dice.used.every(used => used))
+  ) {
+    endTurn(gameState)
+  }
+}
+
+const endTurn = (gameState: GameState) => {
+  gameState.currentPlayer =
+    gameState.currentPlayer === 'white' ? 'black' : 'white'
+  gameState.dice.value = [0, 0]
 }

@@ -13,3 +13,17 @@ export interface Checker {
   position: number
   stackIndex: number
 }
+
+export type Board = Checker[]
+
+export interface GameState {
+  currentPlayer: string
+  dice: DiceRoll
+  board: Board
+}
+
+export interface DiceRoll {
+  value: [number, number]
+  used: [boolean, boolean] | [boolean, boolean, boolean, boolean]
+  double: boolean
+}
