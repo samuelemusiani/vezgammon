@@ -1,14 +1,14 @@
 package db
 
 import (
-	"crypto/rand"
 	"database/sql"
-	"encoding/hex"
 	"fmt"
-	"golang.org/x/crypto/bcrypt"
 	"log/slog"
 	"time"
 	"vezgammon/server/types"
+
+	"github.com/google/uuid"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func initUser() error {
@@ -29,7 +29,7 @@ func initCookie() error {
 	q := `
     CREATE TABLE sessions (
     id SERIAL PRIMARY KEY,
-    userid INTEGER REFERENCES users(id),
+    user_id INTEGER REFERENCES users(id),
     token TEXT UNIQUE NOT NULL,
     expires_at TIMESTAMP NOT NULL
   )
@@ -94,9 +94,7 @@ func LoginUser(username string, password string) (*types.User, error) {
 }
 
 func GenerateSessionToken() string {
-	b := make([]byte, 32)
-	rand.Read(b)
-	return hex.EncodeToString(b)
+	return uuid.NewString()
 }
 
 func SaveSessionToken(userID int64, token string) error {
@@ -137,4 +135,11 @@ func CreateUser(u types.User, password string) (*types.User, error) {
 
 	u.ID = id
 	return &u, nil
+}
+
+func Logout(sessionToken string) error {
+	// Rimuovi il token dal database
+	q := `DELETE FROM sessions WHERE token = $1`
+	_, err := conn.Exec(q, sessionToken)
+	return err
 }

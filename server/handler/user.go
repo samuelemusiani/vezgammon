@@ -7,7 +7,9 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"vezgammon/server/config"
 	"vezgammon/server/db"
+	"vezgammon/server/handler"
 	"vezgammon/server/types"
 
 	"github.com/gin-gonic/gin"
@@ -90,47 +92,49 @@ func Login(c *gin.Context) {
 		return
 	}
 
-	slog.With(user).Debug("Successful Login")
-	c.JSON(http.StatusOK, "Sucessful Login")
-	return
-
 	// Genera un token di sessione
-	/*
-		sessionToken := db.GenerateSessionToken()
+	slog.Debug("Generating Session Token")
+	sessionToken := db.GenerateSessionToken()
+	slog.With("token", sessionToken).Debug("Token")
 
-		// Salva il token in un sistema di sessione
-		err = db.SaveSessionToken(user.ID, sessionToken)
-		if err != nil {
-			slog.With("err", err).Error("Failed to save session")
-			c.JSON(http.StatusInternalServerError, gin.H{"error": "Session creation failed"})
-			return
-		}
+	// Salva il token in un sistema di sessione
+	err = db.SaveSessionToken(user.ID, sessionToken)
+	if err != nil {
+		slog.With("err", err).Error("Failed to save session")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Session creation failed"})
+		return
+	}
 
-		// Imposta il cookie di sessione
-		c.SetCookie(
-			"session_token",
-			sessionToken,
-			3600, // scadenza in secondi (1 ora)
-			"/",
-			"vezgammon.it", // sostituisci con il tuo dominio
-			true,           // solo HTTPS
-			false,          // httpOnly
-		)
+	// Imposta il cookie di sessione
+	c.SetCookie(
+		"session_token",
+		sessionToken,
+		3600, // scadenza in secondi (1 ora)
+		"/",
+		config.Get().Server.Domain,
+		true,  // solo HTTPS
+		false, // httpOnly
+	)
 
-		// Risposta di successo
-		c.JSON(http.StatusOK, gin.H{
-			"message": "Login successful",
-			"user": gin.H{
-				"id":       user.ID,
-				"username": user.Username,
-				"email":    user.Mail,
-			},
-		})
-	*/
+	// Risposta di successo
+	c.JSON(http.StatusOK, gin.H{
+		"message": "Login successful",
+		"user": gin.H{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Mail,
+		},
+	})
 }
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		if c.Request.URL.String() == "/api/login" || c.Request.URL.String() == "/api/register" {
+			c.Next()
+			return
+		}
+
+		slog.Debug("validiamo il token")
 		// Ottieni il token di sessione dal cookie
 		sessionToken, err := c.Cookie("session_token")
 		if err != nil {
@@ -149,8 +153,31 @@ func AuthMiddleware() gin.HandlerFunc {
 
 		// Aggiungi l'ID utente al contesto per uso successivo
 		c.Set("user_id", userID)
+		//c.mustGet da vedere per avere queste variabili
+
+		// Vai avanti con la richiesta
 		c.Next()
 	}
+}
+
+// Logout function
+func Logout(c *gin.Context) {
+	// Cancella il token di sessione
+
+	sessionToken, err := c.Cookie("session_token")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unauthorized"})
+		return
+	}
+
+	err = db.Logout(sessionToken)
+
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Logout failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
 func GetAllUsers(c *gin.Context) {
