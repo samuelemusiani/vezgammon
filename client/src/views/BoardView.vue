@@ -1,105 +1,13 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { BoardDimensions, Checker } from '@/utils/game/types'
+import { createDefaultBoard, BOARD, getTrianglePath, getTriangleColor, getCheckerX, getCheckerY } from '@/utils/game/game'
 
-interface BoardDimensions {
-  width: number
-  height: number
-  triangleWidth: number
-  triangleHeight: number
-  centerBarWidth: number
-  padding: number
-  checkerRadius: number
-}
+// Initialize checkers
+const checkers = ref(createDefaultBoard())
 
-const BOARD: BoardDimensions = {
-  width: 800,
-  height: 600,
-  triangleWidth: 60,
-  triangleHeight: 250,
-  centerBarWidth: 20,
-  padding: 20,
-  checkerRadius: 20,
-} as const
-
-const selectedChecker = ref(null)
-const checkers = ref([
-  ...Array(2)
-    .fill(null)
-    .map((_, i) => ({ color: 'white', position: 0, stackIndex: i })),
-  ...Array(5)
-    .fill(null)
-    .map((_, i) => ({ color: 'gray', position: 5, stackIndex: i })),
-  ...Array(3)
-    .fill(null)
-    .map((_, i) => ({ color: 'gray', position: 7, stackIndex: i })),
-  ...Array(5)
-    .fill(null)
-    .map((_, i) => ({ color: 'white', position: 11, stackIndex: i })),
-  ...Array(2)
-    .fill(null)
-    .map((_, i) => ({ color: 'gray', position: 23, stackIndex: i })),
-  ...Array(5)
-    .fill(null)
-    .map((_, i) => ({ color: 'white', position: 18, stackIndex: i })),
-  ...Array(3)
-    .fill(null)
-    .map((_, i) => ({ color: 'white', position: 16, stackIndex: i })),
-  ...Array(5)
-    .fill(null)
-    .map((_, i) => ({ color: 'gray', position: 12, stackIndex: i })),
-])
-
-// Index follows the counter-clockwise direction: upper from right (0) to left (11),
-// lower from left (0) to right (11)
-const getTrianglePath = (position: number): string => {
-  const isUpper = position < 12
-  const index = isUpper ? 11 - position : position - 12
-  let x = BOARD.padding + index * BOARD.triangleWidth
-
-  if (index >= 6) {
-    x += BOARD.centerBarWidth * 2
-  }
-
-  const y = isUpper ? BOARD.padding : BOARD.height - BOARD.padding
-
-  return isUpper
-    ? `M ${x} ${y}
-       L ${x + BOARD.triangleWidth} ${y}
-       L ${x + BOARD.triangleWidth / 2} ${y + BOARD.triangleHeight} Z`
-    : `M ${x} ${y}
-       L ${x + BOARD.triangleWidth} ${y}
-       L ${x + BOARD.triangleWidth / 2} ${y - BOARD.triangleHeight} Z`
-}
-
-const getTriangleColor = (position: number): string => {
-  return position % 2 === 0 ? '#8B0000' : '#000080'
-}
-
-// position from 0 (upper right) to 23 (lower right)
-const getCheckerX = (position: number) => {
-  const index = position < 12 ? 11 - position : position - 12
-  let x = BOARD.padding + index * BOARD.triangleWidth + BOARD.triangleWidth / 2
-
-  if (index >= 6) {
-    x += BOARD.centerBarWidth * 2
-  }
-
-  return x
-}
-
-const getCheckerY = (position: number, stackIndex: number) => {
-  const spacing = BOARD.checkerRadius * 1.8
-
-  if (position < 12) {
-    return BOARD.padding + BOARD.checkerRadius + stackIndex * spacing
-  } else {
-    return (
-      BOARD.height - BOARD.padding - BOARD.checkerRadius - stackIndex * spacing
-    )
-  }
-}
 </script>
-
+ 
 <template>
   <div
     class="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
