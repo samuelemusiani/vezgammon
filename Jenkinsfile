@@ -32,7 +32,6 @@ pipeline {
     }
     stage('Test') {
       steps {
-        sh 'sed -i "s/sudo //g" justfile'
         sh './just test'
       }
     }
