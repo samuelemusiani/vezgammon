@@ -23,7 +23,7 @@ const router = createRouter({
       component: RegisterView,
     },
     {
-      path: '/game', 
+      path: '/game',
       name: 'game',
       component: BoardView,
     },

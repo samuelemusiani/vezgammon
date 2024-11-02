@@ -1,4 +1,6 @@
 <script setup lang="ts">
+import { ref } from 'vue'
+
 interface BoardDimensions {
   width: number
   height: number
@@ -6,6 +8,7 @@ interface BoardDimensions {
   triangleHeight: number
   centerBarWidth: number
   padding: number
+  checkerRadius: number
 }
 
 const BOARD: BoardDimensions = {
@@ -15,40 +18,85 @@ const BOARD: BoardDimensions = {
   triangleHeight: 250,
   centerBarWidth: 20,
   padding: 20,
+  checkerRadius: 20,
 } as const
+
+const selectedChecker = ref(null)
+const checkers = ref([
+  ...Array(2)
+    .fill(null)
+    .map((_, i) => ({ color: 'white', position: 0, stackIndex: i })),
+  ...Array(5)
+    .fill(null)
+    .map((_, i) => ({ color: 'gray', position: 5, stackIndex: i })),
+  ...Array(3)
+    .fill(null)
+    .map((_, i) => ({ color: 'gray', position: 7, stackIndex: i })),
+  ...Array(5)
+    .fill(null)
+    .map((_, i) => ({ color: 'white', position: 11, stackIndex: i })),
+  ...Array(2)
+    .fill(null)
+    .map((_, i) => ({ color: 'gray', position: 23, stackIndex: i })),
+  ...Array(5)
+    .fill(null)
+    .map((_, i) => ({ color: 'white', position: 18, stackIndex: i })),
+  ...Array(3)
+    .fill(null)
+    .map((_, i) => ({ color: 'white', position: 16, stackIndex: i })),
+  ...Array(5)
+    .fill(null)
+    .map((_, i) => ({ color: 'gray', position: 12, stackIndex: i })),
+])
 
 // Index follows the counter-clockwise direction: upper from right (0) to left (11),
 // lower from left (0) to right (11)
-const getTrianglePath = (index: number, isUpper: boolean): string => {
-  let x: number
+const getTrianglePath = (position: number): string => {
+  const isUpper = position < 12
+  const index = isUpper ? 11 - position : position - 12
+  let x = BOARD.padding + index * BOARD.triangleWidth
 
-  if (isUpper) {
-    x = BOARD.padding + (11 - index) * BOARD.triangleWidth
-    if (index < 6) {
-      x += BOARD.centerBarWidth * 2
-    }
-  } else {
-    x = BOARD.padding + index * BOARD.triangleWidth
-    if (index >= 6) {
-      x += BOARD.centerBarWidth * 2
-    }
+  if (index >= 6) {
+    x += BOARD.centerBarWidth * 2
   }
 
-  const y: number = isUpper ? BOARD.padding : BOARD.height - BOARD.padding
+  const y = isUpper ? BOARD.padding : BOARD.height - BOARD.padding
 
-  if (isUpper) {
-    return `M ${x} ${y}
-            L ${x + BOARD.triangleWidth} ${y}
-            L ${x + BOARD.triangleWidth / 2} ${y + BOARD.triangleHeight} Z`
-  } else {
-    return `M ${x} ${y}
-            L ${x + BOARD.triangleWidth} ${y}
-            L ${x + BOARD.triangleWidth / 2} ${y - BOARD.triangleHeight} Z`
-  }
+  return isUpper
+    ? `M ${x} ${y}
+       L ${x + BOARD.triangleWidth} ${y}
+       L ${x + BOARD.triangleWidth / 2} ${y + BOARD.triangleHeight} Z`
+    : `M ${x} ${y}
+       L ${x + BOARD.triangleWidth} ${y}
+       L ${x + BOARD.triangleWidth / 2} ${y - BOARD.triangleHeight} Z`
 }
 
-const getTriangleColor = (index: number): string => {
-  return index % 2 === 0 ? '#8B0000' : '#000080'
+const getTriangleColor = (position: number): string => {
+  return position % 2 === 0 ? '#8B0000' : '#000080'
+}
+
+// position from 0 (upper right) to 23 (lower right)
+const getCheckerX = (position: number) => {
+  const index = position < 12 ? 11 - position : position - 12
+  let x = BOARD.padding + index * BOARD.triangleWidth + BOARD.triangleWidth / 2
+
+  if (index >= 6) {
+    x += BOARD.centerBarWidth * 2
+  }
+
+  return x
+}
+
+const getCheckerY = (position: number, stackIndex: number) => {
+  const spacing = BOARD.checkerRadius * 1.8
+
+  if (position < 12) {
+    return BOARD.padding + BOARD.checkerRadius + stackIndex * spacing
+  } else {
+    return (
+      BOARD.height - BOARD.padding - BOARD.checkerRadius - stackIndex * spacing
+    )
+  }
 }
 </script>
 
@@ -85,17 +133,29 @@ const getTriangleColor = (index: number): string => {
               class="fill-amber-900"
             />
 
-            <!-- Upper and Lower triangles -->
-            <g v-for="isUpper in [true, false]" :key="String(isUpper)">
+            <!-- Triangles from 0 (upper right) to 23 (lower right) -->
+            <g>
               <path
-                v-for="index in 12"
-                :key="`${isUpper ? 'upper' : 'lower'}-${index}`"
-                :d="getTrianglePath(index - 1, isUpper)"
-                :fill="getTriangleColor(index - 1)"
+                v-for="position in 24"
+                :key="`triangle-${position}`"
+                :d="getTrianglePath(position - 1)"
+                :fill="getTriangleColor(position - 1)"
                 stroke="black"
                 stroke-width="1"
               />
             </g>
+
+            <!-- Checkers -->
+            <circle
+              v-for="(checker, index) in checkers"
+              :key="`checker-${index}`"
+              :cx="getCheckerX(checker.position)"
+              :cy="getCheckerY(checker.position, checker.stackIndex)"
+              :r="BOARD.checkerRadius"
+              :fill="checker.color"
+              stroke="black"
+              stroke-width="1.4"
+            />
           </svg>
         </div>
       </div>
