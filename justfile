@@ -25,6 +25,11 @@ test: test-server
 
 test-server:
     sudo docker-compose -f docker-compose-test.yml up -d
-    go test -v ./server/... || true
-    sudo docker-compose -f docker-compose-test.yml down
+    
+    if go test -v ./server/... ; then \
+        sudo docker-compose -f docker-compose-test.yml down; \
+    else \
+        sudo docker-compose -f docker-compose-test.yml down; \
+        exit 1; \
+    fi
 
