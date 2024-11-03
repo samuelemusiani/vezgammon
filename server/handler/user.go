@@ -84,7 +84,6 @@ func Login(c *gin.Context) {
 
 	// Verifica le credenziali
 	user, err := db.LoginUser(loginUser.Username, loginUser.Password)
-	slog.With(err).Debug("user return")
 	if err != nil {
 		slog.With("err", err).Error("Login failed")
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid credentials"})
@@ -134,7 +133,6 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		slog.Debug("validiamo il token")
 		// Ottieni il token di sessione dal cookie
 		sessionToken, err := c.Cookie("session_token")
 		if err != nil {
@@ -180,7 +178,6 @@ func Logout(c *gin.Context) {
 // Return the session of the current user logged in
 func GetSession(c *gin.Context) {
 	user_id := c.MustGet("user_id")
-	slog.With("user_id", user_id)
 	user, err := db.GetUser(user_id)
 	if err != nil {
 		slog.With("err", err).Error("User not found")

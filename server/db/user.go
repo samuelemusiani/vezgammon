@@ -88,7 +88,6 @@ func LoginUser(username string, password string) (*types.User, error) {
 		return nil, err
 	}
 
-	slog.With(tmp).Debug("password e hash", pass, password)
 	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(password))
 	if err != nil {
 		return nil, err
