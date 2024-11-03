@@ -1,0 +1,89 @@
+\documentclass{article}
+\usepackage{graphicx} % Necessario per inserire immagini
+
+\title{Vezgammon - Definizione di Completamento}
+\author{Product Owner: Diego Barbieri}
+\date{Ottobre 2024}
+
+\begin{document}
+
+\maketitle
+
+\section{Requisiti della Code Base}
+
+\subsection{Qualità del Codice}
+\begin{itemize}
+    \item Tutto il codice deve seguire le convenzioni di denominazione in camelCase.
+    \item Ogni modulo deve avere e superare i propri test unitari (e mock, se sviluppato con TDD).
+    \item Nessun codice critico o errori gravi rilevati dagli strumenti di analisi statica (es. SonarQube).
+    \item Tutte le API devono fornire un'anteprima con Swagger e includere test specifici per le API.
+    \item Per le principali pagine del front-end, la funzionalità di base deve essere testata tramite test front-end.
+\end{itemize}
+
+\subsection{Documentazione}
+\begin{itemize}
+    \item Documentazione per ogni modulo: un'anteprima markdown dell'interfaccia allineata con il diagramma UML delle classi.
+    \item README principale aggiornato con le funzionalità più recenti.
+\end{itemize}
+
+\subsection{Merge Request}
+\begin{itemize}
+    \item Ogni merge request (MR) deve essere approvata dal Scrum Master (SM) o dal Product Owner (PO).
+    \item La MR deve superare tutti i test nella pipeline di testing di Jenkins.
+\end{itemize}
+
+\subsection{Interfaccia Utente}
+\begin{itemize}
+    \item Soddisfa gli standard WCAG 2.1 AA: compatibile con tutti i browser moderni.
+    \item Responsiva su laptop, tablet e smartphone (solo visualizzazione verticale).
+\end{itemize}
+
+\subsection{Prestazioni}
+\begin{itemize}
+    \item L'app mantiene prestazioni accettabili (tempo di caricamento inferiore a 2 secondi per l'interfaccia principale del gioco).
+\end{itemize}
+
+\section{Requisiti Funzionali}
+
+\subsection{Interfaccia Utente}
+\begin{itemize}
+    \item La scacchiera viene visualizzata correttamente su tutte le dimensioni di schermo standard (desktop, tablet, mobile).
+    \item I pezzi, i dadi e gli altri elementi di gioco sono visivamente chiari e rispondono alle interazioni dell'utente.
+    \item Supporto per modalità scura e chiara, se specificato.
+    \item Le animazioni e le transizioni sono responsive e rispettano gli standard di UX.
+\end{itemize}
+
+\subsection{Logica di Gioco}
+\begin{itemize}
+    \item Gli utenti possono avviare una nuova partita e scegliere il tipo di avversario (IA o altro giocatore).
+    \item I giocatori possono lanciare i dadi e muovere i pezzi secondo le regole del Backgammon.
+    \item Il gioco applica correttamente le regole del Backgammon, inclusi:
+    \begin{itemize}
+        \item \textbf{Impostazione:} Configurazione iniziale e movimento.
+        \item \textbf{Azioni:} Cattura e rilascio dei pezzi.
+        \item \textbf{Vittoria:} Condizioni di vittoria (es. rimozione di tutti i pezzi).
+    \end{itemize}
+    \item È disponibile uno storico o log di gioco che mostra le mosse effettuate da ciascun giocatore.
+\end{itemize}
+
+\section{Requisiti di Deployment}
+
+\subsection{Compatibilità Ambientale}
+\begin{itemize}
+    \item L'applicazione funziona correttamente negli ambienti di sviluppo e produzione.
+    \item L'applicazione deve richiedere un file di configurazione, facile da configurare e compatibile con l'architettura di deployment.
+\end{itemize}
+
+\subsection{Build e Rilascio}
+\begin{itemize}
+    \item L'applicazione può essere compilata senza errori o avvisi.
+    \item L'app è configurata per l'integrazione e il deployment continui, con test automatizzati per ogni merge.
+\end{itemize}
+
+\subsection{Monitoraggio e Logging}
+\begin{itemize}
+    \item Sono attivi il monitoraggio degli errori in tempo reale e il logging (es. con Sentry).
+    \item I log catturano eventi critici come l'inizio delle partite, le disconnessioni e gli errori dell'utente.
+\end{itemize}
+
+\end{document}
