@@ -1,84 +1,89 @@
 \documentclass{article}
-\usepackage{graphicx} % Required for inserting images
+\usepackage{graphicx} % Necessario per inserire immagini
 
-\title{Vezgammon - Definition of Done}
+\title{Vezgammon - Definizione di Completamento}
 \author{Product Owner: Diego Barbieri}
-\date{October 2024}
+\date{Ottobre 2024}
 
 \begin{document}
 
 \maketitle
 
-\section{Code Base Requirements}
+\section{Requisiti della Code Base}
 
-\subsection{Code Quality}
+\subsection{Qualità del Codice}
 \begin{itemize}
-    \item All code must follow camelCase naming conventions.
-    \item Each module must have and pass its unit tests (and mocks if developed using TDD).
-    \item No critical or major code smells or errors detected by static analysis tools (e.g., SonarQube).
-    \item All APIs must provide a preview with Swagger and include specific API tests.
-    \item For the main front-end pages, basic functionality must be tested through front-end testing.
+    \item Tutto il codice deve seguire le convenzioni di denominazione in camelCase.
+    \item Ogni modulo deve avere e superare i propri test unitari (e mock, se sviluppato con TDD).
+    \item Nessun codice critico o errori gravi rilevati dagli strumenti di analisi statica (es. SonarQube).
+    \item Tutte le API devono fornire un'anteprima con Swagger e includere test specifici per le API.
+    \item Per le principali pagine del front-end, la funzionalità di base deve essere testata tramite test front-end.
 \end{itemize}
 
-\subsection{Documentation}
+\subsection{Documentazione}
 \begin{itemize}
-    \item Documentation for each module: a markdown preview of the interface aligned with the UML class diagram.
-    \item Main README updated with the latest features.
+    \item Documentazione per ogni modulo: un'anteprima markdown dell'interfaccia allineata con il diagramma UML delle classi.
+    \item README principale aggiornato con le funzionalità più recenti.
 \end{itemize}
 
 \subsection{Merge Request}
 \begin{itemize}
-    \item Every merge request (MR) must be approved by the Scrum Master (SM) or Product Owner (PO).
-    \item The MR must pass all tests in the Jenkins testing pipeline.
+    \item Ogni merge request (MR) deve essere approvata dal Scrum Master (SM) o dal Product Owner (PO).
+    \item La MR deve superare tutti i test nella pipeline di testing di Jenkins.
 \end{itemize}
 
-\subsection{User Interface}
+\subsection{Interfaccia Utente}
 \begin{itemize}
-    \item Meets WCAG 2.1 AA standards: compatible with all modern browsers.
-    \item Responsive on laptops, tablets, and smartphones (portrait view only).
+    \item Soddisfa gli standard WCAG 2.1 AA: compatibile con tutti i browser moderni.
+    \item Responsiva su laptop, tablet e smartphone (solo visualizzazione verticale).
 \end{itemize}
 
-\subsection{Performance}
+\subsection{Prestazioni}
 \begin{itemize}
-    \item The app maintains acceptable performance (less than 2 seconds load time for the main game interface).
+    \item L'app mantiene prestazioni accettabili (tempo di caricamento inferiore a 2 secondi per l'interfaccia principale del gioco).
 \end{itemize}
 
-\section{Functional Requirements}
+\section{Requisiti Funzionali}
 
-\subsection{User Interface}
+\subsection{Interfaccia Utente}
 \begin{itemize}
-    \item Game board displays correctly on all standard screen sizes (desktop, tablet, mobile).
-    \item Pieces, dice, and other game elements are visually clear and respond to user interactions.
-    \item Dark mode and light mode supported if specified.
-    \item Responsive animations and transitions meet UX standards.
+    \item La scacchiera viene visualizzata correttamente su tutte le dimensioni di schermo standard (desktop, tablet, mobile).
+    \item I pezzi, i dadi e gli altri elementi di gioco sono visivamente chiari e rispondono alle interazioni dell'utente.
+    \item Supporto per modalità scura e chiara, se specificato.
+    \item Le animazioni e le transizioni sono responsive e rispettano gli standard di UX.
 \end{itemize}
 
-\subsection{Game Logic}
+\subsection{Logica di Gioco}
 \begin{itemize}
-    \item Users can start a new game and select opponent type (AI or another player).
-    \item Players can roll the dice and move pieces according to Backgammon rules.
-    \item Game correctly enforces Backgammon rules, including:
+    \item Gli utenti possono avviare una nuova partita e scegliere il tipo di avversario (IA o altro giocatore).
+    \item I giocatori possono lanciare i dadi e muovere i pezzi secondo le regole del Backgammon.
+    \item Il gioco applica correttamente le regole del Backgammon, inclusi:
     \begin{itemize}
-        \item \textbf{Setup:} Initial setup and movement.
-        \item \textbf{Actions:} Capturing and releasing pieces.
-        \item \textbf{Win:} Winning conditions (e.g., bearing off all pieces).
+        \item \textbf{Impostazione:} Configurazione iniziale e movimento.
+        \item \textbf{Azioni:} Cattura e rilascio dei pezzi.
+        \item \textbf{Vittoria:} Condizioni di vittoria (es. rimozione di tutti i pezzi).
     \end{itemize}
-    \item Game history or logs are available for review, showing moves made by each player.
+    \item È disponibile uno storico o log di gioco che mostra le mosse effettuate da ciascun giocatore.
 \end{itemize}
-\section{Deployment Requirements}
-\subsection{Environment Compatibility}
+
+\section{Requisiti di Deployment}
+
+\subsection{Compatibilità Ambientale}
 \begin{itemize}
-    \item Application successfully runs in the development and production environments.
-    \item Application must need a configuration file, easy to configure that matches the deployment architecture.
+    \item L'applicazione funziona correttamente negli ambienti di sviluppo e produzione.
+    \item L'applicazione deve richiedere un file di configurazione, facile da configurare e compatibile con l'architettura di deployment.
 \end{itemize}
-\subsection{Build and Release}
+
+\subsection{Build e Rilascio}
 \begin{itemize}
-    \item The application is buildable without errors or warnings.
-    \item The app is configured for continuous integration and deployment, with automated testing on all merges.
+    \item L'applicazione può essere compilata senza errori o avvisi.
+    \item L'app è configurata per l'integrazione e il deployment continui, con test automatizzati per ogni merge.
 \end{itemize}
-\subsection{Monitoring and Logging}
+
+\subsection{Monitoraggio e Logging}
 \begin{itemize}
-    \item Real-time error monitoring and logging are set up (e.g., with Sentry).
-    \item Logs capture critical events such as game starts, disconnections, and user errors.
+    \item Sono attivi il monitoraggio degli errori in tempo reale e il logging (es. con Sentry).
+    \item I log catturano eventi critici come l'inizio delle partite, le disconnessioni e gli errori dell'utente.
 \end{itemize}
+
 \end{document}
