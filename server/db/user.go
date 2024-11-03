@@ -28,7 +28,7 @@ func initUser() error {
 
 func initCookie() error {
 	q := `
-    CREATE TABLE sessions (
+    CREATE TABLE IF NOT EXISTS sessions (
     id SERIAL PRIMARY KEY,
     user_id INTEGER REFERENCES users(id),
     token TEXT UNIQUE NOT NULL,
