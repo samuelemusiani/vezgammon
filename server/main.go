@@ -51,7 +51,7 @@ func main() {
 	protected.POST("/register", handler.Register)
 	protected.POST("/login", handler.Login)
 	protected.POST("/logout", handler.Logout)
-	protected.GET("/user", handler.GetUser)
+	protected.GET("/session", handler.GetSession)
 
 	// Read index.html into memory
 	index, err := frontend.ReadFile("dist/index.html")

@@ -177,8 +177,8 @@ func Logout(c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
 }
 
-// Prendo lo user che è attualmente connesso
-func GetUser(c *gin.Context) {
+// Return the session of the current user logged in
+func GetSession(c *gin.Context) {
 	user_id := c.MustGet("user_id")
 	slog.With("user_id", user_id)
 	user, err := db.GetUser(user_id)
