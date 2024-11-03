@@ -2,7 +2,7 @@
 import { ref } from 'vue'
 import router from '@/router'
 
-const email = ref('')
+const mail = ref('')
 const passwd1 = ref('')
 const passwd2 = ref('')
 const username = ref('')
@@ -20,7 +20,7 @@ async function register() {
     const response = await fetch('/api/register', {
       method: 'POST',
       body: JSON.stringify({
-        email: email.value,
+        mail: mail.value,
         password: passwd1.value,
         username: username.value,
         firstname: firstname.value,
@@ -49,9 +49,9 @@ function validate() {
 
   let e = ''
   if (
-    email.value.length == 0 ||
-    !email.value.includes('@') ||
-    !email.value.includes('.', email.value.indexOf('@'))
+    mail.value.length == 0 ||
+    !mail.value.includes('@') ||
+    !mail.value.includes('.', mail.value.indexOf('@'))
   ) {
     e = 'Insert a valid email'
     ok = false
@@ -88,7 +88,7 @@ function validate() {
                 id="input-mail"
                 type="email"
                 class="X-required grow invalid:text-error"
-                v-model="email"
+                v-model="mail"
                 placeholder="email@example.com"
               />
             </div>
