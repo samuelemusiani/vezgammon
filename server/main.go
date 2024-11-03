@@ -47,12 +47,11 @@ func main() {
 	protected.Use(handler.AuthMiddleware())
 
 	// Gruppo di rotte protette per le API
-	protected.GET("/users", handler.GetAllUsers)
 	protected.GET("/ready", checkServer)
-
 	protected.POST("/register", handler.Register)
 	protected.POST("/login", handler.Login)
 	protected.POST("/logout", handler.Logout)
+	protected.GET("/user", handler.GetUser)
 
 	// Read index.html into memory
 	index, err := frontend.ReadFile("dist/index.html")

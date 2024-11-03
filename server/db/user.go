@@ -98,8 +98,6 @@ func GenerateSessionToken() string {
 }
 
 func SaveSessionToken(userID int64, token string) error {
-	// Implementa la logica per salvare il token
-
 	q := `INSERT INTO sessions (user_id, token, expires_at) 
           VALUES ($1, $2, $3)`
 
@@ -109,8 +107,6 @@ func SaveSessionToken(userID int64, token string) error {
 }
 
 func ValidateSessionToken(token string) (int64, error) {
-	// Implementa la logica per validare il token
-
 	q := `SELECT user_id FROM sessions 
           WHERE token = $1 AND expires_at > NOW()`
 
@@ -142,4 +138,27 @@ func Logout(sessionToken string) error {
 	q := `DELETE FROM sessions WHERE token = $1`
 	_, err := conn.Exec(q, sessionToken)
 	return err
+}
+
+func GetUser(user_id any) (*types.User, error) {
+	q := `SELECT username, firstname, lastname, mail
+          FROM users 
+          WHERE id = $1`
+
+	var tmp types.User
+	err := conn.QueryRow(q, user_id).Scan(
+		&tmp.Username,
+		&tmp.Firstname,
+		&tmp.Lastname,
+		&tmp.Mail,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("utente non trovato")
+		}
+		return nil, err
+	}
+
+	return &tmp, nil
 }

@@ -9,7 +9,6 @@ import (
 	"net/http"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
-	"vezgammon/server/handler"
 	"vezgammon/server/types"
 
 	"github.com/gin-gonic/gin"
@@ -129,6 +128,7 @@ func Login(c *gin.Context) {
 
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		// Non controlliamo se stiamo facendo la login || la register
 		if c.Request.URL.String() == "/api/login" || c.Request.URL.String() == "/api/register" {
 			c.Next()
 			return
@@ -151,22 +151,19 @@ func AuthMiddleware() gin.HandlerFunc {
 			return
 		}
 
-		// Aggiungi l'ID utente al contesto per uso successivo
+		// Aggiunge l'ID utente al contesto per uso successivo
 		c.Set("user_id", userID)
-		//c.mustGet da vedere per avere queste variabili
 
 		// Vai avanti con la richiesta
 		c.Next()
 	}
 }
 
-// Logout function
 func Logout(c *gin.Context) {
 	// Cancella il token di sessione
-
 	sessionToken, err := c.Cookie("session_token")
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": "Unauthorized"})
+		c.JSON(http.StatusUnauthorized, gin.H{"error": "Unauthorized"})
 		return
 	}
 
@@ -178,6 +175,21 @@ func Logout(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Logged out successfully"})
+}
+
+// Prendo lo user che è attualmente connesso
+func GetUser(c *gin.Context) {
+	user_id := c.MustGet("user_id")
+	slog.With("user_id", user_id)
+	user, err := db.GetUser(user_id)
+	if err != nil {
+		slog.With("err", err).Error("User not found")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, user)
+	return
 }
 
 func GetAllUsers(c *gin.Context) {
