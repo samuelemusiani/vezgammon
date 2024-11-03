@@ -3,7 +3,6 @@ package db
 import (
 	"database/sql"
 	"fmt"
-	"log/slog"
 	"strings"
 	"time"
 	"vezgammon/server/types"
