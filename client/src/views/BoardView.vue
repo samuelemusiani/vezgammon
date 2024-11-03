@@ -21,6 +21,7 @@ const selectedChecker = ref<Checker | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesAvailable = ref(2)
 const isRolling = ref(false)
+const gameStarted = ref(false)
 
 const handleCheckerClick = (checker: Checker) => {
   if (!isCheckerMovable(gameState.value, checker)) return
@@ -69,6 +70,10 @@ const rollDice = () => {
   )
     return
 
+  if (!gameStarted.value) {
+    gameStarted.value = true
+    startTimer()
+  }
   isRolling.value = true
   const rollAnimation = setInterval(() => {
     gameState.value.dice.value = [
@@ -97,6 +102,19 @@ const rollDice = () => {
     selectedChecker.value = null
     possibleMoves.value = []
   }, 500)
+}
+
+let timerInterval: NodeJS.Timeout
+const startTimer = () => {
+  let seconds = 0
+  timerInterval = setInterval(() => {
+    seconds++
+    const minutes = Math.floor(seconds / 60)
+    const remainingSeconds = seconds % 60
+    gameState.value.time = `${String(minutes).padStart(2, '0')}:${String(
+      remainingSeconds,
+    ).padStart(2, '0')}`
+  }, 1000)
 }
 </script>
 
@@ -138,7 +156,7 @@ const rollDice = () => {
             class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
           >
             <p class="text-sm text-gray-600">Total Time</p>
-            <p class="text-2xl font-bold">{{}}</p>
+            <p class="text-2xl font-bold">{{ gameState.time }}</p>
           </div>
 
           <!-- Current Player Info -->

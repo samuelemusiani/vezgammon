@@ -20,6 +20,7 @@ export interface GameState {
   currentPlayer: string
   dice: DiceRoll
   board: Board
+  time?: string
 }
 
 export interface DiceRoll {
