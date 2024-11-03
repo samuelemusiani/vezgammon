@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"fmt"
 	"log/slog"
+	"strings"
 	"time"
 	"vezgammon/server/types"
 
@@ -62,9 +63,12 @@ func GetUsers() ([]types.User, error) {
 }
 
 func LoginUser(username string, password string) (*types.User, error) {
-	q := `SELECT id, username, firstname, lastname, mail, password 
-          FROM users 
-          WHERE username = $1`
+	q := "SELECT id, username, firstname, lastname, mail, password FROM users "
+	if strings.Contains(username, "@") {
+		q = q + "WHERE mail = $1"
+	} else {
+		q = q + "WHERE username = $1"
+	}
 
 	var tmp types.User
 	var pass string
