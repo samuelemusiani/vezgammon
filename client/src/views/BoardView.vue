@@ -166,7 +166,7 @@ const rollDice = () => {
               :cy="getCheckerY(checker.position, checker.stackIndex)"
               :r="BOARD.checkerRadius"
               :fill="checker.color"
-              stroke="black"
+              :stroke="checker.color === 'white' ? 'black' : 'blue'"
               stroke-width="1.4"
               class="checker-transition"
               :class="{
@@ -176,6 +176,11 @@ const rollDice = () => {
                 ),
                 selected: selectedChecker === checker,
               }"
+              :style="
+                selectedChecker === checker
+                  ? { stroke: checker.color === 'white' ? 'black' : 'white' }
+                  : {}
+              "
               @click.stop="handleCheckerClick(checker)"
             />
           </svg>
@@ -204,6 +209,7 @@ const rollDice = () => {
               v-for="(die, index) in gameState.dice.value"
               :key="index"
               class="flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
+              :class="{ 'dice-rolling': isRolling }"
             >
               <svg viewBox="0 0 60 60">
                 <!-- Dice border -->
@@ -305,3 +311,34 @@ const rollDice = () => {
     </div>
   </div>
 </template>
+
+<style scoped>
+@keyframes dice-shake {
+  0% {
+    transform: rotate(0deg);
+  }
+  25% {
+    transform: rotate(5deg);
+  }
+  75% {
+    transform: rotate(-5deg);
+  }
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.dice-rolling {
+  animation: dice-shake 0.3s ease-in-out infinite;
+}
+
+.selected {
+  stroke-width: 3;
+}
+
+.checker-transition {
+  transition:
+    cx 0.3s ease-out,
+    cy 0.3s ease-out;
+}
+</style>
