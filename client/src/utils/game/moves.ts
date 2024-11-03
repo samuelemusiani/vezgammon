@@ -7,6 +7,23 @@ export const isCheckerMovable = (
   if (!gameState.dice.value[0] || !gameState.dice.value[1]) return false
   if (checker.color !== gameState.currentPlayer) return false
 
+  // If there are checkers on the bar, the player must move them first
+  const hitCheckers = gameState.board.filter(
+    c =>
+      c.color === gameState.currentPlayer &&
+      (c.position === -1 || c.position === 24),
+  )
+  if (hitCheckers.length > 0) {
+    console.log(hitCheckers)
+    console.log(checker)
+    return hitCheckers.some(
+      c =>
+        c.color === checker.color &&
+        c.position === checker.position &&
+        c.stackIndex === checker.stackIndex,
+    )
+  }
+
   const stack = gameState.board.filter(c => c.position === checker.position)
   const topChecker = stack[stack.length - 1]
   return checker === topChecker
@@ -41,7 +58,7 @@ export const calculatePossibleMoves = (
 }
 
 // Check if destination position isn't occupied by opponent checkers
-const isValidMove = (
+export const isValidMove = (
   gameState: GameState,
   checker: Checker,
   targetPosition: number,
@@ -72,5 +89,15 @@ export const updateStackIndices = (gameState: GameState) => {
     stack.forEach((checker, index) => {
       checker.stackIndex = index
     })
+  }
+}
+
+export const handleHitChecker = (gameState: GameState, position: number) => {
+  const targetChecker = gameState.board.find(c => c.position === position)
+
+  // checker is hit
+  if (targetChecker && targetChecker.color !== gameState.currentPlayer) {
+    targetChecker.position = targetChecker.color === 'white' ? -1 : 24
+    updateStackIndices(gameState)
   }
 }

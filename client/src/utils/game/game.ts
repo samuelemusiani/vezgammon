@@ -84,6 +84,11 @@ export const getTriangleColor = (position: number): string => {
 
 // position from 0 (upper right) to 23 (lower right)
 export const getCheckerX = (position: number) => {
+  // Hit checker
+  if (position === -1 || position === 24) {
+    return 400
+  }
+
   const index = position < 12 ? 11 - position : position - 12
   let x = BOARD.padding + index * BOARD.triangleWidth + BOARD.triangleWidth / 2
 
@@ -95,6 +100,14 @@ export const getCheckerX = (position: number) => {
 }
 
 export const getCheckerY = (position: number, stackIndex: number) => {
+  // Hit checker
+  if (position === 24) {
+    return 100 + stackIndex * BOARD.checkerRadius * 2
+  }
+  if (position === -1) {
+    return 500 - stackIndex * BOARD.checkerRadius * 2
+  }
+
   const spacing = BOARD.checkerRadius * 1.8
 
   if (position < 12) {
@@ -114,6 +127,14 @@ export const updateGameState = (
   movesAvailable: number,
 ) => {
   if (!gameState.dice) return
+  if (oldCheckerPos === 24) {
+    oldCheckerPos = 23
+    newCheckerPos--
+  }
+  if (oldCheckerPos === -1) {
+    oldCheckerPos = 0
+    newCheckerPos++
+  }
   const move = Math.abs(newCheckerPos - oldCheckerPos)
 
   const isDouble = gameState.dice.double

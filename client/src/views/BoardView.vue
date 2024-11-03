@@ -12,6 +12,7 @@ import {
 } from '@/utils/game/game'
 import {
   calculatePossibleMoves,
+  handleHitChecker,
   isCheckerMovable,
   updateStackIndices,
 } from '@/utils/game/moves'
@@ -39,6 +40,10 @@ const handleCheckerClick = (checker: Checker) => {
 const handleTriangleClick = (position: number) => {
   if (!selectedChecker.value || !possibleMoves.value.includes(position)) return
   const oldCheckerPos = selectedChecker.value.position
+
+  // Controlla se c'è una pedina da mangiare
+  handleHitChecker(gameState.value, position)
+
   moveChecker(selectedChecker.value, position)
   updateGameState(
     gameState.value,
