@@ -30,6 +30,6 @@ FROM alpine
 WORKDIR /app
 
 COPY --from=build-server /app/build .
-COPY server/config/config.toml .
+COPY server/config/release-config.toml .
 
-CMD [ "./vezgammon",  "config.toml" ]
+CMD [ "./vezgammon",  "release-config.toml" ]

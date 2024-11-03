@@ -6,11 +6,6 @@ pipeline {
     nodejs '23.1.0'
   }
 
-  environment {
-    DOCKER_HOST="unix:///run/user/1001/docker.sock"
-    PATH="/usr/bin:$PATH"
-  }
-
   stages {
     stage('Install just') {
       steps {
@@ -32,7 +27,6 @@ pipeline {
     }
     stage('Test') {
       steps {
-        sh 'sed -i "s/sudo //g" justfile'
         sh './just test'
       }
     }
@@ -58,7 +52,7 @@ pipeline {
         sh 'ssh debian@site.vezgammon.it "git clone https://gitlab.vezgammon.it/diego/vezgammon.git repo"'
         sh 'ssh debian@site.vezgammon.it "cd repo && sudo docker-compose down -v"'
         sh 'ssh debian@site.vezgammon.it "mkdir -p repo/db && echo -n $(dd if=/dev/random bs=1 count=32 | base32 | sed \'s/=//g\') > repo/db/password.txt"'
-        sh 'ssh debian@site.vezgammon.it "cd repo && sudo docker-compose up -d --build"'
+        sh 'ssh debian@site.vezgammon.it "cd repo && sudo docker-compose -f docker-compose-release.yml up -d --build"'
       }
     }
   }

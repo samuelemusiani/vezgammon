@@ -1,0 +1,9 @@
+docker = false
+
+[server]
+bind = ":8080"
+
+[database]
+user = "test"
+password = "test"
+address = "localhost:5432"
