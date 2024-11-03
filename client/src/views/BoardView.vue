@@ -104,14 +104,75 @@ const rollDice = () => {
   <div
     class="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
   >
-    <div class="flex w-full max-w-screen-lg">
+    <div class="flex w-full max-w-screen-2xl">
+      <!-- Opponent and Player Info -->
+      <div class="flex">
+        <div
+          class="flex w-48 flex-col justify-evenly rounded-lg bg-white p-4 shadow-xl"
+        >
+          <!-- Opponent Info -->
+          <div class="mb-8 flex flex-col items-center">
+            <div class="relative mb-2">
+              <div class="h-16 w-16 overflow-hidden rounded-full bg-gray-200">
+                <img
+                  src="https://api.dicebear.com/6.x/avataaars/svg?seed=opponent"
+                  alt="Opponent avatar"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div
+                :class="[
+                  'absolute -bottom-1 right-0 h-4 w-4 rounded-full border-2 border-white',
+                  gameState.currentPlayer === 'black'
+                    ? 'bg-green-500'
+                    : 'bg-gray-300',
+                ]"
+              ></div>
+            </div>
+            <h3 class="text-lg font-bold">Opponent</h3>
+            <p class="text-gray-600">ELO: 1850</p>
+          </div>
+
+          <!-- Game Timer -->
+          <div
+            class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
+          >
+            <p class="text-sm text-gray-600">Total Time</p>
+            <p class="text-2xl font-bold">{{}}</p>
+          </div>
+
+          <!-- Current Player Info -->
+          <div class="mt-8 flex flex-col items-center">
+            <div class="relative mb-2">
+              <div class="h-16 w-16 overflow-hidden rounded-full bg-gray-200">
+                <img
+                  src="https://api.dicebear.com/6.x/avataaars/svg?seed=player"
+                  alt="Player avatar"
+                  class="h-full w-full object-cover"
+                />
+              </div>
+              <div
+                :class="[
+                  'absolute -bottom-1 right-0 h-4 w-4 rounded-full border-2 border-white',
+                  gameState.currentPlayer === 'white'
+                    ? 'bg-green-500'
+                    : 'bg-gray-300',
+                ]"
+              ></div>
+            </div>
+            <h3 class="text-lg font-bold">Player</h3>
+            <p class="text-gray-600">ELO: 1720</p>
+          </div>
+        </div>
+      </div>
+
       <!-- Board Div -->
-      <div class="flex-grow">
-        <div class="rounded-lg bg-white p-4 shadow-xl">
+      <div class="flex-1">
+        <div class="h-full rounded-lg bg-white p-4 shadow-xl">
           <svg
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
-            class="h-auto w-full"
+            class="h-full w-full"
             @click="handleBoardClick($event)"
           >
             <!-- Board background -->
