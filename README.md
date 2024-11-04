@@ -37,6 +37,18 @@ just test-server
 
 stops services with `sudo docker-compose -f docker-compose-release.yml down` add `-v` flag to reset db
 
+## swagger
+
+swagger documentation is generated with [swag](https://github.com/swaggo/swag)
+
+- install it with `go install github.com/swaggo/swag/cmd/swag@latest`
+- create documentation by commenting handler function with [this syntax](https://github.com/swaggo/swag?tab=readme-ov-file#declarative-comments-format)
+- generate documentation with `cd server && ~/go/bin/swag init`
+
+when running `go start-server` this is done automatically
+
+swagger ui is accessible at [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html) when server is started with `swagger = true` configuration
+
 ## docker and docker compose problem
 
 - __requirements__
