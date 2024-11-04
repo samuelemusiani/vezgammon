@@ -11,9 +11,7 @@ RUN just build-client
 
 FROM golang:1.23.2-alpine as build-server
 
-RUN export GIN_MODE=release
-
-WORKDIR /app
+WORKDIR /app    
 
 RUN apk add just
 COPY justfile justfile
@@ -32,4 +30,4 @@ WORKDIR /app
 COPY --from=build-server /app/build .
 COPY server/config/release-config.toml .
 
-CMD [ "./vezgammon",  "release-config.toml" ]
+CMD [ "sh", "-c", "GIN_MODE=release ./vezgammon release-config.toml" ]

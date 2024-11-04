@@ -1,0 +1,19 @@
+info:
+  contact: {}
+paths:
+  /ready:
+    get:
+      consumes:
+      - application/json
+      description: do a ping to api/ready to test if server is running
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: test if server is running
+      tags:
+      - test
+swagger: "2.0"
