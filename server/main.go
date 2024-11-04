@@ -42,10 +42,16 @@ func main() {
 
 	// middleware for static files (frontend)
 	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
+	// middleware for backend API
+	protected := router.Group("/api")
+	protected.Use(handler.AuthMiddleware())
 
-	router.GET("/api/ready", checkServer)
-	router.POST("/api/register", handler.Register)
-	router.GET("/api/users", handler.GetAllUsers)
+	// Gruppo di rotte protette per le API
+	protected.GET("/ready", checkServer)
+	protected.POST("/register", handler.Register)
+	protected.POST("/login", handler.Login)
+	protected.POST("/logout", handler.Logout)
+	protected.GET("/session", handler.GetSession)
 
 	// Read index.html into memory
 	index, err := frontend.ReadFile("dist/index.html")

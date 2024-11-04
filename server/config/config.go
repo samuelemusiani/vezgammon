@@ -14,7 +14,8 @@ type Config struct {
 }
 
 type Server struct {
-	Bind string `json:"bind"`
+	Bind   string `json:"bind"`
+	Domain string `json:"domain"`
 }
 
 type Database struct {
@@ -24,7 +25,7 @@ type Database struct {
 }
 
 var conf = Config{
-	Server{Bind: ":3001"},
+	Server{Bind: ":3001", Domain: "localhost:3001"},
 	Database{User: "", Password: "", Address: ":5432"},
 	false,
 }

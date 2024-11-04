@@ -43,10 +43,7 @@ func Init(conf *config.Config) error {
 	}
 
 	for range 20 {
-		slog.Debug("enterd")
-
 		err = conn.Ping()
-		slog.With("err", err).Debug("db errrrr")
 		if err != nil {
 			slog.With("err", err).Debug("Waiting for DB")
 			time.Sleep(time.Second * 5)
@@ -61,6 +58,8 @@ func Init(conf *config.Config) error {
 
 	// database initialization
 	err = initUser()
+	// cookie initializazion
+	err = initCookie()
 
 	return err
 }
