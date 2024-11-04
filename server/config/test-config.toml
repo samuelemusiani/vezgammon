@@ -1,4 +1,5 @@
 docker = false
+swagger = true
 
 [server]
 bind = ":8080"

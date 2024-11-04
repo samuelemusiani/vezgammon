@@ -13,6 +13,11 @@ import (
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
+
+	docs "vezgammon/server/docs"
+
+	swaggerfiles "github.com/swaggo/files"
+	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
 //go:embed dist
@@ -52,6 +57,12 @@ func main() {
 	protected.POST("/login", handler.Login)
 	protected.POST("/logout", handler.Logout)
 	protected.GET("/session", handler.GetSession)
+
+	// expose swagger web console
+	if conf.Swagger {
+		docs.SwaggerInfo.BasePath = "/api"
+		router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerfiles.Handler))
+	}
 
 	// Read index.html into memory
 	index, err := frontend.ReadFile("dist/index.html")
