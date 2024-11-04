@@ -28,7 +28,7 @@ const router = createRouter({
       name: 'profile',
       component: ProfileView,
     },
-    { 
+    {
       path: '/game',
       name: 'game',
       component: BoardView,
