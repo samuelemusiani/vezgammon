@@ -21,7 +21,7 @@ start-server:
 start-client:
     cd client && npm run dev
 
-test: test-server
+test: test-server test-client
 
 test-server:
     sudo docker-compose -f docker-compose-test.yml up -d
@@ -33,3 +33,5 @@ test-server:
         exit 1; \
     fi
 
+test-client: 
+    cd client && npm run test
