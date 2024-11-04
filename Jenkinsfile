@@ -50,7 +50,7 @@ pipeline {
       steps {
         sh 'ssh debian@site.vezgammon.it "rm -rf repo"'
         sh 'ssh debian@site.vezgammon.it "git clone https://gitlab.vezgammon.it/diego/vezgammon.git repo"'
-        sh 'ssh debian@site.vezgammon.it "cd repo && sudo docker-compose down -v"'
+        sh 'ssh debian@site.vezgammon.it "cd repo && sudo docker-compose -f docker-compose-release.yml down -v"'
         sh 'ssh debian@site.vezgammon.it "mkdir -p repo/db && echo -n $(dd if=/dev/random bs=1 count=32 | base32 | sed \'s/=//g\') > repo/db/password.txt"'
         sh 'ssh debian@site.vezgammon.it "cd repo && sudo docker-compose -f docker-compose-release.yml up -d --build"'
       }
