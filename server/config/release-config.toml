@@ -3,3 +3,6 @@ docker = true
 [server]
 bind = ":8080"
 domain = "vezgammon.it"
+
+[bgweb]
+domain "localhost:3030/api/v1/"

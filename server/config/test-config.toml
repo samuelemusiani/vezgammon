@@ -11,4 +11,4 @@ password = "test"
 address = "localhost:5432"
 
 [bgweb]
-domain "localhost:3030"
+domain "localhost:3030/api/v1/"

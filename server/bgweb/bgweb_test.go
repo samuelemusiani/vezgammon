@@ -5,7 +5,7 @@ import (
 	"testing"
 )
 
-var domain = "localhost:3030"
+var domain = "localhost:3030/api/v1/"
 
 func TestGetmoves(t *testing.T) {
 	jsonArg := `
