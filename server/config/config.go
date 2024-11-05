@@ -10,6 +10,7 @@ import (
 type Config struct {
 	Server   Server   `json:"server"`
 	Database Database `json:"database"`
+	Bgweb    Bgweb    `json:"bgweb"`
 	Docker   bool     // true if is deployen with docker
 	Swagger  bool     // if true expose swagger console
 }
@@ -25,9 +26,14 @@ type Database struct {
 	Address  string `json:"address"`
 }
 
+type Bgweb struct {
+	Domain string `json:"domain"`
+}
+
 var conf = Config{
 	Server{Bind: ":3001", Domain: "localhost:3001"},
 	Database{User: "", Password: "", Address: ":5432"},
+	Bgweb{Domain: "localhost:3002"},
 	false,
 	false,
 }
