@@ -15,7 +15,7 @@ func initUser() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY, 
-		username BPCHAR NOT NULL, 
+		username BPCHAR UNIQUE NOT NULL, 
 		password BPCHAR NOT NULL,
 		firstname BPCHAR NOT NULL,
 		lastname BPCHAR,
