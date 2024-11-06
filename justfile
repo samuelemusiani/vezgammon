@@ -25,13 +25,14 @@ start-client:
 test: test-server test-client
 
 test-server:
+    #!/usr/bin/env sh
     sudo docker-compose -f docker-compose-test.yml up -d
-    
-    if go test -v ./server/... ; then \
-        sudo docker-compose -f docker-compose-test.yml down; \
-    else \
-        sudo docker-compose -f docker-compose-test.yml down; \
-        exit 1; \
+    sleep 2
+    if go test -v ./server/... ; then
+        sudo docker-compose -f docker-compose-test.yml down;
+    else
+        sudo docker-compose -f docker-compose-test.yml down;
+        exit 1;
     fi
 
 generate-swag: install-swag

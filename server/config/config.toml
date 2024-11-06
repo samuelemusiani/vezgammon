@@ -9,3 +9,6 @@ domain = "localhost:8080"
 user = "postgres"
 password = "password"
 address = "10.1.1.1:5432"
+
+[bgweb]
+url = "localhost:3030/api/v1/"

@@ -33,6 +33,12 @@ services:
       interval: 10s
       timeout: 5s
       retries: 5
+    
+  bgweb:
+    image: foochu/bgweb-api:latest
+    restart: always
+    ports:
+      - 3030:8080
 
 volumes:
   db-data:

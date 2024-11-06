@@ -9,3 +9,6 @@ domain = "localhost:8080"
 user = "test"
 password = "test"
 address = "localhost:5432"
+
+[bgweb]
+url = "localhost:3030/api/v1/"
