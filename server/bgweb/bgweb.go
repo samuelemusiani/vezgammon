@@ -87,12 +87,14 @@ var DefaultMoveArgs MoveArgs = MoveArgs{
 
 func GetMoves(domain string, moveargs MoveArgs) ([]Move, error) {
 
+	apiurl := domain + "getmoves"
+
 	postbody, err := json.Marshal(moveargs)
 	if err != nil {
 		return nil, err
 	}
 
-	resp, err := http.Post(domain, "application/json", bytes.NewReader(postbody))
+	resp, err := http.Post(apiurl, "application/json", bytes.NewReader(postbody))
 	if err != nil {
 		return nil, err
 	}

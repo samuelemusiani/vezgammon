@@ -49,7 +49,16 @@ when running `go start-server` this is done automatically
 
 swagger ui is accessible at [http://localhost:8080/swagger/index.html](http://localhost:8080/swagger/index.html) when server is started with `swagger = true` configuration
 
-## docker and docker compose problem
+## bgweb-api
+
+(bgweb-api)[https://github.com/foochu/bgweb-api] is a evalution engine for Backgammon moves. we use to
+- get a list of legal moves
+- creating game bots of various difficulties
+- analyze games
+
+the interface to this api is coded in bgweb go module
+
+## docker and docker compose problems
 
 - __requirements__
     - docker and docker compose installed (for debian `docker.io`, `docker-compose` packages)
