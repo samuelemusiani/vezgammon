@@ -51,7 +51,7 @@ swagger ui is accessible at [http://localhost:8080/swagger/index.html](http://lo
 
 ## bgweb-api
 
-(bgweb-api)[https://github.com/foochu/bgweb-api] is a evalution engine for Backgammon moves. we use to
+[bgweb-api](https://github.com/foochu/bgweb-api) is a evalution engine for Backgammon moves. we use to
 - get a list of legal moves
 - creating game bots of various difficulties
 - analyze games
