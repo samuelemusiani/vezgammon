@@ -15,7 +15,7 @@ type Turn struct {
 }
 
 type Game struct {
-	ID      uint64 `json:"id"`
+	ID      int64  `json:"id"`
 	Player1 string `json:"player1"`
 	Elo1    int64  `json:"elo1"`
 	Player2 string `json:"player2"`
