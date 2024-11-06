@@ -27,13 +27,13 @@ type Database struct {
 }
 
 type Bgweb struct {
-	Domain string `json:"domain"`
+	Url string `json:"domain"`
 }
 
 var conf = Config{
 	Server{Bind: ":3001", Domain: "localhost:3001"},
 	Database{User: "", Password: "", Address: ":5432"},
-	Bgweb{Domain: "localhost:3002"},
+	Bgweb{Url: "localhost:3002"},
 	false,
 	false,
 }
