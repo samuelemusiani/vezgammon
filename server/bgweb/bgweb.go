@@ -218,6 +218,7 @@ type Move struct {
 	Play       []CheckerPlay `json:"play"`
 }
 
+// dont't set Dices, had to be done separately
 func (m *Move) toTurn() (*types.Turn, error) {
 	var t types.Turn
 	var err error
@@ -238,6 +239,8 @@ func (m *Move) toTurn() (*types.Turn, error) {
 		m := [2]int{from, to}
 		t.Moves = append(t.Moves, m)
 	}
+
+	t.Double = false // engine can't double
 	return &t, err
 }
 

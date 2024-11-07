@@ -18,6 +18,8 @@ type Turn struct {
 	GameId int64     `json:"game-id"`
 	User   string    `json:"user"`
 	Time   time.Time `json:"time"`
+	Dices  [2]int    `json:"dices"`
+	Double bool      `json:"double"`
 	Moves  [][2]int  `json:"moves"`
 }
 

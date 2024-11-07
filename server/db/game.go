@@ -58,7 +58,8 @@ func initGame() error {
 		game 		INTEGER REFERENCES games(id),
 		playedby	BPCHAR REFERENCES users(username),
 		time		TIMESTAMP,
-
+		dices		INTEGER [],
+		double		BOOL,
 		moves	INTEGER [][]
 	)
 	`
@@ -146,12 +147,12 @@ func GetGame(id int64) (*types.Game, *[2]int, error) {
 
 func CreateTurn(t types.Turn) (*types.Turn, error) {
 	q := `
-	INSERT INTO turns(id, game, user, time, moves)
-	VALUES ($1, $2, $3, $4, $5)
+	INSERT INTO turns(id, game, user, time, dices, double, moves)
+	VALUES ($1, $2, $3, $4, $5, $6, $7)
 	RETURNING id
 	`
 
-	res := conn.QueryRow(q, t.ID, t.GameId, t.User, t.Moves)
+	res := conn.QueryRow(q, t.ID, t.GameId, t.User, t.Time, t.Dices, t.Double, t.Moves)
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
@@ -173,7 +174,7 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 
 	for rows.Next() {
 		var tmp types.Turn
-		err = rows.Scan(&tmp.ID, &tmp.GameId, &tmp.User, &tmp.Time, &tmp.Moves)
+		err = rows.Scan(&tmp.ID, &tmp.GameId, &tmp.User, &tmp.Time, &tmp.Dices, &tmp.Double, &tmp.Moves)
 		if err != nil {
 			return nil, err
 		}
@@ -189,7 +190,7 @@ func GetLastTurn(game_id int64) (*types.Turn, error) {
 	row := conn.QueryRow(q, game_id)
 
 	var turn types.Turn
-	err := row.Scan(&turn.ID, &turn.GameId, &turn.User, &turn.Time, &turn.Moves)
+	err := row.Scan(&turn.ID, &turn.GameId, &turn.User, &turn.Time, &turn.Dices, &turn.Double, &turn.Moves)
 	if err != nil {
 		return nil, err
 	}
