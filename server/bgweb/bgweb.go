@@ -5,11 +5,167 @@ import (
 	"encoding/json"
 	"io"
 	"net/http"
+	"strconv"
+	"vezgammon/server/config"
+	"vezgammon/server/types"
 )
+
+var url = ""
+
+func Init(conf *config.Config) {
+	url = conf.Bgweb.Url
+}
 
 type Board struct {
 	O CheckerLayout `json:"o"`
 	X CheckerLayout `json:"x"`
+}
+
+func (b *Board) toGame() *types.Game {
+	var g types.Game
+
+	g.P1Checkers[0] = b.O.Bar
+	g.P1Checkers[1] = b.O.N1
+	g.P1Checkers[2] = b.O.N2
+	g.P1Checkers[3] = b.O.N3
+	g.P1Checkers[4] = b.O.N4
+	g.P1Checkers[5] = b.O.N5
+	g.P1Checkers[6] = b.O.N6
+	g.P1Checkers[7] = b.O.N7
+	g.P1Checkers[8] = b.O.N8
+	g.P1Checkers[9] = b.O.N9
+	g.P1Checkers[10] = b.O.N10
+	g.P1Checkers[11] = b.O.N11
+	g.P1Checkers[12] = b.O.N12
+	g.P1Checkers[13] = b.O.N13
+	g.P1Checkers[14] = b.O.N14
+	g.P1Checkers[15] = b.O.N15
+	g.P1Checkers[16] = b.O.N16
+	g.P1Checkers[17] = b.O.N17
+	g.P1Checkers[18] = b.O.N18
+	g.P1Checkers[19] = b.O.N19
+	g.P1Checkers[20] = b.O.N20
+	g.P1Checkers[21] = b.O.N21
+	g.P1Checkers[22] = b.O.N22
+	g.P1Checkers[23] = b.O.N23
+	g.P1Checkers[24] = b.O.N24
+
+	g.P2Checkers[0] = b.X.Bar
+	g.P2Checkers[1] = b.X.N1
+	g.P2Checkers[2] = b.X.N2
+	g.P2Checkers[3] = b.X.N3
+	g.P2Checkers[4] = b.X.N4
+	g.P2Checkers[5] = b.X.N5
+	g.P2Checkers[6] = b.X.N6
+	g.P2Checkers[7] = b.X.N7
+	g.P2Checkers[8] = b.X.N8
+	g.P2Checkers[9] = b.X.N9
+	g.P2Checkers[10] = b.X.N10
+	g.P2Checkers[11] = b.X.N11
+	g.P2Checkers[12] = b.X.N12
+	g.P2Checkers[13] = b.X.N13
+	g.P2Checkers[14] = b.X.N14
+	g.P2Checkers[15] = b.X.N15
+	g.P2Checkers[16] = b.X.N16
+	g.P2Checkers[17] = b.X.N17
+	g.P2Checkers[18] = b.X.N18
+	g.P2Checkers[19] = b.X.N19
+	g.P2Checkers[20] = b.X.N20
+	g.P2Checkers[21] = b.X.N21
+	g.P2Checkers[22] = b.X.N22
+	g.P2Checkers[23] = b.X.N23
+	g.P2Checkers[24] = b.X.N24
+
+	return &g
+}
+
+type EngineConfig struct {
+	MaxMoves   int
+	ScoreMoves bool
+}
+
+var all_legal_moves_config = EngineConfig{
+	MaxMoves:   100,
+	ScoreMoves: false,
+}
+
+var get_best_move_config = EngineConfig{
+	MaxMoves:   1,
+	ScoreMoves: true,
+}
+
+func GametoMoveArgs(g *types.Game, player string, dices *[2]int, engine_config EngineConfig) *MoveArgs {
+	var moveargs MoveArgs
+
+	var b Board
+
+	b.O.Bar = g.P1Checkers[0]
+	b.O.N1 = g.P1Checkers[1]
+	b.O.N2 = g.P1Checkers[2]
+	b.O.N3 = g.P1Checkers[3]
+	b.O.N4 = g.P1Checkers[4]
+	b.O.N5 = g.P1Checkers[5]
+	b.O.N6 = g.P1Checkers[6]
+	b.O.N7 = g.P1Checkers[7]
+	b.O.N8 = g.P1Checkers[8]
+	b.O.N9 = g.P1Checkers[9]
+	b.O.N10 = g.P1Checkers[10]
+	b.O.N11 = g.P1Checkers[11]
+	b.O.N12 = g.P1Checkers[12]
+	b.O.N13 = g.P1Checkers[13]
+	b.O.N14 = g.P1Checkers[14]
+	b.O.N15 = g.P1Checkers[15]
+	b.O.N16 = g.P1Checkers[16]
+	b.O.N17 = g.P1Checkers[17]
+	b.O.N18 = g.P1Checkers[18]
+	b.O.N19 = g.P1Checkers[19]
+	b.O.N20 = g.P1Checkers[20]
+	b.O.N21 = g.P1Checkers[21]
+	b.O.N22 = g.P1Checkers[22]
+	b.O.N23 = g.P1Checkers[23]
+	b.O.N24 = g.P1Checkers[24]
+
+	b.X.Bar = g.P2Checkers[0]
+	b.X.N1 = g.P2Checkers[1]
+	b.X.N2 = g.P2Checkers[2]
+	b.X.N3 = g.P2Checkers[3]
+	b.X.N4 = g.P2Checkers[4]
+	b.X.N5 = g.P2Checkers[5]
+	b.X.N6 = g.P2Checkers[6]
+	b.X.N7 = g.P2Checkers[7]
+	b.X.N8 = g.P2Checkers[8]
+	b.X.N9 = g.P2Checkers[9]
+	b.X.N10 = g.P2Checkers[10]
+	b.X.N11 = g.P2Checkers[11]
+	b.X.N12 = g.P2Checkers[12]
+	b.X.N13 = g.P2Checkers[13]
+	b.X.N14 = g.P2Checkers[14]
+	b.X.N15 = g.P2Checkers[15]
+	b.X.N16 = g.P2Checkers[16]
+	b.X.N17 = g.P2Checkers[17]
+	b.X.N18 = g.P2Checkers[18]
+	b.X.N19 = g.P2Checkers[19]
+	b.X.N20 = g.P2Checkers[20]
+	b.X.N21 = g.P2Checkers[21]
+	b.X.N22 = g.P2Checkers[22]
+	b.X.N23 = g.P2Checkers[23]
+	b.X.N24 = g.P2Checkers[24]
+
+	var p string
+	if player == g.Player1 {
+		p = "o"
+	} else {
+		p = "x"
+	}
+
+	moveargs.Board = b
+	moveargs.Cubeful = true // always play with cube
+	moveargs.Dice = *dices
+	moveargs.Player = p
+	moveargs.MaxMoves = engine_config.MaxMoves
+	moveargs.ScoreMoves = engine_config.ScoreMoves
+
+	return &moveargs
 }
 
 type CheckerLayout struct {
@@ -62,10 +218,34 @@ type Move struct {
 	Play       []CheckerPlay `json:"play"`
 }
 
+func (m *Move) toTurn() (*types.Turn, error) {
+	var t types.Turn
+	var err error
+	for _, play := range m.Play {
+		var to, from int
+		if play.From == "bar" {
+			from = 0
+		} else {
+			from, err = strconv.Atoi(play.From)
+		}
+
+		if play.To == "off" {
+			to = 25
+		} else {
+			to, err = strconv.Atoi(play.To)
+		}
+
+		m := [2]int{from, to}
+		t.Moves = append(t.Moves, m)
+	}
+	return &t, err
+}
+
 type MoveArgs struct {
 	Board      Board  `json:"board"`
 	Cubeful    bool   `json:"cubeful"`
 	Dice       [2]int `json:"dice"`
+	MaxMoves   int    `json:"max-moves"`
 	Player     string `json:"player"`
 	ScoreMoves bool   `json:"score-moves"`
 }
@@ -82,12 +262,13 @@ type Probability struct {
 var DefaultMoveArgs MoveArgs = MoveArgs{
 	Board:      Board{},
 	Cubeful:    false,
-	ScoreMoves: false,
+	ScoreMoves: false, // get list of legal moves
+	MaxMoves:   100,   // get all moves
 }
 
-func GetMoves(domain string, moveargs MoveArgs) ([]Move, error) {
+func GetMoves(moveargs *MoveArgs) ([]Move, error) {
 
-	apiurl := domain + "getmoves"
+	apiurl := url + "getmoves"
 
 	postbody, err := json.Marshal(moveargs)
 	if err != nil {
@@ -111,4 +292,84 @@ func GetMoves(domain string, moveargs MoveArgs) ([]Move, error) {
 	}
 
 	return m, nil
+}
+
+func GetLegalMoves(g *types.Game, dices *[2]int, player string) (*[]types.Turn, error) {
+	mv := GametoMoveArgs(g, player, dices, all_legal_moves_config)
+
+	moves, err := GetMoves(mv)
+	if err != nil {
+		return nil, err
+	}
+
+	var turns []types.Turn
+	for _, m := range moves {
+		tturn, err := m.toTurn()
+		if err != nil {
+			return nil, err
+		}
+
+		turns = append(turns, *tturn)
+	}
+	return &turns, nil
+}
+
+func GetBestMove(g *types.Game, dices *[2]int, player string) (*types.Turn, error) {
+	mv := GametoMoveArgs(g, player, dices, get_best_move_config)
+
+	moves, err := GetMoves(mv)
+	if err != nil {
+		return nil, err
+	}
+
+	turn, err := moves[0].toTurn()
+	if err != nil {
+		return nil, err
+	}
+
+	return turn, nil
+}
+
+func GetEasyMove(g *types.Game, dices *[2]int, player string) (*types.Turn, error) {
+	conf := EngineConfig{
+		MaxMoves:   5,
+		ScoreMoves: true,
+	}
+	mv := GametoMoveArgs(g, player, dices, conf)
+
+	moves, err := GetMoves(mv)
+	if err != nil {
+		return nil, err
+	}
+
+	move := moves[len(moves)-1]
+
+	turn, err := move.toTurn()
+	if err != nil {
+		return nil, err
+	}
+
+	return turn, nil
+}
+
+func GetMediumMove(g *types.Game, dices *[2]int, player string) (*types.Turn, error) {
+	conf := EngineConfig{
+		MaxMoves:   3,
+		ScoreMoves: true,
+	}
+	mv := GametoMoveArgs(g, player, dices, conf)
+
+	moves, err := GetMoves(mv)
+	if err != nil {
+		return nil, err
+	}
+
+	move := moves[len(moves)-1]
+
+	turn, err := move.toTurn()
+	if err != nil {
+		return nil, err
+	}
+
+	return turn, nil
 }

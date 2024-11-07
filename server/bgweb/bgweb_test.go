@@ -6,9 +6,9 @@ import (
 	"testing"
 )
 
-var domain = "http://localhost:3030/api/v1/"
-
 func TestGetmoves(t *testing.T) {
+
+	url = "http://localhost:3030/api/v1/"
 
 	jsonArg := `
 {
@@ -140,7 +140,7 @@ func TestGetmoves(t *testing.T) {
 	}
 	t.Logf("respmoves %v", respmoves)
 
-	rp, err := GetMoves(domain, moveargs)
+	rp, err := GetMoves(&moveargs)
 	if err != nil {
 		t.Fatalf("%v", err)
 	}
