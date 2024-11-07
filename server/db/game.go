@@ -9,7 +9,7 @@ func initGame() error {
 
 	var q string
 	q = `
-	CREATE TYPE IF NOT EXISTS gamestate AS
+	CREATE TYPE gamestate AS
 	ENUM('open', 'winp1', 'winp2')
 	`
 	_, err := conn.Exec(q)
@@ -18,7 +18,7 @@ func initGame() error {
 	}
 
 	q = `
-	CREATE TYPE IF NOT EXISTS doubleowner AS
+	CREATE TYPE doubleowner AS
 	ENUM('all', 'p1', 'p2')
 	`
 	_, err = conn.Exec(q)
@@ -29,20 +29,20 @@ func initGame() error {
 	q = `
 	CREATE TABLE IF NOT EXISTS games(
 		id 		SERIAL PRIMARY KEY,
-		p1	INTEGER REFERENCES users(username),
+		p1	 	BPCHAR REFERENCES users(username),
 		p1elo	INTEGER,
-		p2	INTEGER REFERENCES users(username),
+		p2		BPCHAR REFERENCES users(username),
 		p2elo 	INTEGER,
 
 		start 	TIMESTAMP,
-		end 	TIMESTAMP,
+		endtime TIMESTAMP,
 		status	GAMESTATE DEFAULT 'open',
 
-		p1checkers INTEGER [] DEFAULT {0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, 0},
-		P2checkers INTEGER [] DEFAULT {0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+		p1checkers INTEGER [] DEFAULT ARRAY [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, 0],
+		P2checkers INTEGER [] DEFAULT ARRAY [0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
 
 		double 		INTEGER DEFAULT 1,
-		doubleowner INTEGER DOUBLEOWNER DEFAULT 'all',
+		doubleowner DOUBLEOWNER DEFAULT 'all',
 
 		nextdices INTEGER []
 	)
@@ -54,10 +54,10 @@ func initGame() error {
 
 	q = `
 	CREATE TABLE IF NOT EXISTS turns(
-		id 		SERIAL PRIMARY KEY,
-		game 	INTEGER REFERENCES games(id),
-		user	INTEGER REFERENCES users(username),
-		time	TIMESTAMP,
+		id 			SERIAL PRIMARY KEY,
+		game 		INTEGER REFERENCES games(id),
+		playedby	BPCHAR REFERENCES users(username),
+		time		TIMESTAMP,
 
 		moves	INTEGER [][]
 	)
@@ -72,7 +72,7 @@ func initGame() error {
 
 func CreateGame(g types.Game) (*types.Game, error) {
 	q := `
-	INSERT INTO games (p1, p1elo, p2, p2elo, start, nextdices) 
+	INSERT INTO games (p1, p1elo, p2, p2elo, start, nextdices)
 	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING id
 	`
@@ -93,14 +93,14 @@ func CreateGame(g types.Game) (*types.Game, error) {
 
 func UpdateGame(g types.Game) error {
 	q := `
-	UPDATE games 
-	SET	end			= $1, 
-		status		= $2, 
-		p1checkers	= $3, 
-		p2checkers	= $4, 
-		double		= $5, 
-		doubleowner	= $6, 
-		nextdices	= $7 
+	UPDATE games
+	SET	endtime		= $1,
+		status		= $2,
+		p1checkers	= $3,
+		p2checkers	= $4,
+		double		= $5,
+		doubleowner	= $6,
+		nextdices	= $7
 	WHERE id = $8
 	`
 

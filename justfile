@@ -41,5 +41,5 @@ generate-swag: install-swag
 install-swag:
     go install github.com/swaggo/swag/cmd/swag@latest
 
-test-client: 
+test-client:
     cd client && npm run test
