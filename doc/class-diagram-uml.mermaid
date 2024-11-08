@@ -1,0 +1,124 @@
+---
+title: Backgammon Game Class Diagram
+---
+classDiagram
+    User <|-- Player
+    Player "1" *-- "1" Stats
+    Player "1" *-- "0..*" Achievement
+    Player "1" -- "0..*" Game
+    Game "1" *-- "1" Board
+    Game "1" *-- "2" PlayerElo
+    Game "1" *-- "0..*" Turn
+    Turn "1" *-- "2" Dice
+    Board "1" *-- "24" Point
+    Point "1" *-- "0..*" Checker
+
+    class User {
+        +Integer id
+        +String username
+        +String password
+        +String email
+        +String avatar
+        +login()
+        +logout()
+        +updateProfile()
+    }
+
+    class Player {
+        +Stats statistics
+        +List~Achievement~ achievements
+        +List~Game~ games
+        +getRanking()
+        +getWinRate()
+    }
+
+    class Stats {
+        +Integer ranking
+        +Integer gamesPlayed
+        +Integer gamesWon
+        +Integer checkersEaten
+        +Double winRate
+        +updateStats(Game)
+    }
+
+    class PlayerElo {
+        +Integer beforeGame
+        +Integer afterGame
+        +calculateEloChange()
+    }
+
+    class Game {
+        +Integer id
+        +Player player1
+        +Player player2
+        +PlayerElo player1Elo
+        +PlayerElo player2Elo
+        +Board board
+        +GameStatus status
+        +List~Turn~ turns
+        +DateTime startTime
+        +DateTime endTime
+        +makeMove(Turn)
+        +undoLastMove()
+        +calculateScore()
+    }
+    
+    class Achievement {
+        +String name
+        +String description
+        +DateTime unlocked
+        +String iconPath
+        +checkUnlockCondition()
+    }
+
+    class Turn {
+        +List~Dice~ dice
+        +List~Move~ moves
+        +Player player
+        +validateMove()
+        +execute()
+    }
+
+    class Dice {
+        +Integer value
+        +roll()
+    }
+
+    class Board {
+        +List~Point~ points
+        +Point bar
+        +Point bearOff
+        +validateMove(Move)
+        +makeMove(Move)
+        +getBearOffMoves()
+    }
+
+    class Point {
+        +Integer position
+        +List~Checker~ checkers
+        +Color pointColor
+        +addChecker(Checker)
+        +removeChecker()
+    }
+
+    class Checker {
+        +Color color
+        +Boolean isBearOff
+        +move(Point)
+    }
+
+    class Move {
+        +Point from
+        +Point to
+        +Checker checker
+        +validate()
+        +execute()
+    }
+
+    class GameStatus {
+        <<enumeration>>
+        WAITING_FOR_PLAYER
+        IN_PROGRESS
+        FINISHED
+        ABANDONED
+    }
