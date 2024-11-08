@@ -94,7 +94,7 @@ var get_best_move_config = EngineConfig{
 	ScoreMoves: true,
 }
 
-func GametoMoveArgs(g *types.Game, player string, dices *[2]int, engine_config EngineConfig) *MoveArgs {
+func GametoMoveArgs(g *types.Game, player int64, dices *[2]int, engine_config EngineConfig) *MoveArgs {
 	var moveargs MoveArgs
 
 	var b Board
@@ -297,7 +297,7 @@ func GetMoves(moveargs *MoveArgs) ([]Move, error) {
 	return m, nil
 }
 
-func GetLegalMoves(g *types.Game, dices *[2]int, player string) (*[]types.Turn, error) {
+func GetLegalMoves(g *types.Game, dices *[2]int, player int64) (*[]types.Turn, error) {
 	mv := GametoMoveArgs(g, player, dices, all_legal_moves_config)
 
 	moves, err := GetMoves(mv)
@@ -317,7 +317,7 @@ func GetLegalMoves(g *types.Game, dices *[2]int, player string) (*[]types.Turn, 
 	return &turns, nil
 }
 
-func GetBestMove(g *types.Game, dices *[2]int, player string) (*types.Turn, error) {
+func GetBestMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error) {
 	mv := GametoMoveArgs(g, player, dices, get_best_move_config)
 
 	moves, err := GetMoves(mv)
@@ -333,7 +333,7 @@ func GetBestMove(g *types.Game, dices *[2]int, player string) (*types.Turn, erro
 	return turn, nil
 }
 
-func GetEasyMove(g *types.Game, dices *[2]int, player string) (*types.Turn, error) {
+func GetEasyMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error) {
 	conf := EngineConfig{
 		MaxMoves:   5,
 		ScoreMoves: true,
@@ -355,7 +355,7 @@ func GetEasyMove(g *types.Game, dices *[2]int, player string) (*types.Turn, erro
 	return turn, nil
 }
 
-func GetMediumMove(g *types.Game, dices *[2]int, player string) (*types.Turn, error) {
+func GetMediumMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error) {
 	conf := EngineConfig{
 		MaxMoves:   3,
 		ScoreMoves: true,

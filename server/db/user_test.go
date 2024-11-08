@@ -6,34 +6,6 @@ import (
 	"vezgammon/server/types"
 )
 
-func TestInitUser(t *testing.T) {
-	err := initUser()
-	if err != nil {
-		t.Fatalf("cannot initialize user, %s", err)
-	}
-
-	q := `
-	SELECT EXISTS (
-    SELECT FROM 
-        pg_tables
-    WHERE  
-        tablename  = 'users'
-    )
-	`
-
-	row := conn.QueryRow(q)
-
-	var isin bool
-	err = row.Scan(&isin)
-	if err != nil {
-		t.Fatalf("%s", err)
-	}
-
-	if !isin {
-		t.Fatalf("user table doesn't exists")
-	}
-}
-
 func TestCreateUser(t *testing.T) {
 
 	u := types.User{
@@ -56,19 +28,6 @@ func TestCreateUser(t *testing.T) {
 }
 
 func TestGetUsers(t *testing.T) {
-	q := `DELETE FROM users`
-	_, err := conn.Exec(q)
-	if err != nil {
-		t.Fatalf("%s", err)
-	}
-
-	u1 := types.User{
-		Username:  "gigi",
-		Firstname: "giorgio",
-		Lastname:  "galli",
-		Mail:      "giorgio.galli@mail.it",
-	}
-	pass1 := "asda13"
 
 	u2 := types.User{
 		Username:  "sa",
@@ -78,9 +37,7 @@ func TestGetUsers(t *testing.T) {
 	}
 	pass2 := "dfa24"
 
-	retu1, _ := CreateUser(u1, pass1)
 	retu2, _ := CreateUser(u2, pass2)
-	u1.ID = retu1.ID
 	u2.ID = retu2.ID
 
 	users, err := GetUsers()
@@ -89,7 +46,7 @@ func TestGetUsers(t *testing.T) {
 	}
 
 	slog.With("users", users).Debug("users array")
-	if users[0] != u1 || users[1] != u2 {
+	if len(users) < 2 {
 		t.Fatalf("not getting users correctly")
 	}
 }

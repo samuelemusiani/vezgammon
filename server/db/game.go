@@ -3,6 +3,8 @@ package db
 import (
 	"time"
 	"vezgammon/server/types"
+
+	"github.com/lib/pq"
 )
 
 func initGame() error {
@@ -29,9 +31,9 @@ func initGame() error {
 	q = `
 	CREATE TABLE IF NOT EXISTS games(
 		id 		SERIAL PRIMARY KEY,
-		p1	 	BPCHAR REFERENCES users(username),
+		p1	 	INTEGER REFERENCES users(id),
 		p1elo	INTEGER,
-		p2		BPCHAR REFERENCES users(username),
+		p2		INTEGER REFERENCES users(id),
 		p2elo 	INTEGER,
 
 		start 	TIMESTAMP,
@@ -56,7 +58,7 @@ func initGame() error {
 	CREATE TABLE IF NOT EXISTS turns(
 		id 			SERIAL PRIMARY KEY,
 		game 		INTEGER REFERENCES games(id),
-		playedby	BPCHAR REFERENCES users(username),
+		playedby	INTEGER REFERENCES users(id),
 		time		TIMESTAMP,
 		dices		INTEGER [],
 		double		BOOL,
@@ -81,7 +83,7 @@ func CreateGame(g types.Game) (*types.Game, error) {
 	start := time.Now()
 	dices := types.NewDices()
 
-	res := conn.QueryRow(q, g.Player1, 0, g.Player2, 0, start, dices)
+	res := conn.QueryRow(q, g.Player1, 0, g.Player2, 0, start, pq.Array(dices))
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
@@ -108,7 +110,7 @@ func UpdateGame(g types.Game) error {
 	end := time.Now()
 	dices := types.NewDices()
 
-	_, err := conn.Exec(q, end, g.Status, g.P1Checkers, g.P2Checkers, g.Double, g.DoubleOwner, dices)
+	_, err := conn.Exec(q, pq.FormatTimestamp(end), g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.Double, g.DoubleOwner, pq.Array(dices))
 	if err != nil {
 		return err
 	}

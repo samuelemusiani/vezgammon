@@ -16,19 +16,27 @@ func NewDices() [2]int {
 type Turn struct {
 	ID     int64     `json:"id"`
 	GameId int64     `json:"game-id"`
-	User   string    `json:"user"`
+	User   int64     `json:"user"`
 	Time   time.Time `json:"time"`
 	Dices  [2]int    `json:"dices"`
 	Double bool      `json:"double"`
 	Moves  [][2]int  `json:"moves"`
 }
 
+var GameStatusOpen = "open"
+var GameStatusWinP1 = "winp1"
+var GameStatusWinP2 = "winp2"
+
+var GameDoubleOwnerAll = "all"
+var GameDoubleOwnerP1 = "p1"
+var GameDoubleOwnerP2 = "p2"
+
 type Game struct {
-	ID      int64  `json:"id"`
-	Player1 string `json:"player1"`
-	Elo1    int64  `json:"elo1"`
-	Player2 string `json:"player2"`
-	Elo2    int64  `json:"elo2"`
+	ID      int64 `json:"id"`
+	Player1 int64 `json:"player1"`
+	Elo1    int64 `json:"elo1"`
+	Player2 int64 `json:"player2"`
+	Elo2    int64 `json:"elo2"`
 
 	Start  time.Time `json:"start"`
 	End    time.Time `json:"end"`
