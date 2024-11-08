@@ -9,6 +9,7 @@ import {
   getCheckerY,
   updateGameState,
   newGame,
+  endTurn,
 } from '@/utils/game/game'
 import {
   calculatePossibleMoves,
@@ -275,6 +276,14 @@ const startTimer = () => {
       <div
         class="flex w-48 flex-col justify-center rounded-lg bg-white p-2 shadow-xl"
       >
+        <div class="mb-4 flex flex-col items-center">
+          <button
+            @click="endTurn(gameState)"
+            class="mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
+          >
+            End Turn
+          </button>
+        </div>
         <!-- Dice Section -->
         <div class="mb-4 flex flex-col items-center">
           <button
