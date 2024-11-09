@@ -183,6 +183,15 @@ function validate() {
               Register
             </button>
           </div>
+
+          <div class="divider">OR</div>
+
+          <div class="text-center">
+            <p>Already have an account?</p>
+            <RouterLink to="/login" class="link link-primary"
+              >Go back to Login</RouterLink
+            >
+          </div>
         </form>
       </div>
     </div>

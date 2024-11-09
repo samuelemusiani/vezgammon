@@ -109,7 +109,9 @@ function validate() {
         <div class="divider">OR</div>
         <div class="text-center">
           <p>Don't have an account?</p>
-          <a href="/register" class="link link-primary">Sign up now</a>
+          <RouterLink to="/register" class="link link-primary"
+            >Sign up now</RouterLink
+          >
         </div>
       </div>
     </div>
