@@ -7,13 +7,13 @@ Votes: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D | Motivazioni |
 | ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ | ----------- |
-| Scrum Master     | 😡       |            | 😡        |         |            |        |             |
-| Product Owner    | 😡       |            | 😐        |         |            |        |             |
-| Development Team | 😐       |            | 😡        |         |            |        |             |
-| Product Backlog  | 😃       |            | 😐        |         |            |        |             |
-| Sprint Planning  | 😡       |            | 😐        |         |            |        |             |
-| Sprint Goal      | 😡       |            | 😐        |         |            |        |             |
-| Self Menagement  | 😃       |            | 😃        |         |            |        |             |
+| Scrum Master     | 😡       |            | 😡        | 😡        |            |        |             |
+| Product Owner    | 😡       |            | 😐        | 😐        |            |        |             |
+| Development Team | 😐       |            | 😡        | 😐        |            |        |             |
+| Product Backlog  | 😃       |            | 😐        | 😃        |            |        |             |
+| Sprint Planning  | 😡       |            | 😐        | 😡        |            |        |             |
+| Sprint Goal      | 😡       |            | 😐        | 😐        |            |        |             |
+| Self Menagement  | 😃       |            | 😃        | 😃        |            |        |             |
 
 ### Commenti personali
 #### Product Owner
@@ -24,3 +24,7 @@ Veramente ottimo la gestione dell'ambiente di lavoro: server di deploy funzionan
 #### Samuele D
 Sotto-stima del carico di lavoro, in particolare troppo per il backend e relativamente poco per il front-end.
 Il team per il front si è trovato bloccato da mancanza di features nel back.
+
+#### Fabio D
+Sotto-stima del carico di lavoro, sprint molto impegnativo a causa di user story troppo generali richiedenti molto lavoro.
+Continui problemi nel database mi hanno portato ad accumulare un ritardo nello sviluppo di features nella parte back-end.
