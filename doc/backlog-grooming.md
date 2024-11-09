@@ -1,6 +1,6 @@
 # Backlog
 ## Sprint 1
-![[imgs/backlog-sprint1.png]]
+![backlog](./imgs/backlog-sprint1.png)
 
 #### Completato
 - creazione account
