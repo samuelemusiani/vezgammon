@@ -121,18 +121,18 @@ func ValidateSessionToken(token string) (int64, error) {
 	return userID, nil
 }
 
-func CreateUser(u types.User, password string) (*types.User, error) {
+func CreateUser(u types.User, password string) (types.User, error) {
 	q := `INSERT INTO users(username, password, firstname, lastname, mail) VALUES($1, $2, $3, $4, $5) RETURNING id`
 	res := conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail)
 
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
-		return nil, err
+		return u, err
 	}
 
 	u.ID = id
-	return &u, nil
+	return u, nil
 }
 
 func Logout(sessionToken string) error {

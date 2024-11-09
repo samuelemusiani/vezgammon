@@ -5,6 +5,7 @@ import (
 	"vezgammon/server/types"
 
 	"gotest.tools/v3/assert"
+	"log/slog"
 )
 
 func TestCreateGame(t *testing.T) {
@@ -44,7 +45,9 @@ func TestGetGame(t *testing.T) {
 		Lastname:  "tame",
 		Mail:      "tgame",
 	}
-	_, err := CreateUser(tuser, "dsdf")
+
+	var err error
+	tuser, err = CreateUser(tuser, "dsdf")
 	assert.NilError(t, err)
 
 	g := types.Game{

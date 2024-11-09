@@ -1,10 +1,12 @@
 package db
 
 import (
+	"log/slog"
 	"time"
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
+	//"golang.org/x/exp/slog"
 )
 
 func initGame() error {
@@ -75,22 +77,56 @@ func initGame() error {
 
 func CreateGame(g types.Game) (*types.Game, error) {
 	q := `
-	INSERT INTO games (p1, p1elo, p2, p2elo, start, nextdices)
-	VALUES ($1, $2, $3, $4, $5, $6)
-	RETURNING id
-	`
+    INSERT INTO games (
+        p1, p1elo, p2, p2elo, 
+        start, endtime, nextdices,
+        p1checkers, p2checkers,
+        double, doubleowner, status
+    )
+    VALUES (
+        $1, $2, $3, $4, 
+        $5, $6, $7, 
+        $8, $9, 
+        $10, $11, $12
+    )
+    RETURNING id, start
+    `
 
 	start := time.Now()
+
+	// placeholder for endtime value, can't be nil (i think)
+	endtime := time.Now()
 	dices := types.NewDices()
 
-	res := conn.QueryRow(q, g.Player1, 0, g.Player2, 0, start, pq.Array(dices))
+	// Default checker positions
+	p1Checkers := [25]int8{0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, 0}
+	p2Checkers := [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+
+	res := conn.QueryRow(
+		q,
+		g.Player1, g.Elo1, g.Player2, g.Elo2,
+		start, endtime, pq.Array(dices),
+		pq.Array(p1Checkers), pq.Array(p2Checkers),
+		1, "all", "open",
+	)
+
 	var id int64
-	err := res.Scan(&id)
+	var startTime time.Time
+
+	err := res.Scan(&id, &startTime)
 	if err != nil {
+		slog.With("creating game: ", err).Debug("error")
 		return nil, err
 	}
 
 	g.ID = id
+	g.Start = startTime
+	g.P1Checkers = p1Checkers
+	g.P2Checkers = p2Checkers
+	g.Double = 1
+	g.DoubleOwner = "all"
+	g.Status = "open"
+
 	return &g, nil
 }
 
@@ -118,14 +154,18 @@ func UpdateGame(g types.Game) error {
 	return nil
 }
 
-func GetGame(id int64) (*types.Game, *[2]int, error) {
+func GetGame(id int64) (*types.Game, *[2]int8, error) {
 	var g types.Game
 
 	q := "SELECT * FROM games WHERE id = $1"
 
 	row := conn.QueryRow(q, id)
 
-	var nextdices [2]int
+	// Tmp variables for avoid error type in the db [int8/int]
+	var p1CheckersDB pq.Int64Array
+	var p2CheckersDB pq.Int64Array
+	var nextdicesDB pq.Int64Array
+
 	err := row.Scan(
 		&g.ID,
 		&g.Player1,
@@ -135,13 +175,27 @@ func GetGame(id int64) (*types.Game, *[2]int, error) {
 		&g.Start,
 		&g.End,
 		&g.Status,
-		&g.P1Checkers,
-		&g.P2Checkers,
+		&p1CheckersDB,
+		&p2CheckersDB,
 		&g.Double,
 		&g.DoubleOwner,
-		&nextdices)
+		&nextdicesDB)
+
 	if err != nil {
 		return nil, nil, err
+	}
+
+	// Conversion of p1Checkers from int8 into int
+	for i, v := range p1CheckersDB {
+		g.P1Checkers[i] = int8(v)
+	}
+	for i, v := range p2CheckersDB {
+		g.P2Checkers[i] = int8(v)
+	}
+
+	var nextdices [2]int8
+	for i, v := range nextdicesDB {
+		nextdices[i] = int8(v)
 	}
 
 	return &g, &nextdices, nil

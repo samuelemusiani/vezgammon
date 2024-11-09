@@ -169,31 +169,31 @@ func GametoMoveArgs(g *types.Game, player int64, dices *[2]int, engine_config En
 }
 
 type CheckerLayout struct {
-	N1  int `json:"1"`
-	N2  int `json:"2"`
-	N3  int `json:"3"`
-	N4  int `json:"4"`
-	N5  int `json:"5"`
-	N6  int `json:"6"`
-	N7  int `json:"7"`
-	N8  int `json:"8"`
-	N9  int `json:"9"`
-	N10 int `json:"10"`
-	N11 int `json:"11"`
-	N12 int `json:"12"`
-	N13 int `json:"13"`
-	N14 int `json:"14"`
-	N15 int `json:"15"`
-	N16 int `json:"16"`
-	N17 int `json:"17"`
-	N18 int `json:"18"`
-	N19 int `json:"19"`
-	N20 int `json:"20"`
-	N21 int `json:"21"`
-	N22 int `json:"22"`
-	N23 int `json:"23"`
-	N24 int `json:"24"`
-	Bar int `json:"bar"`
+	N1  int8 `json:"1"`
+	N2  int8 `json:"2"`
+	N3  int8 `json:"3"`
+	N4  int8 `json:"4"`
+	N5  int8 `json:"5"`
+	N6  int8 `json:"6"`
+	N7  int8 `json:"7"`
+	N8  int8 `json:"8"`
+	N9  int8 `json:"9"`
+	N10 int8 `json:"10"`
+	N11 int8 `json:"11"`
+	N12 int8 `json:"12"`
+	N13 int8 `json:"13"`
+	N14 int8 `json:"14"`
+	N15 int8 `json:"15"`
+	N16 int8 `json:"16"`
+	N17 int8 `json:"17"`
+	N18 int8 `json:"18"`
+	N19 int8 `json:"19"`
+	N20 int8 `json:"20"`
+	N21 int8 `json:"21"`
+	N22 int8 `json:"22"`
+	N23 int8 `json:"23"`
+	N24 int8 `json:"24"`
+	Bar int8 `json:"bar"`
 }
 
 type CheckerPlay struct {
