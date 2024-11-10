@@ -1,0 +1,28 @@
+Checklist S1
+Prodotto online: https://vezgammon.it/ (error 502 domenica mattina)
+User Stories (Taiga/Text)
+	IN TAIGA METTETEMI NEL PROGETTO SE NO NON POSSO COMMENTARE LE US
+	Es: US#18 non è una user story, ma un task (Lo scopo dell'utente è giocare, non avere un account!)
+	US#24: che significa accedere? 
+	US#28: esplorare? E poi mi sembra a priorità bassina, o no?
+	Cercate di metterle in forma canonica, esplicitando la business value
+	Backlog snapshot iniziale e finale mancano, come pure i burndown chart iniziali e finali in png
+
+Documenti: generalmente aggiornati
+	   Presente img mockup
+	   I diagrammi metteteli anche in formato .png (non si dovrebbe fare, ma semplifica la vita)
+Sprint preparation: 
+	Backlog grooming OK
+	DOD: in generale bene. La sezione "Requisiti funzionali" sono troppo specifici, dovrebbero diventare
+		delle condizioni di accettazione delle user story
+	DOR: manca
+Sprint review: 
+	S1:Manca
+Retrospective: 
+	S1:Presente come documento, Esplicitare meglio le azioni che sono finite in un altro file
+Git Stats: Manca tag Sprint0 (fare)
+	I contributi paiono provenire prevalentemente da Murer, Musiani e Peroni
+Testing/Coverage: Apparentemente non ci sono test, nè indicazioni di coverate
+SQ: Attivo, funzionante
+Devops: OK
+
