@@ -5,7 +5,6 @@ import (
 	"vezgammon/server/types"
 
 	"gotest.tools/v3/assert"
-	"log/slog"
 )
 
 func TestCreateGame(t *testing.T) {

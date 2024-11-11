@@ -6,31 +6,10 @@ import (
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
-	//"golang.org/x/exp/slog"
 )
 
 func initGame() error {
-
-	var q string
-	q = `
-	CREATE TYPE gamestate AS
-	ENUM('open', 'winp1', 'winp2')
-	`
-	_, err := conn.Exec(q)
-	if err != nil {
-		return err
-	}
-
-	q = `
-	CREATE TYPE doubleowner AS
-	ENUM('all', 'p1', 'p2')
-	`
-	_, err = conn.Exec(q)
-	if err != nil {
-		return err
-	}
-
-	q = `
+	q := `
 	CREATE TABLE IF NOT EXISTS games(
 		id 		SERIAL PRIMARY KEY,
 		p1	 	INTEGER REFERENCES users(id),
@@ -40,18 +19,18 @@ func initGame() error {
 
 		start 	TIMESTAMP,
 		endtime TIMESTAMP,
-		status	GAMESTATE DEFAULT 'open',
+		status	BPCHAR DEFAULT 'open',
 
-		p1checkers INTEGER [] DEFAULT ARRAY [0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, 0],
+		p1checkers INTEGER [] DEFAULT ARRAY [0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
 		P2checkers INTEGER [] DEFAULT ARRAY [0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
 
 		double 		INTEGER DEFAULT 1,
-		doubleowner DOUBLEOWNER DEFAULT 'all',
+		doubleowner BPCHAR DEFAULT 'all',
 
 		nextdices INTEGER []
 	)
 	`
-	_, err = conn.Exec(q)
+	_, err := conn.Exec(q)
 	if err != nil {
 		return err
 	}
@@ -78,15 +57,15 @@ func initGame() error {
 func CreateGame(g types.Game) (*types.Game, error) {
 	q := `
     INSERT INTO games (
-        p1, p1elo, p2, p2elo, 
+        p1, p1elo, p2, p2elo,
         start, endtime, nextdices,
         p1checkers, p2checkers,
         double, doubleowner, status
     )
     VALUES (
-        $1, $2, $3, $4, 
-        $5, $6, $7, 
-        $8, $9, 
+        $1, $2, $3, $4,
+        $5, $6, $7,
+        $8, $9,
         $10, $11, $12
     )
     RETURNING id, start
