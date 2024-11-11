@@ -1,6 +1,7 @@
 # Backlog
 ## Sprint 1
-![backlog](./imgs/backlog-sprint1.png)
+![backlog-graph](./imgs/s1-backlog-burndown.png)
+![backlog-snapshot](./imgs/s1-backlog-snapshot.png)
 
 #### Completato
 - creazione account
