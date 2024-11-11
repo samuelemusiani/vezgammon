@@ -24,10 +24,11 @@ func initGame() error {
 		p1checkers INTEGER [] DEFAULT ARRAY [0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
 		P2checkers INTEGER [] DEFAULT ARRAY [0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
 
-		double 		INTEGER DEFAULT 1,
-		doubleowner BPCHAR DEFAULT 'all',
+		double_value 		INTEGER DEFAULT 1,
+		double_owner BPCHAR DEFAULT 'all',
+    want_to_double BOOL DEFAULT FALSE,
 
-		nextdices INTEGER []
+		dices INTEGER []
 	)
 	`
 	_, err := conn.Exec(q)
@@ -102,7 +103,7 @@ func CreateGame(g types.Game) (*types.Game, error) {
 	g.Start = startTime
 	g.P1Checkers = p1Checkers
 	g.P2Checkers = p2Checkers
-	g.Double = 1
+	g.DoubleValue = 1
 	g.DoubleOwner = "all"
 	g.Status = "open"
 
@@ -116,7 +117,7 @@ func UpdateGame(g types.Game) error {
 		status		= $2,
 		p1checkers	= $3,
 		p2checkers	= $4,
-		double		= $5,
+		double_value		= $5,
 		doubleowner	= $6,
 		nextdices	= $7
 	WHERE id = $8
@@ -125,7 +126,7 @@ func UpdateGame(g types.Game) error {
 	end := time.Now()
 	dices := types.NewDices()
 
-	_, err := conn.Exec(q, pq.FormatTimestamp(end), g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.Double, g.DoubleOwner, pq.Array(dices))
+	_, err := conn.Exec(q, pq.FormatTimestamp(end), g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.DoubleValue, g.DoubleOwner, pq.Array(dices))
 	if err != nil {
 		return err
 	}
@@ -156,8 +157,9 @@ func GetGame(id int64) (*types.Game, *[2]int8, error) {
 		&g.Status,
 		&p1CheckersDB,
 		&p2CheckersDB,
-		&g.Double,
+		&g.DoubleValue,
 		&g.DoubleOwner,
+		&g.WantToDouble,
 		&nextdicesDB)
 
 	if err != nil {

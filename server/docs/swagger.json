@@ -4,6 +4,203 @@
         "contact": {}
     },
     "paths": {
+        "/play": {
+            "get": {
+                "description": "Get current game",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get current game",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Game"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Surrend to current game",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Surrend to current game",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/play/double": {
+            "put": {
+                "description": "Accept the double",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Accept the double",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "The player want to double",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "The player want to double",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Refuse the double",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Refuse the double",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/play/moves": {
+            "get": {
+                "description": "Get possible moves for next turn",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get possible moves for next turn",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "post": {
+                "description": "Play all the moves for the current turn",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Play all the moves for the current turn",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
+        "/play/search": {
+            "get": {
+                "description": "Start a matchmaking search for a new game",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Start a matchmaking search for a new game",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "description": "Stop a running matchmaking search",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Stop a running matchmaking search",
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    }
+                }
+            }
+        },
         "/ready": {
             "get": {
                 "description": "do a ping to api/ready to test if server is running",
@@ -24,6 +221,70 @@
                             "type": "string"
                         }
                     }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "types.Game": {
+            "type": "object",
+            "properties": {
+                "current_player": {
+                    "type": "string"
+                },
+                "dices": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "double_owner": {
+                    "type": "string"
+                },
+                "double_value": {
+                    "description": "Current value of the red dice",
+                    "type": "integer"
+                },
+                "elo1": {
+                    "type": "integer"
+                },
+                "elo2": {
+                    "type": "integer"
+                },
+                "end": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "p1checkers": {
+                    "description": "arr[0] is bar",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "p2checkers": {
+                    "description": "arr[0] is bar",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "player1": {
+                    "type": "integer"
+                },
+                "player2": {
+                    "type": "integer"
+                },
+                "start": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "want_to_double": {
+                    "type": "boolean"
                 }
             }
         }

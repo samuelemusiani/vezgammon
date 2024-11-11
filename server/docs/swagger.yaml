@@ -1,6 +1,179 @@
+definitions:
+  types.Game:
+    properties:
+      current_player:
+        type: string
+      dices:
+        items:
+          type: integer
+        type: array
+      double_owner:
+        type: string
+      double_value:
+        description: Current value of the red dice
+        type: integer
+      elo1:
+        type: integer
+      elo2:
+        type: integer
+      end:
+        type: string
+      id:
+        type: integer
+      p1checkers:
+        description: arr[0] is bar
+        items:
+          type: integer
+        type: array
+      p2checkers:
+        description: arr[0] is bar
+        items:
+          type: integer
+        type: array
+      player1:
+        type: integer
+      player2:
+        type: integer
+      start:
+        type: string
+      status:
+        type: string
+      want_to_double:
+        type: boolean
+    type: object
 info:
   contact: {}
 paths:
+  /play:
+    delete:
+      consumes:
+      - application/json
+      description: Surrend to current game
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Surrend to current game
+      tags:
+      - play
+    get:
+      consumes:
+      - application/json
+      description: Get current game
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Game'
+      summary: Get current game
+      tags:
+      - play
+  /play/double:
+    delete:
+      consumes:
+      - application/json
+      description: Refuse the double
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Refuse the double
+      tags:
+      - play
+    post:
+      consumes:
+      - application/json
+      description: The player want to double
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: The player want to double
+      tags:
+      - play
+    put:
+      consumes:
+      - application/json
+      description: Accept the double
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Accept the double
+      tags:
+      - play
+  /play/moves:
+    get:
+      consumes:
+      - application/json
+      description: Get possible moves for next turn
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+      summary: Get possible moves for next turn
+      tags:
+      - play
+    post:
+      consumes:
+      - application/json
+      description: Play all the moves for the current turn
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Play all the moves for the current turn
+      tags:
+      - play
+  /play/search:
+    delete:
+      consumes:
+      - application/json
+      description: Stop a running matchmaking search
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+      summary: Stop a running matchmaking search
+      tags:
+      - play
+    get:
+      consumes:
+      - application/json
+      description: Start a matchmaking search for a new game
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            type: string
+      summary: Start a matchmaking search for a new game
+      tags:
+      - play
   /ready:
     get:
       consumes:
