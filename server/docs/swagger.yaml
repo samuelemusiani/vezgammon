@@ -41,6 +41,29 @@ definitions:
       want_to_double:
         type: boolean
     type: object
+  types.Move:
+    properties:
+      from:
+        example: 2
+        type: integer
+      to:
+        example: 1
+        type: integer
+    type: object
+  types.PossibleMoves:
+    properties:
+      dice:
+        example:
+        - 1
+        - 2
+        items:
+          type: integer
+        type: array
+      moves:
+        items:
+          $ref: '#/definitions/types.Move'
+        type: array
+    type: object
 info:
   contact: {}
 paths:
@@ -53,9 +76,9 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
-          schema:
-            type: string
+          description: Surrended
+        "404":
+          description: Not in a game
       summary: Surrend to current game
       tags:
       - play
@@ -70,6 +93,8 @@ paths:
           description: OK
           schema:
             $ref: '#/definitions/types.Game'
+        "404":
+          description: Game not found
       summary: Get current game
       tags:
       - play
@@ -82,9 +107,9 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
-          schema:
-            type: string
+          description: Double refused
+        "400":
+          description: Not in a game or can't refuse double
       summary: Refuse the double
       tags:
       - play
@@ -96,9 +121,11 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
+          description: Value of the red dice after the double
           schema:
-            type: string
+            type: integer
+        "400":
+          description: Not in a game or double not possible
       summary: The player want to double
       tags:
       - play
@@ -110,9 +137,9 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
-          schema:
-            type: string
+          description: Double accepted
+        "400":
+          description: Not in a game or double not possible
       summary: Accept the double
       tags:
       - play
@@ -125,9 +152,11 @@ paths:
       - application/json
       responses:
         "200":
-          description: OK
+          description: Dice with all possible moves
           schema:
-            type: string
+            $ref: '#/definitions/types.PossibleMoves'
+        "400":
+          description: Not in a game, not your turn or double requested
       summary: Get possible moves for next turn
       tags:
       - play
@@ -135,13 +164,22 @@ paths:
       consumes:
       - application/json
       description: Play all the moves for the current turn
+      parameters:
+      - description: Moves to play
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/types.Move'
+          type: array
       produces:
       - application/json
       responses:
         "201":
-          description: Created
-          schema:
-            type: string
+          description: Moves played
+        "400":
+          description: Moves not legal, not your turn or not in a game
       summary: Play all the moves for the current turn
       tags:
       - play
@@ -154,9 +192,9 @@ paths:
       - application/json
       responses:
         "204":
-          description: No Content
-          schema:
-            type: string
+          description: Search stopped
+        "400":
+          description: Not searching
       summary: Stop a running matchmaking search
       tags:
       - play
@@ -168,25 +206,10 @@ paths:
       - application/json
       responses:
         "201":
-          description: Created
-          schema:
-            type: string
+          description: Search started
+        "400":
+          description: Already searching or in a game
       summary: Start a matchmaking search for a new game
       tags:
       - play
-  /ready:
-    get:
-      consumes:
-      - application/json
-      description: do a ping to api/ready to test if server is running
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            type: string
-      summary: test if server is running
-      tags:
-      - test
 swagger: "2.0"

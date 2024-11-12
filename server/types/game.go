@@ -13,8 +13,17 @@ func NewDices() [2]int {
 	return dices
 }
 
-type Move [2]int
+type Move struct {
+	To   int `json:"to" example:"1"`
+	From int `json:"from" example:"2"`
+}
+
 type Dices [2]int
+
+type PossibleMoves struct {
+	Moves []Move `json:"moves"`
+	Dice  Dices  `json:"dice" example:"1,2"`
+}
 
 type Turn struct {
 	ID     int64     `json:"id"`

@@ -25,7 +25,6 @@ func initHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.Use(handler.AuthMiddleware())
 
 	// Gruppo di rotte protette per le API
-	protected.GET("/ready", checkServer)
 	protected.POST("/register", handler.Register)
 	protected.POST("/login", handler.Login)
 	protected.POST("/logout", handler.Logout)
@@ -59,19 +58,4 @@ func initHandlers(conf *config.Config) (*gin.Engine, error) {
 	})
 
 	return router, nil
-}
-
-// @BasePath /api/
-
-// checkserver godoc
-// @Summary test if server is running
-// @Schemes
-// @Description do a ping to api/ready to test if server is running
-// @Tags test
-// @Accept json
-// @Produce json
-// @Success 200 {string} Server running
-// @Router /ready [get]
-func checkServer(c *gin.Context) {
-	c.IndentedJSON(http.StatusOK, "Server running")
 }

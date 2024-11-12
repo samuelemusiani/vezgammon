@@ -34,6 +34,9 @@ const docTemplate = `{
                         "schema": {
                             "$ref": "#/definitions/types.Game"
                         }
+                    },
+                    "404": {
+                        "description": "Game not found"
                     }
                 }
             },
@@ -51,10 +54,10 @@ const docTemplate = `{
                 "summary": "Surrend to current game",
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Surrended"
+                    },
+                    "404": {
+                        "description": "Not in a game"
                     }
                 }
             }
@@ -74,10 +77,10 @@ const docTemplate = `{
                 "summary": "Accept the double",
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Double accepted"
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
                     }
                 }
             },
@@ -95,10 +98,13 @@ const docTemplate = `{
                 "summary": "The player want to double",
                 "responses": {
                     "201": {
-                        "description": "Created",
+                        "description": "Value of the red dice after the double",
                         "schema": {
-                            "type": "string"
+                            "type": "integer"
                         }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
                     }
                 }
             },
@@ -116,10 +122,10 @@ const docTemplate = `{
                 "summary": "Refuse the double",
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Double refused"
+                    },
+                    "400": {
+                        "description": "Not in a game or can't refuse double"
                     }
                 }
             }
@@ -139,10 +145,13 @@ const docTemplate = `{
                 "summary": "Get possible moves for next turn",
                 "responses": {
                     "200": {
-                        "description": "OK",
+                        "description": "Dice with all possible moves",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/types.PossibleMoves"
                         }
+                    },
+                    "400": {
+                        "description": "Not in a game, not your turn or double requested"
                     }
                 }
             },
@@ -158,12 +167,26 @@ const docTemplate = `{
                     "play"
                 ],
                 "summary": "Play all the moves for the current turn",
+                "parameters": [
+                    {
+                        "description": "Moves to play",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.Move"
+                            }
+                        }
+                    }
+                ],
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Moves played"
+                    },
+                    "400": {
+                        "description": "Moves not legal, not your turn or not in a game"
                     }
                 }
             }
@@ -183,10 +206,10 @@ const docTemplate = `{
                 "summary": "Start a matchmaking search for a new game",
                 "responses": {
                     "201": {
-                        "description": "Created",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Search started"
+                    },
+                    "400": {
+                        "description": "Already searching or in a game"
                     }
                 }
             },
@@ -204,33 +227,10 @@ const docTemplate = `{
                 "summary": "Stop a running matchmaking search",
                 "responses": {
                     "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    }
-                }
-            }
-        },
-        "/ready": {
-            "get": {
-                "description": "do a ping to api/ready to test if server is running",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "test"
-                ],
-                "summary": "test if server is running",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "string"
-                        }
+                        "description": "Search stopped"
+                    },
+                    "400": {
+                        "description": "Not searching"
                     }
                 }
             }
@@ -296,6 +296,40 @@ const docTemplate = `{
                 },
                 "want_to_double": {
                     "type": "boolean"
+                }
+            }
+        },
+        "types.Move": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "integer",
+                    "example": 2
+                },
+                "to": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "types.PossibleMoves": {
+            "type": "object",
+            "properties": {
+                "dice": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    },
+                    "example": [
+                        1,
+                        2
+                    ]
+                },
+                "moves": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.Move"
+                    }
                 }
             }
         }
