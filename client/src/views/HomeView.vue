@@ -18,25 +18,88 @@
 
         <!-- Central Buttons -->
         <div class="flex w-full max-w-sm flex-col gap-6">
-          <button class="retro-button">PLAY</button>
+          <button @click="openPlayModal" class="retro-button">PLAY</button>
           <button class="retro-button">RULES</button>
           <button class="retro-button">SETTINGS</button>
         </div>
 
         <!-- Right Button (Profile) -->
         <div class="absolute right-8">
-          <button class="retro-button circle" title="Profile">
+          <button
+            @click="navigateTo('/profile')"
+            class="retro-button circle"
+            title="Profile"
+          >
             <ProfileIcon />
           </button>
         </div>
       </div>
     </div>
+
+    <!-- Play Modal -->
+    <dialog id="play_modal" class="modal">
+      <div class="retro-box modal-box">
+        <h3 class="retro-title mb-4 text-center text-2xl font-bold">
+          Select Game Mode
+        </h3>
+        <!-- Options -->
+        <div class="flex flex-col gap-4">
+          <button @click="startGame('local')" class="retro-button">
+            Local Game (2 Players)
+          </button>
+          <button @click="startGame('ai')" class="retro-button">
+            Play vs AI
+          </button>
+          <button @click="startGame('online')" class="retro-button">
+            Online Match
+          </button>
+        </div>
+
+        <!-- Close button -->
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="retro-button">Close</button>
+          </form>
+        </div>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
+import router from '@/router'
+
+const navigateTo = (path: string) => {
+  router.push(path)
+}
+
+const openPlayModal = () => {
+  const modal = document.getElementById('play_modal') as HTMLDialogElement
+  modal.showModal()
+}
+
+const startGame = (mode: 'local' | 'ai' | 'online') => {
+  const modal = document.getElementById('play_modal') as HTMLDialogElement
+  modal.close()
+
+  switch (mode) {
+    case 'local':
+      router.push('/game')
+      break
+    case 'ai':
+      router.push('/game')
+      break
+    case 'online':
+      router.push('/game')
+      break
+  }
+}
 </script>
 
 <style scoped>
