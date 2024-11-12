@@ -32,7 +32,7 @@ func StopPlaySearch(c *gin.Context) {
 // @Tags play
 // @Accept json
 // @Produce json
-// @Success 200 {object} types.Game
+// @Success 200 {object} types.ReturnGame
 // @Failure 404 "Game not found"
 // @Router /play [get]
 func GetCurrentGame(c *gin.Context) {

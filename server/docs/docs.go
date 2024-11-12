@@ -32,7 +32,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/types.Game"
+                            "$ref": "#/definitions/types.ReturnGame"
                         }
                     },
                     "404": {
@@ -237,68 +237,6 @@ const docTemplate = `{
         }
     },
     "definitions": {
-        "types.Game": {
-            "type": "object",
-            "properties": {
-                "current_player": {
-                    "type": "string"
-                },
-                "dices": {
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "double_owner": {
-                    "type": "string"
-                },
-                "double_value": {
-                    "description": "Current value of the red dice",
-                    "type": "integer"
-                },
-                "elo1": {
-                    "type": "integer"
-                },
-                "elo2": {
-                    "type": "integer"
-                },
-                "end": {
-                    "type": "string"
-                },
-                "id": {
-                    "type": "integer"
-                },
-                "p1checkers": {
-                    "description": "arr[0] is bar",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "p2checkers": {
-                    "description": "arr[0] is bar",
-                    "type": "array",
-                    "items": {
-                        "type": "integer"
-                    }
-                },
-                "player1": {
-                    "type": "integer"
-                },
-                "player2": {
-                    "type": "integer"
-                },
-                "start": {
-                    "type": "string"
-                },
-                "status": {
-                    "type": "string"
-                },
-                "want_to_double": {
-                    "type": "boolean"
-                }
-            }
-        },
         "types.Move": {
             "type": "object",
             "properties": {
@@ -330,6 +268,62 @@ const docTemplate = `{
                     "items": {
                         "$ref": "#/definitions/types.Move"
                     }
+                }
+            }
+        },
+        "types.ReturnGame": {
+            "type": "object",
+            "properties": {
+                "current_player": {
+                    "type": "string"
+                },
+                "double_owner": {
+                    "type": "string"
+                },
+                "double_value": {
+                    "type": "integer"
+                },
+                "elo1": {
+                    "type": "integer"
+                },
+                "elo2": {
+                    "type": "integer"
+                },
+                "end": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "p1checkers": {
+                    "description": "arr[0] is bar",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "p2checkers": {
+                    "description": "arr[0] is bar",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "player1": {
+                    "description": "Username of the player",
+                    "type": "string"
+                },
+                "player2": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "want_to_double": {
+                    "type": "boolean"
                 }
             }
         }

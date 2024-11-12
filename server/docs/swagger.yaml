@@ -1,46 +1,4 @@
 definitions:
-  types.Game:
-    properties:
-      current_player:
-        type: string
-      dices:
-        items:
-          type: integer
-        type: array
-      double_owner:
-        type: string
-      double_value:
-        description: Current value of the red dice
-        type: integer
-      elo1:
-        type: integer
-      elo2:
-        type: integer
-      end:
-        type: string
-      id:
-        type: integer
-      p1checkers:
-        description: arr[0] is bar
-        items:
-          type: integer
-        type: array
-      p2checkers:
-        description: arr[0] is bar
-        items:
-          type: integer
-        type: array
-      player1:
-        type: integer
-      player2:
-        type: integer
-      start:
-        type: string
-      status:
-        type: string
-      want_to_double:
-        type: boolean
-    type: object
   types.Move:
     properties:
       from:
@@ -63,6 +21,44 @@ definitions:
         items:
           $ref: '#/definitions/types.Move'
         type: array
+    type: object
+  types.ReturnGame:
+    properties:
+      current_player:
+        type: string
+      double_owner:
+        type: string
+      double_value:
+        type: integer
+      elo1:
+        type: integer
+      elo2:
+        type: integer
+      end:
+        type: string
+      id:
+        type: integer
+      p1checkers:
+        description: arr[0] is bar
+        items:
+          type: integer
+        type: array
+      p2checkers:
+        description: arr[0] is bar
+        items:
+          type: integer
+        type: array
+      player1:
+        description: Username of the player
+        type: string
+      player2:
+        type: string
+      start:
+        type: string
+      status:
+        type: string
+      want_to_double:
+        type: boolean
     type: object
 info:
   contact: {}
@@ -92,7 +88,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.Game'
+            $ref: '#/definitions/types.ReturnGame'
         "404":
           description: Game not found
       summary: Get current game

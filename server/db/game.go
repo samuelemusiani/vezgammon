@@ -1,8 +1,8 @@
 package db
 
 import (
+	"errors"
 	"log/slog"
-	"time"
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
@@ -11,10 +11,10 @@ import (
 func initGame() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS games(
-		id 		SERIAL PRIMARY KEY,
-		p1	 	INTEGER REFERENCES users(id),
-		p1elo	INTEGER,
-		p2		INTEGER REFERENCES users(id),
+		id 		  SERIAL PRIMARY KEY,
+		p1_id	 	INTEGER REFERENCES users(id),
+		p1elo	  INTEGER,
+		p2_id		INTEGER REFERENCES users(id),
 		p2elo 	INTEGER,
 
 		start 	TIMESTAMP,
@@ -25,8 +25,10 @@ func initGame() error {
 		P2checkers INTEGER [] DEFAULT ARRAY [0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2],
 
 		double_value 		INTEGER DEFAULT 1,
-		double_owner BPCHAR DEFAULT 'all',
-    want_to_double BOOL DEFAULT FALSE,
+		double_owner    BPCHAR DEFAULT 'all',
+    want_to_double  BOOL DEFAULT FALSE,
+
+    current_player  BPCHAR DEFAULT 'p1',
 
 		dices INTEGER []
 	)
@@ -38,13 +40,13 @@ func initGame() error {
 
 	q = `
 	CREATE TABLE IF NOT EXISTS turns(
-		id 			SERIAL PRIMARY KEY,
-		game 		INTEGER REFERENCES games(id),
-		playedby	INTEGER REFERENCES users(id),
-		time		TIMESTAMP,
-		dices		INTEGER [],
+		id 			  SERIAL PRIMARY KEY,
+		game_id 	INTEGER REFERENCES games(id),
+		user_id	  INTEGER REFERENCES users(id),
+		time		  TIMESTAMP,
+		dices		  INTEGER [],
 		double		BOOL,
-		moves	INTEGER [][]
+		moves	    INTEGER [][]
 	)
 	`
 	_, err = conn.Exec(q)
@@ -55,78 +57,55 @@ func initGame() error {
 	return nil
 }
 
+// This function is called every time a new game is created
 func CreateGame(g types.Game) (*types.Game, error) {
 	q := `
     INSERT INTO games (
-        p1, p1elo, p2, p2elo,
-        start, endtime, nextdices,
-        p1checkers, p2checkers,
-        double, doubleowner, status
+        p1_id, p1elo, p2_id, p2elo,
+        start, endtime, current_player, dices
     )
     VALUES (
         $1, $2, $3, $4,
-        $5, $6, $7,
-        $8, $9,
-        $10, $11, $12
+        $5, $6, $7, $8
     )
-    RETURNING id, start
+    RETURNING id
     `
-
-	start := time.Now()
-
-	// placeholder for endtime value, can't be nil (i think)
-	endtime := time.Now()
-	dices := types.NewDices()
-
-	// Default checker positions
-	p1Checkers := [25]int8{0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 5, 0, 0, 0, 0, 3, 0, 5, 0, 0, 0, 0, 0}
-	p2Checkers := [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
-
 	res := conn.QueryRow(
 		q,
 		g.Player1, g.Elo1, g.Player2, g.Elo2,
-		start, endtime, pq.Array(dices),
-		pq.Array(p1Checkers), pq.Array(p2Checkers),
-		1, "all", "open",
+		g.Start, g.End, g.CurrentPlayer, pq.Array(g.Dices),
 	)
 
 	var id int64
-	var startTime time.Time
 
-	err := res.Scan(&id, &startTime)
+	err := res.Scan(&id)
 	if err != nil {
 		slog.With("creating game: ", err).Debug("error")
 		return nil, err
 	}
 
 	g.ID = id
-	g.Start = startTime
-	g.P1Checkers = p1Checkers
-	g.P2Checkers = p2Checkers
-	g.DoubleValue = 1
-	g.DoubleOwner = "all"
-	g.Status = "open"
 
 	return &g, nil
 }
 
 func UpdateGame(g types.Game) error {
 	q := `
-	UPDATE games
-	SET	endtime		= $1,
-		status		= $2,
-		p1checkers	= $3,
-		p2checkers	= $4,
-		double_value		= $5,
-		doubleowner	= $6,
-		nextdices	= $7
-	WHERE id = $8
-	`
+		UPDATE games
+		SET	
+      endtime		      = $1,
+			status		      = $2,
+			p1checkers	    = $3,
+			p2checkers	    = $4,
+			double_value	  = $5,
+			double_owner	  = $6,
+			want_to_double	= $7,
+			current_player	= $8,
+      dices = $9
+		WHERE id = $10
+		`
 
-	end := time.Now()
-	dices := types.NewDices()
-
-	_, err := conn.Exec(q, pq.FormatTimestamp(end), g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.DoubleValue, g.DoubleOwner, pq.Array(dices))
+	_, err := conn.Exec(q, g.End, g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.DoubleValue, g.DoubleOwner, g.WantToDouble, pq.Array(g.Dices))
 	if err != nil {
 		return err
 	}
@@ -134,7 +113,7 @@ func UpdateGame(g types.Game) error {
 	return nil
 }
 
-func GetGame(id int64) (*types.Game, *[2]int8, error) {
+func GetGame(id int64) (*types.Game, error) {
 	var g types.Game
 
 	q := "SELECT * FROM games WHERE id = $1"
@@ -144,7 +123,7 @@ func GetGame(id int64) (*types.Game, *[2]int8, error) {
 	// Tmp variables for avoid error type in the db [int8/int]
 	var p1CheckersDB pq.Int64Array
 	var p2CheckersDB pq.Int64Array
-	var nextdicesDB pq.Int64Array
+	var dices pq.Int64Array
 
 	err := row.Scan(
 		&g.ID,
@@ -160,10 +139,11 @@ func GetGame(id int64) (*types.Game, *[2]int8, error) {
 		&g.DoubleValue,
 		&g.DoubleOwner,
 		&g.WantToDouble,
-		&nextdicesDB)
+		&g.CurrentPlayer,
+		&dices)
 
 	if err != nil {
-		return nil, nil, err
+		return nil, err
 	}
 
 	// Conversion of p1Checkers from int8 into int
@@ -174,12 +154,14 @@ func GetGame(id int64) (*types.Game, *[2]int8, error) {
 		g.P2Checkers[i] = int8(v)
 	}
 
-	var nextdices [2]int8
-	for i, v := range nextdicesDB {
-		nextdices[i] = int8(v)
+	if len(dices) < 2 {
+		return nil, errors.New("Dices are more than 2")
 	}
 
-	return &g, &nextdices, nil
+	g.Dices[0] = int(dices[0])
+	g.Dices[1] = int(dices[1])
+
+	return &g, nil
 }
 
 func CreateTurn(t types.Turn) (*types.Turn, error) {
@@ -189,7 +171,7 @@ func CreateTurn(t types.Turn) (*types.Turn, error) {
 	RETURNING id
 	`
 
-	res := conn.QueryRow(q, t.ID, t.GameId, t.User, t.Time, t.Dices, t.Double, t.Moves)
+	res := conn.QueryRow(q, t.ID, t.GameId, t.User, t.Time, t.Dices, t.Double, MovesArrayToArray(t.Moves))
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
@@ -209,12 +191,16 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 
 	var turns []types.Turn
 
+	var moves [][]int
+
 	for rows.Next() {
 		var tmp types.Turn
-		err = rows.Scan(&tmp.ID, &tmp.GameId, &tmp.User, &tmp.Time, &tmp.Dices, &tmp.Double, &tmp.Moves)
+		err = rows.Scan(&tmp.ID, &tmp.GameId, &tmp.User, &tmp.Time, &tmp.Dices, &tmp.Double, &moves)
 		if err != nil {
 			return nil, err
 		}
+
+		tmp.Moves = ArrayToMovesArray(moves)
 
 		turns = append(turns, tmp)
 	}
@@ -227,10 +213,14 @@ func GetLastTurn(game_id int64) (*types.Turn, error) {
 	row := conn.QueryRow(q, game_id)
 
 	var turn types.Turn
-	err := row.Scan(&turn.ID, &turn.GameId, &turn.User, &turn.Time, &turn.Dices, &turn.Double, &turn.Moves)
+	var moves [][]int
+
+	err := row.Scan(&turn.ID, &turn.GameId, &turn.User, &turn.Time, &turn.Dices, &turn.Double, &moves)
 	if err != nil {
 		return nil, err
 	}
+
+	turn.Moves = ArrayToMovesArray(moves)
 
 	return &turn, nil
 }

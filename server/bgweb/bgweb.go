@@ -236,7 +236,7 @@ func (m *Move) toTurn() (*types.Turn, error) {
 			to, err = strconv.Atoi(play.To)
 		}
 
-		m := [2]int{from, to}
+		m := types.Move{From: from, To: to}
 		t.Moves = append(t.Moves, m)
 	}
 
