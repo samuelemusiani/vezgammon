@@ -186,13 +186,12 @@ export const endTurn = (gameState: GameState) => {
 }
 
 // temp, here a player wins if all checkers are in position 23 or 0, in reality the game ends when all checkers are off the board
-const checkWin = (gameState: GameState) => {
-  // controlla se le pedine sono tutte in posizione 23 o 0
+export const checkWin = (gameState: GameState): boolean => {
   const checkers = gameState.board.filter(
     c => c.color === gameState.currentPlayer,
   )
   if (checkers.every(c => c.position === 23 || c.position === 0)) {
-    alert(`${gameState.currentPlayer} wins!`)
-    router.push('/')
+    return true
   }
+  return false
 }

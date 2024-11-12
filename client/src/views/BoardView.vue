@@ -10,6 +10,7 @@ import {
   updateGameState,
   newGame,
   endTurn,
+  checkWin,
 } from '@/utils/game/game'
 import {
   calculatePossibleMoves,
@@ -17,6 +18,10 @@ import {
   isCheckerMovable,
   updateStackIndices,
 } from '@/utils/game/moves'
+import ConfettiExplosion from 'vue-confetti-explosion'
+import { useSound } from '@vueuse/sound'
+import victorySfx from '@/utils/sounds/victory.mp3'
+import diceSfx from '@/utils/sounds/dice.mp3'
 
 const gameState = ref(newGame())
 const selectedChecker = ref<Checker | null>(null)
@@ -24,6 +29,9 @@ const possibleMoves = ref<number[]>([])
 const movesAvailable = ref(2)
 const isRolling = ref(false)
 const gameStarted = ref(false)
+const isExploding = ref(false)
+const { play: playVictory } = useSound(victorySfx)
+const { play: playDice } = useSound(diceSfx)
 
 const handleCheckerClick = (checker: Checker) => {
   if (!isCheckerMovable(gameState.value, checker)) return
@@ -52,6 +60,9 @@ const handleTriangleClick = (position: number) => {
     oldCheckerPos,
     movesAvailable.value,
   )
+  if (checkWin(gameState.value)) {
+    handleWin()
+  }
   possibleMoves.value = []
   selectedChecker.value = null
 }
@@ -81,6 +92,7 @@ const rollDice = () => {
     startTimer()
   }
   isRolling.value = true
+  playDice()
   const rollAnimation = setInterval(() => {
     gameState.value.dice.value = [
       Math.floor(Math.random() * 6) + 1,
@@ -110,6 +122,24 @@ const rollDice = () => {
   }, 500)
 }
 
+const handleWin = () => {
+  isExploding.value = true
+  playVictory()
+}
+
+const simulateWin = () => {
+  gameState.value.board = gameState.value.board.map(checker => {
+    if (checker.color === gameState.value.currentPlayer) {
+      return {
+        ...checker,
+        position: gameState.value.currentPlayer === 'white' ? 0 : 23,
+      }
+    }
+    return checker
+  })
+  handleWin()
+}
+
 let timerInterval: NodeJS.Timeout
 const startTimer = () => {
   let seconds = 0
@@ -126,13 +156,20 @@ const startTimer = () => {
 
 <template>
   <div
-    class="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
+    class="retro-background flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
   >
-    <div class="flex w-full max-w-screen-2xl">
+    <div class="fixed top-[25%]">
+      <ConfettiExplosion
+        v-if="isExploding"
+        :stageHeight="1000"
+        :particleCount="300"
+      />
+    </div>
+    <div class="flex w-full max-w-screen-2xl gap-6">
       <!-- Opponent and Player Info -->
       <div class="flex">
         <div
-          class="flex w-48 flex-col justify-evenly rounded-lg bg-white p-4 shadow-xl"
+          class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-4 shadow-xl"
         >
           <!-- Opponent Info -->
           <div class="mb-8 flex flex-col items-center">
@@ -192,7 +229,7 @@ const startTimer = () => {
 
       <!-- Board Div -->
       <div class="flex-1">
-        <div class="h-full rounded-lg bg-white p-4 shadow-xl">
+        <div class="retro-box h-full rounded-lg bg-white p-4 shadow-xl">
           <svg
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
@@ -274,14 +311,20 @@ const startTimer = () => {
 
       <!-- Dice Div -->
       <div
-        class="flex w-48 flex-col justify-center rounded-lg bg-white p-2 shadow-xl"
+        class="retro-box flex w-48 flex-col justify-center rounded-lg bg-white p-2 shadow-xl"
       >
         <div class="mb-4 flex flex-col items-center">
           <button
             @click="endTurn(gameState)"
-            class="mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
+            class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
           >
             End Turn
+          </button>
+          <button
+            @click="simulateWin"
+            class="mt-4 rounded-lg bg-red-600 px-4 py-2 font-bold text-white transition-colors hover:bg-red-700"
+          >
+            Debug: Simulate Win
           </button>
         </div>
         <!-- Dice Section -->
@@ -292,7 +335,7 @@ const startTimer = () => {
               isRolling ||
               (gameState.dice.value[0] !== 0 && gameState.dice.value[1] !== 0)
             "
-            class="mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Roll Dice
           </button>
@@ -301,7 +344,7 @@ const startTimer = () => {
             <div
               v-for="(die, index) in gameState.dice.value"
               :key="index"
-              class="flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
+              class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
               :class="{ 'dice-rolling': isRolling }"
             >
               <svg viewBox="0 0 60 60">
@@ -406,6 +449,54 @@ const startTimer = () => {
 </template>
 
 <style scoped>
+.retro-background {
+  background: #2c1810;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    );
+  cursor: url('/tortellino.png'), auto;
+  border: 6px solid #d2691e;
+}
+
+.retro-box {
+  background-color: #ffe5c9;
+  border: 5px solid #8b4513;
+  box-shadow:
+    0 0 0 4px #d2691e,
+    inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.retro-button {
+  @apply btn;
+  background: #d2691e;
+  color: white;
+  border: 3px solid #8b4513;
+  font-family: 'Arial Black', serif;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 0 #8b4513;
+  font-size: 1.1rem;
+
+  &:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 0 10px rgba(0, 0, 0, 0.2),
+      0 0px 0 #8b4513;
+    cursor: url('/tortellino.png'), auto;
+  }
+}
+
 @keyframes dice-shake {
   0% {
     transform: rotate(0deg);
@@ -433,5 +524,14 @@ const startTimer = () => {
   transition:
     cx 0.3s ease-out,
     cy 0.3s ease-out;
+}
+
+.confetti-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
 }
 </style>

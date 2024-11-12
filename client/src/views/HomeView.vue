@@ -99,7 +99,7 @@ import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
-import buttonSfx from '../../pop-down.mp3'
+import buttonSfx from '@/utils/sounds/button.mp3'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 
