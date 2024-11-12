@@ -11,21 +11,33 @@
       <div class="relative flex w-full max-w-4xl items-center justify-center">
         <!-- Left Button (Stats) -->
         <div class="absolute left-8">
-          <button class="retro-button circle" title="Statistics">
+          <button
+            @click="play"
+            @mouseenter="play"
+            class="retro-button circle"
+            title="Statistics"
+          >
             <MedalIcon />
           </button>
         </div>
 
         <!-- Central Buttons -->
         <div class="flex w-full max-w-sm flex-col gap-6">
-          <button @click="openPlayModal" class="retro-button">PLAY</button>
-          <button class="retro-button">RULES</button>
-          <button class="retro-button">SETTINGS</button>
+          <button
+            @click="openPlayModal"
+            @mouseenter="play"
+            class="retro-button"
+          >
+            PLAY
+          </button>
+          <button @mouseenter="play" class="retro-button">RULES</button>
+          <button @mouseenter="play" class="retro-button">SETTINGS</button>
         </div>
 
         <!-- Right Button (Profile) -->
         <div class="absolute right-8">
           <button
+            @mouseenter="play"
             @click="navigateTo('/profile')"
             class="retro-button circle"
             title="Profile"
@@ -44,14 +56,26 @@
         </h3>
         <!-- Options -->
         <div class="flex flex-col gap-4">
-          <button @click="startGame('local')" class="retro-button">
+          <button
+            @mouseenter="play"
+            @click="startGame('local')"
+            class="retro-button"
+          >
             Local Game (2 Players)
           </button>
-          <button @click="startGame('ai')" class="retro-button">
+          <button
+            @mouseenter="play"
+            @click="startGame('ai')"
+            class="retro-button"
+          >
             Play vs AI
           </button>
-          <button @click="startGame('online')" class="retro-button">
-            Online Match
+          <button
+            @mouseenter="play"
+            @click="startGame('online')"
+            class="retro-button"
+          >
+            Play Online
           </button>
         </div>
 
@@ -74,6 +98,10 @@
 import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import router from '@/router'
+import { useSound } from '@vueuse/sound'
+import buttonSfx from '../../pop-down.mp3'
+
+const { play } = useSound(buttonSfx, { volume: 0.3 })
 
 const navigateTo = (path: string) => {
   router.push(path)
