@@ -166,7 +166,7 @@ const startGame = (mode: 'local' | 'ai' | 'online') => {
     -1px 1px 0 #000,
     1px 1px 0 #000;
   letter-spacing: 3px;
-  animation: move-title 5s ease-in-out infinite alternate;
+  animation: move-title 8s ease-in-out infinite alternate;
   padding-bottom: 10px;
   margin-bottom: 20px;
   border-bottom: 2px solid #8b4513;
@@ -217,10 +217,10 @@ const startGame = (mode: 'local' | 'ai' | 'online') => {
 
 @keyframes move-title {
   from {
-    transform: rotate(-2deg);
+    transform: rotate(-4deg);
   }
   to {
-    transform: rotate(0deg);
+    transform: rotate(4deg);
   }
 }
 </style>
