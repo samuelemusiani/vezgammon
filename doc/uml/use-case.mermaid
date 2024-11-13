@@ -1,0 +1,54 @@
+graph TD
+    %% Actors
+    TAdmin[Tournament Admin]
+    User[User]
+    Player[Player]
+    Friend[Friend]
+
+    %% Use Cases
+    CreateTournament[Create Tournament]
+    ManageTournament[Manage Tournament]
+    TrackImprovement[Track Improvement]
+    ShareProgress[Share Progress]
+    ReceiveUpdates[Receive Updates]
+    ManageAccount[Manage Account]
+    PlayBackgammon[Play Backgammon]
+    ChatPlayers[Chat with Players]
+    DailyChallenges[Daily Challenges]
+    AnalyzeGames[Analyze Games]
+    AccessChallenges[Access Challenges]
+    EarnBadges[Earn Digital Badges]
+    ExploreThemes[Explore Graphic Themes]
+    GameTree[Game Tree]
+
+    %% Relationships
+    TAdmin --> CreateTournament
+    TAdmin --> ManageTournament
+    TAdmin --> User
+    
+    User --> TrackImprovement
+    User --> ShareProgress
+    User --> ReceiveUpdates
+    User --> ManageAccount
+    User --> ExploreThemes
+    
+    Player --> User
+    Player --> PlayBackgammon
+    
+    ShareProgress --> Friend
+    
+    %% Include relationships
+    PlayBackgammon -.-> GameTree
+    PlayBackgammon --> DailyChallenges
+    PlayBackgammon --> AnalyzeGames
+    PlayBackgammon --> AccessChallenges
+    PlayBackgammon --> EarnBadges
+    PlayBackgammon --> ChatPlayers
+    CreateTournament -.-> GameTree
+
+    %% Styling
+    classDef actor fill:#dae8fc,stroke:#6c8ebf,color:#000
+    classDef useCase fill:#fff,stroke:#000,color:#000
+    
+    class TAdmin,User,Player,Friend actor
+    class CreateTournament,ManageTournament,TrackImprovement,ShareProgress,ReceiveUpdates,ManageAccount,PlayBackgammon,ChatPlayers,DailyChallenges,AnalyzeGames,AccessChallenges,EarnBadges,ExploreThemes,GameTree useCase
