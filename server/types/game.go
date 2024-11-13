@@ -14,8 +14,8 @@ func NewDices() [2]int {
 }
 
 type Move struct {
-	To   int `json:"to" example:"1"`
-	From int `json:"from" example:"2"`
+	From int `json:"from" example:"1"`
+	To   int `json:"to" example:"2"`
 }
 
 type Dices [2]int
@@ -44,6 +44,9 @@ const GameStatusWinP2 = "winp2"
 const GameDoubleOwnerAll = "all"
 const GameDoubleOwnerP1 = "p1"
 const GameDoubleOwnerP2 = "p2"
+
+const GameCurrentPlayerP1 = "p1"
+const GameCurrentPlayerP2 = "p2"
 
 type Game struct {
 	ID int64 `json:"id"`

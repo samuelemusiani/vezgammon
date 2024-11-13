@@ -21,6 +21,89 @@ type Board struct {
 	X CheckerLayout `json:"x"`
 }
 
+type EngineConfig struct {
+	MaxMoves   int
+	ScoreMoves bool
+}
+
+var all_legal_moves_config = EngineConfig{
+	MaxMoves:   100,
+	ScoreMoves: false,
+}
+
+var get_best_move_config = EngineConfig{
+	MaxMoves:   1,
+	ScoreMoves: true,
+}
+
+type CheckerLayout struct {
+	N1  int8 `json:"1"`
+	N2  int8 `json:"2"`
+	N3  int8 `json:"3"`
+	N4  int8 `json:"4"`
+	N5  int8 `json:"5"`
+	N6  int8 `json:"6"`
+	N7  int8 `json:"7"`
+	N8  int8 `json:"8"`
+	N9  int8 `json:"9"`
+	N10 int8 `json:"10"`
+	N11 int8 `json:"11"`
+	N12 int8 `json:"12"`
+	N13 int8 `json:"13"`
+	N14 int8 `json:"14"`
+	N15 int8 `json:"15"`
+	N16 int8 `json:"16"`
+	N17 int8 `json:"17"`
+	N18 int8 `json:"18"`
+	N19 int8 `json:"19"`
+	N20 int8 `json:"20"`
+	N21 int8 `json:"21"`
+	N22 int8 `json:"22"`
+	N23 int8 `json:"23"`
+	N24 int8 `json:"24"`
+	Bar int8 `json:"bar"`
+}
+
+type CheckerPlay struct {
+	From string `json:"from"`
+	To   string `json:"to"`
+}
+
+type EvalInfo struct {
+	Cubeful bool `json:"cubeful"`
+	Plies   int  `json:"plies"`
+}
+
+type Evaluation struct {
+	Diff        float32     `json:"diff"`
+	Eq          float32     `json:"eq"`
+	Info        EvalInfo    `json:"info"`
+	Probability Probability `json:"probability"`
+}
+
+type Move struct {
+	Evaluation Evaluation    `json:"evaluation"`
+	Play       []CheckerPlay `json:"play"`
+}
+
+type MoveArgs struct {
+	Board      Board  `json:"board"`
+	Cubeful    bool   `json:"cubeful"`
+	Dice       [2]int `json:"dice"`
+	MaxMoves   int    `json:"max-moves"`
+	Player     string `json:"player"`
+	ScoreMoves bool   `json:"score-moves"`
+}
+
+type Probability struct {
+	Lose   float32 `json:"lose"`
+	LoseBG float32 `json:"loseBG"`
+	LoseG  float32 `json:"loseG"`
+	Win    float32 `json:"win"`
+	WinBG  float32 `json:"winBG"`
+	WinG   float32 `json:"winG"`
+}
+
 func (b *Board) toGame() *types.Game {
 	var g types.Game
 
@@ -79,22 +162,7 @@ func (b *Board) toGame() *types.Game {
 	return &g
 }
 
-type EngineConfig struct {
-	MaxMoves   int
-	ScoreMoves bool
-}
-
-var all_legal_moves_config = EngineConfig{
-	MaxMoves:   100,
-	ScoreMoves: false,
-}
-
-var get_best_move_config = EngineConfig{
-	MaxMoves:   1,
-	ScoreMoves: true,
-}
-
-func GametoMoveArgs(g *types.Game, player int64, dices *[2]int, engine_config EngineConfig) *MoveArgs {
+func GametoMoveArgs(g *types.Game, engine_config EngineConfig) *MoveArgs {
 	var moveargs MoveArgs
 
 	var b Board
@@ -152,7 +220,7 @@ func GametoMoveArgs(g *types.Game, player int64, dices *[2]int, engine_config En
 	b.X.N24 = g.P2Checkers[24]
 
 	var p string
-	if player == g.Player1 {
+	if g.CurrentPlayer == types.GameCurrentPlayerP1 {
 		p = "o"
 	} else {
 		p = "x"
@@ -160,62 +228,12 @@ func GametoMoveArgs(g *types.Game, player int64, dices *[2]int, engine_config En
 
 	moveargs.Board = b
 	moveargs.Cubeful = true // always play with cube
-	moveargs.Dice = *dices
+	moveargs.Dice = g.Dices
 	moveargs.Player = p
 	moveargs.MaxMoves = engine_config.MaxMoves
 	moveargs.ScoreMoves = engine_config.ScoreMoves
 
 	return &moveargs
-}
-
-type CheckerLayout struct {
-	N1  int8 `json:"1"`
-	N2  int8 `json:"2"`
-	N3  int8 `json:"3"`
-	N4  int8 `json:"4"`
-	N5  int8 `json:"5"`
-	N6  int8 `json:"6"`
-	N7  int8 `json:"7"`
-	N8  int8 `json:"8"`
-	N9  int8 `json:"9"`
-	N10 int8 `json:"10"`
-	N11 int8 `json:"11"`
-	N12 int8 `json:"12"`
-	N13 int8 `json:"13"`
-	N14 int8 `json:"14"`
-	N15 int8 `json:"15"`
-	N16 int8 `json:"16"`
-	N17 int8 `json:"17"`
-	N18 int8 `json:"18"`
-	N19 int8 `json:"19"`
-	N20 int8 `json:"20"`
-	N21 int8 `json:"21"`
-	N22 int8 `json:"22"`
-	N23 int8 `json:"23"`
-	N24 int8 `json:"24"`
-	Bar int8 `json:"bar"`
-}
-
-type CheckerPlay struct {
-	From string `json:"from"`
-	To   string `json:"to"`
-}
-
-type EvalInfo struct {
-	Cubeful bool `json:"cubeful"`
-	Plies   int  `json:"plies"`
-}
-
-type Evaluation struct {
-	Diff        float32     `json:"diff"`
-	Eq          float32     `json:"eq"`
-	Info        EvalInfo    `json:"info"`
-	Probability Probability `json:"probability"`
-}
-
-type Move struct {
-	Evaluation Evaluation    `json:"evaluation"`
-	Play       []CheckerPlay `json:"play"`
 }
 
 // dont't set Dices, had to be done separately
@@ -242,24 +260,6 @@ func (m *Move) toTurn() (*types.Turn, error) {
 
 	t.Double = false // engine can't double
 	return &t, err
-}
-
-type MoveArgs struct {
-	Board      Board  `json:"board"`
-	Cubeful    bool   `json:"cubeful"`
-	Dice       [2]int `json:"dice"`
-	MaxMoves   int    `json:"max-moves"`
-	Player     string `json:"player"`
-	ScoreMoves bool   `json:"score-moves"`
-}
-
-type Probability struct {
-	Lose   float32 `json:"lose"`
-	LoseBG float32 `json:"loseBG"`
-	LoseG  float32 `json:"loseG"`
-	Win    float32 `json:"win"`
-	WinBG  float32 `json:"winBG"`
-	WinG   float32 `json:"winG"`
 }
 
 var DefaultMoveArgs MoveArgs = MoveArgs{
@@ -297,8 +297,8 @@ func GetMoves(moveargs *MoveArgs) ([]Move, error) {
 	return m, nil
 }
 
-func GetLegalMoves(g *types.Game, dices *[2]int, player int64) (*[]types.Turn, error) {
-	mv := GametoMoveArgs(g, player, dices, all_legal_moves_config)
+func GetLegalMoves(g *types.Game) (*[]types.Turn, error) {
+	mv := GametoMoveArgs(g, all_legal_moves_config)
 
 	moves, err := GetMoves(mv)
 	if err != nil {
@@ -317,8 +317,8 @@ func GetLegalMoves(g *types.Game, dices *[2]int, player int64) (*[]types.Turn, e
 	return &turns, nil
 }
 
-func GetBestMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error) {
-	mv := GametoMoveArgs(g, player, dices, get_best_move_config)
+func GetBestMove(g *types.Game) (*types.Turn, error) {
+	mv := GametoMoveArgs(g, get_best_move_config)
 
 	moves, err := GetMoves(mv)
 	if err != nil {
@@ -333,19 +333,19 @@ func GetBestMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error
 	return turn, nil
 }
 
-func GetEasyMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error) {
+func GetEasyMove(g *types.Game) (*types.Turn, error) {
 	conf := EngineConfig{
 		MaxMoves:   5,
 		ScoreMoves: true,
 	}
-	mv := GametoMoveArgs(g, player, dices, conf)
+	mv := GametoMoveArgs(g, conf)
 
 	moves, err := GetMoves(mv)
 	if err != nil {
 		return nil, err
 	}
 
-	move := moves[len(moves)-1]
+	move := moves[len(moves)-1] // get second best move
 
 	turn, err := move.toTurn()
 	if err != nil {
@@ -355,19 +355,19 @@ func GetEasyMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error
 	return turn, nil
 }
 
-func GetMediumMove(g *types.Game, dices *[2]int, player int64) (*types.Turn, error) {
+func GetMediumMove(g *types.Game) (*types.Turn, error) {
 	conf := EngineConfig{
 		MaxMoves:   3,
 		ScoreMoves: true,
 	}
-	mv := GametoMoveArgs(g, player, dices, conf)
+	mv := GametoMoveArgs(g, conf)
 
 	moves, err := GetMoves(mv)
 	if err != nil {
 		return nil, err
 	}
 
-	move := moves[len(moves)-1]
+	move := moves[len(moves)-1] // get third best move
 
 	turn, err := move.toTurn()
 	if err != nil {
