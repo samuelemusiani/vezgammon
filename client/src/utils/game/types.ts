@@ -21,6 +21,8 @@ export interface GameState {
   dice: DiceRoll
   board: Board
   time?: string
+  capturedWhite: Checker[]
+  capturedBlack: Checker[]
 }
 
 export interface DiceRoll {

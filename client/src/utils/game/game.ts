@@ -16,6 +16,8 @@ export const newGame = () => {
     currentPlayer: 'white',
     dice: { value: [0, 0], used: [false, false], double: false },
     board: createDefaultBoard(),
+    capturedWhite: [],
+    capturedBlack: [],
   }
   return gameState
 }

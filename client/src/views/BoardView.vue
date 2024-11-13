@@ -22,6 +22,7 @@ import ConfettiExplosion from 'vue-confetti-explosion'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
+import tinSfx from '@/utils/sounds/tintin.mp3'
 
 const gameState = ref(newGame())
 const selectedChecker = ref<Checker | null>(null)
@@ -32,6 +33,7 @@ const gameStarted = ref(false)
 const isExploding = ref(false)
 const { play: playVictory } = useSound(victorySfx)
 const { play: playDice } = useSound(diceSfx)
+const { play: playTin } = useSound(tinSfx)
 
 const handleCheckerClick = (checker: Checker) => {
   if (!isCheckerMovable(gameState.value, checker)) return
@@ -151,6 +153,28 @@ const startTimer = () => {
       remainingSeconds,
     ).padStart(2, '0')}`
   }, 1000)
+}
+
+// JUST for testing
+const addCheckerHome = () => {
+  playTin()
+  if (gameState.value.currentPlayer === 'white') {
+    if (gameState.value.capturedWhite.length < 15) {
+      gameState.value.capturedWhite.push({
+        color: 'white',
+        position: -1,
+        stackIndex: gameState.value.capturedWhite.length,
+      })
+    }
+  } else {
+    if (gameState.value.capturedBlack.length < 15) {
+      gameState.value.capturedBlack.push({
+        color: 'black',
+        position: 24,
+        stackIndex: gameState.value.capturedBlack.length,
+      })
+    }
+  }
 }
 </script>
 
@@ -313,22 +337,34 @@ const startTimer = () => {
       <div
         class="retro-box flex w-48 flex-col justify-center rounded-lg bg-white p-2 shadow-xl"
       >
-        <div class="mb-4 flex flex-col items-center">
+        <!--<div class="mb-4 flex flex-col items-center">
           <button
             @click="endTurn(gameState)"
             class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
           >
             End Turn
           </button>
-          <button
-            @click="simulateWin"
-            class="mt-4 rounded-lg bg-red-600 px-4 py-2 font-bold text-white transition-colors hover:bg-red-700"
+        </div>-->
+
+        <!-- Opponent's Captured Checkers -->
+        <div
+          class="captured-checkers-container mb-4 flex flex-col place-items-center"
+        >
+          <div
+            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
           >
-            Debug: Simulate Win
-          </button>
+            <div class="flex flex-col gap-1">
+              <div
+                v-for="(checker, index) in gameState.capturedBlack"
+                :key="'black-' + index"
+                class="h-3 w-full rounded-full border border-blue-500 bg-black"
+              ></div>
+            </div>
+          </div>
         </div>
+
         <!-- Dice Section -->
-        <div class="mb-4 flex flex-col items-center">
+        <div class="mb-5 mt-5 flex flex-col items-center">
           <button
             @click="rollDice"
             :disabled="
@@ -340,7 +376,7 @@ const startTimer = () => {
             Roll Dice
           </button>
 
-          <div class="mb-4 flex gap-4">
+          <div class="flex gap-4">
             <div
               v-for="(die, index) in gameState.dice.value"
               :key="index"
@@ -404,9 +440,27 @@ const startTimer = () => {
           </div>
         </div>
 
-        <!-- Game Info -->
-        <div class="game-info mb-4 text-center">
-          <p class="text-lg font-bold">
+        <div
+          class="captured-checkers-container mt-4 flex flex-col place-items-center"
+        >
+          <div
+            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
+          >
+            <div class="flex flex-col gap-1">
+              <!-- Esempio di pedina bianca catturata -->
+              <div
+                v-for="(checker, index) in gameState.capturedWhite"
+                :key="'white-' + index"
+                class="h-3 w-full rounded-full border border-black bg-white"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Info -->
+      <!--<div class="game-info mb-4 text-center">
+           <p class="text-lg font-bold">
             Current Player:
             <span
               :class="
@@ -442,8 +496,7 @@ const startTimer = () => {
               , or {{ gameState.dice.value[0] + gameState.dice.value[1] }}
             </span>
           </p>
-        </div>
-      </div>
+        </div>-->
     </div>
   </div>
 </template>
@@ -533,5 +586,14 @@ const startTimer = () => {
   transform: translate(-50%, -50%);
   z-index: 1000;
   pointer-events: none;
+}
+
+.captured-checkers-container {
+  .h-64 {
+    background: #f5c27a; /* Un colore leggermente più chiaro del tabellone */
+  }
+  .w-full {
+    transition: all 0.3s ease-out;
+  }
 }
 </style>
