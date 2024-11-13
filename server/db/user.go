@@ -22,6 +22,20 @@ func initUser() error {
 		mail BPCHAR UNIQUE
 	)`
 	_, err := conn.Exec(q)
+
+	// init stats table
+	q = `
+	CREATE TABLE IF NOT EXISTS stats(
+		username	 INTEGER REFERENCES users(username),
+    elo        INTEGER REFERENCES users(elo),
+    gameplayed INTEGER  
+	)
+	`
+	_, err = conn.Exec(q)
+	if err != nil {
+		return err
+	}
+
 	return err
 }
 
@@ -153,6 +167,28 @@ func GetUser(user_id any) (*types.User, error) {
 		&tmp.Firstname,
 		&tmp.Lastname,
 		&tmp.Mail,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("utente non trovato")
+		}
+		return nil, err
+	}
+
+	return &tmp, nil
+}
+
+func GetUserStats(username any) (*types.Stats, error) {
+	q := `SELECT username, elo, gameplayed
+          FROM stats 
+          WHERE username = $1`
+
+	var tmp types.Stats
+	err := conn.QueryRow(q, username).Scan(
+		&tmp.User.Username,
+		&tmp.Elo,
+		&tmp.GamePlayed,
 	)
 
 	if err != nil {

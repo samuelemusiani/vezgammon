@@ -7,3 +7,9 @@ type User struct {
 	Lastname  string `json:"lastname"`
 	Mail      string `json:"mail"`
 }
+
+type Stats struct {
+	User       User `json:"user"`
+	GamePlayed int8 `json:"gameplayed"`
+	Elo        int8 `json:"elo"`
+}

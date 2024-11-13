@@ -199,3 +199,31 @@ func GetAllUsers(c *gin.Context) {
 
 	c.JSON(http.StatusOK, users)
 }
+
+func GetUserStats(c *gin.Context) {
+
+	type statsUserType struct {
+		userStats types.Stats
+	}
+
+	var userStats statsUserType
+	if err := c.BindJSON(&userStats); err != nil {
+		slog.With("err", err).Error("Bad request unmarshal")
+		c.JSON(http.StatusBadRequest, gin.H{"error": "Invalid request"})
+		return
+	}
+
+	username := c.MustGet("username")
+	stats, err := db.GetUserStats(username)
+	if err != nil {
+		slog.With("err", err).Error("Error fetching stats")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+		"elo":        stats.Elo,
+		"gamePlayed": stats.GamePlayed,
+		"user":       stats.User,
+	})
+}
