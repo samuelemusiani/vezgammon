@@ -71,6 +71,7 @@ definitions:
         example: 2
         type: integer
     type: object
+<<<<<<< HEAD
   types.NewGame:
     properties:
       dices_p1:
@@ -84,6 +85,8 @@ definitions:
       game:
         $ref: '#/definitions/types.ReturnGame'
     type: object
+=======
+>>>>>>> f2b1e54 (edited justfile to run server locally without server refresh)
   types.ReturnGame:
     properties:
       current_player:

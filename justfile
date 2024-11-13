@@ -16,7 +16,6 @@ copy-client:
     cp -r client/dist server/handler/dist
 
 start-server: generate-swag
-    sudo docker-compose -f docker-compose-test.yml up -d
     go run ./server ./server/config/test-config.toml
 
 start-client:
