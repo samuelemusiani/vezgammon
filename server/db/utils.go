@@ -2,26 +2,18 @@ package db
 
 import "vezgammon/server/types"
 
-func MovesToArray(m types.Move) []int {
-	return []int{m.From, m.To}
-}
-
-func MovesArrayToArray(m []types.Move) [][]int {
-	var moves [][]int
+func MovesArrayToArray(m []types.Move) []int64 {
+	var moves []int64
 	for _, move := range m {
-		moves = append(moves, MovesToArray(move))
+		moves = append(moves, move.From, move.To)
 	}
 	return moves
 }
 
-func ArrayToMoves(m []int) types.Move {
-	return types.Move{From: m[0], To: m[1]}
-}
-
-func ArrayToMovesArray(m [][]int) []types.Move {
+func ArrayToMovesArray(m []int64) []types.Move {
 	var moves []types.Move
-	for _, move := range m {
-		moves = append(moves, ArrayToMoves(move))
+	for i := 0; i < len(m); i += 2 {
+		moves = append(moves, types.Move{From: m[i], To: m[i+1]})
 	}
 	return moves
 }

@@ -14,8 +14,8 @@ func NewDices() [2]int {
 }
 
 type Move struct {
-	From int `json:"from" example:"1"`
-	To   int `json:"to" example:"2"`
+	From int64 `json:"from" example:"1"`
+	To   int64 `json:"to" example:"2"`
 }
 
 type Dices [2]int

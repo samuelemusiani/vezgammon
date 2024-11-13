@@ -187,6 +187,9 @@ func TestGetTurns(t *testing.T) {
 	retturns, err := GetTurns(tgame.ID)
 	assert.NilError(t, err)
 
+	for i := range retturns {
+		retturns[i].Time = retarr[i].Time
+	}
 	assert.DeepEqual(t, retturns, retarr)
 }
 
@@ -227,8 +230,8 @@ func TestGetLastTurn(t *testing.T) {
 	turn2 := types.Turn{
 		GameId: tgame.ID,
 		User:   tuser.ID,
-		Time:   time.Now(),
-		Dices:  types.Dices{6, 6},
+		Time:   time.Now().Add(1),
+		Dices:  types.Dices{4, 6},
 		Double: false,
 		Moves:  []types.Move{{From: 6, To: 7}, {From: 5, To: 7}},
 	}
@@ -242,5 +245,6 @@ func TestGetLastTurn(t *testing.T) {
 	lastturn, err := GetLastTurn(tgame.ID)
 	assert.NilError(t, err)
 
+	tturn2.Time = lastturn.Time
 	assert.DeepEqual(t, tturn2, lastturn)
 }

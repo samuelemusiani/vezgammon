@@ -241,17 +241,17 @@ func (m *Move) toTurn() (*types.Turn, error) {
 	var t types.Turn
 	var err error
 	for _, play := range m.Play {
-		var to, from int
+		var to, from int64
 		if play.From == "bar" {
 			from = 0
 		} else {
-			from, err = strconv.Atoi(play.From)
+			from, err = strconv.ParseInt(play.From, 10, 64)
 		}
 
 		if play.To == "off" {
 			to = 25
 		} else {
-			to, err = strconv.Atoi(play.To)
+			to, err = strconv.ParseInt(play.To, 10, 64)
 		}
 
 		m := types.Move{From: from, To: to}

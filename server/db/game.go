@@ -46,7 +46,7 @@ func initGame() error {
 		time		TIMESTAMP,
 		dices		INTEGER [],
 		double		BOOL,
-		moves	    INTEGER [][]
+		moves	    INTEGER []
 	)
 	`
 	_, err = conn.Exec(q)
@@ -191,7 +191,7 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 
 	var turns []types.Turn
 
-	var moves [][]int
+	var moves pq.Int64Array
 	var dices pq.Int64Array
 
 	for rows.Next() {
@@ -203,7 +203,7 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 
 		tmp.Dices = types.Dices{int(dices[0]), int(dices[1])}
 
-		tmp.Moves = ArrayToMovesArray(moves)
+		tmp.Moves = ArrayToMovesArray([]int64(moves))
 
 		turns = append(turns, tmp)
 	}
@@ -212,11 +212,11 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 }
 
 func GetLastTurn(game_id int64) (*types.Turn, error) {
-	q := "SELECT * FROM turns WHERE game_id = $1 ORDER BY time ASC LIMIT 1"
+	q := "SELECT * FROM turns WHERE game_id = $1 ORDER BY time DESC LIMIT 1"
 	row := conn.QueryRow(q, game_id)
 
 	var turn types.Turn
-	var moves [][]int
+	var moves pq.Int64Array
 
 	var dices pq.Int64Array
 	err := row.Scan(&turn.ID, &turn.GameId, &turn.User, &turn.Time, &dices, &turn.Double, &moves)
