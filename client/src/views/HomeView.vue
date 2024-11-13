@@ -12,8 +12,8 @@
         <!-- Left Button (Stats) -->
         <div class="absolute left-8">
           <button
-            @click="play"
-            @mouseenter="play"
+            @click="(e: MouseEvent) => play()"
+            @mouseenter="(e: MouseEvent) => play()"
             class="retro-button circle"
             title="Statistics"
           >
@@ -24,20 +24,24 @@
         <!-- Central Buttons -->
         <div class="flex w-full max-w-sm flex-col gap-6">
           <button
-            @click="openPlayModal"
-            @mouseenter="play"
+            @click="(e: MouseEvent) => openPlayModal()"
+            @mouseenter="(e: MouseEvent) => play()"
             class="retro-button"
           >
             PLAY
           </button>
-          <button @mouseenter="play" class="retro-button">RULES</button>
-          <button @mouseenter="play" class="retro-button">SETTINGS</button>
+          <button @mouseenter="(e: MouseEvent) => play()" class="retro-button">
+            RULES
+          </button>
+          <button @mouseenter="(e: MouseEvent) => play()" class="retro-button">
+            SETTINGS
+          </button>
         </div>
 
         <!-- Right Button (Profile) -->
         <div class="absolute right-8">
           <button
-            @mouseenter="play"
+            @mouseenter="(e: MouseEvent) => play()"
             @click="navigateTo('/profile')"
             class="retro-button circle"
             title="Profile"
@@ -57,21 +61,21 @@
         <!-- Options -->
         <div class="flex flex-col gap-4">
           <button
-            @mouseenter="play"
+            @mouseenter="(e: MouseEvent) => play()"
             @click="startGame('local')"
             class="retro-button"
           >
             Local Game (2 Players)
           </button>
           <button
-            @mouseenter="play"
+            @mouseenter="(e: MouseEvent) => play()"
             @click="startGame('ai')"
             class="retro-button"
           >
             Play vs AI
           </button>
           <button
-            @mouseenter="play"
+            @mouseenter="(e: MouseEvent) => play()"
             @click="startGame('online')"
             class="retro-button"
           >
