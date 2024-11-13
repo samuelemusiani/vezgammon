@@ -85,3 +85,162 @@ func TestGetGame(t *testing.T) {
 	assert.Equal(t, retgame.Elo2, retgame2.Elo2)
 	assert.Equal(t, retgame.Status, retgame2.Status)
 }
+
+func TestCreateTurn(t *testing.T) {
+	tuser := types.User{
+		Username:  "tturn",
+		Firstname: "tturn",
+		Lastname:  "tturn",
+		Mail:      "tturn",
+	}
+
+	var err error
+	tuser, err = CreateUser(tuser, "tturn")
+	assert.NilError(t, err)
+
+	game := types.Game{
+		Player1: tuser.ID,
+		Elo1:    1000,
+		Player2: tuser.ID,
+		Elo2:    1000,
+		Status:  types.GameStatusOpen,
+		Start:   time.Now(),
+		End:     time.Now(),
+	}
+
+	tgame, err := CreateGame(game)
+	assert.NilError(t, err)
+
+	turn := types.Turn{
+		GameId: tgame.ID,
+		User:   tuser.ID,
+		Time:   time.Now(),
+		Dices:  types.Dices{6, 6},
+		Double: false,
+		Moves:  []types.Move{{From: 1, To: 2}, {From: 2, To: 3}},
+	}
+
+	tturn, err := CreateTurn(turn)
+	assert.NilError(t, err)
+
+	assert.Equal(t, turn.GameId, tturn.GameId)
+	assert.Equal(t, turn.User, tturn.User)
+	assert.Equal(t, turn.Time, tturn.Time)
+	assert.DeepEqual(t, turn.Dices, tturn.Dices)
+	assert.Equal(t, turn.Double, tturn.Double)
+	assert.DeepEqual(t, turn.Moves, tturn.Moves)
+}
+
+func TestGetTurns(t *testing.T) {
+	tuser := types.User{
+		Username:  "tturngets",
+		Firstname: "tturngets",
+		Lastname:  "tturngets",
+		Mail:      "tturngets",
+	}
+
+	var err error
+	tuser, err = CreateUser(tuser, "tturngets")
+	assert.NilError(t, err)
+
+	game := types.Game{
+		Player1: tuser.ID,
+		Elo1:    1000,
+		Player2: tuser.ID,
+		Elo2:    1000,
+		Status:  types.GameStatusOpen,
+		Start:   time.Now(),
+		End:     time.Now(),
+	}
+
+	tgame, err := CreateGame(game)
+	assert.NilError(t, err)
+
+	turn1 := types.Turn{
+		GameId: tgame.ID,
+		User:   tuser.ID,
+		Time:   time.Now(),
+		Dices:  types.Dices{6, 6},
+		Double: false,
+		Moves:  []types.Move{{From: 4, To: 6}, {From: 2, To: 3}},
+	}
+
+	turn2 := types.Turn{
+		GameId: tgame.ID,
+		User:   tuser.ID,
+		Time:   time.Now(),
+		Dices:  types.Dices{6, 6},
+		Double: false,
+		Moves:  []types.Move{{From: 1, To: 3}, {From: 5, To: 7}},
+	}
+
+	tturn1, err := CreateTurn(turn1)
+	assert.NilError(t, err)
+
+	tturn2, err := CreateTurn(turn2)
+	assert.NilError(t, err)
+
+	var retarr []types.Turn
+	retarr = append(retarr, *tturn1)
+	retarr = append(retarr, *tturn2)
+
+	retturns, err := GetTurns(tgame.ID)
+	assert.NilError(t, err)
+
+	assert.DeepEqual(t, retturns, retarr)
+}
+
+func TestGetLastTurn(t *testing.T) {
+	tuser := types.User{
+		Username:  "tturngetlast",
+		Firstname: "tturngetlast",
+		Lastname:  "tturngetlast",
+		Mail:      "tturngetlast",
+	}
+
+	var err error
+	tuser, err = CreateUser(tuser, "tturngetlast")
+	assert.NilError(t, err)
+
+	game := types.Game{
+		Player1: tuser.ID,
+		Elo1:    1000,
+		Player2: tuser.ID,
+		Elo2:    1000,
+		Status:  types.GameStatusOpen,
+		Start:   time.Now(),
+		End:     time.Now(),
+	}
+
+	tgame, err := CreateGame(game)
+	assert.NilError(t, err)
+
+	turn1 := types.Turn{
+		GameId: tgame.ID,
+		User:   tuser.ID,
+		Time:   time.Now(),
+		Dices:  types.Dices{6, 6},
+		Double: false,
+		Moves:  []types.Move{{From: 4, To: 6}, {From: 2, To: 3}},
+	}
+
+	turn2 := types.Turn{
+		GameId: tgame.ID,
+		User:   tuser.ID,
+		Time:   time.Now(),
+		Dices:  types.Dices{6, 6},
+		Double: false,
+		Moves:  []types.Move{{From: 6, To: 7}, {From: 5, To: 7}},
+	}
+
+	_, err = CreateTurn(turn1)
+	assert.NilError(t, err)
+
+	tturn2, err := CreateTurn(turn2)
+	assert.NilError(t, err)
+
+	lastturn, err := GetLastTurn(tgame.ID)
+	assert.NilError(t, err)
+
+	assert.DeepEqual(t, tturn2, lastturn)
+}

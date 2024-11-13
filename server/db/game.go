@@ -40,11 +40,11 @@ func initGame() error {
 
 	q = `
 	CREATE TABLE IF NOT EXISTS turns(
-		id 			  SERIAL PRIMARY KEY,
+		id 			SERIAL PRIMARY KEY,
 		game_id 	INTEGER REFERENCES games(id),
-		user_id	  INTEGER REFERENCES users(id),
-		time		  TIMESTAMP,
-		dices		  INTEGER [],
+		user_id	  	INTEGER REFERENCES users(id),
+		time		TIMESTAMP,
+		dices		INTEGER [],
 		double		BOOL,
 		moves	    INTEGER [][]
 	)
@@ -155,7 +155,7 @@ func GetGame(id int64) (*types.Game, error) {
 	}
 
 	if len(dices) < 2 {
-		return nil, errors.New("Dices are more than 2")
+		return nil, errors.New("dices are more than 2")
 	}
 
 	g.Dices[0] = int(dices[0])
@@ -166,12 +166,12 @@ func GetGame(id int64) (*types.Game, error) {
 
 func CreateTurn(t types.Turn) (*types.Turn, error) {
 	q := `
-	INSERT INTO turns(id, game, user, time, dices, double, moves)
-	VALUES ($1, $2, $3, $4, $5, $6, $7)
+	INSERT INTO turns(game_id, user_id, time, dices, double, moves)
+	VALUES ($1, $2, $3, $4, $5, $6)
 	RETURNING id
 	`
 
-	res := conn.QueryRow(q, t.ID, t.GameId, t.User, t.Time, t.Dices, t.Double, MovesArrayToArray(t.Moves))
+	res := conn.QueryRow(q, t.GameId, t.User, t.Time, pq.Array(t.Dices), t.Double, pq.Array(MovesArrayToArray(t.Moves)))
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
@@ -183,7 +183,7 @@ func CreateTurn(t types.Turn) (*types.Turn, error) {
 
 // return all turn for a game last to first
 func GetTurns(game_id int64) ([]types.Turn, error) {
-	q := "SELECT * FROM turns WHERE game = $1 ORDER BY time ASC"
+	q := "SELECT * FROM turns WHERE game_id = $1 ORDER BY time ASC"
 	rows, err := conn.Query(q, game_id)
 	if err != nil {
 		return nil, err
@@ -192,13 +192,16 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 	var turns []types.Turn
 
 	var moves [][]int
+	var dices pq.Int64Array
 
 	for rows.Next() {
 		var tmp types.Turn
-		err = rows.Scan(&tmp.ID, &tmp.GameId, &tmp.User, &tmp.Time, &tmp.Dices, &tmp.Double, &moves)
+		err = rows.Scan(&tmp.ID, &tmp.GameId, &tmp.User, &tmp.Time, &dices, &tmp.Double, &moves)
 		if err != nil {
 			return nil, err
 		}
+
+		tmp.Dices = types.Dices{int(dices[0]), int(dices[1])}
 
 		tmp.Moves = ArrayToMovesArray(moves)
 
@@ -209,16 +212,19 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 }
 
 func GetLastTurn(game_id int64) (*types.Turn, error) {
-	q := "SELECT * FROM turns WHERE game = $1 ORDER BY time ASC LIMIT 1"
+	q := "SELECT * FROM turns WHERE game_id = $1 ORDER BY time ASC LIMIT 1"
 	row := conn.QueryRow(q, game_id)
 
 	var turn types.Turn
 	var moves [][]int
 
-	err := row.Scan(&turn.ID, &turn.GameId, &turn.User, &turn.Time, &turn.Dices, &turn.Double, &moves)
+	var dices pq.Int64Array
+	err := row.Scan(&turn.ID, &turn.GameId, &turn.User, &turn.Time, &dices, &turn.Double, &moves)
 	if err != nil {
 		return nil, err
 	}
+
+	turn.Dices = types.Dices{int(dices[0]), int(dices[1])}
 
 	turn.Moves = ArrayToMovesArray(moves)
 

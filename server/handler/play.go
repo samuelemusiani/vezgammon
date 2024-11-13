@@ -56,7 +56,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 // @Tags play
 // @Accept json
 // @Produce json
-// @Success 200 {object} types.PossibleMoves "Dice with all possible moves"
+// @Success 200 {object} types.FutureTurn "Dice with all possible moves and the ability to double"
 // @Failure 400 "Not in a game, not your turn or double requested"
 // @Router /play/moves [get]
 func GetPossibleMoves(c *gin.Context) {

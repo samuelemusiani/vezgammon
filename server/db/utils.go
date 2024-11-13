@@ -25,3 +25,7 @@ func ArrayToMovesArray(m [][]int) []types.Move {
 	}
 	return moves
 }
+
+func ArrayToDices(m []int) types.Dices {
+	return types.Dices{m[0], m[1]}
+}
