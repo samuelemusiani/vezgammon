@@ -1,9 +1,9 @@
 # Retrospettiva
 Team 1 - VezGammon
 
-## Sprint 1
-
 Votes: 😃 😐 😡
+
+## Sprint 1
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D | 
 | ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |

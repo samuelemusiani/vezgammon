@@ -1,4 +1,4 @@
-# Backlog
+# Backlog grooming
 ## Sprint 1
 ![backlog-graph](./imgs/s1-backlog-burndown.png)
 ![backlog-snapshot](./imgs/s1-backlog-snapshot.png)
