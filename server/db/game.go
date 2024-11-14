@@ -6,6 +6,7 @@ import (
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
+	"time"
 )
 
 func initGame() error {
@@ -50,6 +51,18 @@ func initGame() error {
 	)
 	`
 	_, err = Conn.Exec(q)
+	if err != nil {
+		return err
+	}
+
+	// init matchmaking table
+	q = `
+	CREATE TABLE IF NOT EXISTS matchmaking(
+		user	INTEGER REFERENCES users(username),
+    elo   INTEGER REFERENCES users(elo)
+	)
+	`
+	_, err = conn.Exec(q)
 	if err != nil {
 		return err
 	}
@@ -297,4 +310,50 @@ func GetLastTurn(game_id int64) (*types.Turn, error) {
 	turn.Moves = ArrayToMovesArray(moves)
 
 	return &turn, nil
+}
+
+func SearchGame(username string) (*types.User, error) {
+	stats, err := GetUserStats(username)
+	if err != nil {
+		return nil, err
+	}
+	slog.With("user stats: ", stats)
+
+	// start matchmaking
+	q := `INSERT INTO matchmaking (username, elo, time)
+        VALUES ($1, $2, $3)`
+
+	startTime := time.Now().Add(1 * time.Hour)
+	_, err = conn.Exec(q, stats.User.Username, stats.Elo, startTime)
+	if err != nil {
+		return nil, err
+	}
+
+	//cerco l'opponent nel db in base al player e in base a quanto è in queue
+	var oppo_id string
+	oppo_id, err = findOpponent(stats.User.Username)
+	if err != nil {
+		return nil, err
+	}
+
+	//ritorno l'opponent
+	oppo, err := GetUser(oppo_id)
+	if err != nil {
+		return nil, err
+	}
+
+	return oppo, nil
+}
+
+func findOpponent(string) (string, error) {
+
+	var opponent string
+	// cerco l'opponent nel db più suitable per il game con elo distanza |x|
+	// se trovo oppo:
+	// tolgo entrambi dalla table queue dal matchmaking
+	// poi aggiungo il game nella tabella dei game con i dati degli player
+	// se non lo trovo:
+	// WB --> keep queue up, wating
+
+	return opponent, nil
 }

@@ -8,10 +8,11 @@ import (
 	"reflect"
 	"time"
 	"vezgammon/server/bgweb"
-	"vezgammon/server/db"
 	"vezgammon/server/types"
 
 	"github.com/gin-gonic/gin"
+	"vezgammon/server/db"
+	//"vezgammon/server/types"
 )
 
 // @Summary Start a matchmaking search for a new game
@@ -24,6 +25,21 @@ import (
 // @Failure 400 "Already searching or in a game"
 // @Router /play/search [get]
 func StartPlaySearch(c *gin.Context) {
+
+	//get user infos
+	slog.Debug("Inizio a cercare un game")
+	username := c.MustGet("username")
+
+	//send to db the user [searching]
+	oppo, ret := db.SearchGame(username.(string))
+	if ret != nil {
+		// da capire che tipo di errore, ma in teorica rimane haning
+		slog.With("ret", ret)
+		return
+	}
+
+	//return opponent and 200
+	c.JSON(http.StatusOK, oppo)
 }
 
 // @Summary Stop a running matchmaking search
