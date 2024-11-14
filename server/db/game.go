@@ -312,26 +312,26 @@ func GetLastTurn(game_id int64) (*types.Turn, error) {
 	return &turn, nil
 }
 
-func SearchGame(username string) (*types.User, error) {
-	stats, err := GetUserStats(username)
+func SearchGame(uid string) (*types.User, error) {
+	u, err := GetUser(uid)
 	if err != nil {
 		return nil, err
 	}
-	slog.With("user stats: ", stats)
+	slog.With("user stats: ", u)
 
 	// start matchmaking
 	q := `INSERT INTO matchmaking (username, elo, time)
         VALUES ($1, $2, $3)`
 
 	startTime := time.Now().Add(1 * time.Hour)
-	_, err = conn.Exec(q, stats.User.Username, stats.Elo, startTime)
+	_, err = conn.Exec(q, u.Username, u.Elo, startTime)
 	if err != nil {
 		return nil, err
 	}
 
 	//cerco l'opponent nel db in base al player e in base a quanto è in queue
 	var oppo_id string
-	oppo_id, err = findOpponent(stats.User.Username)
+	oppo_id, err = findOpponent(u.Username)
 	if err != nil {
 		return nil, err
 	}
