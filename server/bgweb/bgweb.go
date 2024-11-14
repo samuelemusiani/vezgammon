@@ -297,7 +297,33 @@ func GetMoves(moveargs *MoveArgs) ([]Move, error) {
 	return m, nil
 }
 
-func GetLegalMoves(g *types.Game) (*[]types.Turn, error) {
+func MoveArrayToMoveArrayArray(movesarray []Move) *[][]types.Move {
+	var retarrayarray [][]types.Move
+
+	for _, checkerplayarray := range movesarray {
+		var retarray []types.Move
+		for _, play := range checkerplayarray.Play {
+			var to, from int64
+			if play.From == "bar" {
+				from = 0
+			} else {
+				from, _ = strconv.ParseInt(play.From, 10, 64)
+			}
+
+			if play.To == "off" {
+				to = 25
+			} else {
+				to, _ = strconv.ParseInt(play.To, 10, 64)
+			}
+
+			retarray = append(retarray, types.Move{From: from, To: to})
+		}
+		retarrayarray = append(retarrayarray, retarray)
+	}
+	return &retarrayarray
+}
+
+func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 	mv := GametoMoveArgs(g, all_legal_moves_config)
 
 	moves, err := GetMoves(mv)
@@ -305,16 +331,7 @@ func GetLegalMoves(g *types.Game) (*[]types.Turn, error) {
 		return nil, err
 	}
 
-	var turns []types.Turn
-	for _, m := range moves {
-		tturn, err := m.toTurn()
-		if err != nil {
-			return nil, err
-		}
-
-		turns = append(turns, *tturn)
-	}
-	return &turns, nil
+	return *MoveArrayToMoveArrayArray(moves), nil
 }
 
 func GetBestMove(g *types.Game) (*types.Turn, error) {

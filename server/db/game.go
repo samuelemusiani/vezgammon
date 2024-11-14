@@ -92,7 +92,7 @@ func CreateGame(g types.Game) (*types.Game, error) {
 func UpdateGame(g types.Game) error {
 	q := `
 		UPDATE games
-		SET	
+		SET
       endtime		      = $1,
 			status		      = $2,
 			p1checkers	    = $3,
@@ -160,6 +160,74 @@ func GetGame(id int64) (*types.Game, error) {
 
 	g.Dices[0] = int(dices[0])
 	g.Dices[1] = int(dices[1])
+
+	return &g, nil
+}
+
+func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
+	q := `
+	SELECT
+        g.id,
+        u1.username AS p1_username,
+        g.p1elo,
+        u2.username AS p2_username,
+        g.p2elo,
+        g.start,
+        g.endtime,
+        g.status,
+        g.p1checkers,
+        g.p2checkers,
+        g.double_value,
+        g.double_owner,
+        g.want_to_double,
+        g.current_player,
+    FROM
+    	games g
+    JOIN
+    	users u1 ON g.p1_id = u1.id
+    JOIN
+    	users u2 ON g.p2_id = u2.id
+    WHERE
+    	g.status = 'open' AND (g.p1_id = $1 OR g.p2_id = $1)
+    LIMIT 1;
+	`
+
+	row := conn.QueryRow(q, user_id)
+
+	// Tmp variables for avoid error type in the db [int8/int]
+	var p1CheckersDB pq.Int64Array
+	var p2CheckersDB pq.Int64Array
+
+	var g types.ReturnGame
+
+	err := row.Scan(
+		&g.ID,
+		&g.Player1,
+		&g.Elo1,
+		&g.Player2,
+		&g.Elo2,
+		&g.Start,
+		&g.End,
+		&g.Status,
+		&p1CheckersDB,
+		&p2CheckersDB,
+		&g.DoubleValue,
+		&g.DoubleOwner,
+		&g.WantToDouble,
+		&g.CurrentPlayer,
+	)
+
+	if err != nil {
+		return nil, err
+	}
+
+	// Conversion of p1Checkers from int8 into int
+	for i, v := range p1CheckersDB {
+		g.P1Checkers[i] = int8(v)
+	}
+	for i, v := range p2CheckersDB {
+		g.P2Checkers[i] = int8(v)
+	}
 
 	return &g, nil
 }

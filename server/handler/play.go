@@ -1,6 +1,14 @@
 package handler
 
-import "github.com/gin-gonic/gin"
+import (
+	"database/sql"
+	"net/http"
+	"vezgammon/server/bgweb"
+	"vezgammon/server/db"
+	"vezgammon/server/types"
+
+	"github.com/gin-gonic/gin"
+)
 
 // @Summary Start a matchmaking search for a new game
 // @Schemes
@@ -36,6 +44,19 @@ func StopPlaySearch(c *gin.Context) {
 // @Failure 404 "Game not found"
 // @Router /play [get]
 func GetCurrentGame(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	retgame, err := db.GetCurrentGame(user_id)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, "Game not found")
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, retgame)
 }
 
 // @Summary Surrend to current game
@@ -48,6 +69,39 @@ func GetCurrentGame(c *gin.Context) {
 // @Failure 404 "Not in a game"
 // @Router /play [delete]
 func SurrendToCurrentGame(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	rg, err := db.GetCurrentGame(user_id)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, "Not in a game")
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	var status string
+	if g.Player1 == user_id { // Player 1 surrended, player 2 wins
+		status = types.GameStatusWinP2
+	} else {
+		status = types.GameStatusWinP1
+	}
+
+	g.Status = status
+	err = db.UpdateGame(*g)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, "Surrended")
 }
 
 // @Summary Get possible moves for next turn
@@ -60,6 +114,51 @@ func SurrendToCurrentGame(c *gin.Context) {
 // @Failure 400 "Not in a game, not your turn or double requested"
 // @Router /play/moves [get]
 func GetPossibleMoves(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	rg, err := db.GetCurrentGame(user_id)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, "Not in a game")
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	if g.WantToDouble {
+		c.JSON(http.StatusBadRequest, "Double requested")
+		return
+	}
+
+	var currentplayer string
+	if g.Player1 == user_id {
+		currentplayer = types.GameCurrentPlayerP1
+	} else {
+		currentplayer = types.GameCurrentPlayerP1
+	}
+
+	if currentplayer != g.CurrentPlayer {
+		c.JSON(http.StatusBadRequest, "Not your turn")
+		return
+	}
+
+	var futureturn types.FutureTurn
+	futureturn.Dices = g.Dices
+	futureturn.CanDouble = (g.CurrentPlayer == g.DoubleOwner)
+	futureturn.PossibleMoves, err = bgweb.GetLegalMoves(g)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, futureturn)
 }
 
 // @Summary Play all the moves for the current turn
