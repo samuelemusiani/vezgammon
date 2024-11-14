@@ -5,8 +5,8 @@ import (
 	"time"
 )
 
-func NewDices() [2]int {
-	var dices [2]int
+func NewDices() Dices {
+	var dices Dices
 	for i := 0; i < len(dices); i++ {
 		dices[i] = rand.Intn(6) + 1
 	}
@@ -20,6 +20,9 @@ type Move struct {
 
 type Dices [2]int
 
+// if Double is true it menas that is a fake turn
+// where the player doubles the Dices.
+// Dices and Moves are empty in this case
 type Turn struct {
 	ID     int64     `json:"id"`
 	GameId int64     `json:"game_id"`
@@ -71,6 +74,33 @@ type Game struct {
 	CurrentPlayer string `json:"current_player"`
 
 	Dices Dices `json:"dices"`
+}
+
+func (g *Game) PlayMove(moves *[]Move) {
+	// if Move.To is 25, it means the checker is out of the board
+	// if Move.From is 0, it means the checker is in the bar
+	var checkers *[25]int8
+	if g.CurrentPlayer == GameCurrentPlayerP1 {
+		checkers = &g.P1Checkers
+
+		// if the player is P1, the next player is P2
+		g.CurrentPlayer = GameCurrentPlayerP2
+	} else {
+		checkers = &g.P2Checkers
+
+		// if the player is P2, the next player is P1
+		g.CurrentPlayer = GameCurrentPlayerP1
+	}
+
+	// estract next dices
+	g.Dices = NewDices()
+
+	for _, move := range *moves {
+		checkers[move.From]-- // remove checker from the source
+		if move.To < 25 {
+			checkers[move.To]++ // add checker to the destination
+		}
+	}
 }
 
 type ReturnGame struct {

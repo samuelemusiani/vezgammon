@@ -2,7 +2,11 @@ package handler
 
 import (
 	"database/sql"
+	"encoding/json"
+	"io"
 	"net/http"
+	"reflect"
+	"time"
 	"vezgammon/server/bgweb"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
@@ -102,6 +106,8 @@ func SurrendToCurrentGame(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, "Surrended")
+
+	// TODO: send notification to the other player that the game is over
 }
 
 // @Summary Get possible moves for next turn
@@ -137,14 +143,14 @@ func GetPossibleMoves(c *gin.Context) {
 		return
 	}
 
-	var currentplayer string
+	var callingplayerrole string
 	if g.Player1 == user_id {
-		currentplayer = types.GameCurrentPlayerP1
+		callingplayerrole = types.GameCurrentPlayerP1
 	} else {
-		currentplayer = types.GameCurrentPlayerP1
+		callingplayerrole = types.GameCurrentPlayerP1
 	}
 
-	if currentplayer != g.CurrentPlayer {
+	if callingplayerrole != g.CurrentPlayer {
 		c.JSON(http.StatusBadRequest, "Not your turn")
 		return
 	}
@@ -172,6 +178,101 @@ func GetPossibleMoves(c *gin.Context) {
 // @Failure 400 "Moves not legal, not your turn or not in a game"
 // @Router /play/moves [post]
 func PlayMoves(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	// get moves from body
+	buff, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	var moves []types.Move
+	err = json.Unmarshal(buff, &moves)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	rg, err := db.GetCurrentGame(user_id)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, "Not in a game")
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	if g.WantToDouble {
+		c.JSON(http.StatusBadRequest, "Double requested")
+		return
+	}
+
+	var callingplayerrole string
+	if g.Player1 == user_id {
+		callingplayerrole = types.GameCurrentPlayerP1
+	} else {
+		callingplayerrole = types.GameCurrentPlayerP1
+	}
+
+	if callingplayerrole != g.CurrentPlayer {
+		c.JSON(http.StatusBadRequest, "Not your turn")
+		return
+	}
+
+	if callingplayerrole != g.CurrentPlayer {
+		c.JSON(http.StatusBadRequest, "Not your turn")
+		return
+	}
+
+	// check if moves are legal
+	legalmoves, err := bgweb.GetLegalMoves(g)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	islegal := false
+	for _, m := range legalmoves {
+		if reflect.DeepEqual(m, moves) {
+			islegal = true
+			break
+		}
+	}
+
+	if !islegal {
+		c.JSON(http.StatusBadRequest, "Moves not legal")
+		return
+	}
+
+	g.PlayMove(&moves)
+
+	// save turn
+	turn := types.Turn{
+		GameId: g.ID,
+		User:   user_id,
+		Time:   time.Now(),
+		Dices:  g.Dices,
+		Double: false,
+		Moves:  moves,
+	}
+
+	_, err = db.CreateTurn(turn)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, "Moves played")
+
+	// TODO: send notification to the other player that it's his turn
 }
 
 // @Summary The player want to double
@@ -184,6 +285,54 @@ func PlayMoves(c *gin.Context) {
 // @Failure 400 "Not in a game or double not possible"
 // @Router /play/double [post]
 func WantToDouble(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	rg, err := db.GetCurrentGame(user_id)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, "Not in a game")
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	if g.WantToDouble {
+		c.JSON(http.StatusBadRequest, "Double not possible")
+		return
+	}
+
+	var currentplayer string
+	if g.Player1 == user_id {
+		currentplayer = types.GameCurrentPlayerP1
+	} else {
+		currentplayer = types.GameCurrentPlayerP1
+	}
+
+	// check if player requesting the double has the doubling cube
+	if g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner != currentplayer {
+		c.JSON(http.StatusBadRequest, "Double not possible")
+		return
+	}
+
+	g.WantToDouble = true
+	g.DoubleValue = g.DoubleValue * 2
+
+	err = db.UpdateGame(*g)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, g.DoubleValue)
+
+	// TODO: send notification to the other player that he can refuse or accept the double
 }
 
 // @Summary Refuse the double
@@ -196,6 +345,32 @@ func WantToDouble(c *gin.Context) {
 // @Failure 400 "Not in a game or can't refuse double"
 // @Router /play/double [delete]
 func RefuseDouble(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	rg, err := db.GetCurrentGame(user_id)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, "Not in a game")
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	if !g.WantToDouble {
+		c.JSON(http.StatusBadRequest, "Can't refuse double")
+		return
+	}
+
+	// refuse the game is equalt to surrendre
+	SurrendToCurrentGame(c)
+	c.JSON(http.StatusCreated, "Double refused")
 }
 
 // @Summary Accept the double
@@ -208,4 +383,57 @@ func RefuseDouble(c *gin.Context) {
 // @Failure 400 "Not in a game or double not possible"
 // @Router /play/double [put]
 func AcceptDouble(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	rg, err := db.GetCurrentGame(user_id)
+	if err == sql.ErrNoRows {
+		c.JSON(http.StatusNotFound, "Not in a game")
+		return
+	}
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	if !g.WantToDouble {
+		c.JSON(http.StatusBadRequest, "Double not possible")
+		return
+	}
+
+	g.WantToDouble = false
+	err = db.UpdateGame(*g)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	// save turn as double
+	var doublingplayer_id int64
+	if g.Player1 == user_id {
+		doublingplayer_id = g.Player1
+	} else {
+		doublingplayer_id = g.Player2
+	}
+
+	turn := types.Turn{
+		GameId: g.ID,
+		User:   doublingplayer_id,
+		Time:   time.Now(),
+		Double: true,
+	}
+
+	_, err = db.CreateTurn(turn)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, "Double accepted")
+	// TODO: send notification to the other player that he accepts the doubleS
 }
