@@ -5,7 +5,6 @@ import {
   createBlackChecker,
   createDefaultBoard,
   getTrianglePath,
-  getTriangleColor,
   getCheckerX,
   BOARD,
   getCheckerY,
@@ -133,6 +132,8 @@ test('updateGameState test double dice', () => {
       double: true,
     },
     board: createDefaultBoard(),
+    capturedBlack: [],
+    capturedWhite: [],
   }
 
   updateGameState(gameState, 12, 0, 4)
@@ -152,6 +153,8 @@ test('updateGameState single dice move', () => {
       double: false,
     },
     board: createDefaultBoard(),
+    capturedBlack: [],
+    capturedWhite: [],
   }
 
   updateGameState(gameState, 4, 0, 2)
@@ -171,6 +174,8 @@ test('updateGameState combined dice move', () => {
       double: false,
     },
     board: createDefaultBoard(),
+    capturedBlack: [],
+    capturedWhite: [],
   }
 
   updateGameState(gameState, 9, 0, 2)

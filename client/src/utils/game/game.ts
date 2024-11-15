@@ -1,5 +1,4 @@
 import type { BoardDimensions, Checker, GameState } from './types'
-import router from '@/router'
 
 export const BOARD: BoardDimensions = {
   width: 800,
@@ -41,7 +40,7 @@ export const createBlackChecker = (
 
 // Create the default board with checkers in their initial positions
 export const createDefaultBoard = (): Checker[] => {
-  let tmp = []
+  const tmp = []
   for (let i = 0; i < 5; i++) {
     if (i < 2) {
       tmp.push(createWhiteChecker(0, i))

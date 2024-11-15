@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Checker, GameState } from '@/utils/game/types'
+import type { Checker } from '@/utils/game/types'
 import {
   BOARD,
   getTrianglePath,
@@ -9,8 +9,7 @@ import {
   getCheckerY,
   updateGameState,
   newGame,
-  endTurn,
-  checkWin,
+  //checkWin,
 } from '@/utils/game/game'
 import {
   calculatePossibleMoves,
@@ -20,9 +19,9 @@ import {
 } from '@/utils/game/moves'
 import ConfettiExplosion from 'vue-confetti-explosion'
 import { useSound } from '@vueuse/sound'
-import victorySfx from '@/utils/sounds/victory.mp3'
+//import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
-import tinSfx from '@/utils/sounds/tintin.mp3'
+//import tinSfx from '@/utils/sounds/tintin.mp3'
 
 const gameState = ref(newGame())
 const selectedChecker = ref<Checker | null>(null)
@@ -31,9 +30,9 @@ const movesAvailable = ref(2)
 const isRolling = ref(false)
 const gameStarted = ref(false)
 const isExploding = ref(false)
-const { play: playVictory } = useSound(victorySfx)
+//const { play: playVictory } = useSound(victorySfx)
 const { play: playDice } = useSound(diceSfx)
-const { play: playTin } = useSound(tinSfx)
+//const { play: playTin } = useSound(tinSfx)
 
 const handleCheckerClick = (checker: Checker) => {
   if (!isCheckerMovable(gameState.value, checker)) return
@@ -62,9 +61,10 @@ const handleTriangleClick = (position: number) => {
     oldCheckerPos,
     movesAvailable.value,
   )
+  /*
   if (checkWin(gameState.value)) {
     handleWin()
-  }
+  }*/
   possibleMoves.value = []
   selectedChecker.value = null
 }
@@ -74,9 +74,12 @@ const moveChecker = (checker: Checker, newPosition: number) => {
   updateStackIndices(gameState.value)
 }
 
-const handleBoardClick = (event: any) => {
+const handleBoardClick = (event: MouseEvent) => {
   // Deselect checker when clicking on board
-  if (event.target.tagName === 'svg' || event.target.tagName === 'rect') {
+  if (
+    (event.target as Element).tagName === 'svg' ||
+    (event.target as Element).tagName === 'rect'
+  ) {
     selectedChecker.value = null
     possibleMoves.value = []
   }
@@ -124,6 +127,7 @@ const rollDice = () => {
   }, 500)
 }
 
+/* TODO: Remove when we have backend API
 const handleWin = () => {
   isExploding.value = true
   playVictory()
@@ -141,11 +145,10 @@ const simulateWin = () => {
   })
   handleWin()
 }
-
-let timerInterval: NodeJS.Timeout
+*/
 const startTimer = () => {
   let seconds = 0
-  timerInterval = setInterval(() => {
+  setInterval(() => {
     seconds++
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -156,7 +159,7 @@ const startTimer = () => {
 }
 
 // JUST for testing
-const addCheckerHome = () => {
+/*const addCheckerHome = () => {
   playTin()
   if (gameState.value.currentPlayer === 'white') {
     if (gameState.value.capturedWhite.length < 15) {
@@ -175,7 +178,7 @@ const addCheckerHome = () => {
       })
     }
   }
-}
+}*/
 </script>
 
 <template>
