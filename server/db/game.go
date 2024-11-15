@@ -180,7 +180,7 @@ func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
         g.double_value,
         g.double_owner,
         g.want_to_double,
-        g.current_player,
+        g.current_player
     FROM
     	games g
     JOIN
@@ -189,7 +189,7 @@ func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
     	users u2 ON g.p2_id = u2.id
     WHERE
     	g.status = 'open' AND (g.p1_id = $1 OR g.p2_id = $1)
-    LIMIT 1;
+    LIMIT 1
 	`
 
 	row := conn.QueryRow(q, user_id)

@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"time"
@@ -53,9 +54,8 @@ func StartGameLocalcally(c *gin.Context) {
 	_, err := db.GetCurrentGame(user_id)
 	if err != sql.ErrNoRows {
 		c.JSON(http.StatusBadRequest, "Already in a game")
+		slog.With(err).Debug("other error?")
 		return
-	} else {
-		c.JSON(http.StatusInternalServerError, err)
 	}
 
 	startdices_p1 := types.NewDices()
@@ -143,6 +143,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 	if err != nil {
+		slog.With(err)
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
