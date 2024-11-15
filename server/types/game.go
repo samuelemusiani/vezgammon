@@ -93,13 +93,9 @@ func (g *Game) PlayMove(moves []Move) {
 	var checkers *[25]int8
 	if g.CurrentPlayer == GameCurrentPlayerP1 {
 		checkers = &g.P1Checkers
-
-		// if the player is P1, the next player is P2
 		g.CurrentPlayer = GameCurrentPlayerP2
 	} else {
 		checkers = &g.P2Checkers
-
-		// if the player is P2, the next player is P1
 		g.CurrentPlayer = GameCurrentPlayerP1
 	}
 

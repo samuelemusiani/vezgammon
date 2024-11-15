@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
-	"log/slog"
 	"net/http"
 	"reflect"
 	"time"
@@ -54,7 +53,6 @@ func StartGameLocalcally(c *gin.Context) {
 	_, err := db.GetCurrentGame(user_id)
 	if err != sql.ErrNoRows {
 		c.JSON(http.StatusBadRequest, "Already in a game")
-		slog.With(err).Debug("other error?")
 		return
 	}
 
@@ -143,14 +141,12 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 	if err != nil {
-		slog.With("error", err).Debug("146")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	g, err := db.GetGame(rg.ID)
 	if err != nil {
-		slog.With("error", err).Debug("153")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -165,7 +161,6 @@ func SurrendToCurrentGame(c *gin.Context) {
 	g.Status = status
 	err = db.UpdateGame(g)
 	if err != nil {
-		slog.With("error", err).Debug("168")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -340,12 +335,12 @@ func WantToDouble(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
 	rg, err := db.GetCurrentGame(user_id)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, "Not in a game")
-		return
-	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, "Not in a game")
+		} else {
+			c.JSON(http.StatusInternalServerError, err)
+		}
 		return
 	}
 
@@ -360,21 +355,13 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
-	var currentplayer string
-	if g.Player1 == user_id {
-		currentplayer = types.GameCurrentPlayerP1
-	} else {
-		currentplayer = types.GameCurrentPlayerP1
-	}
-
-	// check if player requesting the double has the doubling cube
-	if g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner != currentplayer {
+	if (g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner == g.CurrentPlayer) || g.DoubleValue == 64 {
 		c.JSON(http.StatusBadRequest, "Double not possible")
 		return
 	}
 
 	g.WantToDouble = true
-	g.DoubleValue = g.DoubleValue * 2
+	g.DoubleOwner = g.CurrentPlayer
 
 	err = db.UpdateGame(g)
 	if err != nil {
@@ -382,7 +369,7 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, g.DoubleValue)
+	c.JSON(http.StatusCreated, g.DoubleValue*2)
 
 	// TODO: send notification to the other player that he can refuse or accept the double
 }
@@ -400,12 +387,12 @@ func RefuseDouble(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
 	rg, err := db.GetCurrentGame(user_id)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, "Not in a game")
-		return
-	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, "Not in a game")
+		} else {
+			c.JSON(http.StatusInternalServerError, err)
+		}
 		return
 	}
 
@@ -420,7 +407,7 @@ func RefuseDouble(c *gin.Context) {
 		return
 	}
 
-	// refuse the game is equalt to surrendre
+	// Refuse the double is equal to surrender
 	SurrendToCurrentGame(c)
 	c.JSON(http.StatusCreated, "Double refused")
 }
@@ -438,12 +425,12 @@ func AcceptDouble(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
 	rg, err := db.GetCurrentGame(user_id)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, "Not in a game")
-		return
-	}
 	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, "Not in a game")
+		} else {
+			c.JSON(http.StatusInternalServerError, err)
+		}
 		return
 	}
 
@@ -459,6 +446,8 @@ func AcceptDouble(c *gin.Context) {
 	}
 
 	g.WantToDouble = false
+	g.DoubleValue = 2 * g.DoubleValue
+
 	err = db.UpdateGame(g)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
@@ -466,11 +455,10 @@ func AcceptDouble(c *gin.Context) {
 	}
 
 	// save turn as double
-	var doublingplayer_id int64
-	if g.Player1 == user_id {
-		doublingplayer_id = g.Player1
-	} else {
-		doublingplayer_id = g.Player2
+	doublingplayer_id, err := getCurrentPlayer(g.DoubleOwner, g.Player1, g.Player2)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
 	}
 
 	turn := types.Turn{
