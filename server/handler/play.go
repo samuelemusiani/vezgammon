@@ -38,6 +38,68 @@ func StartPlaySearch(c *gin.Context) {
 func StopPlaySearch(c *gin.Context) {
 }
 
+// @Summary Create a local game
+// @Schemes
+// @Description Create a local game for playing locally in the same device
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 {object} types.NewGame
+// @Failure 400 "Already in a game"
+// @Router /play/local [get]
+func StartGameLocalcally(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	_, err := db.GetCurrentGame(user_id)
+	if err != sql.ErrNoRows {
+		c.JSON(http.StatusBadRequest, "Already in a game")
+		return
+	} else {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	startdices_p1 := types.NewDices()
+	startdices_p2 := types.NewDices()
+
+	var start_player string
+	if startdices_p1.Sum() >= startdices_p2.Sum() {
+		start_player = types.GameCurrentPlayerP1
+	} else {
+		start_player = types.GameCurrentPlayerP2
+	}
+
+	firstdices := types.NewDices()
+
+	g := types.Game{
+		Player1:       user_id,
+		Player2:       user_id,
+		Start:         time.Now(),
+		Status:        types.GameStatusOpen,
+		CurrentPlayer: start_player,
+		Dices:         firstdices,
+	}
+
+	_, err = db.CreateGame(g)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	newgame, err := db.GetCurrentGame(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	ng := types.NewGame{
+		DicesP1: startdices_p1,
+		DicesP2: startdices_p2,
+		Game:    *newgame,
+	}
+
+	c.JSON(http.StatusOK, ng)
+}
+
 // @Summary Get current game
 // @Schemes
 // @Description Get current game

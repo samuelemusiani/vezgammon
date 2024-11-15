@@ -130,6 +130,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/local": {
+            "get": {
+                "description": "Create a local game for playing locally in the same device",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a local game",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Already in a game"
+                    }
+                }
+            }
+        },
         "/play/moves": {
             "get": {
                 "description": "Get possible moves for next turn",
@@ -145,9 +171,9 @@ const docTemplate = `{
                 "summary": "Get possible moves for next turn",
                 "responses": {
                     "200": {
-                        "description": "Dice with all possible moves",
+                        "description": "Dice with all possible moves and the ability to double",
                         "schema": {
-                            "$ref": "#/definitions/types.PossibleMoves"
+                            "$ref": "#/definitions/types.FutureTurn"
                         }
                     },
                     "400": {
@@ -237,37 +263,60 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "types.FutureTurn": {
+            "type": "object",
+            "properties": {
+                "can_double": {
+                    "description": "True if the player can double the red dice",
+                    "type": "boolean"
+                },
+                "dices": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "possible_moves": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/types.Move"
+                        }
+                    }
+                }
+            }
+        },
         "types.Move": {
             "type": "object",
             "properties": {
                 "from": {
                     "type": "integer",
-                    "example": 2
+                    "example": 1
                 },
                 "to": {
                     "type": "integer",
-                    "example": 1
+                    "example": 2
                 }
             }
         },
-        "types.PossibleMoves": {
+        "types.NewGame": {
             "type": "object",
             "properties": {
-                "dice": {
+                "dices_p1": {
                     "type": "array",
                     "items": {
                         "type": "integer"
-                    },
-                    "example": [
-                        1,
-                        2
-                    ]
+                    }
                 },
-                "moves": {
+                "dices_p2": {
                     "type": "array",
                     "items": {
-                        "$ref": "#/definitions/types.Move"
+                        "type": "integer"
                     }
+                },
+                "game": {
+                    "$ref": "#/definitions/types.ReturnGame"
                 }
             }
         },

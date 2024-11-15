@@ -33,7 +33,14 @@ func initHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup := protected.Group("/play")
 	playGroup.GET("/search", handler.StartPlaySearch)
 	playGroup.DELETE("/search", handler.StopPlaySearch)
-	playGroup.DELETE("/", handler.GetCurrentGame)
+	playGroup.GET("/local", handler.StartGameLocalcally)
+	playGroup.GET("/", handler.GetCurrentGame)
+	playGroup.DELETE("/", handler.SurrendToCurrentGame)
+	playGroup.GET("/moves", handler.GetPossibleMoves)
+	playGroup.POST("/moves", handler.PlayMoves)
+	playGroup.POST("/double", handler.WantToDouble)
+	playGroup.DELETE("/double", handler.RefuseDouble)
+	playGroup.PUT("/double", handler.AcceptDouble)
 
 	// expose swagger web console
 	if conf.Swagger {

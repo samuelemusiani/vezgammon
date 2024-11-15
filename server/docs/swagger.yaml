@@ -1,26 +1,41 @@
 definitions:
-  types.Move:
+  types.FutureTurn:
     properties:
-      from:
-        example: 2
-        type: integer
-      to:
-        example: 1
-        type: integer
-    type: object
-  types.PossibleMoves:
-    properties:
-      dice:
-        example:
-        - 1
-        - 2
+      can_double:
+        description: True if the player can double the red dice
+        type: boolean
+      dices:
         items:
           type: integer
         type: array
-      moves:
+      possible_moves:
         items:
-          $ref: '#/definitions/types.Move'
+          items:
+            $ref: '#/definitions/types.Move'
+          type: array
         type: array
+    type: object
+  types.Move:
+    properties:
+      from:
+        example: 1
+        type: integer
+      to:
+        example: 2
+        type: integer
+    type: object
+  types.NewGame:
+    properties:
+      dices_p1:
+        items:
+          type: integer
+        type: array
+      dices_p2:
+        items:
+          type: integer
+        type: array
+      game:
+        $ref: '#/definitions/types.ReturnGame'
     type: object
   types.ReturnGame:
     properties:
@@ -139,6 +154,23 @@ paths:
       summary: Accept the double
       tags:
       - play
+  /play/local:
+    get:
+      consumes:
+      - application/json
+      description: Create a local game for playing locally in the same device
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.NewGame'
+        "400":
+          description: Already in a game
+      summary: Create a local game
+      tags:
+      - play
   /play/moves:
     get:
       consumes:
@@ -148,9 +180,9 @@ paths:
       - application/json
       responses:
         "200":
-          description: Dice with all possible moves
+          description: Dice with all possible moves and the ability to double
           schema:
-            $ref: '#/definitions/types.PossibleMoves'
+            $ref: '#/definitions/types.FutureTurn'
         "400":
           description: Not in a game, not your turn or double requested
       summary: Get possible moves for next turn

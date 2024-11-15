@@ -14,8 +14,8 @@ import (
 func initUser() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS users(
-		id SERIAL PRIMARY KEY, 
-		username BPCHAR UNIQUE NOT NULL, 
+		id SERIAL PRIMARY KEY,
+		username BPCHAR UNIQUE NOT NULL,
 		password BPCHAR NOT NULL,
 		firstname BPCHAR NOT NULL,
 		lastname BPCHAR,
@@ -78,8 +78,8 @@ func LoginUser(username string, password string) (*types.User, error) {
 		&tmp.Firstname,
 		&tmp.Lastname,
 		&tmp.Mail,
-		&tmp.Elo,
 		&pass,
+		&tmp.Elo,
 	)
 
 	if err != nil {
@@ -102,7 +102,7 @@ func GenerateSessionToken() string {
 }
 
 func SaveSessionToken(userID int64, token string) error {
-	q := `INSERT INTO sessions (user_id, token, expires_at) 
+	q := `INSERT INTO sessions (user_id, token, expires_at)
           VALUES ($1, $2, $3)`
 
 	expiresAt := time.Now().Add(1 * time.Hour)
@@ -111,7 +111,7 @@ func SaveSessionToken(userID int64, token string) error {
 }
 
 func ValidateSessionToken(token string) (int64, error) {
-	q := `SELECT user_id FROM sessions 
+	q := `SELECT user_id FROM sessions
           WHERE token = $1 AND expires_at > NOW()`
 
 	var userID int64
@@ -146,7 +146,7 @@ func Logout(sessionToken string) error {
 
 func GetUser(user_id any) (*types.User, error) {
 	q := `SELECT username, firstname, lastname, mail, elo
-          FROM users 
+          FROM users
           WHERE id = $1`
 
 	var tmp types.User

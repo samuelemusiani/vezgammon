@@ -20,6 +20,10 @@ type Move struct {
 
 type Dices [2]int
 
+func (d Dices) Sum() int {
+	return d[0] + d[1]
+}
+
 // if Double is true it menas that is a fake turn
 // where the player doubles the Dices.
 // Dices and Moves are empty in this case
@@ -31,6 +35,12 @@ type Turn struct {
 	Dices  Dices     `json:"dices"`
 	Double bool      `json:"double"`
 	Moves  []Move    `json:"moves"`
+}
+
+type NewGame struct {
+	DicesP1 Dices      `json:"dices_p1"`
+	DicesP2 Dices      `json:"dices_p2"`
+	Game    ReturnGame `json:"game"`
 }
 
 type FutureTurn struct {
