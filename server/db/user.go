@@ -20,7 +20,7 @@ func initUser() error {
 		firstname BPCHAR NOT NULL,
 		lastname BPCHAR,
 		mail BPCHAR UNIQUE,
-    		elo INTEGER NOT NULL
+    elo INTEGER NOT NULL
 	)`
 	_, err := conn.Exec(q)
 	return err

@@ -9,7 +9,7 @@ import (
 
 func TestGetmoves(t *testing.T) {
 
-	url = "http://localhost:3030/api/v1/"
+	url = "localhost:3030/api/v1/"
 
 	jsonArg := `
  {

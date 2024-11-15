@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"os"
+	"vezgammon/server/bgweb"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
 )
@@ -31,6 +32,8 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+
+	bgweb.Init(conf)
 
 	router, err := initHandlers(conf)
 	if err != nil {

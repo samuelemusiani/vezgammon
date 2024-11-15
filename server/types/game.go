@@ -1,6 +1,7 @@
 package types
 
 import (
+	"log/slog"
 	"math/rand"
 	"time"
 )
@@ -86,7 +87,7 @@ type Game struct {
 	Dices Dices `json:"dices"`
 }
 
-func (g *Game) PlayMove(moves *[]Move) {
+func (g *Game) PlayMove(moves []Move) {
 	// if Move.To is 25, it means the checker is out of the board
 	// if Move.From is 0, it means the checker is in the bar
 	var checkers *[25]int8
@@ -105,12 +106,14 @@ func (g *Game) PlayMove(moves *[]Move) {
 	// estract next dices
 	g.Dices = NewDices()
 
-	for _, move := range *moves {
+	for _, move := range moves {
 		checkers[move.From]-- // remove checker from the source
 		if move.To < 25 {
 			checkers[move.To]++ // add checker to the destination
 		}
 	}
+
+	slog.With("checkers", checkers).Debug("Checkers")
 }
 
 type ReturnGame struct {

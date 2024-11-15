@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"strconv"
 	"vezgammon/server/config"
@@ -278,7 +279,7 @@ func GetMoves(moveargs *MoveArgs) ([]Move, error) {
 		return nil, err
 	}
 
-	resp, err := http.Post(apiurl, "application/json", bytes.NewReader(postbody))
+	resp, err := http.Post("http://"+apiurl, "application/json", bytes.NewReader(postbody))
 	if err != nil {
 		return nil, err
 	}
@@ -325,6 +326,8 @@ func MoveArrayToMoveArrayArray(movesarray []Move) *[][]types.Move {
 
 func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 	mv := GametoMoveArgs(g, all_legal_moves_config)
+
+	slog.With("moves args", *mv).Debug("Game to move args")
 
 	moves, err := GetMoves(mv)
 	if err != nil {

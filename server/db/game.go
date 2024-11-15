@@ -89,7 +89,7 @@ func CreateGame(g types.Game) (*types.Game, error) {
 	return &g, nil
 }
 
-func UpdateGame(g types.Game) error {
+func UpdateGame(g *types.Game) error {
 	q := `
 		UPDATE games
 		SET

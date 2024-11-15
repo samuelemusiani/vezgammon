@@ -163,7 +163,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 	}
 
 	g.Status = status
-	err = db.UpdateGame(*g)
+	err = db.UpdateGame(g)
 	if err != nil {
 		slog.With("error", err).Debug("168")
 		c.JSON(http.StatusInternalServerError, err)
@@ -208,14 +208,9 @@ func GetPossibleMoves(c *gin.Context) {
 		return
 	}
 
-	var callingplayerrole string
-	if g.Player1 == user_id {
-		callingplayerrole = types.GameCurrentPlayerP1
-	} else {
-		callingplayerrole = types.GameCurrentPlayerP1
-	}
+	idCurrentPlayer, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
 
-	if callingplayerrole != g.CurrentPlayer {
+	if idCurrentPlayer != user_id {
 		c.JSON(http.StatusBadRequest, "Not your turn")
 		return
 	}
@@ -280,19 +275,9 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
-	var callingplayerrole string
-	if g.Player1 == user_id {
-		callingplayerrole = types.GameCurrentPlayerP1
-	} else {
-		callingplayerrole = types.GameCurrentPlayerP1
-	}
+	idCurrentPlayer, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
 
-	if callingplayerrole != g.CurrentPlayer {
-		c.JSON(http.StatusBadRequest, "Not your turn")
-		return
-	}
-
-	if callingplayerrole != g.CurrentPlayer {
+	if idCurrentPlayer != user_id {
 		c.JSON(http.StatusBadRequest, "Not your turn")
 		return
 	}
@@ -317,7 +302,9 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
-	g.PlayMove(&moves)
+	g.PlayMove(moves)
+
+	err = db.UpdateGame(g)
 
 	// save turn
 	turn := types.Turn{
@@ -389,7 +376,7 @@ func WantToDouble(c *gin.Context) {
 	g.WantToDouble = true
 	g.DoubleValue = g.DoubleValue * 2
 
-	err = db.UpdateGame(*g)
+	err = db.UpdateGame(g)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -472,7 +459,7 @@ func AcceptDouble(c *gin.Context) {
 	}
 
 	g.WantToDouble = false
-	err = db.UpdateGame(*g)
+	err = db.UpdateGame(g)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
