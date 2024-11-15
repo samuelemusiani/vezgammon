@@ -105,7 +105,7 @@ func UpdateGame(g types.Game) error {
 		WHERE id = $10
 		`
 
-	_, err := conn.Exec(q, g.End, g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.DoubleValue, g.DoubleOwner, g.WantToDouble, pq.Array(g.Dices))
+	_, err := conn.Exec(q, g.End, g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.DoubleValue, g.DoubleOwner, g.WantToDouble, g.CurrentPlayer, pq.Array(g.Dices), g.ID)
 	if err != nil {
 		return err
 	}

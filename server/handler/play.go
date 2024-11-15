@@ -143,13 +143,14 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 	if err != nil {
-		slog.With(err)
+		slog.With("error", err).Debug("146")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	g, err := db.GetGame(rg.ID)
 	if err != nil {
+		slog.With("error", err).Debug("153")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -164,6 +165,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 	g.Status = status
 	err = db.UpdateGame(*g)
 	if err != nil {
+		slog.With("error", err).Debug("168")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
