@@ -12,7 +12,7 @@ import (
 	_ "github.com/lib/pq"
 )
 
-var conn *sql.DB
+var Conn *sql.DB
 
 func Init(conf *config.Config) error {
 	var user, password, address string
@@ -37,13 +37,13 @@ func Init(conf *config.Config) error {
 	url := fmt.Sprintf("postgres://%s:%s@%s/vezgammon?sslmode=disable", user, password, address)
 	slog.With("url", url).Debug("connecting to db")
 
-	conn, err = sql.Open("postgres", url)
+	Conn, err = sql.Open("postgres", url)
 	if err != nil {
 		return err
 	}
 
 	for range 20 {
-		err = conn.Ping()
+		err = Conn.Ping()
 		if err != nil {
 			slog.With("err", err).Debug("Waiting for DB")
 			time.Sleep(time.Second * 5)
@@ -52,7 +52,7 @@ func Init(conf *config.Config) error {
 		}
 	}
 
-	if conn == nil {
+	if Conn == nil {
 		return err
 	}
 
