@@ -8,13 +8,12 @@ import (
 	"reflect"
 	"time"
 	"vezgammon/server/bgweb"
+	"vezgammon/server/ws"
+
+	"vezgammon/server/db"
 	"vezgammon/server/types"
 
 	"github.com/gin-gonic/gin"
-	"vezgammon/server/db"
-	//"vezgammon/server/types"
-	"time"
-	"vezgammon/server/types"
 )
 
 // @Summary Start a matchmaking search for a new game
@@ -56,18 +55,21 @@ func StartPlaySearch(c *gin.Context) {
 
 	//get user infos
 	slog.Debug("Inizio a cercare un game")
-	username := c.MustGet("username")
+	user_id := c.MustGet("user_id").(int64)
 
 	//send to db the user [searching]
-	oppo, ret := db.SearchGame(username.(string))
+	_, ret := db.SearchGame(user_id)
 	if ret != nil {
 		// da capire che tipo di errore, ma in teorica rimane haning
 		slog.With("ret", ret)
 		return
 	}
 
-	//return opponent and 200
-	c.JSON(http.StatusOK, oppo)
+	//return game founded
+	err := ws.SendMessage(user_id, "Game founded")
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
 
 }
 
@@ -81,6 +83,30 @@ func StartPlaySearch(c *gin.Context) {
 // @Failure 400 "Not searching"
 // @Router /play/search [delete]
 func StopPlaySearch(c *gin.Context) {
+	var user_id = c.MustGet("user_id").(int64)
+
+	u, err := db.GetUser(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	// Remove player if is in matchmaking table
+	err = db.RemoveFromQueue(user_id, u.Elo)
+
+	// Return 400 if player was not in matchmaking
+	if err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"error": "Player is not in the matchmaking queue",
+		})
+		return
+	}
+
+	var message = "Player removed from matchmaking queue"
+	err = ws.SendMessage(user_id, message)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
 }
 
 // @Summary Create a local game

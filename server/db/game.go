@@ -58,8 +58,8 @@ func initGame() error {
 	// init matchmaking table
 	q = `
 	CREATE TABLE IF NOT EXISTS matchmaking(
-		user	INTEGER REFERENCES users(username),
-    elo   INTEGER REFERENCES users(elo)
+		user_id	INTEGER REFERENCES users(user_id),
+    elo       INTEGER REFERENCES users(elo)
 	)
 	`
 	_, err = conn.Exec(q)
@@ -312,7 +312,7 @@ func GetLastTurn(game_id int64) (*types.Turn, error) {
 	return &turn, nil
 }
 
-func SearchGame(uid string) (*types.User, error) {
+func SearchGame(uid int64) (*types.ReturnGame, error) {
 	u, err := GetUser(uid)
 	if err != nil {
 		return nil, err
@@ -330,8 +330,8 @@ func SearchGame(uid string) (*types.User, error) {
 	}
 
 	//cerco l'opponent nel db in base al player e in base a quanto è in queue
-	var oppo_id string
-	oppo_id, err = findOpponent(u.Username)
+	var oppo_id int64
+	oppo_id, err = findOpponent(u.Elo)
 	if err != nil {
 		return nil, err
 	}
@@ -342,18 +342,65 @@ func SearchGame(uid string) (*types.User, error) {
 		return nil, err
 	}
 
-	return oppo, nil
+	var dices = types.NewDices()
+	var CurrentPlayer string
+	if dices[0] >= dices[1] {
+		CurrentPlayer = types.GameCurrentPlayerP1
+	} else {
+		CurrentPlayer = types.GameCurrentPlayerP2
+	}
+
+	var game types.Game
+	game.CurrentPlayer = CurrentPlayer
+	game.Elo1 = u.Elo
+	game.Elo2 = oppo.Elo
+	game.Player1 = u.ID
+	game.Player2 = oppo.ID
+
+	_, err = CreateGame(game)
+	if err != nil {
+		return nil, err
+	}
+
+	retGame, err := GetCurrentGame(u.ID)
+
+	return retGame, nil
 }
 
-func findOpponent(string) (string, error) {
+func findOpponent(elo int64) (int64, error) {
+	var oppo_id int64
 
-	var opponent string
-	// cerco l'opponent nel db più suitable per il game con elo distanza |x|
-	// se trovo oppo:
-	// tolgo entrambi dalla table queue dal matchmaking
-	// poi aggiungo il game nella tabella dei game con i dati degli player
-	// se non lo trovo:
-	// WB --> keep queue up, wating
+	// Find suitable opponent for user
+	q := `
+      SELECT user_id 
+      FROM matchmaking 
+      ORDER BY ABS(elo - $1) LIMIT 1
+      `
+	row := conn.QueryRow(q, elo)
+	if err := row.Scan(&oppo_id); err != nil {
+		return -1, err
+	}
 
-	return opponent, nil
+	err := RemoveFromQueue(oppo_id, elo)
+	if err != nil {
+		return -1, err
+	}
+
+	return oppo_id, nil
+}
+
+func RemoveFromQueue(user_id int64, elo int64) error {
+
+	// Remove both user and opponent from matchmaking queue table
+	q := `
+      DELETE FROM matchmaking 
+      WHERE user_id 
+      IN ($1, (SELECT user_id FROM matchmaking ORDER BY ABS(elo - $2) LIMIT 1))
+      `
+	_, err := conn.Exec(q, user_id, elo)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

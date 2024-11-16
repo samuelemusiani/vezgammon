@@ -1,6 +1,7 @@
 package ws
 
 import (
+	"errors"
 	"fmt"
 	"log"
 	"net/http"
@@ -14,8 +15,11 @@ var upgrader = websocket.Upgrader{
 }
 
 var clients = make(map[*websocket.Conn]bool)
+var users = make(map[int64]*websocket.Conn)
 
-func WSHandler(w http.ResponseWriter, r *http.Request) {
+//autenticazione
+
+func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
@@ -23,8 +27,9 @@ func WSHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	defer conn.Close()
 
-	// Aggiungi il nuovo client alla lista dei clients connessi
+	// Add client connection to clients connention array
 	clients[conn] = true
+	users[user_id] = conn
 
 	for {
 		_, message, err := conn.ReadMessage()
@@ -35,28 +40,26 @@ func WSHandler(w http.ResponseWriter, r *http.Request) {
 		}
 
 		fmt.Println("Received message:", string(message))
-
-		// Invia il messaggio a tutti i client connessi
 	}
 }
 
-func SendMessage(message any) error {
-	for client := range clients {
-		err := client.WriteJSON(message)
-		if err != nil {
-			log.Println(err)
-			delete(clients, client)
-			return err
-		}
+// Send messsage to user
+func SendMessage(user int64, message string) error {
+	conn, ok := users[user]
+	if !ok {
+		return errors.New("Connetion not found for user")
 	}
+
+	active, ok := clients[conn]
+	if !ok {
+		return errors.New("Connetion not found")
+	}
+
+	if !active {
+		return errors.New("Connetion not active")
+	}
+
+	conn.WriteJSON(message)
+
 	return nil
-}
-
-func searchGame() (interface{}, error) {
-	// Logica per trovare un game
-	game := map[string]interface{}{
-		"id":   "123",
-		"name": "Example Game",
-	}
-	return game, nil
 }
