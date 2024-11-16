@@ -356,6 +356,7 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 	game.Elo2 = oppo.Elo
 	game.Player1 = u.ID
 	game.Player2 = oppo.ID
+	game.Dices = types.NewDices()
 
 	_, err = CreateGame(game)
 	if err != nil {
