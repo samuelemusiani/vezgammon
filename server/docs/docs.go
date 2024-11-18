@@ -122,6 +122,84 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/bot/easy": {
+            "get": {
+                "description": "Create a game against an easy bot",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game against an easy bot",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
+                    }
+                }
+            }
+        },
+        "/play/bot/hard": {
+            "get": {
+                "description": "Create a game against an hard bot",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game against an hard bot",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
+                    }
+                }
+            }
+        },
+        "/play/bot/medium": {
+            "get": {
+                "description": "Create a game against an medium bot",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game against an medium bot",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
+                    }
+                }
+            }
+        },
         "/play/double": {
             "put": {
                 "description": "Accept the double",

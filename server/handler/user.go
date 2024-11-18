@@ -224,7 +224,7 @@ func Logout(c *gin.Context) {
 // @Failure 500 "error"
 // @Router /session [get]
 func GetSession(c *gin.Context) {
-	user_id := c.MustGet("user_id")
+	user_id := c.MustGet("user_id").(int64)
 	user, err := db.GetUser(user_id)
 	if err != nil {
 		slog.With("err", err).Error("User not found")

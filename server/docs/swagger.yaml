@@ -216,6 +216,57 @@ paths:
       summary: Get current game
       tags:
       - play
+  /play/bot/easy:
+    get:
+      consumes:
+      - application/json
+      description: Create a game against an easy bot
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.NewGame'
+        "400":
+          description: Not in a game or double not possible
+      summary: Create a game against an easy bot
+      tags:
+      - play
+  /play/bot/hard:
+    get:
+      consumes:
+      - application/json
+      description: Create a game against an hard bot
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.NewGame'
+        "400":
+          description: Not in a game or double not possible
+      summary: Create a game against an hard bot
+      tags:
+      - play
+  /play/bot/medium:
+    get:
+      consumes:
+      - application/json
+      description: Create a game against an medium bot
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.NewGame'
+        "400":
+          description: Not in a game or double not possible
+      summary: Create a game against an medium bot
+      tags:
+      - play
   /play/double:
     delete:
       consumes:

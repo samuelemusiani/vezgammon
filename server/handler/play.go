@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"time"
@@ -476,4 +477,108 @@ func AcceptDouble(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, "Double accepted")
 	// TODO: send notification to the other player that he accepts the doubleS
+}
+
+// @Summary Create a game against an easy bot
+// @Schemes
+// @Description Create a game against an easy bot
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 {object} types.NewGame
+// @Failure 400 "Not in a game or double not possible"
+// @Router /play/bot/easy [get]
+func PlayEasyBot(c *gin.Context) {
+	PlayBot("easy", c)
+}
+
+// @Summary Create a game against an medium bot
+// @Schemes
+// @Description Create a game against an medium bot
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 {object} types.NewGame
+// @Failure 400 "Not in a game or double not possible"
+// @Router /play/bot/medium [get]
+func PlayMediumBot(c *gin.Context) {
+	PlayBot("medium", c)
+}
+
+// @Summary Create a game against an hard bot
+// @Schemes
+// @Description Create a game against an hard bot
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 {object} types.NewGame
+// @Failure 400 "Not in a game or double not possible"
+// @Router /play/bot/hard [get]
+func PlayHardBot(c *gin.Context) {
+	PlayBot("hard", c)
+}
+
+func PlayBot(mod string, c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	var bot_id int64
+	switch mod {
+	case "easy":
+		bot_id = db.GetEasyBotID()
+	case "medium":
+		bot_id = db.GetMediumBotID()
+	case "hard":
+		bot_id = db.GetHardBotID()
+	default:
+		slog.Error("Invalid mod on play bot")
+		c.JSON(http.StatusInternalServerError, "Invalid bot")
+		return
+	}
+
+	_, err := db.GetCurrentGame(user_id)
+	if err != sql.ErrNoRows {
+		c.JSON(http.StatusBadRequest, "Already in a game")
+		return
+	}
+
+	startdices_p1 := types.NewDices()
+	startdices_p2 := types.NewDices()
+
+	var start_player string
+	if startdices_p1.Sum() >= startdices_p2.Sum() {
+		start_player = types.GameCurrentPlayerP1
+	} else {
+		start_player = types.GameCurrentPlayerP2
+	}
+
+	firstdices := types.NewDices()
+
+	g := types.Game{
+		Player1:       user_id,
+		Player2:       bot_id,
+		Start:         time.Now(),
+		Status:        types.GameStatusOpen,
+		CurrentPlayer: start_player,
+		Dices:         firstdices,
+	}
+
+	_, err = db.CreateGame(g)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	newgame, err := db.GetCurrentGame(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	ng := types.NewGame{
+		DicesP1: startdices_p1,
+		DicesP2: startdices_p2,
+		Game:    *newgame,
+	}
+
+	c.JSON(http.StatusCreated, ng)
 }

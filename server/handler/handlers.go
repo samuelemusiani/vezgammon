@@ -44,6 +44,9 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup.POST("/double", WantToDouble)
 	playGroup.DELETE("/double", RefuseDouble)
 	playGroup.PUT("/double", AcceptDouble)
+	playGroup.GET("/bot/easy", PlayEasyBot)
+	playGroup.GET("/bot/medium", PlayMediumBot)
+	playGroup.GET("/bot/hard", PlayHardBot)
 
 	// expose swagger web console
 	if conf.Swagger {
