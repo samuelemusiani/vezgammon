@@ -45,7 +45,7 @@ pipeline {
     }
     stage('Deploy') {
       when {
-        branch 'main'
+        branch 'sonarqube'
       }
       steps {
         sh 'ssh debian@site.vezgammon.it "rm -rf repo"'
