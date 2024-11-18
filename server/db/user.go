@@ -92,7 +92,7 @@ func GetUsers() ([]types.User, error) {
 	for rows.Next() {
 		var tmp types.User
 		var pass string
-		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo)
+		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo, &tmp.IsBot)
 		if err != nil {
 			return nil, err
 		}
