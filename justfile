@@ -13,7 +13,8 @@ build-client:
     cd client && npm install && npm run build
 
 copy-client:
-    cp -r client/dist server/handler/dist
+    rm -rf server/dist
+    cp -r client/dist server/dist
 
 start-server: generate-swag
     go run ./server ./server/config/test-config.toml
@@ -39,3 +40,6 @@ generate-swag: install-swag
 
 install-swag:
     go install github.com/swaggo/swag/cmd/swag@latest
+
+test-client:
+    cd client && npm run test

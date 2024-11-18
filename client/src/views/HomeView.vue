@@ -12,7 +12,7 @@
         <!-- Left Button (Stats) -->
         <div class="absolute left-8">
           <button
-            @click="(e: MouseEvent) => play()"
+            @click="navigateTo('/stats')"
             @mouseenter="(e: MouseEvent) => play()"
             class="retro-button circle"
             title="Statistics"

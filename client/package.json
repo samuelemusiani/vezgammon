@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@vueuse/sound": "^2.0.1",
+    "chart.js": "^4.4.6",
     "pinia": "^2.2.4",
     "vue": "^3.5.12",
     "vue-confetti-explosion": "^1.0.2",
