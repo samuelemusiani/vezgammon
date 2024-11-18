@@ -13,7 +13,7 @@ build-client:
     cd client && npm install && npm run build
 
 copy-client:
-    cp -r client/dist server/dist
+    cp -r client/dist server/handler/dist
 
 start-server: generate-swag
     sudo docker-compose -f docker-compose-test.yml up -d
