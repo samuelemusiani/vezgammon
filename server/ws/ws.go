@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"log"
+	"log/slog"
 	"net/http"
 
 	"github.com/gorilla/websocket"
@@ -12,24 +13,27 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
 var clients = make(map[*websocket.Conn]bool)
 var users = make(map[int64]*websocket.Conn)
 
-//autenticazione
-
 func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
+	log.Print("user_id", user_id)
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)
 		return
 	}
-	defer conn.Close()
 
 	// Add client connection to clients connention array
 	clients[conn] = true
 	users[user_id] = conn
+	SendMessage(user_id, "Connection established")
+	slog.Debug("test")
 
 	for {
 		_, message, err := conn.ReadMessage()

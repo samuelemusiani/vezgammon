@@ -10,6 +10,7 @@ import (
 	"vezgammon/server/bgweb"
 	"vezgammon/server/ws"
 
+	"log/slog"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
 
@@ -85,25 +86,18 @@ func StartPlaySearch(c *gin.Context) {
 func StopPlaySearch(c *gin.Context) {
 	var user_id = c.MustGet("user_id").(int64)
 
-	u, err := db.GetUser(user_id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
 	// Remove player if is in matchmaking table
-	err = db.RemoveFromQueue(user_id, u.Elo)
-
-	// Return 400 if player was not in matchmaking
-	if err != nil {
+	if _, exists := db.Matchmaking[user_id]; exists {
+		delete(db.Matchmaking, user_id)
+	} else {
+		// Return 400 if player was not in matchmaking
 		c.JSON(http.StatusBadRequest, gin.H{
 			"error": "Player is not in the matchmaking queue",
 		})
 		return
 	}
 
-	var message = "Player removed from matchmaking queue"
-	err = ws.SendMessage(user_id, message)
+	err := ws.SendMessage(user_id, "Player removed from matchmaking queue")
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 	}

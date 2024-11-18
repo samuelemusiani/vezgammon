@@ -484,7 +484,6 @@ const docTemplate = `{
                 "to": {
                     "type": "integer",
                     "example": 2
-<<<<<<< HEAD
                 }
             }
         },
@@ -505,8 +504,6 @@ const docTemplate = `{
                 },
                 "game": {
                     "$ref": "#/definitions/types.ReturnGame"
-=======
->>>>>>> f2b1e54 (edited justfile to run server locally without server refresh)
                 }
             }
         },

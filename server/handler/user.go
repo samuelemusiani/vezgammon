@@ -156,7 +156,7 @@ func Login(c *gin.Context) {
 func AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		// Non controlliamo se stiamo facendo la login || la register
-		if c.Request.URL.String() == "/api/login" || c.Request.URL.String() == "/api/register" {
+		if c.Request.URL.String() == "/api/login" || c.Request.URL.String() == "/api/register" || c.Request.URL.String() == "/api/ws" {
 			c.Next()
 			return
 		}

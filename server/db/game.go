@@ -3,11 +3,13 @@ package db
 import (
 	"errors"
 	"log/slog"
+	"math"
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
-	"time"
 )
+
+var Matchmaking = make(map[int64]int64)
 
 func initGame() error {
 	q := `
@@ -51,18 +53,6 @@ func initGame() error {
 	)
 	`
 	_, err = Conn.Exec(q)
-	if err != nil {
-		return err
-	}
-
-	// init matchmaking table
-	q = `
-	CREATE TABLE IF NOT EXISTS matchmaking(
-		user_id	INTEGER REFERENCES users(user_id),
-    elo       INTEGER REFERENCES users(elo)
-	)
-	`
-	_, err = conn.Exec(q)
 	if err != nil {
 		return err
 	}
@@ -320,14 +310,7 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 	slog.With("user stats: ", u)
 
 	// start matchmaking
-	q := `INSERT INTO matchmaking (username, elo, time)
-        VALUES ($1, $2, $3)`
-
-	startTime := time.Now().Add(1 * time.Hour)
-	_, err = conn.Exec(q, u.Username, u.Elo, startTime)
-	if err != nil {
-		return nil, err
-	}
+	Matchmaking[uid] = u.Elo
 
 	//cerco l'opponent nel db in base al player e in base a quanto è in queue
 	var oppo_id int64
@@ -335,6 +318,9 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	// remove player from queue
+	delete(Matchmaking, uid)
 
 	//ritorno l'opponent
 	oppo, err := GetUser(oppo_id)
@@ -369,39 +355,12 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 }
 
 func findOpponent(elo int64) (int64, error) {
-	var oppo_id int64
-
-	// Find suitable opponent for user
-	q := `
-      SELECT user_id 
-      FROM matchmaking 
-      ORDER BY ABS(elo - $1) LIMIT 1
-      `
-	row := conn.QueryRow(q, elo)
-	if err := row.Scan(&oppo_id); err != nil {
-		return -1, err
+	for key, value := range Matchmaking {
+		if math.Abs(float64(value-elo)) < 200 {
+			slog.With("player", key).Debug("player found")
+			return key, nil
+		}
 	}
 
-	err := RemoveFromQueue(oppo_id, elo)
-	if err != nil {
-		return -1, err
-	}
-
-	return oppo_id, nil
-}
-
-func RemoveFromQueue(user_id int64, elo int64) error {
-
-	// Remove both user and opponent from matchmaking queue table
-	q := `
-      DELETE FROM matchmaking 
-      WHERE user_id 
-      IN ($1, (SELECT user_id FROM matchmaking ORDER BY ABS(elo - $2) LIMIT 1))
-      `
-	_, err := conn.Exec(q, user_id, elo)
-	if err != nil {
-		return err
-	}
-
-	return nil
+	return 0, errors.New("no opponent found")
 }
