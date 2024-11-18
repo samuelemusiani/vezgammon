@@ -32,7 +32,7 @@ pipeline {
     }
     stage('SonarQube Analysis') {
       when {
-        branch 'main'
+        branch 'sonarqube'
       }
       steps {
         script {
@@ -45,7 +45,7 @@ pipeline {
     }
     stage('Deploy') {
       when {
-        branch 'sonarqube'
+        branch 'main'
       }
       steps {
         sh 'ssh debian@site.vezgammon.it "rm -rf repo"'
