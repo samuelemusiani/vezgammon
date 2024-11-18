@@ -95,7 +95,7 @@ func StartGameLocalcally(c *gin.Context) {
 		Game:    *newgame,
 	}
 
-	c.JSON(http.StatusOK, ng)
+	c.JSON(http.StatusCreated, ng)
 }
 
 // @Summary Get current game
