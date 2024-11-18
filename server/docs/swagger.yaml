@@ -1,4 +1,51 @@
 definitions:
+  handler.customUser:
+    properties:
+      firstname:
+        example: giorgio
+        type: string
+      lastname:
+        example: rossi
+        type: string
+      mail:
+        example: giorossi@mail.it
+        type: string
+      password:
+        example: "1234"
+        type: string
+      username:
+        example: gio
+        type: string
+    type: object
+  handler.loginResponseType:
+    properties:
+      message:
+        example: Login successful
+        type: string
+      user:
+        $ref: '#/definitions/handler.loginResponseUser'
+    type: object
+  handler.loginResponseUser:
+    properties:
+      email:
+        example: giorossi@mail.it
+        type: string
+      id:
+        example: 1
+        type: integer
+      username:
+        example: gio
+        type: string
+    type: object
+  handler.loginUserType:
+    properties:
+      password:
+        example: "1234"
+        type: string
+      username:
+        example: gio
+        type: string
+    type: object
   types.FutureTurn:
     properties:
       can_double:
@@ -75,9 +122,69 @@ definitions:
       want_to_double:
         type: boolean
     type: object
+  types.User:
+    properties:
+      elo:
+        example: 1000
+        type: integer
+      firstname:
+        example: giorgio
+        type: string
+      id:
+        example: 1
+        type: integer
+      lastname:
+        example: rossi
+        type: string
+      mail:
+        example: giorossi@mail.it
+        type: string
+      username:
+        example: gio
+        type: string
+    type: object
 info:
   contact: {}
 paths:
+  /login:
+    post:
+      consumes:
+      - application/json
+      description: Login with a user
+      parameters:
+      - description: username and password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.loginUserType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/handler.loginResponseType'
+      summary: Login
+      tags:
+      - authentication
+  /logout:
+    post:
+      consumes:
+      - application/json
+      description: Logout
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Logged out successfully
+        "401":
+          description: Unauthorized
+        "500":
+          description: Logout failed
+      summary: Logout
+      tags:
+      - authentication
   /play:
     delete:
       consumes:
@@ -240,4 +347,43 @@ paths:
       summary: Start a matchmaking search for a new game
       tags:
       - play
+  /register:
+    post:
+      consumes:
+      - application/json
+      description: Register new user
+      parameters:
+      - description: user with password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.customUser'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: user created
+          schema:
+            $ref: '#/definitions/types.User'
+      summary: Register new user
+      tags:
+      - authentication
+  /session:
+    get:
+      consumes:
+      - application/json
+      description: Get auth session
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.User'
+        "500":
+          description: error
+      summary: Get current auth session
+      tags:
+      - authentication
 swagger: "2.0"

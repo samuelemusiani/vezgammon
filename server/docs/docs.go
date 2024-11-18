@@ -15,6 +15,66 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/login": {
+            "post": {
+                "description": "Login with a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "username and password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.loginUserType"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.loginResponseType"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Logout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Logout failed"
+                    }
+                }
+            }
+        },
         "/play": {
             "get": {
                 "description": "Get current game",
@@ -260,9 +320,136 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/register": {
+            "post": {
+                "description": "Register new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "user with password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.customUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "user created",
+                        "schema": {
+                            "$ref": "#/definitions/types.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/session": {
+            "get": {
+                "description": "Get auth session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get current auth session",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.User"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.customUser": {
+            "type": "object",
+            "properties": {
+                "firstname": {
+                    "type": "string",
+                    "example": "giorgio"
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "rossi"
+                },
+                "mail": {
+                    "type": "string",
+                    "example": "giorossi@mail.it"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
+        "handler.loginResponseType": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Login successful"
+                },
+                "user": {
+                    "$ref": "#/definitions/handler.loginResponseUser"
+                }
+            }
+        },
+        "handler.loginResponseUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "giorossi@mail.it"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
+        "handler.loginUserType": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
         "types.FutureTurn": {
             "type": "object",
             "properties": {
@@ -373,6 +560,35 @@ const docTemplate = `{
                 },
                 "want_to_double": {
                     "type": "boolean"
+                }
+            }
+        },
+        "types.User": {
+            "type": "object",
+            "properties": {
+                "elo": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "firstname": {
+                    "type": "string",
+                    "example": "giorgio"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "rossi"
+                },
+                "mail": {
+                    "type": "string",
+                    "example": "giorossi@mail.it"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
                 }
             }
         }

@@ -24,6 +24,9 @@ var router *gin.Engine
 func TestMain(m *testing.M) {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 
+	q := "DROP TABLE IF EXISTS games CASCADE"
+	db.Conn.Exec(q)
+
 	db.Conn, _ = sql.Open(
 		"postgres", fmt.Sprintf("postgres://%s:%s@%s/vezgammon?sslmode=disable", conf.Database.User, conf.Database.Password, conf.Database.Address))
 
