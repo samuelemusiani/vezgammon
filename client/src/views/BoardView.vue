@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Checker, GameState } from '@/utils/game/types'
+import type { Checker } from '@/utils/game/types'
 import {
   BOARD,
   getTrianglePath,
@@ -9,7 +9,7 @@ import {
   getCheckerY,
   updateGameState,
   newGame,
-  endTurn,
+  //checkWin,
 } from '@/utils/game/game'
 import {
   calculatePossibleMoves,
@@ -17,6 +17,11 @@ import {
   isCheckerMovable,
   updateStackIndices,
 } from '@/utils/game/moves'
+import ConfettiExplosion from 'vue-confetti-explosion'
+import { useSound } from '@vueuse/sound'
+//import victorySfx from '@/utils/sounds/victory.mp3'
+import diceSfx from '@/utils/sounds/dice.mp3'
+//import tinSfx from '@/utils/sounds/tintin.mp3'
 
 const gameState = ref(newGame())
 const selectedChecker = ref<Checker | null>(null)
@@ -24,6 +29,10 @@ const possibleMoves = ref<number[]>([])
 const movesAvailable = ref(2)
 const isRolling = ref(false)
 const gameStarted = ref(false)
+const isExploding = ref(false)
+//const { play: playVictory } = useSound(victorySfx)
+const { play: playDice } = useSound(diceSfx)
+//const { play: playTin } = useSound(tinSfx)
 
 const handleCheckerClick = (checker: Checker) => {
   if (!isCheckerMovable(gameState.value, checker)) return
@@ -52,6 +61,10 @@ const handleTriangleClick = (position: number) => {
     oldCheckerPos,
     movesAvailable.value,
   )
+  /*
+  if (checkWin(gameState.value)) {
+    handleWin()
+  }*/
   possibleMoves.value = []
   selectedChecker.value = null
 }
@@ -61,9 +74,12 @@ const moveChecker = (checker: Checker, newPosition: number) => {
   updateStackIndices(gameState.value)
 }
 
-const handleBoardClick = (event: any) => {
+const handleBoardClick = (event: MouseEvent) => {
   // Deselect checker when clicking on board
-  if (event.target.tagName === 'svg' || event.target.tagName === 'rect') {
+  if (
+    (event.target as Element).tagName === 'svg' ||
+    (event.target as Element).tagName === 'rect'
+  ) {
     selectedChecker.value = null
     possibleMoves.value = []
   }
@@ -81,6 +97,7 @@ const rollDice = () => {
     startTimer()
   }
   isRolling.value = true
+  playDice()
   const rollAnimation = setInterval(() => {
     gameState.value.dice.value = [
       Math.floor(Math.random() * 6) + 1,
@@ -110,10 +127,28 @@ const rollDice = () => {
   }, 500)
 }
 
-let timerInterval: NodeJS.Timeout
+/* TODO: Remove when we have backend API
+const handleWin = () => {
+  isExploding.value = true
+  playVictory()
+}
+
+const simulateWin = () => {
+  gameState.value.board = gameState.value.board.map(checker => {
+    if (checker.color === gameState.value.currentPlayer) {
+      return {
+        ...checker,
+        position: gameState.value.currentPlayer === 'white' ? 0 : 23,
+      }
+    }
+    return checker
+  })
+  handleWin()
+}
+*/
 const startTimer = () => {
   let seconds = 0
-  timerInterval = setInterval(() => {
+  setInterval(() => {
     seconds++
     const minutes = Math.floor(seconds / 60)
     const remainingSeconds = seconds % 60
@@ -122,17 +157,46 @@ const startTimer = () => {
     ).padStart(2, '0')}`
   }, 1000)
 }
+
+// JUST for testing
+/*const addCheckerHome = () => {
+  playTin()
+  if (gameState.value.currentPlayer === 'white') {
+    if (gameState.value.capturedWhite.length < 15) {
+      gameState.value.capturedWhite.push({
+        color: 'white',
+        position: -1,
+        stackIndex: gameState.value.capturedWhite.length,
+      })
+    }
+  } else {
+    if (gameState.value.capturedBlack.length < 15) {
+      gameState.value.capturedBlack.push({
+        color: 'black',
+        position: 24,
+        stackIndex: gameState.value.capturedBlack.length,
+      })
+    }
+  }
+}*/
 </script>
 
 <template>
   <div
-    class="flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
+    class="retro-background flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
   >
-    <div class="flex w-full max-w-screen-2xl">
+    <div class="fixed top-[25%]">
+      <ConfettiExplosion
+        v-if="isExploding"
+        :stageHeight="1000"
+        :particleCount="300"
+      />
+    </div>
+    <div class="flex w-full max-w-screen-2xl gap-6">
       <!-- Opponent and Player Info -->
       <div class="flex">
         <div
-          class="flex w-48 flex-col justify-evenly rounded-lg bg-white p-4 shadow-xl"
+          class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-4 shadow-xl"
         >
           <!-- Opponent Info -->
           <div class="mb-8 flex flex-col items-center">
@@ -192,7 +256,7 @@ const startTimer = () => {
 
       <!-- Board Div -->
       <div class="flex-1">
-        <div class="h-full rounded-lg bg-white p-4 shadow-xl">
+        <div class="retro-box h-full rounded-lg bg-white p-4 shadow-xl">
           <svg
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
@@ -274,34 +338,52 @@ const startTimer = () => {
 
       <!-- Dice Div -->
       <div
-        class="flex w-48 flex-col justify-center rounded-lg bg-white p-2 shadow-xl"
+        class="retro-box flex w-48 flex-col justify-center rounded-lg bg-white p-2 shadow-xl"
       >
-        <div class="mb-4 flex flex-col items-center">
+        <!--<div class="mb-4 flex flex-col items-center">
           <button
             @click="endTurn(gameState)"
-            class="mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
+            class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
           >
             End Turn
           </button>
+        </div>-->
+
+        <!-- Opponent's Captured Checkers -->
+        <div
+          class="captured-checkers-container mb-4 flex flex-col place-items-center"
+        >
+          <div
+            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
+          >
+            <div class="flex flex-col gap-1">
+              <div
+                v-for="(checker, index) in gameState.capturedBlack"
+                :key="'black-' + index"
+                class="h-3 w-full rounded-full border border-blue-500 bg-black"
+              ></div>
+            </div>
+          </div>
         </div>
+
         <!-- Dice Section -->
-        <div class="mb-4 flex flex-col items-center">
+        <div class="mb-5 mt-5 flex flex-col items-center">
           <button
             @click="rollDice"
             :disabled="
               isRolling ||
               (gameState.dice.value[0] !== 0 && gameState.dice.value[1] !== 0)
             "
-            class="mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
+            class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Roll Dice
           </button>
 
-          <div class="mb-4 flex gap-4">
+          <div class="flex gap-4">
             <div
               v-for="(die, index) in gameState.dice.value"
               :key="index"
-              class="flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
+              class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
               :class="{ 'dice-rolling': isRolling }"
             >
               <svg viewBox="0 0 60 60">
@@ -361,9 +443,27 @@ const startTimer = () => {
           </div>
         </div>
 
-        <!-- Game Info -->
-        <div class="game-info mb-4 text-center">
-          <p class="text-lg font-bold">
+        <div
+          class="captured-checkers-container mt-4 flex flex-col place-items-center"
+        >
+          <div
+            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
+          >
+            <div class="flex flex-col gap-1">
+              <!-- Esempio di pedina bianca catturata -->
+              <div
+                v-for="(checker, index) in gameState.capturedWhite"
+                :key="'white-' + index"
+                class="h-3 w-full rounded-full border border-black bg-white"
+              ></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Game Info -->
+      <!--<div class="game-info mb-4 text-center">
+           <p class="text-lg font-bold">
             Current Player:
             <span
               :class="
@@ -399,13 +499,60 @@ const startTimer = () => {
               , or {{ gameState.dice.value[0] + gameState.dice.value[1] }}
             </span>
           </p>
-        </div>
-      </div>
+        </div>-->
     </div>
   </div>
 </template>
 
 <style scoped>
+.retro-background {
+  background: #2c1810;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    );
+  cursor: url('/tortellino.png'), auto;
+  border: 6px solid #d2691e;
+}
+
+.retro-box {
+  background-color: #ffe5c9;
+  border: 5px solid #8b4513;
+  box-shadow:
+    0 0 0 4px #d2691e,
+    inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.retro-button {
+  @apply btn;
+  background: #d2691e;
+  color: white;
+  border: 3px solid #8b4513;
+  font-family: 'Arial Black', serif;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 0 #8b4513;
+  font-size: 1.1rem;
+
+  &:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 0 10px rgba(0, 0, 0, 0.2),
+      0 0px 0 #8b4513;
+    cursor: url('/tortellino.png'), auto;
+  }
+}
+
 @keyframes dice-shake {
   0% {
     transform: rotate(0deg);
@@ -433,5 +580,23 @@ const startTimer = () => {
   transition:
     cx 0.3s ease-out,
     cy 0.3s ease-out;
+}
+
+.confetti-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
+}
+
+.captured-checkers-container {
+  .h-64 {
+    background: #f5c27a; /* Un colore leggermente più chiaro del tabellone */
+  }
+  .w-full {
+    transition: all 0.3s ease-out;
+  }
 }
 </style>

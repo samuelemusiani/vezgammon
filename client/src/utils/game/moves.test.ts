@@ -13,6 +13,8 @@ describe('calculatePossibleMoves', () => {
         double: false,
       },
       board: createDefaultBoard(),
+      capturedBlack: [],
+      capturedWhite: [],
     }
 
     const checker: Checker = {
@@ -35,6 +37,8 @@ describe('calculatePossibleMoves', () => {
       },
 
       board: createDefaultBoard(),
+      capturedBlack: [],
+      capturedWhite: [],
     }
 
     const checker: Checker = {
@@ -56,6 +60,8 @@ describe('calculatePossibleMoves', () => {
         double: false,
       },
       board: createDefaultBoard(),
+      capturedBlack: [],
+      capturedWhite: [],
     }
 
     const checker: Checker = {
@@ -77,6 +83,8 @@ describe('calculatePossibleMoves', () => {
         double: false,
       },
       board: createDefaultBoard(),
+      capturedBlack: [],
+      capturedWhite: [],
     }
 
     const checker: Checker = {
@@ -102,6 +110,8 @@ describe('isValidMove with hitting', () => {
         { color: 'white', position: 0, stackIndex: 0 },
         { color: 'black', position: 3, stackIndex: 0 },
       ],
+      capturedBlack: [],
+      capturedWhite: [],
     }
 
     const checker: Checker = {
@@ -126,6 +136,8 @@ describe('isValidMove with hitting', () => {
         { color: 'black', position: 3, stackIndex: 0 },
         { color: 'black', position: 3, stackIndex: 1 },
       ],
+      capturedBlack: [],
+      capturedWhite: [],
     }
 
     const checker: Checker = {
@@ -152,6 +164,8 @@ describe('hit checker logic', () => {
         { color: 'black', position: 23, stackIndex: 0 },
         { color: 'black', position: 0, stackIndex: 0 },
       ],
+      capturedBlack: [],
+      capturedWhite: [],
     }
 
     const normalChecker: Checker = {

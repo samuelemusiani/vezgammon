@@ -37,8 +37,8 @@ export const calculatePossibleMoves = (
   console.log(checker)
   const direction = checker.color === 'white' ? 1 : -1
 
-  let dicesvalue = []
-  for (let [i, v] of gameState.dice.used.entries()) {
+  const dicesvalue = []
+  for (const [i, v] of gameState.dice.used.entries()) {
     if (!v) dicesvalue.push(gameState.dice.value[i % 2])
   }
 

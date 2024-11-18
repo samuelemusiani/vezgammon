@@ -1,5 +1,4 @@
 import type { BoardDimensions, Checker, GameState } from './types'
-import router from '@/router'
 
 export const BOARD: BoardDimensions = {
   width: 800,
@@ -16,6 +15,8 @@ export const newGame = () => {
     currentPlayer: 'white',
     dice: { value: [0, 0], used: [false, false], double: false },
     board: createDefaultBoard(),
+    capturedWhite: [],
+    capturedBlack: [],
   }
   return gameState
 }
@@ -39,7 +40,7 @@ export const createBlackChecker = (
 
 // Create the default board with checkers in their initial positions
 export const createDefaultBoard = (): Checker[] => {
-  let tmp = []
+  const tmp = []
   for (let i = 0; i < 5; i++) {
     if (i < 2) {
       tmp.push(createWhiteChecker(0, i))
@@ -186,13 +187,12 @@ export const endTurn = (gameState: GameState) => {
 }
 
 // temp, here a player wins if all checkers are in position 23 or 0, in reality the game ends when all checkers are off the board
-const checkWin = (gameState: GameState) => {
-  // controlla se le pedine sono tutte in posizione 23 o 0
+export const checkWin = (gameState: GameState): boolean => {
   const checkers = gameState.board.filter(
     c => c.color === gameState.currentPlayer,
   )
   if (checkers.every(c => c.position === 23 || c.position === 0)) {
-    alert(`${gameState.currentPlayer} wins!`)
-    router.push('/')
+    return true
   }
+  return false
 }

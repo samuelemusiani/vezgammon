@@ -1,0 +1,25 @@
+graph TB
+    clients[Client Devices]
+    firewall[Firewall]
+    proxy[Reverse Proxy Server<br/>Deploys<br/>Caddy Proxy Manager]
+    docker[Docker Server]
+    api[Container 1<br/>Deploys<br/>API Server & HTTP Server<br/>Single Binary Go Application]
+    db[Container 2<br/>Deploys<br/>Database]
+
+    subgraph docker_env[Docker Environment]
+        docker --> api
+        docker --> db
+        api <--> |docker network| db
+    end
+
+    clients <--> |HTTPS traffic| firewall
+    firewall <--> |HTTPS traffic| proxy
+    proxy <--> |HTTP traffic| docker
+    
+    %% Styling
+    style clients fill:#f9f,stroke:#333,stroke-width:2px,color:#000
+    style firewall fill:#f96,stroke:#333,stroke-width:2px,color:#000
+    style proxy fill:#9cf,stroke:#333,stroke-width:2px,color:#000
+    style docker fill:#cfc,stroke:#333,stroke-width:2px,color:#000
+    style api fill:#fcf,stroke:#333,stroke-width:2px,color:#000
+    style db fill:#fcc,stroke:#333,stroke-width:2px,color:#000
