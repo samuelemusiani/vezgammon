@@ -9,4 +9,5 @@ type User struct {
 	Lastname  string `json:"lastname" example:"rossi"`
 	Mail      string `json:"mail" example:"giorossi@mail.it"`
 	Elo       int64  `json:"elo" example:"1000"`
+	IsBot     bool   `json:"is_bot" example:"false"`
 }
