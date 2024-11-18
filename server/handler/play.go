@@ -3,10 +3,12 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 	"vezgammon/server/bgweb"
 	"vezgammon/server/db"
@@ -412,6 +414,17 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
+	botLevel := getBotLevel(g.Player2)
+	if botLevel > 0 {
+		// Always accept the double
+		slog.Debug("Bot always accept double")
+		err = acceptDouble(g.Player2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+	}
+
 	c.JSON(http.StatusCreated, g.DoubleValue*2)
 
 	// TODO: send notification to the other player that he can refuse or accept the double
@@ -467,54 +480,13 @@ func RefuseDouble(c *gin.Context) {
 func AcceptDouble(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
-	rg, err := db.GetCurrentGame(user_id)
+	err := acceptDouble(user_id)
 	if err != nil {
-		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, "Not in a game")
-		} else {
+		if strings.Contains(err.Error(), "Internal server error") {
 			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusBadRequest, err)
 		}
-		return
-	}
-
-	g, err := db.GetGame(rg.ID)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
-	if !g.WantToDouble {
-		c.JSON(http.StatusBadRequest, "Double not possible")
-		return
-	}
-
-	g.WantToDouble = false
-	g.DoubleValue = 2 * g.DoubleValue
-
-	err = db.UpdateGame(g)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
-	// save turn as double
-	doublingplayer_id, err := getCurrentPlayer(g.DoubleOwner, g.Player1, g.Player2)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
-	turn := types.Turn{
-		GameId: g.ID,
-		User:   doublingplayer_id,
-		Time:   time.Now(),
-		Double: true,
-	}
-
-	_, err = db.CreateTurn(turn)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
 	}
 
 	c.JSON(http.StatusCreated, "Double accepted")
@@ -631,4 +603,51 @@ func PlayBot(mod string, c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, ng)
+}
+
+func acceptDouble(user_id int64) error {
+	rg, err := db.GetCurrentGame(user_id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.New("Not in a game")
+		} else {
+			return errors.New("Internal server error")
+		}
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		return err
+	}
+
+	if !g.WantToDouble {
+		return errors.New("Double not possible")
+	}
+
+	g.WantToDouble = false
+	g.DoubleValue = 2 * g.DoubleValue
+
+	err = db.UpdateGame(g)
+	if err != nil {
+		return errors.New("Internal server error")
+	}
+
+	// save turn as double
+	doublingplayer_id, err := getCurrentPlayer(g.DoubleOwner, g.Player1, g.Player2)
+	if err != nil {
+		return errors.New("Internal server error")
+	}
+
+	turn := types.Turn{
+		GameId: g.ID,
+		User:   doublingplayer_id,
+		Time:   time.Now(),
+		Double: true,
+	}
+
+	_, err = db.CreateTurn(turn)
+	if err != nil {
+		return errors.New("Internal server error")
+	}
+	return nil
 }
