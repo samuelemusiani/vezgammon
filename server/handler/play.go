@@ -318,6 +318,48 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
+	// Check if we are playing against a bot
+
+	botLevel := getBotLevel(g.Player2)
+	// Against a bot
+	if botLevel > 0 {
+		var t *types.Turn
+		var err error
+
+		switch botLevel {
+		case 1:
+			t, err = bgweb.GetEasyMove(g)
+		case 2:
+			t, err = bgweb.GetMediumMove(g)
+		case 3:
+			t, err = bgweb.GetBestMove(g)
+		default:
+			slog.Error("Invalid bot level")
+			return
+		}
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		g.PlayMove(t.Moves)
+		err = db.UpdateGame(g)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		_, err = db.CreateTurn(*t)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		// Send notification to the other player that it's his turn
+	}
+
 	c.JSON(http.StatusCreated, "Moves played")
 
 	// TODO: send notification to the other player that it's his turn
@@ -541,15 +583,21 @@ func PlayBot(mod string, c *gin.Context) {
 		return
 	}
 
-	startdices_p1 := types.NewDices()
-	startdices_p2 := types.NewDices()
+	var startdices_p1, startdices_p2 types.Dices
+	for {
+		startdices_p1 = types.NewDices()
+		startdices_p2 = types.NewDices()
 
-	var start_player string
-	if startdices_p1.Sum() >= startdices_p2.Sum() {
-		start_player = types.GameCurrentPlayerP1
-	} else {
-		start_player = types.GameCurrentPlayerP2
+		if startdices_p1.Sum() != startdices_p2.Sum() {
+			if startdices_p1.Sum() < startdices_p2.Sum() {
+				startdices_p1, startdices_p2 = startdices_p2, startdices_p1
+			}
+			break
+		}
 	}
+
+	// Against a bot the player will always start first
+	var start_player = types.GameCurrentPlayerP1
 
 	firstdices := types.NewDices()
 
@@ -561,6 +609,8 @@ func PlayBot(mod string, c *gin.Context) {
 		CurrentPlayer: start_player,
 		Dices:         firstdices,
 	}
+
+	slog.With("game", g).Debug("Creating game")
 
 	_, err = db.CreateGame(g)
 	if err != nil {

@@ -15,19 +15,44 @@ import (
 
 var UserNotFound = errors.New("Utente non trovato")
 
-var easyBotID int64
-var mediumBotID int64
-var hardBotID int64
+var easyBotID int64 = -1
+var mediumBotID int64 = -1
+var hardBotID int64 = -1
 
 func GetEasyBotID() int64 {
+	if easyBotID == -1 {
+		q := `SELECT id FROM users WHERE username = 'Enzo' AND is_bot = TRUE`
+		err := Conn.QueryRow(q).Scan(&easyBotID)
+		if err != nil {
+			slog.With("err", err).Error("Getting easy bot id")
+			panic("Cannot get easy bot ID")
+		}
+	}
 	return easyBotID
 }
 
 func GetMediumBotID() int64 {
+	if mediumBotID == -1 {
+		q := `SELECT id FROM users WHERE username = 'Caterina' AND is_bot = TRUE`
+		err := Conn.QueryRow(q).Scan(&mediumBotID)
+		if err != nil {
+			slog.With("err", err).Error("Getting medium bot id")
+			panic("Cannot get medium bot ID")
+		}
+	}
 	return mediumBotID
 }
 
 func GetHardBotID() int64 {
+	if hardBotID == -1 {
+		q := `SELECT id FROM users WHERE username = 'Giovanni' AND is_bot = TRUE`
+		err := Conn.QueryRow(q).Scan(&hardBotID)
+		if err != nil {
+			slog.With("err", err).Error("Getting hard bot id")
+			panic("Cannot get hard bot ID")
+		}
+	}
+
 	return hardBotID
 }
 
@@ -171,7 +196,7 @@ func ValidateSessionToken(token string) (int64, error) {
 
 func CreateUser(u types.User, password string) (types.User, error) {
 	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, false)
+	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.IsBot)
 
 	var id int64
 	err := res.Scan(&id)
