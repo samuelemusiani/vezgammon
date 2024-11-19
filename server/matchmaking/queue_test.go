@@ -40,3 +40,18 @@ func TestErrors(t *testing.T) {
 	assert.ErrorIs(t, err, ErrQueueFull)
 
 }
+
+func TestRemove(t *testing.T) {
+	// to empty the queue
+	start = end
+
+	e := qel{User_id: 69, Elo: 1000}
+	err := push(e)
+	assert.NilError(t, err)
+
+	err = remove(e)
+	assert.NilError(t, err)
+
+	_, err = pop()
+	assert.ErrorIs(t, err, ErrEmptyQueue)
+}
