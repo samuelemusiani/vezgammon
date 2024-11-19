@@ -42,6 +42,10 @@ func Get() *Config {
 	return &conf
 }
 
+func Set(c *Config) {
+	conf = *c
+}
+
 func Parse(path string) error {
 	buff, err := os.ReadFile(path)
 	if err != nil {

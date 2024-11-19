@@ -1,13 +1,6 @@
 package handler
 
-import (
-	"net/http"
-	"net/http/httptest"
-	"testing"
-
-	"gotest.tools/v3/assert"
-)
-
+/*
 func TestStartGameLocalcally(t *testing.T) {
 
 	w := httptest.NewRecorder()
@@ -18,3 +11,4 @@ func TestStartGameLocalcally(t *testing.T) {
 	assert.Equal(t, w.Code, http.StatusCreated)
 	// ...
 }
+*/

@@ -1,9 +1,8 @@
 package handler
 
 import (
-	"database/sql"
-	"fmt"
 	"log/slog"
+	"net/http"
 	"testing"
 	"vezgammon/server/bgweb"
 	"vezgammon/server/config"
@@ -21,18 +20,25 @@ var conf = config.Config{
 
 var router *gin.Engine
 
-func TestMain(m *testing.M) {
-	slog.SetLogLoggerLevel(slog.LevelDebug)
+var session_token *http.Cookie
 
-	db.Conn, _ = sql.Open(
-		"postgres", fmt.Sprintf("postgres://%s:%s@%s/vezgammon?sslmode=disable", conf.Database.User, conf.Database.Password, conf.Database.Address))
+func TestMain(m *testing.M) {
+	config.Set(&conf)
+
+	slog.SetLogLoggerLevel(slog.LevelDebug)
+	db.Init(config.Get())
 
 	q := "DROP TABLE IF EXISTS games CASCADE"
 	db.Conn.Exec(q)
 
-	bgweb.Init(&conf)
+	q = "DROP TABLE IF EXISTS users CASCADE"
+	db.Conn.Exec(q)
 
-	router, _ = InitHandlers(&conf)
+	db.Init(config.Get()) // recreate tables
+
+	bgweb.Init(config.Get())
+
+	router, _ = InitHandlers(config.Get())
 
 	m.Run()
 }
