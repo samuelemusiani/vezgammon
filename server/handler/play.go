@@ -8,6 +8,7 @@ import (
 	"reflect"
 	"time"
 	"vezgammon/server/bgweb"
+	"vezgammon/server/matchmaking"
 	"vezgammon/server/ws"
 
 	"log/slog"
@@ -31,10 +32,8 @@ func StartPlaySearch(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
 	//send to db the user [searching]
-	ret := db.SearchGame(user_id)
+	ret := matchmaking.SearchGame(user_id)
 	if ret != nil {
-		// magari sleep 5 sec poi ancora db.SearchGame
-		// da capire che tipo di errore, ma in teorica rimane hanging
 		err := ws.GameNotFound(user_id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
@@ -60,23 +59,6 @@ func StartPlaySearch(c *gin.Context) {
 // @Failure 400 "Not searching"
 // @Router /play/search [delete]
 func StopPlaySearch(c *gin.Context) {
-	var user_id = c.MustGet("user_id").(int64)
-
-	// Remove player if is in matchmaking table
-	if _, exists := db.Matchmaking[user_id]; exists {
-		delete(db.Matchmaking, user_id)
-	} else {
-		// Return 400 if player was not in matchmaking
-		c.JSON(http.StatusBadRequest, gin.H{
-			"error": "Player is not in the matchmaking queue",
-		})
-		return
-	}
-
-	err := ws.SendMessage(user_id, "Player removed from matchmaking queue")
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-	}
 }
 
 // @Summary Create a local game

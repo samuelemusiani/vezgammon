@@ -2,7 +2,6 @@ package ws
 
 import (
 	"errors"
-	"fmt"
 	"log"
 	"log/slog"
 	"net/http"

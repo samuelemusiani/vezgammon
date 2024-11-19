@@ -2,7 +2,6 @@ package matchmaking
 
 import (
 	"errors"
-	"sync"
 )
 
 type qel struct {
@@ -24,46 +23,42 @@ var (
 
 	// point to the first empty space
 	end int = 0
-
-	mutex sync.Mutex
 )
 
 func push(e qel) error {
-	mutex.Lock()
+
 	if end+1%qlen == start {
-		mutex.Unlock()
+
 		return ErrQueueFull
 	}
 
 	queue[end] = e
 	end = (end + 1) % qlen
 
-	mutex.Unlock()
 	return nil
 }
 
 func pop() (qel, error) {
-	mutex.Lock()
+
 	if isEmpty() {
-		mutex.Unlock()
+
 		return qel{}, ErrEmptyQueue
 	}
 
 	e := queue[start]
 	start = (start + 1) % qlen
 
-	mutex.Unlock()
 	return e, nil
 }
 
 func remove(e qel) error {
-	mutex.Lock()
+
 	if isEmpty() {
-		mutex.Unlock()
+
 		return ErrEmptyQueue
 	}
 	// search element to remove
-	for i := range (end + qlen - start) % qlen {
+	for i := range length() {
 		// element founded
 		pos := (i + start) % qlen
 		if e == queue[pos] {
@@ -71,14 +66,18 @@ func remove(e qel) error {
 				queue[(pos+j)%qlen] = queue[(pos+j+1)%qlen]
 			}
 			end = (end - 1 + qlen) % qlen
-			mutex.Unlock()
+
 			return nil
 		}
 	}
-	mutex.Unlock()
+
 	return ErrElementNotFound
 }
 
 func isEmpty() bool {
 	return start == end
+}
+
+func length() int {
+	return (end - start + qlen) % qlen
 }

@@ -3,15 +3,10 @@ package db
 import (
 	"errors"
 	"log/slog"
-	"math"
-	"time"
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
 )
-
-// user_id : elo
-var Matchmaking = make(map[int64]int64)
 
 func initGame() error {
 	q := `
@@ -302,67 +297,4 @@ func GetLastTurn(game_id int64) (*types.Turn, error) {
 	turn.Moves = ArrayToMovesArray(moves)
 
 	return &turn, nil
-}
-
-func SearchGame(uid int64) error {
-	u, err := GetUser(uid)
-	if err != nil {
-		return err
-	}
-	slog.With("user stats: ", u)
-
-	// start matchmaking
-	Matchmaking[uid] = u.Elo
-
-	//cerco l'opponent nel db in base al player e in base a quanto è in queue
-	var oppo_id int64
-	oppo_id, err = findOpponent(u.Elo, u.ID)
-	if err != nil {
-		return err
-	}
-
-	// remove player from matchmaking map
-	delete(Matchmaking, uid)
-
-	oppo, err := GetUser(oppo_id)
-	if err != nil {
-		return err
-	}
-
-	var dices = types.NewDices()
-	var CurrentPlayer string
-	if dices[0] >= dices[1] {
-		CurrentPlayer = types.GameCurrentPlayerP1
-	} else {
-		CurrentPlayer = types.GameCurrentPlayerP2
-	}
-
-	var game types.Game
-	game.Player1 = u.ID
-	game.Player2 = oppo.ID
-	game.Elo1 = u.Elo
-	game.Elo2 = oppo.Elo
-	game.Start = time.Now()
-	game.End = time.Now()
-	game.CurrentPlayer = CurrentPlayer
-	game.Dices = types.NewDices()
-
-	_, err = CreateGame(game)
-	if err != nil {
-		return err
-	}
-
-	return err
-}
-
-func findOpponent(elo int64, uid int64) (int64, error) {
-	for key, value := range Matchmaking {
-		slog.With("key", key, "uid", uid).Debug("findOpponent")
-		if math.Abs(float64(value-elo)) < 200 && key != uid {
-			slog.With("player", key).Debug("player found")
-			return key, nil
-		}
-	}
-
-	return 0, errors.New("no opponent found")
 }
