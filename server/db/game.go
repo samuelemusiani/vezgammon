@@ -10,6 +10,7 @@ import (
 	"github.com/lib/pq"
 )
 
+// user_id : elo
 var Matchmaking = make(map[int64]int64)
 
 func initGame() error {
@@ -303,10 +304,10 @@ func GetLastTurn(game_id int64) (*types.Turn, error) {
 	return &turn, nil
 }
 
-func SearchGame(uid int64) (*types.ReturnGame, error) {
+func SearchGame(uid int64) error {
 	u, err := GetUser(uid)
 	if err != nil {
-		return nil, err
+		return err
 	}
 	slog.With("user stats: ", u)
 
@@ -317,16 +318,15 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 	var oppo_id int64
 	oppo_id, err = findOpponent(u.Elo, u.ID)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	// remove player from queue
+	// remove player from matchmaking map
 	delete(Matchmaking, uid)
 
-	//ritorno l'opponent
 	oppo, err := GetUser(oppo_id)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	var dices = types.NewDices()
@@ -349,12 +349,10 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 
 	_, err = CreateGame(game)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	retGame, err := GetCurrentGame(u.ID)
-
-	return retGame, nil
+	return err
 }
 
 func findOpponent(elo int64, uid int64) (int64, error) {

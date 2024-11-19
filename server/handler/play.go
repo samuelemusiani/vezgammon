@@ -31,11 +31,11 @@ func StartPlaySearch(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
 	//send to db the user [searching]
-	_, ret := db.SearchGame(user_id)
+	ret := db.SearchGame(user_id)
 	if ret != nil {
 		// magari sleep 5 sec poi ancora db.SearchGame
 		// da capire che tipo di errore, ma in teorica rimane hanging
-		err := ws.SendMessage(user_id, "Opponent Not Found")
+		err := ws.GameNotFound(user_id)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 		}
@@ -43,7 +43,7 @@ func StartPlaySearch(c *gin.Context) {
 	}
 
 	//return game founded
-	err := ws.SendMessage(user_id, "Game founded")
+	err := ws.SendGameFound(user_id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 	}
