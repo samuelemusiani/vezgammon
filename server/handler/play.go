@@ -27,42 +27,18 @@ import (
 // @Failure 400 "Already searching or in a game"
 // @Router /play/search [get]
 func StartPlaySearch(c *gin.Context) {
-	stupidAnswer := true
-	if stupidAnswer {
-		var game types.ReturnGame
-		game.ID = 0
-		game.Player1 = "gianni"
-		game.Elo1 = 1000
-		game.Player2 = "lele"
-		game.Elo2 = 1000
-
-		game.Start = time.Now()
-		game.End = time.Now()
-		game.Status = types.GameStatusOpen
-
-		game.P1Checkers = [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
-		game.P2Checkers = [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
-
-		game.DoubleValue = 64
-		game.DoubleOwner = types.GameDoubleOwnerAll
-		game.WantToDouble = false
-
-		game.CurrentPlayer = "gianni"
-
-		c.JSON(http.StatusOK, gin.H{
-			"game": game,
-		})
-	}
-
-	//get user infos
 	slog.Debug("Inizio a cercare un game")
 	user_id := c.MustGet("user_id").(int64)
 
 	//send to db the user [searching]
 	_, ret := db.SearchGame(user_id)
 	if ret != nil {
-		// da capire che tipo di errore, ma in teorica rimane haning
-		slog.With("ret", ret)
+		// magari sleep 5 sec poi ancora db.SearchGame
+		// da capire che tipo di errore, ma in teorica rimane hanging
+		err := ws.SendMessage(user_id, "Opponent Not Found")
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		}
 		return
 	}
 

@@ -13,6 +13,7 @@ import (
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
 	WriteBufferSize: 1024,
+	//CORS per locale
 	CheckOrigin: func(r *http.Request) bool {
 		return true
 	},
@@ -22,7 +23,9 @@ var clients = make(map[*websocket.Conn]bool)
 var users = make(map[int64]*websocket.Conn)
 
 func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
-	log.Print("user_id", user_id)
+	slog.Info("Starting WebSocket connection", "user_id", user_id)
+	slog.Debug("Request headers", "headers", r.Header)
+
 	conn, err := upgrader.Upgrade(w, r, nil)
 	if err != nil {
 		log.Println(err)

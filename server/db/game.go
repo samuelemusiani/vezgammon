@@ -4,6 +4,7 @@ import (
 	"errors"
 	"log/slog"
 	"math"
+	"time"
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
@@ -314,7 +315,7 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 
 	//cerco l'opponent nel db in base al player e in base a quanto è in queue
 	var oppo_id int64
-	oppo_id, err = findOpponent(u.Elo)
+	oppo_id, err = findOpponent(u.Elo, u.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -337,11 +338,13 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 	}
 
 	var game types.Game
-	game.CurrentPlayer = CurrentPlayer
-	game.Elo1 = u.Elo
-	game.Elo2 = oppo.Elo
 	game.Player1 = u.ID
 	game.Player2 = oppo.ID
+	game.Elo1 = u.Elo
+	game.Elo2 = oppo.Elo
+	game.Start = time.Now()
+	game.End = time.Now()
+	game.CurrentPlayer = CurrentPlayer
 	game.Dices = types.NewDices()
 
 	_, err = CreateGame(game)
@@ -354,9 +357,10 @@ func SearchGame(uid int64) (*types.ReturnGame, error) {
 	return retGame, nil
 }
 
-func findOpponent(elo int64) (int64, error) {
+func findOpponent(elo int64, uid int64) (int64, error) {
 	for key, value := range Matchmaking {
-		if math.Abs(float64(value-elo)) < 200 {
+		slog.With("key", key, "uid", uid).Debug("findOpponent")
+		if math.Abs(float64(value-elo)) < 200 && key != uid {
 			slog.With("player", key).Debug("player found")
 			return key, nil
 		}
