@@ -656,6 +656,10 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
+                "is_bot": {
+                    "type": "boolean",
+                    "example": false
+                },
                 "lastname": {
                     "type": "string",
                     "example": "rossi"

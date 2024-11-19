@@ -168,7 +168,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, "Surrended")
+	c.JSON(http.StatusCreated, "Surrended")
 
 	// TODO: send notification to the other player that the game is over
 }

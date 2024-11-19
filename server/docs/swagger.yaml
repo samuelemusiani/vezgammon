@@ -133,6 +133,9 @@ definitions:
       id:
         example: 1
         type: integer
+      is_bot:
+        example: false
+        type: boolean
       lastname:
         example: rossi
         type: string
