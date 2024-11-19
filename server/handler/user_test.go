@@ -27,7 +27,6 @@ func TestRegister(t *testing.T) {
 		Firstname: "testregisteruser",
 		Lastname:  "testregisteruser",
 		Mail:      "a@a.it",
-		Elo:       1000,
 	}
 
 	userjson, _ := json.Marshal(testRegisterUser)
@@ -37,13 +36,12 @@ func TestRegister(t *testing.T) {
 	router.ServeHTTP(w, req)
 
 	var retuser types.User
-	err = json.Unmarshal(w.Body.AvailableBuffer(), &retuser)
+	err = json.Unmarshal(w.Body.Bytes(), &retuser)
 	assert.NilError(t, err)
 
 	assert.Equal(t, user.Username, retuser.Username)
 	assert.Equal(t, user.Firstname, retuser.Firstname)
 	assert.Equal(t, user.Lastname, retuser.Lastname)
 	assert.Equal(t, user.Mail, retuser.Mail)
-	assert.Equal(t, user.Elo, retuser.Elo)
 	assert.Equal(t, w.Code, http.StatusCreated)
 }
