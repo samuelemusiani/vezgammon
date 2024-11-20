@@ -2,8 +2,10 @@ package handler
 
 import (
 	"encoding/json"
+	"io"
 	"net/http"
 	"net/http/httptest"
+	"strconv"
 	"strings"
 	"testing"
 	"vezgammon/server/types"
@@ -126,6 +128,104 @@ func TestGetCurrentGame(t *testing.T) {
 	assert.Equal(t, expectedresponse.DoubleOwner, retresponse.DoubleOwner)
 	assert.Equal(t, expectedresponse.WantToDouble, retresponse.WantToDouble)
 }
+
+func TestGetPossibleMoves(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/api/play/moves", nil)
+	assert.NilError(t, err)
+
+	assert.Assert(t, session_token != nil)
+	req.AddCookie(session_token)
+
+	router.ServeHTTP(w, req)
+
+	var retresponse types.FutureTurn
+	err = json.Unmarshal(w.Body.Bytes(), &retresponse)
+	assert.NilError(t, err)
+
+	assert.Equal(t, w.Code, http.StatusOK)
+}
+
+func TestPlayMoves(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("GET", "/api/play/moves", nil)
+	assert.NilError(t, err)
+
+	assert.Assert(t, session_token != nil)
+	req.AddCookie(session_token)
+
+	assert.NilError(t, err)
+	router.ServeHTTP(w, req)
+
+	var retresponse types.FutureTurn
+	err = json.Unmarshal(w.Body.Bytes(), &retresponse)
+	assert.NilError(t, err)
+
+	assert.Equal(t, w.Code, http.StatusOK)
+
+	w = httptest.NewRecorder()
+
+	move := retresponse.PossibleMoves[0]
+
+	movejson, err := json.Marshal(move)
+	assert.NilError(t, err)
+
+	req, err = http.NewRequest("POST", "/api/play/moves", strings.NewReader(string(movejson)))
+	assert.NilError(t, err)
+	req.AddCookie(session_token)
+
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, w.Code, http.StatusCreated)
+}
+
+func testWantToDouble(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("POST", "/api/play/double", nil)
+	assert.NilError(t, err)
+
+	assert.Assert(t, session_token != nil)
+	req.AddCookie(session_token)
+	router.ServeHTTP(w, req)
+
+	retnumb, err := io.ReadAll(w.Body)
+	assert.NilError(t, err)
+
+	renums := string(retnumb)
+	retnum, err := strconv.Atoi(renums)
+	assert.NilError(t, err)
+
+	assert.Equal(t, w.Code, http.StatusCreated)
+	assert.Equal(t, 2, retnum)
+}
+
+/*func TestAcceptDouble(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("PUT", "/api/play/double", nil)
+	assert.NilError(t, err)
+
+	assert.Assert(t, session_token != nil)
+	req.AddCookie(session_token)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, w.Code, http.StatusCreated)
+}*/
+
+/*
+func TestRefuseDouble(t *testing.T) {
+	w := httptest.NewRecorder()
+	req, err := http.NewRequest("DELETE", "/api/play/double", nil)
+	assert.NilError(t, err)
+
+	assert.Assert(t, session_token != nil)
+	req.AddCookie(session_token)
+
+	assert.NilError(t, err)
+	router.ServeHTTP(w, req)
+
+	assert.Equal(t, w.Code, http.StatusCreated)
+}
+*/
 
 // keep this test last
 func TestSurrendToCurrentGame(t *testing.T) {

@@ -487,6 +487,7 @@ func AcceptDouble(c *gin.Context) {
 		} else {
 			c.JSON(http.StatusBadRequest, err)
 		}
+		return
 	}
 
 	c.JSON(http.StatusCreated, "Double accepted")
