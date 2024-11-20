@@ -14,12 +14,13 @@ import (
 func initUser() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS users(
-		id SERIAL PRIMARY KEY, 
-		username BPCHAR NOT NULL, 
+		id SERIAL PRIMARY KEY,
+		username BPCHAR UNIQUE NOT NULL,
 		password BPCHAR NOT NULL,
 		firstname BPCHAR NOT NULL,
 		lastname BPCHAR,
-		mail BPCHAR UNIQUE
+		mail BPCHAR UNIQUE,
+    elo INTEGER NOT NULL
 	)`
 	_, err := conn.Exec(q)
 	return err
@@ -50,7 +51,7 @@ func GetUsers() ([]types.User, error) {
 	for rows.Next() {
 		var tmp types.User
 		var pass string
-		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail)
+		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo)
 		if err != nil {
 			return nil, err
 		}
@@ -62,7 +63,7 @@ func GetUsers() ([]types.User, error) {
 }
 
 func LoginUser(username string, password string) (*types.User, error) {
-	q := "SELECT id, username, firstname, lastname, mail, password FROM users "
+	q := "SELECT id, username, firstname, lastname, mail, password, elo FROM users "
 	if strings.Contains(username, "@") {
 		q = q + "WHERE mail = $1"
 	} else {
@@ -78,6 +79,7 @@ func LoginUser(username string, password string) (*types.User, error) {
 		&tmp.Lastname,
 		&tmp.Mail,
 		&pass,
+		&tmp.Elo,
 	)
 
 	if err != nil {
@@ -100,7 +102,7 @@ func GenerateSessionToken() string {
 }
 
 func SaveSessionToken(userID int64, token string) error {
-	q := `INSERT INTO sessions (user_id, token, expires_at) 
+	q := `INSERT INTO sessions (user_id, token, expires_at)
           VALUES ($1, $2, $3)`
 
 	expiresAt := time.Now().Add(1 * time.Hour)
@@ -109,7 +111,7 @@ func SaveSessionToken(userID int64, token string) error {
 }
 
 func ValidateSessionToken(token string) (int64, error) {
-	q := `SELECT user_id FROM sessions 
+	q := `SELECT user_id FROM sessions
           WHERE token = $1 AND expires_at > NOW()`
 
 	var userID int64
@@ -121,18 +123,18 @@ func ValidateSessionToken(token string) (int64, error) {
 	return userID, nil
 }
 
-func CreateUser(u types.User, password string) (*types.User, error) {
-	q := `INSERT INTO users(username, password, firstname, lastname, mail) VALUES($1, $2, $3, $4, $5) RETURNING id`
-	res := conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail)
+func CreateUser(u types.User, password string) (types.User, error) {
+	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo) VALUES($1, $2, $3, $4, $5, $6) RETURNING id`
+	res := conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo)
 
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
-		return nil, err
+		return u, err
 	}
 
 	u.ID = id
-	return &u, nil
+	return u, nil
 }
 
 func Logout(sessionToken string) error {
@@ -143,8 +145,8 @@ func Logout(sessionToken string) error {
 }
 
 func GetUser(user_id any) (*types.User, error) {
-	q := `SELECT username, firstname, lastname, mail
-          FROM users 
+	q := `SELECT username, firstname, lastname, mail, elo
+          FROM users
           WHERE id = $1`
 
 	var tmp types.User
@@ -153,6 +155,7 @@ func GetUser(user_id any) (*types.User, error) {
 		&tmp.Firstname,
 		&tmp.Lastname,
 		&tmp.Mail,
+		&tmp.Elo,
 	)
 
 	if err != nil {

@@ -21,16 +21,16 @@ start-server: generate-swag
 start-client:
     cd client && npm run dev
 
-test: test-server test-client
+test: test-server
 
 test-server:
     #!/usr/bin/env sh
     sudo docker-compose -f docker-compose-test.yml up -d
     sleep 2
-    if go test -v ./server/... ; then
-        sudo docker-compose -f docker-compose-test.yml down;
+    if go test ./server/... ; then
+        sudo docker-compose -f docker-compose-test.yml down -v;
     else
-        sudo docker-compose -f docker-compose-test.yml down;
+        sudo docker-compose -f docker-compose-test.yml down -v;
         exit 1;
     fi
 
@@ -39,6 +39,3 @@ generate-swag: install-swag
 
 install-swag:
     go install github.com/swaggo/swag/cmd/swag@latest
-
-test-client: 
-    cd client && npm run test

@@ -4,9 +4,9 @@
         "contact": {}
     },
     "paths": {
-        "/ready": {
+        "/play": {
             "get": {
-                "description": "do a ping to api/ready to test if server is running",
+                "description": "Get current game",
                 "consumes": [
                     "application/json"
                 ],
@@ -14,16 +14,354 @@
                     "application/json"
                 ],
                 "tags": [
-                    "test"
+                    "play"
                 ],
-                "summary": "test if server is running",
+                "summary": "Get current game",
                 "responses": {
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "type": "string"
+                            "$ref": "#/definitions/types.ReturnGame"
+                        }
+                    },
+                    "404": {
+                        "description": "Game not found"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Surrend to current game",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Surrend to current game",
+                "responses": {
+                    "201": {
+                        "description": "Surrended"
+                    },
+                    "404": {
+                        "description": "Not in a game"
+                    }
+                }
+            }
+        },
+        "/play/double": {
+            "put": {
+                "description": "Accept the double",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Accept the double",
+                "responses": {
+                    "201": {
+                        "description": "Double accepted"
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
+                    }
+                }
+            },
+            "post": {
+                "description": "The player want to double",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "The player want to double",
+                "responses": {
+                    "201": {
+                        "description": "Value of the red dice after the double",
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Refuse the double",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Refuse the double",
+                "responses": {
+                    "201": {
+                        "description": "Double refused"
+                    },
+                    "400": {
+                        "description": "Not in a game or can't refuse double"
+                    }
+                }
+            }
+        },
+        "/play/local": {
+            "get": {
+                "description": "Create a local game for playing locally in the same device",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a local game",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Already in a game"
+                    }
+                }
+            }
+        },
+        "/play/moves": {
+            "get": {
+                "description": "Get possible moves for next turn",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get possible moves for next turn",
+                "responses": {
+                    "200": {
+                        "description": "Dice with all possible moves and the ability to double",
+                        "schema": {
+                            "$ref": "#/definitions/types.FutureTurn"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game, not your turn or double requested"
+                    }
+                }
+            },
+            "post": {
+                "description": "Play all the moves for the current turn",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Play all the moves for the current turn",
+                "parameters": [
+                    {
+                        "description": "Moves to play",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.Move"
+                            }
                         }
                     }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Moves played"
+                    },
+                    "400": {
+                        "description": "Moves not legal, not your turn or not in a game"
+                    }
+                }
+            }
+        },
+        "/play/search": {
+            "get": {
+                "description": "Start a matchmaking search for a new game",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Start a matchmaking search for a new game",
+                "responses": {
+                    "201": {
+                        "description": "Search started"
+                    },
+                    "400": {
+                        "description": "Already searching or in a game"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Stop a running matchmaking search",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Stop a running matchmaking search",
+                "responses": {
+                    "204": {
+                        "description": "Search stopped"
+                    },
+                    "400": {
+                        "description": "Not searching"
+                    }
+                }
+            }
+        }
+    },
+    "definitions": {
+        "types.FutureTurn": {
+            "type": "object",
+            "properties": {
+                "can_double": {
+                    "description": "True if the player can double the red dice",
+                    "type": "boolean"
+                },
+                "dices": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "possible_moves": {
+                    "type": "array",
+                    "items": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/definitions/types.Move"
+                        }
+                    }
+                }
+            }
+        },
+        "types.Move": {
+            "type": "object",
+            "properties": {
+                "from": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "to": {
+                    "type": "integer",
+                    "example": 2
+                }
+            }
+        },
+        "types.NewGame": {
+            "type": "object",
+            "properties": {
+                "dices_p1": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "dices_p2": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "game": {
+                    "$ref": "#/definitions/types.ReturnGame"
+                }
+            }
+        },
+        "types.ReturnGame": {
+            "type": "object",
+            "properties": {
+                "current_player": {
+                    "type": "string"
+                },
+                "double_owner": {
+                    "type": "string"
+                },
+                "double_value": {
+                    "type": "integer"
+                },
+                "elo1": {
+                    "type": "integer"
+                },
+                "elo2": {
+                    "type": "integer"
+                },
+                "end": {
+                    "type": "string"
+                },
+                "id": {
+                    "type": "integer"
+                },
+                "p1checkers": {
+                    "description": "arr[0] is bar",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "p2checkers": {
+                    "description": "arr[0] is bar",
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "player1": {
+                    "description": "Username of the player",
+                    "type": "string"
+                },
+                "player2": {
+                    "type": "string"
+                },
+                "start": {
+                    "type": "string"
+                },
+                "status": {
+                    "type": "string"
+                },
+                "want_to_double": {
+                    "type": "boolean"
                 }
             }
         }

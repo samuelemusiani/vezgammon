@@ -58,8 +58,23 @@ func Init(conf *config.Config) error {
 
 	// database initialization
 	err = initUser()
+	if err != nil {
+		slog.With("err", err).Debug("init users")
+		return err
+	}
 	// cookie initializazion
 	err = initCookie()
+	if err != nil {
+		slog.With("err", err).Debug("init cookie")
+		return err
+	}
+
+	// game initialization
+	err = initGame()
+	if err != nil {
+		slog.With("err", err).Debug("init game")
+		return err
+	}
 
 	return err
 }
