@@ -154,6 +154,22 @@ const handleTriangleClick = async (position: number) => {
   )
   console.log('sequenze possibili', availableMoves.value.possible_moves)
 
+  if (gameState.value.current_player === 'p1') {
+    console.log('moving checker')
+    if (gameState.value.p2checkers[25 - position] === 1) {
+      // Capture the opponent's checker
+      gameState.value.p2checkers[25 - position] = 0
+      gameState.value.p2checkers[0]++
+    }
+  } else {
+    console.log('moving checker')
+    if (gameState.value.p1checkers[25 - position] === 1) {
+      // Capture the opponent's checker
+      gameState.value.p1checkers[25 - position] = 0
+      gameState.value.p1checkers[0]++
+    }
+  }
+
   // Aggiorna il gameState per mostrare la mossa appena giocata sulla board
   if (gameState.value.current_player === 'p1') {
     gameState.value.p1checkers[currentMove.from]--
@@ -185,30 +201,6 @@ const handleTriangleClick = async (position: number) => {
 
   if (hasUsedBothDices || !hasPossibleMoves) {
     try {
-      // TODO: Remove: mi serve per ordinare le mosse come vuole il backend (altrimenti il backend non me le valida) )
-      /*const matchingSequence = availableMoves.value.possible_moves.find(
-        sequence => {
-          return movesToSubmit.value.every(move =>
-            sequence.some(
-              seqMove => seqMove.from === move.from && seqMove.to === move.to,
-            ),
-          )
-        },
-      )
-
-      if (!matchingSequence) {
-        console.error('No matching sequence found')
-        return
-      }
-
-      // Ordina movesToSubmit secondo l'ordine in matchingSequence
-      const sortedMoves = matchingSequence.filter(seqMove =>
-        movesToSubmit.value.some(
-          move => move.from === seqMove.from && move.to === seqMove.to,
-        ),
-      )
-      console.log('mosse da inviare', sortedMoves)*/
-
       const res = await fetch('/api/play/moves', {
         method: 'POST',
         headers: {
