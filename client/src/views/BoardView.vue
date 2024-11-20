@@ -1,184 +1,277 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import type { Checker } from '@/utils/game/types'
+import type {
+  Checker,
+  GameState,
+  MovesResponse,
+  Move,
+} from '@/utils/game/types'
 import {
   BOARD,
   getTrianglePath,
   getTriangleColor,
   getCheckerX,
   getCheckerY,
-  updateGameState,
-  newGame,
   //checkWin,
 } from '@/utils/game/game'
-import {
-  calculatePossibleMoves,
-  handleHitChecker,
-  isCheckerMovable,
-  updateStackIndices,
-} from '@/utils/game/moves'
+
 import ConfettiExplosion from 'vue-confetti-explosion'
-import { useSound } from '@vueuse/sound'
+//import { useSound } from '@vueuse/sound'
 //import victorySfx from '@/utils/sounds/victory.mp3'
-import diceSfx from '@/utils/sounds/dice.mp3'
+//import diceSfx from '@/utils/sounds/dice.mp3'
+import { onMounted } from 'vue'
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
-const gameState = ref(newGame())
+const gameState = ref<GameState>()
+
 const selectedChecker = ref<Checker | null>(null)
+const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
-const movesAvailable = ref(2)
+// Teniamo traccia della sequenza di mosse che stiamo seguendo
+const selectedMoveSequence = ref<Move[]>([])
+const currentMoveIndex = ref<number>(0)
+const movesToSubmit = ref<Move[]>([]) // mosse già fatte
+const currentPossibleSequences = ref<Move[][]>([]) // sequenze ancora possibili
+
 const isRolling = ref(false)
-const gameStarted = ref(false)
+
 const isExploding = ref(false)
 //const { play: playVictory } = useSound(victorySfx)
-const { play: playDice } = useSound(diceSfx)
+//const { play: playDice } = useSound(diceSfx)
 //const { play: playTin } = useSound(tinSfx)
 
-const handleCheckerClick = (checker: Checker) => {
-  if (!isCheckerMovable(gameState.value, checker)) return
+// Fetch a /api/play on mounted
+onMounted(async () => {
+  await fetchGameState()
+  await fetchMoves()
+})
 
+const fetchGameState = async () => {
+  try {
+    const res = await fetch('/api/play/')
+    const data: GameState = await res.json()
+    gameState.value = data
+    console.log(gameState.value)
+  } catch (err) {
+    console.error('Error fetching game state:', err)
+  }
+}
+
+const fetchMoves = async () => {
+  try {
+    const res = await fetch('/api/play/moves')
+    const data: MovesResponse = await res.json()
+    availableMoves.value = data
+    console.log(availableMoves.value)
+  } catch (err) {
+    console.error('Error fetching moves:', err)
+  }
+}
+
+const isCheckerSelectable = (checker: Checker) => {
+  if (!gameState.value) return false
+  // Converti il colore della pedina nel formato del player
+  const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
+  console.log(checkerPlayer)
+  return checkerPlayer === gameState.value.current_player
+}
+
+const handleCheckerClick = (checker: Checker) => {
+  if (!availableMoves.value || !isCheckerSelectable(checker)) return
+  console.log(checker)
   if (selectedChecker.value === checker) {
     selectedChecker.value = null
     possibleMoves.value = []
+    return
+  }
+
+  selectedChecker.value = checker
+
+  // Se è la prima mossa
+  if (movesToSubmit.value.length === 0) {
+    // Trova tutte le possibili destinazioni per questa pedina in tutte le sequenze
+    possibleMoves.value = [
+      ...new Set(
+        availableMoves.value.possible_moves.flatMap(seq =>
+          seq
+            .filter(move => move.from === checker.position)
+            .map(move => move.to),
+        ),
+      ),
+    ]
+    console.log('mosse posibili', possibleMoves.value)
   } else {
-    selectedChecker.value = checker
-    possibleMoves.value = calculatePossibleMoves(gameState.value, checker)
-    console.log(possibleMoves.value)
+    // Per le mosse successive, trova tutte le sequenze che contengono le mosse già fatte
+    possibleMoves.value = [
+      ...new Set(
+        currentPossibleSequences.value.flatMap(seq =>
+          seq
+            .filter(move => move.from === checker.position)
+            .map(move => move.to),
+        ),
+      ),
+    ]
   }
 }
-
-const handleTriangleClick = (position: number) => {
-  if (!selectedChecker.value || !possibleMoves.value.includes(position)) return
-  const oldCheckerPos = selectedChecker.value.position
-
-  // Controlla se c'è una pedina da mangiare
-  handleHitChecker(gameState.value, position)
-
-  moveChecker(selectedChecker.value, position)
-  updateGameState(
-    gameState.value,
-    position,
-    oldCheckerPos,
-    movesAvailable.value,
-  )
-  /*
-  if (checkWin(gameState.value)) {
-    handleWin()
-  }*/
-  possibleMoves.value = []
-  selectedChecker.value = null
-}
-
-const moveChecker = (checker: Checker, newPosition: number) => {
-  checker.position = newPosition
-  updateStackIndices(gameState.value)
-}
-
-const handleBoardClick = (event: MouseEvent) => {
-  // Deselect checker when clicking on board
+// Quando si clicca su un triangolo
+const handleTriangleClick = async (position: number) => {
   if (
-    (event.target as Element).tagName === 'svg' ||
-    (event.target as Element).tagName === 'rect'
-  ) {
-    selectedChecker.value = null
-    possibleMoves.value = []
-  }
-}
-
-const rollDice = () => {
-  if (
-    isRolling.value ||
-    (gameState.value.dice.value[0] !== 0 && gameState.value.dice.value[1] !== 0)
+    !selectedChecker.value ||
+    !possibleMoves.value.includes(position) ||
+    !availableMoves.value
   )
     return
 
-  if (!gameStarted.value) {
-    gameStarted.value = true
-    startTimer()
+  const currentMove: Move = {
+    from: selectedChecker.value.position,
+    to: position,
   }
-  isRolling.value = true
-  playDice()
-  const rollAnimation = setInterval(() => {
-    gameState.value.dice.value = [
-      Math.floor(Math.random() * 6) + 1,
-      Math.floor(Math.random() * 6) + 1,
-    ]
-  }, 50)
 
-  setTimeout(() => {
-    clearInterval(rollAnimation)
-    isRolling.value = false
-
-    const isDouble =
-      gameState.value.dice.value[0] === gameState.value.dice.value[1]
-
-    if (isDouble) {
-      gameState.value.dice.used = [false, false, false, false]
-      movesAvailable.value = 4
-      gameState.value.dice.double = true
-    } else {
-      gameState.value.dice.used = [false, false]
-      movesAvailable.value = 2
-      gameState.value.dice.double = false
-    }
-
-    selectedChecker.value = null
-    possibleMoves.value = []
-  }, 500)
-}
-
-/* TODO: Remove when we have backend API
-const handleWin = () => {
-  isExploding.value = true
-  playVictory()
-}
-
-const simulateWin = () => {
-  gameState.value.board = gameState.value.board.map(checker => {
-    if (checker.color === gameState.value.currentPlayer) {
-      return {
-        ...checker,
-        position: gameState.value.currentPlayer === 'white' ? 0 : 23,
-      }
-    }
-    return checker
-  })
-  handleWin()
-}
-*/
-const startTimer = () => {
-  let seconds = 0
-  setInterval(() => {
-    seconds++
-    const minutes = Math.floor(seconds / 60)
-    const remainingSeconds = seconds % 60
-    gameState.value.time = `${String(minutes).padStart(2, '0')}:${String(
-      remainingSeconds,
-    ).padStart(2, '0')}`
-  }, 1000)
-}
-
-// JUST for testing
-/*const addCheckerHome = () => {
-  playTin()
-  if (gameState.value.currentPlayer === 'white') {
-    if (gameState.value.capturedWhite.length < 15) {
-      gameState.value.capturedWhite.push({
-        color: 'white',
-        position: -1,
-        stackIndex: gameState.value.capturedWhite.length,
-      })
-    }
+  // Se è la prima mossa
+  if (movesToSubmit.value.length === 0) {
+    // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
+    currentPossibleSequences.value = availableMoves.value.possible_moves.filter(
+      seq =>
+        seq.some(
+          move => move.from === currentMove.from && move.to === currentMove.to,
+        ),
+    )
   } else {
-    if (gameState.value.capturedBlack.length < 15) {
-      gameState.value.capturedBlack.push({
-        color: 'black',
-        position: 24,
-        stackIndex: gameState.value.capturedBlack.length,
+    // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
+    currentPossibleSequences.value = currentPossibleSequences.value.filter(
+      seq =>
+        seq.some(
+          move => move.from === currentMove.from && move.to === currentMove.to,
+        ),
+    )
+  }
+
+  // rimuovo dalle sequenze possibili la mossa appena giocata
+  currentPossibleSequences.value = currentPossibleSequences.value.map(seq =>
+    seq.filter(
+      move => move.from !== currentMove.from || move.to !== currentMove.to,
+    ),
+  )
+  console.log('sequenze possibili', currentPossibleSequences.value)
+
+  // Aggiorna il gameState per mostrare la mossa appena giocata sulla board
+  if (gameState.value.current_player === 'p1') {
+    gameState.value.p1checkers[currentMove.from]--
+    gameState.value.p1checkers[currentMove.to]++
+  } else {
+    gameState.value.p2checkers[currentMove.from]--
+    gameState.value.p2checkers[currentMove.to]++
+  }
+
+  // Aggiungi la mossa a quelle fatte
+  movesToSubmit.value.push(currentMove)
+  console.log('mosse effettuate', movesToSubmit.value)
+
+  // Reset della selezione corrente
+  selectedChecker.value = null
+  possibleMoves.value = []
+
+  const hasPossibleMoves = currentPossibleSequences.value?.length > 0
+  let hasUsedBothDices = movesToSubmit.value.length === 2
+  if (availableMoves.value.dices[0] == availableMoves.value.dices[1]) {
+    hasUsedBothDices = movesToSubmit.value.length === 4
+  }
+
+  if (hasUsedBothDices || !hasPossibleMoves) {
+    try {
+      // TODO: Remove: mi serve per ordinare le mosse come vuole il backend (altrimenti il backend non me le valida) )
+      const matchingSequence = availableMoves.value.possible_moves.find(
+        sequence => {
+          return movesToSubmit.value.every(move =>
+            sequence.some(
+              seqMove => seqMove.from === move.from && seqMove.to === move.to,
+            ),
+          )
+        },
+      )
+
+      if (!matchingSequence) {
+        console.error('No matching sequence found')
+        return
+      }
+
+      // Ordina movesToSubmit secondo l'ordine in matchingSequence
+      const sortedMoves = matchingSequence.filter(seqMove =>
+        movesToSubmit.value.some(
+          move => move.from === seqMove.from && move.to === seqMove.to,
+        ),
+      )
+      console.log('mosse da inviare', sortedMoves)
+
+      const res = await fetch('/api/play/moves', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(sortedMoves),
       })
+      console.log('stato POST', res.status)
+      movesToSubmit.value = []
+      currentPossibleSequences.value = []
+      await fetchGameState()
+      await fetchMoves()
+    } catch (err) {
+      console.error('Error submitting moves:', err)
     }
   }
-}*/
+}
+
+const getCheckers = () => {
+  if (!gameState.value) return []
+
+  const checkers: Checker[] = []
+  const isP2Turn = gameState.value.current_player === 'p2'
+
+  // Aggiungi pedine del player 1 (bianche)
+  gameState.value.p1checkers.forEach((count, position) => {
+    // Se è il turno di p2, inverti la posizione (eccetto 0)
+    const adjustedPosition =
+      position === 0 ? 0 : isP2Turn ? 25 - position : position
+
+    for (let i = 0; i < count; i++) {
+      checkers.push({
+        color: 'black',
+        position: adjustedPosition,
+        stackIndex: i,
+      })
+    }
+  })
+
+  // Aggiungi pedine del player 2 (nere)
+  gameState.value.p2checkers.forEach((count, position) => {
+    // Se è il turno di p2, non invertire la posizione
+    // Se è il turno di p1, inverti la posizione (eccetto 0)
+    const adjustedPosition =
+      position === 0 ? 0 : isP2Turn ? position : 25 - position
+
+    for (let i = 0; i < count; i++) {
+      checkers.push({
+        color: 'white',
+        position: adjustedPosition,
+        stackIndex: i,
+      })
+    }
+  })
+
+  return checkers
+}
+
+const exitGame = async () => {
+  try {
+    const res = await fetch('/api/play/', {
+      method: 'DELETE',
+    })
+    console.log(res.status)
+    await fetch('/api/play/local')
+  } catch (err) {
+    console.error('Error exiting game:', err)
+  }
+}
 </script>
 
 <template>
@@ -211,7 +304,7 @@ const startTimer = () => {
               <div
                 :class="[
                   'absolute -bottom-1 right-0 h-4 w-4 rounded-full border-2 border-white',
-                  gameState.currentPlayer === 'black'
+                  gameState?.current_player === 'p1'
                     ? 'bg-green-500'
                     : 'bg-gray-300',
                 ]"
@@ -225,8 +318,9 @@ const startTimer = () => {
           <div
             class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
           >
+            <button class="btn btn-primary" @click="exitGame">Exit Game</button>
             <p class="text-sm text-gray-600">Total Time</p>
-            <p class="text-2xl font-bold">{{ gameState.time }}</p>
+            <p class="text-2xl font-bold"></p>
           </div>
 
           <!-- Current Player Info -->
@@ -242,7 +336,7 @@ const startTimer = () => {
               <div
                 :class="[
                   'absolute -bottom-1 right-0 h-4 w-4 rounded-full border-2 border-white',
-                  gameState.currentPlayer === 'white'
+                  gameState?.current_player === 'p2'
                     ? 'bg-green-500'
                     : 'bg-gray-300',
                 ]"
@@ -261,7 +355,6 @@ const startTimer = () => {
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
             class="h-full w-full"
-            @click="handleBoardClick($event)"
           >
             <!-- Board background -->
             <rect
@@ -289,11 +382,11 @@ const startTimer = () => {
               <path
                 v-for="position in 24"
                 :key="`triangle-${position}`"
-                :d="getTrianglePath(position - 1)"
-                :fill="getTriangleColor(position - 1)"
+                :d="getTrianglePath(position)"
+                :fill="getTriangleColor(position)"
                 stroke="black"
                 stroke-width="1"
-                @click="handleTriangleClick(position - 1)"
+                @click="handleTriangleClick(position)"
               />
             </g>
 
@@ -309,28 +402,17 @@ const startTimer = () => {
 
             <!-- Checkers -->
             <circle
-              v-for="(checker, index) in gameState.board"
+              v-for="(checker, index) in getCheckers()"
               :key="`checker-${index}`"
-              :cx="getCheckerX(checker.position)"
-              :cy="getCheckerY(checker.position, checker.stackIndex)"
+              :cx="getCheckerX(checker)"
+              :cy="getCheckerY(checker)"
               :r="BOARD.checkerRadius"
               :fill="checker.color"
               :stroke="checker.color === 'white' ? 'black' : 'blue'"
               stroke-width="1.4"
               class="checker-transition"
-              :class="{
-                'cursor-pointer hover:opacity-80': isCheckerMovable(
-                  gameState,
-                  checker,
-                ),
-                selected: selectedChecker === checker,
-              }"
-              :style="
-                selectedChecker === checker
-                  ? { stroke: checker.color === 'white' ? 'black' : 'white' }
-                  : {}
-              "
-              @click.stop="handleCheckerClick(checker)"
+              :class="{ selected: selectedChecker === checker }"
+              @click="handleCheckerClick(checker)"
             />
           </svg>
         </div>
@@ -358,7 +440,7 @@ const startTimer = () => {
           >
             <div class="flex flex-col gap-1">
               <div
-                v-for="(checker, index) in gameState.capturedBlack"
+                v-for="(checker, index) in null"
                 :key="'black-' + index"
                 class="h-3 w-full rounded-full border border-blue-500 bg-black"
               ></div>
@@ -366,7 +448,7 @@ const startTimer = () => {
           </div>
         </div>
 
-        <!-- Dice Section -->
+        <!-- Dice Section
         <div class="mb-5 mt-5 flex flex-col items-center">
           <button
             @click="rollDice"
@@ -377,92 +459,92 @@ const startTimer = () => {
             class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
           >
             Roll Dice
-          </button>
+          </button>-->
 
-          <div class="flex gap-4">
-            <div
-              v-for="(die, index) in gameState.dice.value"
-              :key="index"
-              class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
-              :class="{ 'dice-rolling': isRolling }"
-            >
-              <svg viewBox="0 0 60 60">
-                <!-- Dice border -->
-                <rect
-                  x="1"
-                  y="1"
-                  width="58"
-                  height="58"
-                  rx="8"
-                  fill="white"
-                  stroke="black"
-                  stroke-width="2"
-                />
-
-                <!-- Number as dots inside the dice -->
-                <template v-if="die === 1">
-                  <circle cx="30" cy="30" r="5" fill="black" />
-                </template>
-
-                <template v-if="die === 2">
-                  <circle cx="20" cy="20" r="5" fill="black" />
-                  <circle cx="40" cy="40" r="5" fill="black" />
-                </template>
-
-                <template v-if="die === 3">
-                  <circle cx="20" cy="20" r="5" fill="black" />
-                  <circle cx="30" cy="30" r="5" fill="black" />
-                  <circle cx="40" cy="40" r="5" fill="black" />
-                </template>
-
-                <template v-if="die === 4">
-                  <circle cx="20" cy="20" r="5" fill="black" />
-                  <circle cx="40" cy="20" r="5" fill="black" />
-                  <circle cx="20" cy="40" r="5" fill="black" />
-                  <circle cx="40" cy="40" r="5" fill="black" />
-                </template>
-
-                <template v-if="die === 5">
-                  <circle cx="20" cy="20" r="5" fill="black" />
-                  <circle cx="40" cy="20" r="5" fill="black" />
-                  <circle cx="30" cy="30" r="5" fill="black" />
-                  <circle cx="20" cy="40" r="5" fill="black" />
-                  <circle cx="40" cy="40" r="5" fill="black" />
-                </template>
-
-                <template v-if="die === 6">
-                  <circle cx="20" cy="15" r="5" fill="black" />
-                  <circle cx="40" cy="15" r="5" fill="black" />
-                  <circle cx="20" cy="30" r="5" fill="black" />
-                  <circle cx="40" cy="30" r="5" fill="black" />
-                  <circle cx="20" cy="45" r="5" fill="black" />
-                  <circle cx="40" cy="45" r="5" fill="black" />
-                </template>
-              </svg>
-            </div>
-          </div>
-        </div>
-
-        <div
-          class="captured-checkers-container mt-4 flex flex-col place-items-center"
-        >
+        <div class="flex gap-4">
           <div
-            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
+            v-for="(die, index) in availableMoves?.dices"
+            :key="index"
+            class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
+            :class="{ 'dice-rolling': isRolling }"
           >
-            <div class="flex flex-col gap-1">
-              <!-- Esempio di pedina bianca catturata -->
-              <div
-                v-for="(checker, index) in gameState.capturedWhite"
-                :key="'white-' + index"
-                class="h-3 w-full rounded-full border border-black bg-white"
-              ></div>
-            </div>
+            <svg viewBox="0 0 60 60">
+              <!-- Dice border -->
+              <rect
+                x="1"
+                y="1"
+                width="58"
+                height="58"
+                rx="8"
+                fill="white"
+                stroke="black"
+                stroke-width="2"
+              />
+
+              <!-- Number as dots inside the dice -->
+              <template v-if="die === 1">
+                <circle cx="30" cy="30" r="5" fill="black" />
+              </template>
+
+              <template v-if="die === 2">
+                <circle cx="20" cy="20" r="5" fill="black" />
+                <circle cx="40" cy="40" r="5" fill="black" />
+              </template>
+
+              <template v-if="die === 3">
+                <circle cx="20" cy="20" r="5" fill="black" />
+                <circle cx="30" cy="30" r="5" fill="black" />
+                <circle cx="40" cy="40" r="5" fill="black" />
+              </template>
+
+              <template v-if="die === 4">
+                <circle cx="20" cy="20" r="5" fill="black" />
+                <circle cx="40" cy="20" r="5" fill="black" />
+                <circle cx="20" cy="40" r="5" fill="black" />
+                <circle cx="40" cy="40" r="5" fill="black" />
+              </template>
+
+              <template v-if="die === 5">
+                <circle cx="20" cy="20" r="5" fill="black" />
+                <circle cx="40" cy="20" r="5" fill="black" />
+                <circle cx="30" cy="30" r="5" fill="black" />
+                <circle cx="20" cy="40" r="5" fill="black" />
+                <circle cx="40" cy="40" r="5" fill="black" />
+              </template>
+
+              <template v-if="die === 6">
+                <circle cx="20" cy="15" r="5" fill="black" />
+                <circle cx="40" cy="15" r="5" fill="black" />
+                <circle cx="20" cy="30" r="5" fill="black" />
+                <circle cx="40" cy="30" r="5" fill="black" />
+                <circle cx="20" cy="45" r="5" fill="black" />
+                <circle cx="40" cy="45" r="5" fill="black" />
+              </template>
+            </svg>
           </div>
         </div>
       </div>
 
-      <!-- Game Info -->
-      <!--<div class="game-info mb-4 text-center">
+      <div
+        class="captured-checkers-container mt-4 flex flex-col place-items-center"
+      >
+        <div
+          class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
+        >
+          <div class="flex flex-col gap-1">
+            <!-- Esempio di pedina bianca catturata
+              <div
+                v-for="(checker, index) in gameState.capturedWhite"
+                :key="'white-' + index"
+                class="h-3 w-full rounded-full border border-black bg-white"
+              ></div>-->
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Game Info -->
+    <!--<div class="game-info mb-4 text-center">
            <p class="text-lg font-bold">
             Current Player:
             <span
@@ -500,7 +582,6 @@ const startTimer = () => {
             </span>
           </p>
         </div>-->
-    </div>
   </div>
 </template>
 

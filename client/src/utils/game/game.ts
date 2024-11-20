@@ -1,4 +1,5 @@
 import type { BoardDimensions, Checker, GameState } from './types'
+import router from '@/router'
 
 export const BOARD: BoardDimensions = {
   width: 800,
@@ -15,8 +16,6 @@ export const newGame = () => {
     currentPlayer: 'white',
     dice: { value: [0, 0], used: [false, false], double: false },
     board: createDefaultBoard(),
-    capturedWhite: [],
-    capturedBlack: [],
   }
   return gameState
 }
@@ -40,7 +39,7 @@ export const createBlackChecker = (
 
 // Create the default board with checkers in their initial positions
 export const createDefaultBoard = (): Checker[] => {
-  const tmp = []
+  let tmp = []
   for (let i = 0; i < 5; i++) {
     if (i < 2) {
       tmp.push(createWhiteChecker(0, i))
@@ -58,14 +57,21 @@ export const createDefaultBoard = (): Checker[] => {
   return tmp
 }
 
-// Index follows the counter-clockwise direction: upper from right (0) to left (11),
-// lower from left (0) to right (11)
+// Position is 1 (lower right) to 24 (upper right)
 export const getTrianglePath = (position: number): string => {
-  const isUpper = position < 12
-  const index = isUpper ? 11 - position : position - 12
-  let x = BOARD.padding + index * BOARD.triangleWidth
+  const isUpper = position > 12
+  let x
 
-  if (index >= 6) {
+  if (isUpper) {
+    // 13-24 in alto da sinitra verso destra
+    x = BOARD.padding + (position - 13) * BOARD.triangleWidth
+  } else {
+    // 1-12 in basso da destra verso sinistra
+    x = BOARD.padding + (12 - position) * BOARD.triangleWidth
+  }
+
+  // Aggiungi lo spazio per la barra centrale dopo i primi 6 triangoli
+  if ((isUpper && position >= 19) || (!isUpper && position <= 6)) {
     x += BOARD.centerBarWidth * 2
   }
 
@@ -73,25 +79,31 @@ export const getTrianglePath = (position: number): string => {
 
   return isUpper
     ? `M ${x} ${y}
-		 L ${x + BOARD.triangleWidth} ${y}
-		 L ${x + BOARD.triangleWidth / 2} ${y + BOARD.triangleHeight} Z`
+       L ${x + BOARD.triangleWidth} ${y}
+       L ${x + BOARD.triangleWidth / 2} ${y + BOARD.triangleHeight} Z`
     : `M ${x} ${y}
-		 L ${x + BOARD.triangleWidth} ${y}
-		 L ${x + BOARD.triangleWidth / 2} ${y - BOARD.triangleHeight} Z`
+       L ${x + BOARD.triangleWidth} ${y}
+       L ${x + BOARD.triangleWidth / 2} ${y - BOARD.triangleHeight} Z`
 }
 
 export const getTriangleColor = (position: number): string => {
   return position % 2 === 0 ? '#8B0000' : '#000080'
 }
 
-// position from 0 (upper right) to 23 (lower right)
-export const getCheckerX = (position: number) => {
-  // Hit checker
-  if (position === -1 || position === 24) {
+export const getCheckerX = (checker: Checker) => {
+  // Pedine mangiate al centro
+  if (checker.position === 0) {
     return 400
   }
 
-  const index = position < 12 ? 11 - position : position - 12
+  // Per posizioni 1-24:
+  // 1-12 sono nella metà inferiore (da destra a sinistra)
+  // 13-24 sono nella metà superiore (da sinistra a destra)
+  const index =
+    checker.position > 12
+      ? checker.position - 13 // per posizioni 13-24
+      : 12 - checker.position // per posizioni 1-12
+
   let x = BOARD.padding + index * BOARD.triangleWidth + BOARD.triangleWidth / 2
 
   if (index >= 6) {
@@ -101,22 +113,27 @@ export const getCheckerX = (position: number) => {
   return x
 }
 
-export const getCheckerY = (position: number, stackIndex: number) => {
-  // Hit checker
-  if (position === 24) {
-    return 100 + stackIndex * BOARD.checkerRadius * 2
-  }
-  if (position === -1) {
-    return 500 - stackIndex * BOARD.checkerRadius * 2
+export const getCheckerY = (checker: Checker) => {
+  // Pedine mangiate al centro
+  if (checker.position === 0) {
+    if (checker.color === 'white') {
+      return 100 + checker.stackIndex * BOARD.checkerRadius * 2
+    } else {
+      return 500 - checker.stackIndex * BOARD.checkerRadius * 2
+    }
   }
 
   const spacing = BOARD.checkerRadius * 1.8
 
-  if (position < 12) {
-    return BOARD.padding + BOARD.checkerRadius + stackIndex * spacing
+  // Posizioni 1-12 in basso, 13-24 in alto
+  if (checker.position > 12) {
+    return BOARD.padding + BOARD.checkerRadius + checker.stackIndex * spacing
   } else {
     return (
-      BOARD.height - BOARD.padding - BOARD.checkerRadius - stackIndex * spacing
+      BOARD.height -
+      BOARD.padding -
+      BOARD.checkerRadius -
+      checker.stackIndex * spacing
     )
   }
 }
@@ -187,12 +204,13 @@ export const endTurn = (gameState: GameState) => {
 }
 
 // temp, here a player wins if all checkers are in position 23 or 0, in reality the game ends when all checkers are off the board
-export const checkWin = (gameState: GameState): boolean => {
+const checkWin = (gameState: GameState) => {
+  // controlla se le pedine sono tutte in posizione 23 o 0
   const checkers = gameState.board.filter(
     c => c.color === gameState.currentPlayer,
   )
   if (checkers.every(c => c.position === 23 || c.position === 0)) {
-    return true
+    alert(`${gameState.currentPlayer} wins!`)
+    router.push('/')
   }
-  return false
 }
