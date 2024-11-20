@@ -164,7 +164,7 @@ func (b *Board) toGame() *types.Game {
 	return &g
 }
 
-func GametoMoveArgs(g *types.Game, engine_config EngineConfig) *MoveArgs {
+func GametoMoveArgs(g *types.Game, engineConfig EngineConfig) *MoveArgs {
 	var moveargs MoveArgs
 
 	var b Board
@@ -232,8 +232,8 @@ func GametoMoveArgs(g *types.Game, engine_config EngineConfig) *MoveArgs {
 	moveargs.Cubeful = true // always play with cube
 	moveargs.Dice = g.Dices
 	moveargs.Player = p
-	moveargs.MaxMoves = engine_config.MaxMoves
-	moveargs.ScoreMoves = engine_config.ScoreMoves
+	moveargs.MaxMoves = engineConfig.MaxMoves
+	moveargs.ScoreMoves = engineConfig.ScoreMoves
 
 	return &moveargs
 }
