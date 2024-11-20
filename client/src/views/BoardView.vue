@@ -38,8 +38,13 @@ const isExploding = ref(false)
 
 // Fetch a /api/play on mounted
 onMounted(async () => {
-  await fetchGameState()
-  await fetchMoves()
+  try {
+    const res = await fetch('/api/play/local')
+    await fetchGameState()
+    await fetchMoves()
+  } catch {
+    console.error('Error fetching game state')
+  }
 })
 
 const fetchGameState = async () => {
