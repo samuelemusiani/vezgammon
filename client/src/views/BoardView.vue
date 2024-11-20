@@ -86,32 +86,15 @@ const handleCheckerClick = (checker: Checker) => {
   }
 
   selectedChecker.value = checker
-
-  // Se è la prima mossa
-  if (movesToSubmit.value.length === 0) {
-    // Trova tutte le possibili destinazioni per questa pedina in tutte le sequenze
-    possibleMoves.value = [
-      ...new Set(
-        availableMoves.value.possible_moves.flatMap(seq =>
-          seq
-            .filter(move => move.from === checker.position)
-            .map(move => move.to),
-        ),
-      ),
-    ]
-    console.log('mosse posibili', possibleMoves.value)
-  } else {
-    // Per le mosse successive, trova tutte le sequenze che contengono le mosse già fatte
-    possibleMoves.value = [
-      ...new Set(
-        currentPossibleSequences.value.flatMap(seq =>
-          seq
-            .filter(move => move.from === checker.position)
-            .map(move => move.to),
-        ),
-      ),
-    ]
-  }
+  possibleMoves.value = [
+    ...new Set(
+      availableMoves.value.possible_moves
+        .map(seq => seq[0]) // Prendo solo la prima mossa di ogni sequenza
+        .filter(move => move.from === checker.position)
+        .map(move => move.to),
+    ),
+  ]
+  console.log('mosse posibili', possibleMoves.value)
 }
 // Quando si clicca su un triangolo
 const handleTriangleClick = async (position: number) => {
@@ -127,32 +110,32 @@ const handleTriangleClick = async (position: number) => {
     to: position,
   }
 
-  // Se è la prima mossa
-  if (movesToSubmit.value.length === 0) {
-    // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
-    currentPossibleSequences.value = availableMoves.value.possible_moves.filter(
-      seq =>
-        seq.some(
-          move => move.from === currentMove.from && move.to === currentMove.to,
-        ),
+  // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
+  availableMoves.value.possible_moves =
+    availableMoves.value.possible_moves.filter(seq =>
+      seq.some(
+        move => move.from === currentMove.from && move.to === currentMove.to,
+      ),
     )
-  } else {
-    // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
-    currentPossibleSequences.value = currentPossibleSequences.value.filter(
-      seq =>
-        seq.some(
-          move => move.from === currentMove.from && move.to === currentMove.to,
-        ),
-    )
-  }
 
   // rimuovo dalle sequenze possibili la mossa appena giocata
-  currentPossibleSequences.value = currentPossibleSequences.value.map(seq =>
-    seq.filter(
-      move => move.from !== currentMove.from || move.to !== currentMove.to,
-    ),
+  availableMoves.value.possible_moves = availableMoves.value.possible_moves.map(
+    seq => {
+      let removed = false
+      return seq.filter(move => {
+        if (
+          !removed &&
+          move.from === currentMove.from &&
+          move.to === currentMove.to
+        ) {
+          removed = true
+          return false
+        }
+        return true
+      })
+    },
   )
-  console.log('sequenze possibili', currentPossibleSequences.value)
+  console.log('sequenze possibili', availableMoves.value.possible_moves)
 
   // Aggiorna il gameState per mostrare la mossa appena giocata sulla board
   if (gameState.value.current_player === 'p1') {
@@ -171,7 +154,7 @@ const handleTriangleClick = async (position: number) => {
   selectedChecker.value = null
   possibleMoves.value = []
 
-  const hasPossibleMoves = currentPossibleSequences.value?.length > 0
+  const hasPossibleMoves = availableMoves.value.possible_moves.length > 0
   let hasUsedBothDices = movesToSubmit.value.length === 2
   if (availableMoves.value.dices[0] == availableMoves.value.dices[1]) {
     hasUsedBothDices = movesToSubmit.value.length === 4
@@ -180,7 +163,7 @@ const handleTriangleClick = async (position: number) => {
   if (hasUsedBothDices || !hasPossibleMoves) {
     try {
       // TODO: Remove: mi serve per ordinare le mosse come vuole il backend (altrimenti il backend non me le valida) )
-      const matchingSequence = availableMoves.value.possible_moves.find(
+      /*const matchingSequence = availableMoves.value.possible_moves.find(
         sequence => {
           return movesToSubmit.value.every(move =>
             sequence.some(
@@ -201,14 +184,14 @@ const handleTriangleClick = async (position: number) => {
           move => move.from === seqMove.from && move.to === seqMove.to,
         ),
       )
-      console.log('mosse da inviare', sortedMoves)
+      console.log('mosse da inviare', sortedMoves)*/
 
       const res = await fetch('/api/play/moves', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(sortedMoves),
+        body: JSON.stringify(movesToSubmit.value),
       })
       console.log('stato POST', res.status)
       movesToSubmit.value = []
