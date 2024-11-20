@@ -105,7 +105,9 @@ func UpdateGame(g *types.Game) error {
 		WHERE id = $10
 		`
 
-	_, err := Conn.Exec(q, g.End, g.Status, pq.Array(g.P1Checkers), pq.Array(g.P2Checkers), g.DoubleValue, g.DoubleOwner, g.WantToDouble, g.CurrentPlayer, pq.Array(g.Dices), g.ID)
+	_, err := Conn.Exec(q, g.End, g.Status, pq.Array(g.P1Checkers),
+		pq.Array(g.P2Checkers), g.DoubleValue, g.DoubleOwner, g.WantToDouble,
+		g.CurrentPlayer, pq.Array(g.Dices), g.ID)
 	if err != nil {
 		return err
 	}
@@ -164,7 +166,7 @@ func GetGame(id int64) (*types.Game, error) {
 	return &g, nil
 }
 
-func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
+func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	q := `
 	SELECT
         g.id,
@@ -192,7 +194,7 @@ func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
     LIMIT 1
 	`
 
-	row := Conn.QueryRow(q, user_id)
+	row := Conn.QueryRow(q, userId)
 
 	// Tmp variables for avoid error type in the db [int8/int]
 	var p1CheckersDB pq.Int64Array
@@ -250,9 +252,9 @@ func CreateTurn(t types.Turn) (*types.Turn, error) {
 }
 
 // return all turn for a game last to first
-func GetTurns(game_id int64) ([]types.Turn, error) {
+func GetTurns(gameId int64) ([]types.Turn, error) {
 	q := "SELECT * FROM turns WHERE game_id = $1 ORDER BY time ASC"
-	rows, err := Conn.Query(q, game_id)
+	rows, err := Conn.Query(q, gameId)
 	if err != nil {
 		return nil, err
 	}
@@ -279,9 +281,9 @@ func GetTurns(game_id int64) ([]types.Turn, error) {
 	return turns, nil
 }
 
-func GetLastTurn(game_id int64) (*types.Turn, error) {
+func GetLastTurn(gameId int64) (*types.Turn, error) {
 	q := "SELECT * FROM turns WHERE game_id = $1 ORDER BY time DESC LIMIT 1"
-	row := Conn.QueryRow(q, game_id)
+	row := Conn.QueryRow(q, gameId)
 
 	var turn types.Turn
 	var moves pq.Int64Array

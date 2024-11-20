@@ -8,7 +8,6 @@ import (
 	"log/slog"
 	"net/http"
 	"reflect"
-	"strings"
 	"time"
 	"vezgammon/server/bgweb"
 	"vezgammon/server/db"
@@ -16,6 +15,10 @@ import (
 
 	"github.com/gin-gonic/gin"
 )
+
+var errInternal = errors.New("Internal server error")
+var errDoubleNotPossible = errors.New("Double not possible")
+var errNotInGame = errors.New("Not in a game")
 
 // @Summary Start a matchmaking search for a new game
 // @Schemes
@@ -140,7 +143,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 
 	rg, err := db.GetCurrentGame(userId)
 	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, "Not in a game")
+		c.JSON(http.StatusNotFound, errNotInGame.Error())
 		return
 	}
 	if err != nil {
@@ -187,7 +190,7 @@ func GetPossibleMoves(c *gin.Context) {
 
 	rg, err := db.GetCurrentGame(userId)
 	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, "Not in a game")
+		c.JSON(http.StatusNotFound, errNotInGame.Error())
 		return
 	}
 	if err != nil {
@@ -255,7 +258,7 @@ func PlayMoves(c *gin.Context) {
 
 	rg, err := db.GetCurrentGame(userId)
 	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, "Not in a game")
+		c.JSON(http.StatusNotFound, errNotInGame.Error())
 		return
 	}
 	if err != nil {
@@ -383,7 +386,7 @@ func WantToDouble(c *gin.Context) {
 	rg, err := db.GetCurrentGame(userId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, "Not in a game")
+			c.JSON(http.StatusNotFound, errNotInGame.Error())
 		} else {
 			c.JSON(http.StatusInternalServerError, err)
 		}
@@ -397,12 +400,12 @@ func WantToDouble(c *gin.Context) {
 	}
 
 	if g.WantToDouble {
-		c.JSON(http.StatusBadRequest, "Double not possible")
+		c.JSON(http.StatusBadRequest, errDoubleNotPossible.Error())
 		return
 	}
 
 	if (g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner == g.CurrentPlayer) || g.DoubleValue == 64 {
-		c.JSON(http.StatusBadRequest, "Double not possible")
+		c.JSON(http.StatusBadRequest, errDoubleNotPossible.Error())
 		return
 	}
 
@@ -446,7 +449,7 @@ func RefuseDouble(c *gin.Context) {
 	rg, err := db.GetCurrentGame(userId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			c.JSON(http.StatusNotFound, "Not in a game")
+			c.JSON(http.StatusNotFound, errNotInGame.Error())
 		} else {
 			c.JSON(http.StatusInternalServerError, err)
 		}
@@ -483,7 +486,7 @@ func AcceptDouble(c *gin.Context) {
 
 	err := acceptDouble(userId)
 	if err != nil {
-		if strings.Contains(err.Error(), "Internal server error") {
+		if errors.Is(err, errInternal) {
 			c.JSON(http.StatusInternalServerError, err)
 		} else {
 			c.JSON(http.StatusBadRequest, err)
@@ -536,14 +539,14 @@ func PlayHardBot(c *gin.Context) {
 func PlayBot(mod string, c *gin.Context) {
 	userId := c.MustGet("user_id").(int64)
 
-	var bot_id int64
+	var botId int64
 	switch mod {
 	case "easy":
-		bot_id = db.GetEasyBotID()
+		botId = db.GetEasyBotID()
 	case "medium":
-		bot_id = db.GetMediumBotID()
+		botId = db.GetMediumBotID()
 	case "hard":
-		bot_id = db.GetHardBotID()
+		botId = db.GetHardBotID()
 	default:
 		slog.Error("Invalid mod on play bot")
 		c.JSON(http.StatusInternalServerError, "Invalid bot")
@@ -576,7 +579,7 @@ func PlayBot(mod string, c *gin.Context) {
 
 	g := types.Game{
 		Player1:       userId,
-		Player2:       bot_id,
+		Player2:       botId,
 		Start:         time.Now(),
 		Status:        types.GameStatusOpen,
 		CurrentPlayer: startPlayer,
@@ -610,9 +613,9 @@ func acceptDouble(userId int64) error {
 	rg, err := db.GetCurrentGame(userId)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return errors.New("Not in a game")
+			return errNotInGame
 		} else {
-			return errors.New("Internal server error")
+			return errInternal
 		}
 	}
 
@@ -622,7 +625,7 @@ func acceptDouble(userId int64) error {
 	}
 
 	if !g.WantToDouble {
-		return errors.New("Double not possible")
+		return errDoubleNotPossible
 	}
 
 	g.WantToDouble = false
@@ -630,13 +633,13 @@ func acceptDouble(userId int64) error {
 
 	err = db.UpdateGame(g)
 	if err != nil {
-		return errors.New("Internal server error")
+		return errInternal
 	}
 
 	// save turn as double
 	doublingplayer_id, err := getCurrentPlayer(g.DoubleOwner, g.Player1, g.Player2)
 	if err != nil {
-		return errors.New("Internal server error")
+		return errInternal
 	}
 
 	turn := types.Turn{
@@ -648,7 +651,7 @@ func acceptDouble(userId int64) error {
 
 	_, err = db.CreateTurn(turn)
 	if err != nil {
-		return errors.New("Internal server error")
+		return errInternal
 	}
 	return nil
 }
