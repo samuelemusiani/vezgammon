@@ -16,8 +16,8 @@ import {
 } from '@/utils/game/game'
 
 import ConfettiExplosion from 'vue-confetti-explosion'
-//import { useSound } from '@vueuse/sound'
-//import victorySfx from '@/utils/sounds/victory.mp3'
+import { useSound } from '@vueuse/sound'
+import victorySfx from '@/utils/sounds/victory.mp3'
 //import diceSfx from '@/utils/sounds/dice.mp3'
 import { onMounted } from 'vue'
 //import tinSfx from '@/utils/sounds/tintin.mp3'
@@ -32,7 +32,7 @@ const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const isRolling = ref(false)
 
 const isExploding = ref(false)
-//const { play: playVictory } = useSound(victorySfx)
+const { play: playVictory } = useSound(victorySfx)
 //const { play: playDice } = useSound(diceSfx)
 //const { play: playTin } = useSound(tinSfx)
 
@@ -42,11 +42,30 @@ onMounted(async () => {
   await fetchMoves()
 })
 
+const checkWin = () => {
+  if (!gameState.value) return false
+  // TODO: when backend is ready, check using gameState.value.status
+  if (getOutCheckers(gameState.value.current_player) == 15) {
+    return true
+  }
+  return false
+}
+
+const handleWin = () => {
+  playVictory()
+  isExploding.value = true
+  setTimeout(() => {
+    isExploding.value = false
+  }, 5000)
+}
+
 const fetchGameState = async () => {
   try {
     const res = await fetch('/api/play/')
     const data: GameState = await res.json()
+
     gameState.value = data
+
     console.log(gameState.value)
   } catch (err) {
     console.error('Error fetching game state:', err)
@@ -206,6 +225,10 @@ const handleTriangleClick = async (position: number) => {
         body: JSON.stringify(movesToSubmit.value),
       })
       console.log('stato POST', res.status)
+      // TODO: change with backend check
+      if (checkWin()) {
+        handleWin()
+      }
       movesToSubmit.value = []
       await fetchGameState()
       await fetchMoves()
@@ -230,7 +253,7 @@ const getCheckers = () => {
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'black',
-        position: adjustedPosition,
+        position: position,
         stackIndex: i,
       })
     }
@@ -246,7 +269,7 @@ const getCheckers = () => {
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'white',
-        position: adjustedPosition,
+        position: position,
         stackIndex: i,
       })
     }
@@ -255,7 +278,7 @@ const getCheckers = () => {
   return checkers
 }
 
-const getOutCheckers = (player: 'p1' | 'p2') => {
+const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   if (!gameState.value) return 0
 
   // Calcola il numero totale di pedine iniziali (15)
@@ -320,8 +343,8 @@ const exitGame = async () => {
                 ]"
               ></div>
             </div>
-            <h3 class="text-lg font-bold">Opponent</h3>
-            <p class="text-gray-600">ELO: 1850</p>
+            <h3 class="text-lg font-bold">{{ gameState?.player2 }}</h3>
+            <p class="text-gray-600">ELO: {{ gameState?.elo2 }}</p>
           </div>
 
           <!-- Game Timer -->
@@ -352,8 +375,8 @@ const exitGame = async () => {
                 ]"
               ></div>
             </div>
-            <h3 class="text-lg font-bold">Player</h3>
-            <p class="text-gray-600">ELO: 1720</p>
+            <h3 class="text-lg font-bold">{{ gameState?.player1 }}</h3>
+            <p class="text-gray-600">ELO: {{ gameState?.elo1 }}</p>
           </div>
         </div>
       </div>
@@ -396,7 +419,11 @@ const exitGame = async () => {
                 :fill="getTriangleColor(position)"
                 stroke="black"
                 stroke-width="1"
-                @click="handleTriangleClick(position)"
+                @click="
+                  gameState?.current_player === 'p2'
+                    ? handleTriangleClick(position)
+                    : handleTriangleClick(25 - position)
+                "
               />
             </g>
 
@@ -404,7 +431,11 @@ const exitGame = async () => {
             <path
               v-for="(position, index) in possibleMoves"
               :key="`highlight-${index}`"
-              :d="getTrianglePath(position)"
+              :d="
+                gameState?.current_player === 'p2'
+                  ? getTrianglePath(position)
+                  : getTrianglePath(25 - position)
+              "
               fill="yellow"
               opacity="1"
               pointer-events="none"
@@ -684,14 +715,15 @@ const exitGame = async () => {
   animation: dice-shake 0.3s ease-in-out infinite;
 }
 
-.selected {
-  stroke-width: 3;
-}
-
 .checker-transition {
   transition:
     cx 0.3s ease-out,
     cy 0.3s ease-out;
+}
+
+.selected {
+  stroke: yellow !important;
+  stroke-width: 3 !important;
 }
 
 .confetti-container {
