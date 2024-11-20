@@ -22,16 +22,12 @@ import ConfettiExplosion from 'vue-confetti-explosion'
 import { onMounted } from 'vue'
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
-const gameState = ref<GameState>()
+const gameState = ref<GameState | null>(null)
 
 const selectedChecker = ref<Checker | null>(null)
 const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
-// Teniamo traccia della sequenza di mosse che stiamo seguendo
-const selectedMoveSequence = ref<Move[]>([])
-const currentMoveIndex = ref<number>(0)
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
-const currentPossibleSequences = ref<Move[][]>([]) // sequenze ancora possibili
 
 const isRolling = ref(false)
 
@@ -120,7 +116,8 @@ const handleTriangleClick = async (position: number) => {
   if (
     !selectedChecker.value ||
     !possibleMoves.value.includes(position) ||
-    !availableMoves.value
+    !availableMoves.value ||
+    !gameState.value
   )
     return
 
@@ -210,7 +207,6 @@ const handleTriangleClick = async (position: number) => {
       })
       console.log('stato POST', res.status)
       movesToSubmit.value = []
-      currentPossibleSequences.value = []
       await fetchGameState()
       await fetchMoves()
     } catch (err) {
