@@ -85,6 +85,25 @@ const handleCheckerClick = (checker: Checker) => {
     return
   }
 
+  console.log('mosse possibili', availableMoves.value.possible_moves.length)
+
+  if (
+    availableMoves.value.possible_moves.length === 0 ||
+    availableMoves.value.possible_moves.every(sequence => sequence.length === 0)
+  ) {
+    // Se non ci sono mosse possibili o tutte le sequenze sono vuote, passa il turno
+    fetch('/api/play/moves', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(movesToSubmit.value),
+    })
+    fetchMoves()
+    fetchGameState()
+    return
+  }
+
   selectedChecker.value = checker
   possibleMoves.value = [
     ...new Set(
@@ -112,11 +131,9 @@ const handleTriangleClick = async (position: number) => {
 
   // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
   availableMoves.value.possible_moves =
-    availableMoves.value.possible_moves.filter(seq =>
-      seq.some(
-        move => move.from === currentMove.from && move.to === currentMove.to,
-      ),
-    )
+    availableMoves.value.possible_moves.filter(seq => {
+      return seq[0].from === currentMove.from && seq[0].to === currentMove.to
+    })
 
   // rimuovo dalle sequenze possibili la mossa appena giocata
   availableMoves.value.possible_moves = availableMoves.value.possible_moves.map(
@@ -140,10 +157,16 @@ const handleTriangleClick = async (position: number) => {
   // Aggiorna il gameState per mostrare la mossa appena giocata sulla board
   if (gameState.value.current_player === 'p1') {
     gameState.value.p1checkers[currentMove.from]--
-    gameState.value.p1checkers[currentMove.to]++
+    if (currentMove.to !== 25) {
+      // Solo se non è una mossa di uscita
+      gameState.value.p1checkers[currentMove.to]++
+    }
   } else {
     gameState.value.p2checkers[currentMove.from]--
-    gameState.value.p2checkers[currentMove.to]++
+    if (currentMove.to !== 25) {
+      // Solo se non è una mossa di uscita
+      gameState.value.p2checkers[currentMove.to]++
+    }
   }
 
   // Aggiungi la mossa a quelle fatte
@@ -154,7 +177,7 @@ const handleTriangleClick = async (position: number) => {
   selectedChecker.value = null
   possibleMoves.value = []
 
-  const hasPossibleMoves = availableMoves.value.possible_moves.length > 0
+  const hasPossibleMoves = availableMoves.value.possible_moves?.length > 0
   let hasUsedBothDices = movesToSubmit.value.length === 2
   if (availableMoves.value.dices[0] == availableMoves.value.dices[1]) {
     hasUsedBothDices = movesToSubmit.value.length === 4
@@ -242,6 +265,22 @@ const getCheckers = () => {
   })
 
   return checkers
+}
+
+const getOutCheckers = (player: 'p1' | 'p2') => {
+  if (!gameState.value) return 0
+
+  // Calcola il numero totale di pedine iniziali (15)
+  const initialCheckers = 15
+
+  // Calcola il numero di pedine ancora sulla board
+  const remainingCheckers =
+    player === 'p1'
+      ? gameState.value.p1checkers.reduce((acc, curr) => acc + curr, 0)
+      : gameState.value.p2checkers.reduce((acc, curr) => acc + curr, 0)
+
+  // Ritorna la differenza tra le pedine iniziali e quelle rimaste
+  return initialCheckers - remainingCheckers
 }
 
 const exitGame = async () => {
@@ -403,7 +442,7 @@ const exitGame = async () => {
 
       <!-- Dice Div -->
       <div
-        class="retro-box flex w-48 flex-col justify-center rounded-lg bg-white p-2 shadow-xl"
+        class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
       >
         <!--<div class="mb-4 flex flex-col items-center">
           <button
@@ -417,14 +456,16 @@ const exitGame = async () => {
         <!-- Opponent's Captured Checkers -->
         <div
           class="captured-checkers-container mb-4 flex flex-col place-items-center"
+          :class="{ 'highlight-container': possibleMoves.includes(25) }"
+          @click="handleTriangleClick(25)"
         >
           <div
             class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
           >
             <div class="flex flex-col gap-1">
               <div
-                v-for="(checker, index) in null"
-                :key="'black-' + index"
+                v-for="i in getOutCheckers('p1')"
+                :key="'black-' + i"
                 class="h-3 w-full rounded-full border border-blue-500 bg-black"
               ></div>
             </div>
@@ -444,7 +485,7 @@ const exitGame = async () => {
             Roll Dice
           </button>-->
 
-        <div class="flex gap-4">
+        <div class="flex justify-center gap-4">
           <div
             v-for="(die, index) in availableMoves?.dices"
             :key="index"
@@ -506,21 +547,22 @@ const exitGame = async () => {
             </svg>
           </div>
         </div>
-      </div>
 
-      <div
-        class="captured-checkers-container mt-4 flex flex-col place-items-center"
-      >
         <div
-          class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
+          class="captured-checkers-container mt-4 flex flex-col place-items-center"
+          :class="{ 'highlight-container': possibleMoves.includes(25) }"
+          @click="handleTriangleClick(25)"
         >
-          <div class="flex flex-col gap-1">
-            <!-- Esempio di pedina bianca catturata
+          <div
+            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
+          >
+            <div class="flex flex-col gap-1">
               <div
-                v-for="(checker, index) in gameState.capturedWhite"
-                :key="'white-' + index"
+                v-for="i in getOutCheckers('p2')"
+                :key="'white-' + i"
                 class="h-3 w-full rounded-full border border-black bg-white"
-              ></div>-->
+              ></div>
+            </div>
           </div>
         </div>
       </div>
@@ -569,6 +611,24 @@ const exitGame = async () => {
 </template>
 
 <style scoped>
+.highlight-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.highlight-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 0, 0.3);
+  border: 2px solid yellow;
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
 .retro-background {
   background: #2c1810;
   background-image: repeating-linear-gradient(
@@ -662,5 +722,6 @@ const exitGame = async () => {
   .w-full {
     transition: all 0.3s ease-out;
   }
+  transition: all 0.3s ease;
 }
 </style>

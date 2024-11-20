@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"reflect"
 	"time"
@@ -218,6 +219,7 @@ func GetPossibleMoves(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
+	slog.With("turn", futureturn).Debug("turn")
 
 	c.JSON(http.StatusOK, futureturn)
 }
@@ -284,7 +286,7 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
-	islegal := false
+	islegal := len(legalmoves) == 0 // can't make moves
 	for _, m := range legalmoves {
 		if reflect.DeepEqual(m, moves) {
 			islegal = true
