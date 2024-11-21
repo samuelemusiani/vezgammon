@@ -328,10 +328,19 @@ func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 
 	// slog.With("moves args", *mv).Debug("Game to move args")
 
-	moves, err := GetMoves(mv)
+	moves1, err := GetMoves(mv)
 	if err != nil {
 		return nil, err
 	}
+
+	mv.Dice[0], mv.Dice[1] = mv.Dice[1], mv.Dice[0]
+
+	moves2, err := GetMoves(mv)
+	if err != nil {
+		return nil, err
+	}
+
+	moves := append(moves1, moves2...)
 
 	// slog.With("moves", moves).Debug("Got moves")
 

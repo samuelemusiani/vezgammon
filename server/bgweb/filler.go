@@ -29,7 +29,7 @@ func fill(m [][]types.Move, g *types.Game) (r [][]types.Move, modified bool) {
 			}
 
 			to := m[i][j].To
-			from := m[i][j].From
+			from := m[i][j+1].From
 			if to == from && currentBoard[to] == 0 {
 				continue
 			}
