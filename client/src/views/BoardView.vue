@@ -43,7 +43,6 @@ const { play: playDice } = useSound(diceSfx)
 // Fetch a /api/play on mounted
 onMounted(async () => {
   try {
-    const res = await fetch('/api/play/local')
     await fetchGameState()
     await fetchMoves()
   } catch {
@@ -121,7 +120,7 @@ const fetchMoves = async () => {
 }
 
 const isCheckerSelectable = (checker: Checker) => {
-  if (!gameState.value) return false
+  if (!gameState.value || !diceRolled.value) return false
   // Converti il colore della pedina nel formato del player
   const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
   console.log(checkerPlayer)
