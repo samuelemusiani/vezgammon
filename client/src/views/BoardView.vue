@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import router from '@/router'
+
 import type {
   Checker,
   GameState,
@@ -18,7 +20,7 @@ import {
 import ConfettiExplosion from 'vue-confetti-explosion'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
-//import diceSfx from '@/utils/sounds/dice.mp3'
+import diceSfx from '@/utils/sounds/dice.mp3'
 import { onMounted } from 'vue'
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
@@ -28,12 +30,14 @@ const selectedChecker = ref<Checker | null>(null)
 const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
+const displayedDice = ref<number[]>([])
 
 const isRolling = ref(false)
+const diceRolled = ref(false)
 
 const isExploding = ref(false)
 const { play: playVictory } = useSound(victorySfx)
-//const { play: playDice } = useSound(diceSfx)
+const { play: playDice } = useSound(diceSfx)
 //const { play: playTin } = useSound(tinSfx)
 
 // Fetch a /api/play on mounted
@@ -59,6 +63,32 @@ const handleWin = () => {
   }, 5000)
 }
 
+const handleDiceRoll = () => {
+  if (diceRolled.value || !availableMoves.value?.dices) return
+
+  isRolling.value = true
+  diceRolled.value = true
+  playDice()
+
+  // Funzione per generare numeri casuali dei dadi
+  const generateRandomDice = () => {
+    displayedDice.value = [
+      Math.floor(Math.random() * 6) + 1,
+      Math.floor(Math.random() * 6) + 1,
+    ]
+  }
+
+  // Genera numeri casuali ogni 100ms durante l'animazione
+  const rollInterval = setInterval(generateRandomDice, 100)
+
+  // Dopo 3 secondi, mostra i veri valori dei dadi
+  setTimeout(() => {
+    clearInterval(rollInterval)
+    isRolling.value = false
+    displayedDice.value = availableMoves.value!.dices
+  }, 1000)
+}
+
 const fetchGameState = async () => {
   try {
     const res = await fetch('/api/play/')
@@ -77,6 +107,8 @@ const fetchMoves = async () => {
     const res = await fetch('/api/play/moves')
     const data: MovesResponse = await res.json()
     availableMoves.value = data
+    diceRolled.value = false
+    displayedDice.value = []
     console.log(availableMoves.value)
   } catch (err) {
     console.error('Error fetching moves:', err)
@@ -242,14 +274,9 @@ const getCheckers = () => {
   if (!gameState.value) return []
 
   const checkers: Checker[] = []
-  const isP2Turn = gameState.value.current_player === 'p2'
 
   // Aggiungi pedine del player 1 (bianche)
   gameState.value.p1checkers.forEach((count, position) => {
-    // Se è il turno di p2, inverti la posizione (eccetto 0)
-    const adjustedPosition =
-      position === 0 ? 0 : isP2Turn ? 25 - position : position
-
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'black',
@@ -261,11 +288,6 @@ const getCheckers = () => {
 
   // Aggiungi pedine del player 2 (nere)
   gameState.value.p2checkers.forEach((count, position) => {
-    // Se è il turno di p2, non invertire la posizione
-    // Se è il turno di p1, inverti la posizione (eccetto 0)
-    const adjustedPosition =
-      position === 0 ? 0 : isP2Turn ? position : 25 - position
-
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'white',
@@ -300,7 +322,7 @@ const exitGame = async () => {
       method: 'DELETE',
     })
     console.log(res.status)
-    await fetch('/api/play/local')
+    router.push('/')
   } catch (err) {
     console.error('Error exiting game:', err)
   }
@@ -491,22 +513,19 @@ const exitGame = async () => {
           </div>
         </div>
 
-        <!-- Dice Section
-        <div class="mb-5 mt-5 flex flex-col items-center">
-          <button
-            @click="rollDice"
-            :disabled="
-              isRolling ||
-              (gameState.dice.value[0] !== 0 && gameState.dice.value[1] !== 0)
-            "
-            class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50"
-          >
+        <!-- Roll Dice Button -->
+        <div
+          v-if="!diceRolled && availableMoves?.dices"
+          class="mb-4 flex justify-center"
+        >
+          <button @click="handleDiceRoll" class="retro-button">
             Roll Dice
-          </button>-->
+          </button>
+        </div>
 
         <div class="flex justify-center gap-4">
           <div
-            v-for="(die, index) in availableMoves?.dices"
+            v-for="(die, index) in diceRolled ? displayedDice : []"
             :key="index"
             class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
             :class="{ 'dice-rolling': isRolling }"

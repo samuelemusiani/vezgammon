@@ -123,6 +123,7 @@ const startGame = (mode: 'local' | 'ai' | 'online') => {
   switch (mode) {
     case 'local':
       router.push('/game')
+      fetch('/api/play/local')
       break
     case 'ai':
       router.push('/game')
