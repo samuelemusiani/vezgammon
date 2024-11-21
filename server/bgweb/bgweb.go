@@ -352,6 +352,10 @@ func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 		possibleMoves, modified = fill(possibleMoves, g)
 	}
 
+	if len(possibleMoves) == 0 {
+		possibleMoves = make([][]types.Move, 0)
+	}
+
 	return possibleMoves, nil
 }
 

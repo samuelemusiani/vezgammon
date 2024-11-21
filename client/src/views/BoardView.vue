@@ -138,6 +138,9 @@ const handleCheckerClick = (checker: Checker) => {
     availableMoves.value.possible_moves.length === 0 ||
     availableMoves.value.possible_moves.every(sequence => sequence.length === 0)
   ) {
+    console.log(
+      'No possible moves or all sequences are empty, passing the turn',
+    )
     // Se non ci sono mosse possibili o tutte le sequenze sono vuote, passa il turno
     fetch('/api/play/moves', {
       method: 'POST',
@@ -262,6 +265,7 @@ const handleTriangleClick = async (position: number) => {
         handleWin()
       }
       movesToSubmit.value = []
+      possibleMoves.value = []
       await fetchGameState()
       await fetchMoves()
     } catch (err) {

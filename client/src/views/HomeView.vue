@@ -116,14 +116,14 @@ const openPlayModal = () => {
   modal.showModal()
 }
 
-const startGame = (mode: 'local' | 'ai' | 'online') => {
+const startGame = async (mode: 'local' | 'ai' | 'online') => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
 
   switch (mode) {
     case 'local':
+      await fetch('/api/play/local')
       router.push('/game')
-      fetch('/api/play/local')
       break
     case 'ai':
       router.push('/game')
