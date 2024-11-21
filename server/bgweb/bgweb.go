@@ -336,7 +336,9 @@ func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 
 	slog.With("moves", moves).Debug("Got moves")
 
-	return MoveArrayToMoveArrayArray(moves), nil
+	possibleMoves := MoveArrayToMoveArrayArray(moves)
+
+	return fill(possibleMoves, g), nil
 }
 
 func GetBestMove(g *types.Game) (*types.Turn, error) {

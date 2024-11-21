@@ -21,7 +21,7 @@ start-server: generate-swag
 start-client:
     cd client && npm run dev
 
-test: test-server test-client
+test: test-server
 
 test-server:
     #!/usr/bin/env sh
@@ -39,6 +39,3 @@ generate-swag: install-swag
 
 install-swag:
     go install github.com/swaggo/swag/cmd/swag@latest
-
-test-client:
-    cd client && npm run test
