@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"time"
@@ -299,8 +298,8 @@ func GetMoves(moveargs *MoveArgs) ([]Move, error) {
 	return m, nil
 }
 
-func MoveArrayToMoveArrayArray(movesarray []Move) *[][]types.Move {
-	var retarrayarray [][]types.Move
+func MoveArrayToMoveArrayArray(movesarray []Move) [][]types.Move {
+	retarrayarray := make([][]types.Move, 0)
 
 	for _, checkerplayarray := range movesarray {
 		var retarray []types.Move
@@ -322,20 +321,43 @@ func MoveArrayToMoveArrayArray(movesarray []Move) *[][]types.Move {
 		}
 		retarrayarray = append(retarrayarray, retarray)
 	}
-	return &retarrayarray
+	return retarrayarray
 }
 
 func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 	mv := GametoMoveArgs(g, all_legal_moves_config)
 
-	slog.With("moves args", *mv).Debug("Game to move args")
+	// slog.With("moves args", *mv).Debug("Game to move args")
 
-	moves, err := GetMoves(mv)
+	moves1, err := GetMoves(mv)
 	if err != nil {
 		return nil, err
 	}
 
-	return *MoveArrayToMoveArrayArray(moves), nil
+	mv.Dice[0], mv.Dice[1] = mv.Dice[1], mv.Dice[0]
+
+	moves2, err := GetMoves(mv)
+	if err != nil {
+		return nil, err
+	}
+
+	moves := append(moves1, moves2...)
+
+	// slog.With("moves", moves).Debug("Got moves")
+
+	possibleMoves := MoveArrayToMoveArrayArray(moves)
+
+	// Dio perdonami
+	modified := true
+	for modified {
+		possibleMoves, modified = fill(possibleMoves, g)
+	}
+
+	if len(possibleMoves) == 0 {
+		possibleMoves = make([][]types.Move, 0)
+	}
+
+	return possibleMoves, nil
 }
 
 func normalizeTurn(t *types.Turn, g *types.Game) *types.Turn {

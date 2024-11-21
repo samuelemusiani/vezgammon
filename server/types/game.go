@@ -90,12 +90,15 @@ type Game struct {
 func (g *Game) PlayMove(moves []Move) {
 	// if Move.To is 25, it means the checker is out of the board
 	// if Move.From is 0, it means the checker is in the bar
-	var checkers *[25]int8
+	var myCheckers *[25]int8
+	var opponentCheckers *[25]int8
 	if g.CurrentPlayer == GameCurrentPlayerP1 {
-		checkers = &g.P1Checkers
+		myCheckers = &g.P1Checkers
+		opponentCheckers = &g.P2Checkers
 		g.CurrentPlayer = GameCurrentPlayerP2
 	} else {
-		checkers = &g.P2Checkers
+		myCheckers = &g.P2Checkers
+		opponentCheckers = &g.P1Checkers
 		g.CurrentPlayer = GameCurrentPlayerP1
 	}
 
@@ -103,13 +106,19 @@ func (g *Game) PlayMove(moves []Move) {
 	g.Dices = NewDices()
 
 	for _, move := range moves {
-		checkers[move.From]-- // remove checker from the source
+		myCheckers[move.From]-- // remove checker from the source
 		if move.To < 25 {
-			checkers[move.To]++ // add checker to the destination
+			myCheckers[move.To]++ // add checker to the destination
+
+			if opponentCheckers[25-move.To] == 1 {
+				opponentCheckers[25-move.To] = 0
+				opponentCheckers[0]++
+			}
 		}
 	}
 
-	slog.With("checkers", checkers).Debug("Checkers")
+	slog.With("checkers", myCheckers).Debug("Checkers")
+	slog.With("checkers", opponentCheckers).Debug("Checkers")
 }
 
 type ReturnGame struct {

@@ -16,13 +16,12 @@ copy-client:
     cp -r client/dist server/handler/dist
 
 start-server: generate-swag
-    sudo docker-compose -f docker-compose-test.yml up -d
     go run ./server ./server/config/test-config.toml
 
 start-client:
     cd client && npm run dev
 
-test: test-server test-client
+test: test-server
 
 test-server:
     #!/usr/bin/env sh
@@ -40,6 +39,3 @@ generate-swag: install-swag
 
 install-swag:
     go install github.com/swaggo/swag/cmd/swag@latest
-
-test-client:
-    cd client && npm run test

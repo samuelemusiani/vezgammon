@@ -54,9 +54,11 @@ function validate() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-base-200">
+  <div
+    class="retro-background flex min-h-screen items-center justify-center bg-base-200"
+  >
     <div class="card w-96 bg-base-100 shadow-xl">
-      <div class="card-body">
+      <div class="retro-box card-body">
         <h2 class="card-title">Login</h2>
         <form @click.prevent="">
           <div class="form-control">
@@ -103,7 +105,9 @@ function validate() {
           </div>
 
           <div class="form-control mt-6">
-            <button class="btn btn-primary" @click="login">Login</button>
+            <button class="retro-button btn btn-primary" @click="login">
+              Login
+            </button>
           </div>
         </form>
         <div class="divider">OR</div>
@@ -117,3 +121,53 @@ function validate() {
     </div>
   </div>
 </template>
+
+<style scoped>
+.retro-background {
+  background: #2c1810;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    );
+  cursor: url('/tortellino.png'), auto;
+  border: 6px solid #d2691e;
+}
+
+.retro-box {
+  background-color: #ffe5c9;
+  border: 5px solid #8b4513;
+  box-shadow:
+    0 0 0 4px #d2691e,
+    inset 0 0 20px rgba(0, 0, 0, 0.2);
+}
+
+.retro-button {
+  @apply btn;
+  background: #d2691e;
+  color: white;
+  border: 3px solid #8b4513;
+  font-family: 'Arial Black', serif;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 0 #8b4513;
+  font-size: 1.1rem;
+
+  &:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 0 10px rgba(0, 0, 0, 0.2),
+      0 0px 0 #8b4513;
+    cursor: url('/tortellino.png'), auto;
+  }
+}
+</style>
