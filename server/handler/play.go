@@ -4,7 +4,6 @@ import (
 	"database/sql"
 	"encoding/json"
 	"io"
-	"log/slog"
 	"net/http"
 	"reflect"
 	"time"
@@ -219,7 +218,7 @@ func GetPossibleMoves(c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
-	slog.With("turn", futureturn).Debug("turn")
+	// slog.With("turn", futureturn).Debug("turn")
 
 	c.JSON(http.StatusOK, futureturn)
 }

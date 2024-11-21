@@ -4,7 +4,6 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
-	"log/slog"
 	"net/http"
 	"strconv"
 	"vezgammon/server/config"
@@ -327,18 +326,24 @@ func MoveArrayToMoveArrayArray(movesarray []Move) [][]types.Move {
 func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 	mv := GametoMoveArgs(g, all_legal_moves_config)
 
-	slog.With("moves args", *mv).Debug("Game to move args")
+	// slog.With("moves args", *mv).Debug("Game to move args")
 
 	moves, err := GetMoves(mv)
 	if err != nil {
 		return nil, err
 	}
 
-	slog.With("moves", moves).Debug("Got moves")
+	// slog.With("moves", moves).Debug("Got moves")
 
 	possibleMoves := MoveArrayToMoveArrayArray(moves)
 
-	return fill(possibleMoves, g), nil
+	// Dio perdonami
+	modified := true
+	for modified {
+		possibleMoves, modified = fill(possibleMoves, g)
+	}
+
+	return possibleMoves, nil
 }
 
 func GetBestMove(g *types.Game) (*types.Turn, error) {

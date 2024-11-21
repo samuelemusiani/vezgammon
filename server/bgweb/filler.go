@@ -1,11 +1,12 @@
 package bgweb
 
 import (
-	"log/slog"
 	"vezgammon/server/types"
 )
 
-func fill(m [][]types.Move, g *types.Game) (r [][]types.Move) {
+func fill(m [][]types.Move, g *types.Game) (r [][]types.Move, modified bool) {
+	modified = false
+
 	for i := range m {
 		r = append(r, make([]types.Move, len(m[i])))
 		copy(r[i], m[i])
@@ -37,15 +38,36 @@ func fill(m [][]types.Move, g *types.Game) (r [][]types.Move) {
 				continue
 			}
 
-			slog.With("i", i, "j", j, "m[i]", m[i]).Debug("Filling")
+			//slog.With("i", i, "j", j, "m[i]", m[i]).Debug("Filling")
 
 			tmp := make([]types.Move, len(m[i]))
 			copy(tmp, m[i])
 			tmp[j], tmp[j+1] = tmp[j+1], tmp[j]
 
-			r = append(r, tmp)
+			if !contains(r, tmp) {
+				modified = true
+				r = append(r, tmp)
+			}
 		}
 	}
 
 	return
+}
+
+func contains(a [][]types.Move, b []types.Move) bool {
+	if len(b) == 2 {
+		for i := range a {
+			if a[i][0] == b[0] && a[i][1] == b[1] {
+				return true
+			}
+		}
+	} else {
+		for i := range a {
+			if a[i][0] == b[0] && a[i][1] == b[1] && a[i][2] == b[2] && a[i][3] == b[3] {
+				return true
+			}
+		}
+	}
+
+	return false
 }
