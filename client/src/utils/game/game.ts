@@ -66,7 +66,14 @@ export const getCheckerX = (checker: Checker) => {
   return x
 }
 
+const normalizePosition = (position: number, color: string) => {
+  if (color === 'white' || position === 0) return position
+  // Per le pedine nere, inverti la posizione (da 24-1 a 1-24)
+  return 25 - position
+}
+
 export const getCheckerY = (checker: Checker) => {
+  const normalizedPosition = normalizePosition(checker.position, checker.color)
   // Pedine mangiate al centro
   if (checker.position === 0) {
     if (checker.color === 'white') {
@@ -79,7 +86,7 @@ export const getCheckerY = (checker: Checker) => {
   const spacing = BOARD.checkerRadius * 1.8
 
   // Posizioni 1-12 in basso, 13-24 in alto
-  if (checker.position > 12) {
+  if (normalizedPosition > 12) {
     return BOARD.padding + BOARD.checkerRadius + checker.stackIndex * spacing
   } else {
     return (
