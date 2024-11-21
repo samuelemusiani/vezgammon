@@ -110,16 +110,16 @@
         </div>
 
         <!-- Close button -->
-        <div class="modal-action flex justify-between">
-          <form method="dialog flex justify-between">
-            <button class="retro-button">Close</button>
+        <div class="modal-action w-full">
+          <form method="dialog" class="flex w-full justify-between">
             <button
-              @mouseenter="(e: MouseEvent) => play()"
+              v-if="showDifficulty"
               @click="backToGameMode"
               class="retro-button"
             >
               Back
             </button>
+            <button class="retro-button ml-auto">Close</button>
           </form>
         </div>
       </div>
@@ -160,18 +160,10 @@ const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
   showDifficulty.value = false
 
   try {
-    const response = await fetch(`/api/play/bot/${difficulty}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-    })
-
+    await fetch(`/api/play/bot/${difficulty}`)
     router.push('/game')
   } catch (error) {
     console.error('Error starting game with AI:', error)
-    // Qui puoi aggiungere la gestione degli errori,
-    // per esempio mostrando un messaggio all'utente
   }
 }
 

@@ -130,7 +130,11 @@ const isCheckerSelectable = (checker: Checker) => {
 const handleCheckerClick = (checker: Checker) => {
   if (!availableMoves.value || !isCheckerSelectable(checker)) return
   console.log(checker)
-  if (selectedChecker.value === checker) {
+  if (
+    selectedChecker.value &&
+    selectedChecker.value.position === checker.position &&
+    selectedChecker.value.stackIndex === checker.stackIndex
+  ) {
     selectedChecker.value = null
     possibleMoves.value = []
     return
@@ -308,6 +312,15 @@ const getCheckers = () => {
   return checkers
 }
 
+const isCheckerSelected = (checker: Checker) => {
+  return (
+    selectedChecker.value &&
+    selectedChecker.value.position === checker.position &&
+    selectedChecker.value.stackIndex === checker.stackIndex &&
+    selectedChecker.value.color === checker.color
+  )
+}
+
 const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   if (!gameState.value) return 0
 
@@ -482,7 +495,7 @@ const exitGame = async () => {
               :stroke="checker.color === 'white' ? 'black' : 'blue'"
               stroke-width="1.4"
               class="checker-transition"
-              :class="{ selected: selectedChecker === checker }"
+              :class="{ selected: isCheckerSelected(checker) }"
               @click="handleCheckerClick(checker)"
             />
           </svg>
@@ -743,9 +756,7 @@ const exitGame = async () => {
 }
 
 .checker-transition {
-  transition:
-    cx 0.3s ease-out,
-    cy 0.3s ease-out;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .selected {
