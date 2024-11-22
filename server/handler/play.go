@@ -323,7 +323,7 @@ func PlayMoves(c *gin.Context) {
 
 	// Check if we are playing against a bot
 
-	botLevel := getBotLevel(g.Player2)
+	botLevel := db.GetBotLevel(g.Player2)
 	// Against a bot
 	if botLevel > 0 {
 		var t *types.Turn
@@ -415,7 +415,7 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
-	botLevel := getBotLevel(g.Player2)
+	botLevel := db.GetBotLevel(g.Player2)
 	if botLevel > 0 {
 		// Always accept the double
 		slog.Debug("Bot always accept double")

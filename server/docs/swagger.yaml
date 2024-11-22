@@ -87,16 +87,25 @@ definitions:
   types.ReturnGame:
     properties:
       current_player:
+        example: p1
         type: string
       double_owner:
+        example: all
         type: string
       double_value:
+        example: 1
         type: integer
       elo1:
+        example: 1000
         type: integer
       elo2:
+        example: 1000
         type: integer
       end:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      game_type:
+        example: online
         type: string
       id:
         type: integer
@@ -112,14 +121,19 @@ definitions:
         type: array
       player1:
         description: Username of the player
+        example: Giorgio
         type: string
       player2:
+        example: Mario
         type: string
       start:
+        example: "2021-01-01T00:00:00Z"
         type: string
       status:
+        example: open
         type: string
       want_to_double:
+        example: false
         type: boolean
     type: object
   types.User:

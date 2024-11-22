@@ -589,22 +589,32 @@ const docTemplate = `{
             "type": "object",
             "properties": {
                 "current_player": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "p1"
                 },
                 "double_owner": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "all"
                 },
                 "double_value": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "elo1": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1000
                 },
                 "elo2": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1000
                 },
                 "end": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "game_type": {
+                    "type": "string",
+                    "example": "online"
                 },
                 "id": {
                     "type": "integer"
@@ -625,19 +635,24 @@ const docTemplate = `{
                 },
                 "player1": {
                     "description": "Username of the player",
-                    "type": "string"
+                    "type": "string",
+                    "example": "Giorgio"
                 },
                 "player2": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Mario"
                 },
                 "start": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "open"
                 },
                 "want_to_double": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
                 }
             }
         },

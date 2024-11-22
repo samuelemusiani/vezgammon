@@ -169,8 +169,10 @@ func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
 	SELECT
         g.id,
         u1.username AS p1_username,
+        u1.id AS p1_id,
         g.p1elo,
         u2.username AS p2_username,
+        u2.id AS p2_id,
         g.p2elo,
         g.start,
         g.endtime,
@@ -200,11 +202,15 @@ func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
 
 	var g types.ReturnGame
 
+	var p1_id, p2_id int64
+
 	err := row.Scan(
 		&g.ID,
 		&g.Player1,
+		&p1_id,
 		&g.Elo1,
 		&g.Player2,
+		&p2_id,
 		&g.Elo2,
 		&g.Start,
 		&g.End,
@@ -227,6 +233,15 @@ func GetCurrentGame(user_id int64) (*types.ReturnGame, error) {
 	}
 	for i, v := range p2CheckersDB {
 		g.P2Checkers[i] = int8(v)
+	}
+
+	// determine game type
+	if p1_id == p2_id {
+		g.GameType = types.GameTypeLocal
+	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+		g.GameType = types.GameTypeBot
+	} else {
+		g.GameType = types.GameTypeOnline
 	}
 
 	return &g, nil

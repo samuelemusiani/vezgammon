@@ -56,6 +56,18 @@ func GetHardBotID() int64 {
 	return hardBotID
 }
 
+func GetBotLevel(id int64) int {
+	if id == GetEasyBotID() {
+		return 1
+	} else if id == GetMediumBotID() {
+		return 2
+	} else if id == GetHardBotID() {
+		return 3
+	}
+
+	return 0
+}
+
 func initUser() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS users(
