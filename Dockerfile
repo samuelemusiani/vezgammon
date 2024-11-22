@@ -17,7 +17,7 @@ RUN apk add just
 COPY justfile justfile
 
 COPY server server
-COPY --from=build-client /app/client/dist server/dist
+COPY --from=build-client /app/client/dist server/handler/dist
 COPY go.mod go.mod
 COPY go.sum go.sum
 
