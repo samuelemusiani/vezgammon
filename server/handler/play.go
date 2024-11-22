@@ -27,6 +27,7 @@ import (
 // @Failure 400 "Already searching or in a game"
 // @Router /play/search [get]
 func StartPlaySearch(c *gin.Context) {
+	// Placeholder, need to implement for matchmaking
 }
 
 // @Summary Stop a running matchmaking search
@@ -39,6 +40,7 @@ func StartPlaySearch(c *gin.Context) {
 // @Failure 400 "Not searching"
 // @Router /play/search [delete]
 func StopPlaySearch(c *gin.Context) {
+	// Placeholder, need to implement for matchmaking
 }
 
 // @Summary Create a local game
@@ -51,9 +53,9 @@ func StopPlaySearch(c *gin.Context) {
 // @Failure 400 "Already in a game"
 // @Router /play/local [get]
 func StartGameLocalcally(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
-	_, err := db.GetCurrentGame(user_id)
+	_, err := db.GetCurrentGame(userID)
 	if err != sql.ErrNoRows {
 		c.JSON(http.StatusBadRequest, "Already in a game")
 		return
@@ -62,21 +64,21 @@ func StartGameLocalcally(c *gin.Context) {
 	startdices_p1 := types.NewDices()
 	startdices_p2 := types.NewDices()
 
-	var start_player string
+	var startPlayer string
 	if startdices_p1.Sum() >= startdices_p2.Sum() {
-		start_player = types.GameCurrentPlayerP1
+		startPlayer = types.GameCurrentPlayerP1
 	} else {
-		start_player = types.GameCurrentPlayerP2
+		startPlayer = types.GameCurrentPlayerP2
 	}
 
 	firstdices := types.NewDices()
 
 	g := types.Game{
-		Player1:       user_id,
-		Player2:       user_id,
+		Player1:       userID,
+		Player2:       userID,
 		Start:         time.Now(),
 		Status:        types.GameStatusOpen,
-		CurrentPlayer: start_player,
+		CurrentPlayer: startPlayer,
 		Dices:         firstdices,
 	}
 
@@ -87,7 +89,7 @@ func StartGameLocalcally(c *gin.Context) {
 		return
 	}
 
-	newgame, err := db.GetCurrentGame(user_id)
+	newgame, err := db.GetCurrentGame(userID)
 	if err != nil {
 		slog.With("error", err).Error("GetMoves failed")
 		c.JSON(http.StatusInternalServerError, err)
@@ -113,13 +115,14 @@ func StartGameLocalcally(c *gin.Context) {
 // @Failure 404 "Game not found"
 // @Router /play [get]
 func GetCurrentGame(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
-	retgame, err := db.GetCurrentGame(user_id)
+	retgame, err := db.GetCurrentGame(userId)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, "Game not found")
 		return
 	}
+
 	if err != nil {
 		slog.With("error", err).Error("GetMoves failed")
 		c.JSON(http.StatusInternalServerError, err)
@@ -139,9 +142,9 @@ func GetCurrentGame(c *gin.Context) {
 // @Failure 404 "Not in a game"
 // @Router /play [delete]
 func SurrendToCurrentGame(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
-	rg, err := db.GetCurrentGame(user_id)
+	rg, err := db.GetCurrentGame(userId)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, "Not in a game")
 		return
@@ -160,7 +163,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 	}
 
 	var status string
-	if g.Player1 == user_id { // Player 1 surrended, player 2 wins
+	if g.Player1 == userId { // Player 1 surrended, player 2 wins
 		status = types.GameStatusWinP2
 	} else {
 		status = types.GameStatusWinP1
@@ -176,7 +179,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, "Surrended")
 
-	// TODO: send notification to the other player that the game is over
+	// Send notification to the other player that the game is over
 }
 
 // @Summary Get possible moves for next turn
@@ -189,9 +192,9 @@ func SurrendToCurrentGame(c *gin.Context) {
 // @Failure 400 "Not in a game, not your turn or double requested"
 // @Router /play/moves [get]
 func GetPossibleMoves(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
-	rg, err := db.GetCurrentGame(user_id)
+	rg, err := db.GetCurrentGame(userId)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, "Not in a game")
 		return
@@ -216,7 +219,7 @@ func GetPossibleMoves(c *gin.Context) {
 
 	idCurrentPlayer, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
 
-	if idCurrentPlayer != user_id {
+	if idCurrentPlayer != userId {
 		c.JSON(http.StatusBadRequest, "Not your turn")
 		return
 	}
@@ -246,7 +249,7 @@ func GetPossibleMoves(c *gin.Context) {
 // @Failure 400 "Moves not legal, not your turn or not in a game"
 // @Router /play/moves [post]
 func PlayMoves(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
 	// get moves from body
 	buff, err := io.ReadAll(c.Request.Body)
@@ -263,7 +266,7 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
-	rg, err := db.GetCurrentGame(user_id)
+	rg, err := db.GetCurrentGame(userId)
 	if err == sql.ErrNoRows {
 		c.JSON(http.StatusNotFound, "Not in a game")
 		return
@@ -288,7 +291,7 @@ func PlayMoves(c *gin.Context) {
 
 	idCurrentPlayer, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
 
-	if idCurrentPlayer != user_id {
+	if idCurrentPlayer != userId {
 		c.JSON(http.StatusBadRequest, "Not your turn")
 		return
 	}
@@ -321,7 +324,7 @@ func PlayMoves(c *gin.Context) {
 	// save turn
 	turn := types.Turn{
 		GameId: g.ID,
-		User:   user_id,
+		User:   userId,
 		Time:   time.Now(),
 		Dices:  g.Dices,
 		Double: false,
@@ -379,7 +382,7 @@ func PlayMoves(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, "Moves played")
 
-	// TODO: send notification to the other player that it's his turn
+	// Send notification to the other player that it's his turn
 }
 
 // @Summary The player want to double
@@ -392,9 +395,9 @@ func PlayMoves(c *gin.Context) {
 // @Failure 400 "Not in a game or double not possible"
 // @Router /play/double [post]
 func WantToDouble(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
-	rg, err := db.GetCurrentGame(user_id)
+	rg, err := db.GetCurrentGame(userId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, "Not in a game")
@@ -445,7 +448,7 @@ func WantToDouble(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, g.DoubleValue*2)
 
-	// TODO: send notification to the other player that he can refuse or accept the double
+	// Send notification to the other player that he can refuse or accept the double
 }
 
 // @Summary Refuse the double
@@ -458,9 +461,9 @@ func WantToDouble(c *gin.Context) {
 // @Failure 400 "Not in a game or can't refuse double"
 // @Router /play/double [delete]
 func RefuseDouble(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
-	rg, err := db.GetCurrentGame(user_id)
+	rg, err := db.GetCurrentGame(userId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, "Not in a game")
@@ -498,9 +501,9 @@ func RefuseDouble(c *gin.Context) {
 // @Failure 400 "Not in a game or double not possible"
 // @Router /play/double [put]
 func AcceptDouble(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
-	err := acceptDouble(user_id)
+	err := acceptDouble(userId)
 	if err != nil {
 
 		if err == sql.ErrNoRows {
@@ -515,7 +518,7 @@ func AcceptDouble(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, "Double accepted")
-	// TODO: send notification to the other player that he accepts the doubleS
+	// Send notification to the other player that he accepts the doubleS
 }
 
 // @Summary Create a game against an easy bot
@@ -558,52 +561,52 @@ func PlayHardBot(c *gin.Context) {
 }
 
 func PlayBot(mod string, c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userId := c.MustGet("user_id").(int64)
 
-	var bot_id int64
+	var botId int64
 	switch mod {
 	case "easy":
-		bot_id = db.GetEasyBotID()
+		botId = db.GetEasyBotID()
 	case "medium":
-		bot_id = db.GetMediumBotID()
+		botId = db.GetMediumBotID()
 	case "hard":
-		bot_id = db.GetHardBotID()
+		botId = db.GetHardBotID()
 	default:
 		slog.Error("Invalid mod on play bot")
 		c.JSON(http.StatusInternalServerError, "Invalid bot")
 		return
 	}
 
-	_, err := db.GetCurrentGame(user_id)
+	_, err := db.GetCurrentGame(userId)
 	if err != sql.ErrNoRows {
 		c.JSON(http.StatusBadRequest, "Already in a game")
 		return
 	}
 
-	var startdices_p1, startdices_p2 types.Dices
+	var startdicesP1, startdicesP2 types.Dices
 	for {
-		startdices_p1 = types.NewDices()
-		startdices_p2 = types.NewDices()
+		startdicesP1 = types.NewDices()
+		startdicesP2 = types.NewDices()
 
-		if startdices_p1.Sum() != startdices_p2.Sum() {
-			if startdices_p1.Sum() < startdices_p2.Sum() {
-				startdices_p1, startdices_p2 = startdices_p2, startdices_p1
+		if startdicesP1.Sum() != startdicesP2.Sum() {
+			if startdicesP1.Sum() < startdicesP2.Sum() {
+				startdicesP1, startdicesP2 = startdicesP2, startdicesP1
 			}
 			break
 		}
 	}
 
 	// Against a bot the player will always start first
-	var start_player = types.GameCurrentPlayerP1
+	var startPlayer = types.GameCurrentPlayerP1
 
 	firstdices := types.NewDices()
 
 	g := types.Game{
-		Player1:       user_id,
-		Player2:       bot_id,
+		Player1:       userId,
+		Player2:       botId,
 		Start:         time.Now(),
 		Status:        types.GameStatusOpen,
-		CurrentPlayer: start_player,
+		CurrentPlayer: startPlayer,
 		Dices:         firstdices,
 	}
 
@@ -616,15 +619,15 @@ func PlayBot(mod string, c *gin.Context) {
 		return
 	}
 
-	newgame, err := db.GetCurrentGame(user_id)
+	newgame, err := db.GetCurrentGame(userId)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	ng := types.NewGame{
-		DicesP1: startdices_p1,
-		DicesP2: startdices_p2,
+		DicesP1: startdicesP1,
+		DicesP2: startdicesP2,
 		Game:    *newgame,
 	}
 
