@@ -48,13 +48,13 @@ Votes: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D | 
 | ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |
-| Scrum Master     | 😃       |            | 😃        |         |            | 😃     |             
-| Product Owner    | 😃       |            | 😃        |         |            | 😃     |             
-| Development Team | 😐       |            | 😐        |         |            | 😐     |             
-| Product Backlog  | 😃       |            | 😃        |         |            | 😐     |
-| Sprint Planning  | 😐       |            | 😐        |         |            | 😐     |
-| Sprint Goal      | 😐       |            | 😐        |         |            | 😐     |
-| Self Menagement  | 😃       |            | 😃        |         |            | 😐     |
+| Scrum Master     | 😃       |            | 😃        | 😃      |            | 😃     |             
+| Product Owner    | 😃       |            | 😃        | 😐      |            | 😃     |             
+| Development Team | 😐       |            | 😐        | 😐      |            | 😐     |             
+| Product Backlog  | 😃       |            | 😃        | 😐      |            | 😐     |
+| Sprint Planning  | 😐       |            | 😐        | 😃      |            | 😐     |
+| Sprint Goal      | 😐       |            | 😐        | 😐      |            | 😐     |
+| Self Menagement  | 😃       |            | 😃        | 😃      |            | 😐     |
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
@@ -63,7 +63,6 @@ Problemi nel back-end, soprattutto riguardo le api per backgammon. Sotto-stima d
 un developer del frontend nel backend.
 
 #### Scrum Master - Lorenzo Peronese
-#### Developer - Fabio Murer
 #### Developer - Emanuele Argonni
 #### Developer - Omar Ayache
 Sottostima del lavoro e problemi riguardo gestione del bot per le mosse, ottimo l'utilizzo della strategia pair-programming per i prossimi sprint.
