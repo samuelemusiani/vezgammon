@@ -41,8 +41,8 @@ async function register() {
 
 function validate() {
   const el = document.getElementsByClassName('X-required')
-  for (let i = 0; i < el.length; i++) {
-    el[i].setAttribute('required', '')
+  for (const e of el) {
+    e.setAttribute('required', '')
   }
 
   let ok = true
