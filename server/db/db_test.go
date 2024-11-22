@@ -17,7 +17,7 @@ var conf = config.Config{
 func TestMain(m *testing.M) {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
 
-	conn, _ = sql.Open(
+	Conn, _ = sql.Open(
 		"postgres", fmt.Sprintf("postgres://%s:%s@%s/vezgammon?sslmode=disable", conf.Database.User, conf.Database.Password, conf.Database.Address))
 
 	m.Run()

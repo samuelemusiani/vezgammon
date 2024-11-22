@@ -56,37 +56,70 @@
     <dialog id="play_modal" class="modal">
       <div class="retro-box modal-box">
         <h3 class="retro-title mb-4 text-center text-2xl font-bold">
-          Select Game Mode
+          {{ modalTitle }}
         </h3>
         <!-- Options -->
         <div class="flex flex-col gap-4">
-          <button
-            @mouseenter="(e: MouseEvent) => play()"
-            @click="startGame('local')"
-            class="retro-button"
-          >
-            Local Game (2 Players)
-          </button>
-          <button
-            @mouseenter="(e: MouseEvent) => play()"
-            @click="startGame('ai')"
-            class="retro-button"
-          >
-            Play vs AI
-          </button>
-          <button
-            @mouseenter="(e: MouseEvent) => play()"
-            @click="startGame('online')"
-            class="retro-button"
-          >
-            Play Online
-          </button>
+          <template v-if="!showDifficulty">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGame('local')"
+              class="retro-button"
+            >
+              Local Game (2 Players)
+            </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="showAIDifficulty"
+              class="retro-button"
+            >
+              Play vs AI
+            </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGame('online')"
+              class="retro-button"
+            >
+              Play Online
+            </button>
+          </template>
+
+          <template v-else>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGameWithAI('easy')"
+              class="retro-button"
+            >
+              Easy
+            </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGameWithAI('medium')"
+              class="retro-button"
+            >
+              Medium
+            </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGameWithAI('hard')"
+              class="retro-button"
+            >
+              Hard
+            </button>
+          </template>
         </div>
 
         <!-- Close button -->
-        <div class="modal-action">
-          <form method="dialog">
-            <button class="retro-button">Close</button>
+        <div class="modal-action w-full">
+          <form method="dialog" class="flex w-full justify-between">
+            <button
+              v-if="showDifficulty"
+              @click="backToGameMode"
+              class="retro-button"
+            >
+              Back
+            </button>
+            <button class="retro-button ml-auto">Close</button>
           </form>
         </div>
       </div>
@@ -104,8 +137,35 @@ import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
+import { ref, computed } from 'vue'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
+const showDifficulty = ref(false)
+
+const modalTitle = computed(() => {
+  return showDifficulty.value ? 'Choose Difficulty' : 'Select Game Mode'
+})
+
+const showAIDifficulty = () => {
+  showDifficulty.value = true
+}
+
+const backToGameMode = () => {
+  showDifficulty.value = false
+}
+
+const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
+  const modal = document.getElementById('play_modal') as HTMLDialogElement
+  modal.close()
+  showDifficulty.value = false
+
+  try {
+    await fetch(`/api/play/bot/${difficulty}`)
+    router.push('/game')
+  } catch (error) {
+    console.error('Error starting game with AI:', error)
+  }
+}
 
 const navigateTo = (path: string) => {
   router.push(path)
@@ -123,9 +183,6 @@ const startGame = async (mode: 'local' | 'ai' | 'online') => {
   switch (mode) {
     case 'local':
       await fetch('/api/play/local')
-      router.push('/game')
-      break
-    case 'ai':
       router.push('/game')
       break
     case 'online':

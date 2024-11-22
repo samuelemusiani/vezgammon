@@ -1,17 +1,14 @@
 package main
 
 import (
-	"embed"
 	"log"
 	"log/slog"
 	"os"
 	"vezgammon/server/bgweb"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
+	"vezgammon/server/handler"
 )
-
-//go:embed dist
-var frontend embed.FS
 
 func main() {
 	slog.SetLogLoggerLevel(slog.LevelDebug)
@@ -35,7 +32,7 @@ func main() {
 
 	bgweb.Init(conf)
 
-	router, err := initHandlers(conf)
+	router, err := handler.InitHandlers(conf)
 	if err != nil {
 		log.Fatal(err)
 	}

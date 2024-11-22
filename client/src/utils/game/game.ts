@@ -1,4 +1,4 @@
-import type { BoardDimensions, Checker } from './types'
+import type { BoardDimensions, Checker, GameState } from './types'
 
 export const BOARD: BoardDimensions = {
   width: 800,
@@ -44,14 +44,11 @@ export const getTriangleColor = (position: number): string => {
 }
 
 export const getCheckerX = (checker: Checker) => {
-  // Pedine mangiate al centro
+  // Hit Checker in the center
   if (checker.position === 0) {
     return 400
   }
 
-  // Per posizioni 1-24:
-  // 1-12 sono nella metà inferiore (da destra a sinistra)
-  // 13-24 sono nella metà superiore (da sinistra a destra)
   const index =
     checker.position > 12
       ? checker.position - 13 // per posizioni 13-24
@@ -72,9 +69,10 @@ const normalizePosition = (position: number, color: string) => {
   return 25 - position
 }
 
-export const getCheckerY = (checker: Checker) => {
+export const getCheckerY = (checker: Checker, gameState: GameState) => {
   const normalizedPosition = normalizePosition(checker.position, checker.color)
-  // Pedine mangiate al centro
+
+  // Hit Checker in the center
   if (checker.position === 0) {
     if (checker.color === 'white') {
       return 100 + checker.stackIndex * BOARD.checkerRadius * 2
@@ -83,7 +81,18 @@ export const getCheckerY = (checker: Checker) => {
     }
   }
 
-  const spacing = BOARD.checkerRadius * 1.8
+  let totalCheckers = 0
+  if (gameState) {
+    if (checker.color === 'black') {
+      totalCheckers = gameState.p1checkers[checker.position]
+    } else {
+      totalCheckers = gameState.p2checkers[checker.position]
+    }
+  }
+
+  // y-spacing based on number of checkers in each triangle
+  const spacing =
+    totalCheckers > 4 ? BOARD.checkerRadius * 1.3 : BOARD.checkerRadius * 1.8
 
   // Posizioni 1-12 in basso, 13-24 in alto
   if (normalizedPosition > 12) {

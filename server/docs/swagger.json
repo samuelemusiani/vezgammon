@@ -4,6 +4,66 @@
         "contact": {}
     },
     "paths": {
+        "/login": {
+            "post": {
+                "description": "Login with a user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Login",
+                "parameters": [
+                    {
+                        "description": "username and password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.loginUserType"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/handler.loginResponseType"
+                        }
+                    }
+                }
+            }
+        },
+        "/logout": {
+            "post": {
+                "description": "Logout",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Logout",
+                "responses": {
+                    "200": {
+                        "description": "Logged out successfully"
+                    },
+                    "401": {
+                        "description": "Unauthorized"
+                    },
+                    "500": {
+                        "description": "Logout failed"
+                    }
+                }
+            }
+        },
         "/play": {
             "get": {
                 "description": "Get current game",
@@ -47,6 +107,84 @@
                     },
                     "404": {
                         "description": "Not in a game"
+                    }
+                }
+            }
+        },
+        "/play/bot/easy": {
+            "get": {
+                "description": "Create a game against an easy bot",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game against an easy bot",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
+                    }
+                }
+            }
+        },
+        "/play/bot/hard": {
+            "get": {
+                "description": "Create a game against an hard bot",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game against an hard bot",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
+                    }
+                }
+            }
+        },
+        "/play/bot/medium": {
+            "get": {
+                "description": "Create a game against an medium bot",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game against an medium bot",
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.NewGame"
+                        }
+                    },
+                    "400": {
+                        "description": "Not in a game or double not possible"
                     }
                 }
             }
@@ -249,9 +387,136 @@
                     }
                 }
             }
+        },
+        "/register": {
+            "post": {
+                "description": "Register new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "user with password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.customUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "user created",
+                        "schema": {
+                            "$ref": "#/definitions/types.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/session": {
+            "get": {
+                "description": "Get auth session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get current auth session",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.User"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.customUser": {
+            "type": "object",
+            "properties": {
+                "firstname": {
+                    "type": "string",
+                    "example": "giorgio"
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "rossi"
+                },
+                "mail": {
+                    "type": "string",
+                    "example": "giorossi@mail.it"
+                },
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
+        "handler.loginResponseType": {
+            "type": "object",
+            "properties": {
+                "message": {
+                    "type": "string",
+                    "example": "Login successful"
+                },
+                "user": {
+                    "$ref": "#/definitions/handler.loginResponseUser"
+                }
+            }
+        },
+        "handler.loginResponseUser": {
+            "type": "object",
+            "properties": {
+                "email": {
+                    "type": "string",
+                    "example": "giorossi@mail.it"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
+        "handler.loginUserType": {
+            "type": "object",
+            "properties": {
+                "password": {
+                    "type": "string",
+                    "example": "1234"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
         "types.FutureTurn": {
             "type": "object",
             "properties": {
@@ -313,22 +578,32 @@
             "type": "object",
             "properties": {
                 "current_player": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "p1"
                 },
                 "double_owner": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "all"
                 },
                 "double_value": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1
                 },
                 "elo1": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1000
                 },
                 "elo2": {
-                    "type": "integer"
+                    "type": "integer",
+                    "example": 1000
                 },
                 "end": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "game_type": {
+                    "type": "string",
+                    "example": "online"
                 },
                 "id": {
                     "type": "integer"
@@ -349,19 +624,57 @@
                 },
                 "player1": {
                     "description": "Username of the player",
-                    "type": "string"
+                    "type": "string",
+                    "example": "Giorgio"
                 },
                 "player2": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "Mario"
                 },
                 "start": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
                 },
                 "status": {
-                    "type": "string"
+                    "type": "string",
+                    "example": "open"
                 },
                 "want_to_double": {
-                    "type": "boolean"
+                    "type": "boolean",
+                    "example": false
+                }
+            }
+        },
+        "types.User": {
+            "type": "object",
+            "properties": {
+                "elo": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "firstname": {
+                    "type": "string",
+                    "example": "giorgio"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "is_bot": {
+                    "type": "boolean",
+                    "example": false
+                },
+                "lastname": {
+                    "type": "string",
+                    "example": "rossi"
+                },
+                "mail": {
+                    "type": "string",
+                    "example": "giorossi@mail.it"
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
                 }
             }
         }

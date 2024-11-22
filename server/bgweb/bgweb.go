@@ -6,6 +6,7 @@ import (
 	"io"
 	"net/http"
 	"strconv"
+	"time"
 	"vezgammon/server/config"
 	"vezgammon/server/types"
 )
@@ -359,6 +360,14 @@ func GetLegalMoves(g *types.Game) ([][]types.Move, error) {
 	return possibleMoves, nil
 }
 
+func normalizeTurn(t *types.Turn, g *types.Game) *types.Turn {
+	t.GameId = g.ID
+	t.User = g.Player2
+	t.Time = time.Now()
+
+	return t
+}
+
 func GetBestMove(g *types.Game) (*types.Turn, error) {
 	mv := GametoMoveArgs(g, get_best_move_config)
 
@@ -371,6 +380,8 @@ func GetBestMove(g *types.Game) (*types.Turn, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	turn = normalizeTurn(turn, g)
 
 	return turn, nil
 }
@@ -394,6 +405,8 @@ func GetEasyMove(g *types.Game) (*types.Turn, error) {
 		return nil, err
 	}
 
+	turn = normalizeTurn(turn, g)
+
 	return turn, nil
 }
 
@@ -415,6 +428,8 @@ func GetMediumMove(g *types.Game) (*types.Turn, error) {
 	if err != nil {
 		return nil, err
 	}
+
+	turn = normalizeTurn(turn, g)
 
 	return turn, nil
 }

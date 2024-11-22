@@ -1,10 +1,10 @@
-package main
+package handler
 
 import (
+	"embed"
 	"net/http"
 	"strings"
 	"vezgammon/server/config"
-	"vezgammon/server/handler"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -15,32 +15,38 @@ import (
 	ginSwagger "github.com/swaggo/gin-swagger"
 )
 
-func initHandlers(conf *config.Config) (*gin.Engine, error) {
+//go:embed dist
+var frontend embed.FS
+
+func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	router := gin.Default()
 
 	// middleware for static files (frontend)
 	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
 	// middleware for backend API
 	protected := router.Group("/api")
-	protected.Use(handler.AuthMiddleware())
+	protected.Use(AuthMiddleware())
 
 	// Gruppo di rotte protette per le API
-	protected.POST("/register", handler.Register)
-	protected.POST("/login", handler.Login)
-	protected.POST("/logout", handler.Logout)
-	protected.GET("/session", handler.GetSession)
+	protected.POST("/register", Register)
+	protected.POST("/login", Login)
+	protected.POST("/logout", Logout)
+	protected.GET("/session", GetSession)
 
 	playGroup := protected.Group("/play")
-	playGroup.GET("/search", handler.StartPlaySearch)
-	playGroup.DELETE("/search", handler.StopPlaySearch)
-	playGroup.GET("/local", handler.StartGameLocalcally)
-	playGroup.GET("/", handler.GetCurrentGame)
-	playGroup.DELETE("/", handler.SurrendToCurrentGame)
-	playGroup.GET("/moves", handler.GetPossibleMoves)
-	playGroup.POST("/moves", handler.PlayMoves)
-	playGroup.POST("/double", handler.WantToDouble)
-	playGroup.DELETE("/double", handler.RefuseDouble)
-	playGroup.PUT("/double", handler.AcceptDouble)
+	playGroup.GET("/search", StartPlaySearch)
+	playGroup.DELETE("/search", StopPlaySearch)
+	playGroup.GET("/local", StartGameLocalcally)
+	playGroup.GET("/", GetCurrentGame)
+	playGroup.DELETE("/", SurrendToCurrentGame)
+	playGroup.GET("/moves", GetPossibleMoves)
+	playGroup.POST("/moves", PlayMoves)
+	playGroup.POST("/double", WantToDouble)
+	playGroup.DELETE("/double", RefuseDouble)
+	playGroup.PUT("/double", AcceptDouble)
+	playGroup.GET("/bot/easy", PlayEasyBot)
+	playGroup.GET("/bot/medium", PlayMediumBot)
+	playGroup.GET("/bot/hard", PlayHardBot)
 
 	// expose swagger web console
 	if conf.Swagger {

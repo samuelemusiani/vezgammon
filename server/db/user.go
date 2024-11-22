@@ -2,7 +2,9 @@ package db
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
+	"log/slog"
 	"strings"
 	"time"
 	"vezgammon/server/types"
@@ -10,6 +12,61 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 )
+
+var UserNotFound = errors.New("Utente non trovato")
+
+var easyBotID int64 = -1
+var mediumBotID int64 = -1
+var hardBotID int64 = -1
+
+func GetEasyBotID() int64 {
+	if easyBotID == -1 {
+		q := `SELECT id FROM users WHERE username = 'Enzo' AND is_bot = TRUE`
+		err := Conn.QueryRow(q).Scan(&easyBotID)
+		if err != nil {
+			slog.With("err", err).Error("Getting easy bot id")
+			panic("Cannot get easy bot ID")
+		}
+	}
+	return easyBotID
+}
+
+func GetMediumBotID() int64 {
+	if mediumBotID == -1 {
+		q := `SELECT id FROM users WHERE username = 'Caterina' AND is_bot = TRUE`
+		err := Conn.QueryRow(q).Scan(&mediumBotID)
+		if err != nil {
+			slog.With("err", err).Error("Getting medium bot id")
+			panic("Cannot get medium bot ID")
+		}
+	}
+	return mediumBotID
+}
+
+func GetHardBotID() int64 {
+	if hardBotID == -1 {
+		q := `SELECT id FROM users WHERE username = 'Giovanni' AND is_bot = TRUE`
+		err := Conn.QueryRow(q).Scan(&hardBotID)
+		if err != nil {
+			slog.With("err", err).Error("Getting hard bot id")
+			panic("Cannot get hard bot ID")
+		}
+	}
+
+	return hardBotID
+}
+
+func GetBotLevel(id int64) int {
+	if id == GetEasyBotID() {
+		return 1
+	} else if id == GetMediumBotID() {
+		return 2
+	} else if id == GetHardBotID() {
+		return 3
+	}
+
+	return 0
+}
 
 func initUser() error {
 	q := `
@@ -20,10 +77,31 @@ func initUser() error {
 		firstname BPCHAR NOT NULL,
 		lastname BPCHAR,
 		mail BPCHAR UNIQUE,
-    elo INTEGER NOT NULL
+    elo INTEGER NOT NULL,
+    is_bot BOOL DEFAULT FALSE
 	)`
-	_, err := conn.Exec(q)
-	return err
+	_, err := Conn.Exec(q)
+	if err != nil {
+		return err
+	}
+
+	// Insert easy bot
+	err = insertBotIfNotExists("Enzo", "Re", "Enzo", "enzo@vezgammon.it", 1000)
+	if err != nil {
+		return err
+	}
+
+	err = insertBotIfNotExists("Caterina", "Caterina", "De Vigri", "caterina@vezgammon.it", 2000)
+	if err != nil {
+		return err
+	}
+
+	err = insertBotIfNotExists("Giovanni", "Giovanni", "Bentivoglio", "giovanni@vezgammon.it", 3000)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }
 
 func initCookie() error {
@@ -35,13 +113,13 @@ func initCookie() error {
     expires_at TIMESTAMP NOT NULL
   )
 	`
-	_, err := conn.Exec(q)
+	_, err := Conn.Exec(q)
 	return err
 }
 
 func GetUsers() ([]types.User, error) {
-	q := "SELECT * FROM users"
-	rows, err := conn.Query(q)
+	q := "SELECT * FROM users WHERE is_bot = FALSE"
+	rows, err := Conn.Query(q)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +129,7 @@ func GetUsers() ([]types.User, error) {
 	for rows.Next() {
 		var tmp types.User
 		var pass string
-		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo)
+		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo, &tmp.IsBot)
 		if err != nil {
 			return nil, err
 		}
@@ -63,7 +141,7 @@ func GetUsers() ([]types.User, error) {
 }
 
 func LoginUser(username string, password string) (*types.User, error) {
-	q := "SELECT id, username, firstname, lastname, mail, password, elo FROM users "
+	q := "SELECT id, username, firstname, lastname, mail, password, elo, is_bot FROM users "
 	if strings.Contains(username, "@") {
 		q = q + "WHERE mail = $1"
 	} else {
@@ -72,7 +150,7 @@ func LoginUser(username string, password string) (*types.User, error) {
 
 	var tmp types.User
 	var pass string
-	err := conn.QueryRow(q, username).Scan(
+	err := Conn.QueryRow(q, username).Scan(
 		&tmp.ID,
 		&tmp.Username,
 		&tmp.Firstname,
@@ -80,13 +158,18 @@ func LoginUser(username string, password string) (*types.User, error) {
 		&tmp.Mail,
 		&pass,
 		&tmp.Elo,
+		&tmp.IsBot,
 	)
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("utente non trovato")
+			return nil, UserNotFound
 		}
 		return nil, err
+	}
+
+	if tmp.IsBot {
+		return nil, fmt.Errorf("User is a bot")
 	}
 
 	err = bcrypt.CompareHashAndPassword([]byte(pass), []byte(password))
@@ -106,7 +189,7 @@ func SaveSessionToken(userID int64, token string) error {
           VALUES ($1, $2, $3)`
 
 	expiresAt := time.Now().Add(1 * time.Hour)
-	_, err := conn.Exec(q, userID, token, expiresAt)
+	_, err := Conn.Exec(q, userID, token, expiresAt)
 	return err
 }
 
@@ -115,7 +198,7 @@ func ValidateSessionToken(token string) (int64, error) {
           WHERE token = $1 AND expires_at > NOW()`
 
 	var userID int64
-	err := conn.QueryRow(q, token).Scan(&userID)
+	err := Conn.QueryRow(q, token).Scan(&userID)
 	if err != nil {
 		return 0, err
 	}
@@ -124,8 +207,8 @@ func ValidateSessionToken(token string) (int64, error) {
 }
 
 func CreateUser(u types.User, password string) (types.User, error) {
-	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo) VALUES($1, $2, $3, $4, $5, $6) RETURNING id`
-	res := conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo)
+	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot) VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
+	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.IsBot)
 
 	var id int64
 	err := res.Scan(&id)
@@ -140,17 +223,18 @@ func CreateUser(u types.User, password string) (types.User, error) {
 func Logout(sessionToken string) error {
 	// Rimuovi il token dal database
 	q := `DELETE FROM sessions WHERE token = $1`
-	_, err := conn.Exec(q, sessionToken)
+	_, err := Conn.Exec(q, sessionToken)
 	return err
 }
 
-func GetUser(user_id any) (*types.User, error) {
-	q := `SELECT username, firstname, lastname, mail, elo
+func GetUserByUsername(username string) (*types.User, error) {
+	q := `SELECT id, username, firstname, lastname, mail, elo
           FROM users
-          WHERE id = $1`
+          WHERE username = $1`
 
 	var tmp types.User
-	err := conn.QueryRow(q, user_id).Scan(
+	err := Conn.QueryRow(q, username).Scan(
+		&tmp.ID,
 		&tmp.Username,
 		&tmp.Firstname,
 		&tmp.Lastname,
@@ -160,10 +244,63 @@ func GetUser(user_id any) (*types.User, error) {
 
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, fmt.Errorf("utente non trovato")
+			return nil, UserNotFound
 		}
 		return nil, err
 	}
 
 	return &tmp, nil
+}
+
+func GetUser(user_id int64) (*types.User, error) {
+	q := `SELECT username, firstname, lastname, mail, elo
+          FROM users
+          WHERE id = $1`
+
+	var tmp types.User
+	err := Conn.QueryRow(q, user_id).Scan(
+		&tmp.Username,
+		&tmp.Firstname,
+		&tmp.Lastname,
+		&tmp.Mail,
+		&tmp.Elo,
+	)
+
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, UserNotFound
+		}
+		return nil, err
+	}
+
+	return &tmp, nil
+}
+
+func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64) error {
+	_, err := GetUserByUsername(username)
+
+	slog.With("err", err).Debug("Getting bot user")
+
+	if err != nil {
+		if errors.Is(err, UserNotFound) {
+			// Insert the bot
+			_, err := CreateUser(types.User{
+				Username:  username,
+				Firstname: firstname,
+				Lastname:  lastname,
+				Mail:      mail,
+				Elo:       elo,
+				IsBot:     true,
+			}, "1234")
+
+			if err != nil {
+				slog.With("err", err).Error("Creating bot user")
+				return err
+			}
+		} else {
+			return err
+		}
+	}
+
+	return nil
 }

@@ -121,24 +121,30 @@ func (g *Game) PlayMove(moves []Move) {
 	slog.With("checkers", opponentCheckers).Debug("Checkers")
 }
 
+const GameTypeLocal = "local"
+const GameTypeBot = "bot"
+const GameTypeOnline = "online"
+
 type ReturnGame struct {
 	ID int64 `json:"id"`
 	// Username of the player
-	Player1 string `json:"player1"`
-	Elo1    int64  `json:"elo1"`
-	Player2 string `json:"player2"`
-	Elo2    int64  `json:"elo2"`
+	Player1 string `json:"player1" example:"Giorgio"`
+	Elo1    int64  `json:"elo1" example:"1000"`
+	Player2 string `json:"player2" example:"Mario"`
+	Elo2    int64  `json:"elo2" example:"1000"`
 
-	Start  time.Time `json:"start"`
-	End    time.Time `json:"end"`
-	Status string    `json:"status"`
+	Start  time.Time `json:"start" example:"2021-01-01T00:00:00Z"`
+	End    time.Time `json:"end" example:"2021-01-01T00:00:00Z"`
+	Status string    `json:"status" example:"open"`
 
 	P1Checkers [25]int8 `json:"p1checkers"` // arr[0] is bar
 	P2Checkers [25]int8 `json:"p2checkers"` // arr[0] is bar
 
-	DoubleValue  uint64 `json:"double_value"`
-	DoubleOwner  string `json:"double_owner"`
-	WantToDouble bool   `json:"want_to_double"`
+	DoubleValue  uint64 `json:"double_value" example:"1"`
+	DoubleOwner  string `json:"double_owner" example:"all"`
+	WantToDouble bool   `json:"want_to_double" example:"false"`
 
-	CurrentPlayer string `json:"current_player"`
+	CurrentPlayer string `json:"current_player" example:"p1"`
+
+	GameType string `json:"game_type" example:"online"`
 }

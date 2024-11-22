@@ -3,10 +3,12 @@ package handler
 import (
 	"database/sql"
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
 	"reflect"
+	"strings"
 	"time"
 	"vezgammon/server/bgweb"
 	"vezgammon/server/db"
@@ -98,7 +100,7 @@ func StartGameLocalcally(c *gin.Context) {
 		Game:    *newgame,
 	}
 
-	c.JSON(http.StatusOK, ng)
+	c.JSON(http.StatusCreated, ng)
 }
 
 // @Summary Get current game
@@ -172,7 +174,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusOK, "Surrended")
+	c.JSON(http.StatusCreated, "Surrended")
 
 	// TODO: send notification to the other player that the game is over
 }
@@ -333,6 +335,48 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
+	// Check if we are playing against a bot
+
+	botLevel := db.GetBotLevel(g.Player2)
+	// Against a bot
+	if botLevel > 0 {
+		var t *types.Turn
+		var err error
+
+		switch botLevel {
+		case 1:
+			t, err = bgweb.GetEasyMove(g)
+		case 2:
+			t, err = bgweb.GetMediumMove(g)
+		case 3:
+			t, err = bgweb.GetBestMove(g)
+		default:
+			slog.Error("Invalid bot level")
+			return
+		}
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		g.PlayMove(t.Moves)
+		err = db.UpdateGame(g)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		_, err = db.CreateTurn(*t)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		// Send notification to the other player that it's his turn
+	}
+
 	c.JSON(http.StatusCreated, "Moves played")
 
 	// TODO: send notification to the other player that it's his turn
@@ -386,6 +430,17 @@ func WantToDouble(c *gin.Context) {
 		slog.With("error", err).Error("GetMoves failed")
 		c.JSON(http.StatusInternalServerError, err)
 		return
+	}
+
+	botLevel := db.GetBotLevel(g.Player2)
+	if botLevel > 0 {
+		// Always accept the double
+		slog.Debug("Bot always accept double")
+		err = acceptDouble(g.Player2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusCreated, g.DoubleValue*2)
@@ -445,27 +500,154 @@ func RefuseDouble(c *gin.Context) {
 func AcceptDouble(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
-	rg, err := db.GetCurrentGame(user_id)
+	err := acceptDouble(user_id)
 	if err != nil {
+
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, "Not in a game")
-		} else {
+		} else if strings.Contains(err.Error(), "Internal server error") {
 			slog.With("error", err).Error("GetMoves failed")
 			c.JSON(http.StatusInternalServerError, err)
+		} else {
+			c.JSON(http.StatusBadRequest, err)
 		}
 		return
 	}
 
-	g, err := db.GetGame(rg.ID)
+	c.JSON(http.StatusCreated, "Double accepted")
+	// TODO: send notification to the other player that he accepts the doubleS
+}
+
+// @Summary Create a game against an easy bot
+// @Schemes
+// @Description Create a game against an easy bot
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 {object} types.NewGame
+// @Failure 400 "Not in a game or double not possible"
+// @Router /play/bot/easy [get]
+func PlayEasyBot(c *gin.Context) {
+	PlayBot("easy", c)
+}
+
+// @Summary Create a game against an medium bot
+// @Schemes
+// @Description Create a game against an medium bot
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 {object} types.NewGame
+// @Failure 400 "Not in a game or double not possible"
+// @Router /play/bot/medium [get]
+func PlayMediumBot(c *gin.Context) {
+	PlayBot("medium", c)
+}
+
+// @Summary Create a game against an hard bot
+// @Schemes
+// @Description Create a game against an hard bot
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 {object} types.NewGame
+// @Failure 400 "Not in a game or double not possible"
+// @Router /play/bot/hard [get]
+func PlayHardBot(c *gin.Context) {
+	PlayBot("hard", c)
+}
+
+func PlayBot(mod string, c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	var bot_id int64
+	switch mod {
+	case "easy":
+		bot_id = db.GetEasyBotID()
+	case "medium":
+		bot_id = db.GetMediumBotID()
+	case "hard":
+		bot_id = db.GetHardBotID()
+	default:
+		slog.Error("Invalid mod on play bot")
+		c.JSON(http.StatusInternalServerError, "Invalid bot")
+		return
+	}
+
+	_, err := db.GetCurrentGame(user_id)
+	if err != sql.ErrNoRows {
+		c.JSON(http.StatusBadRequest, "Already in a game")
+		return
+	}
+
+	var startdices_p1, startdices_p2 types.Dices
+	for {
+		startdices_p1 = types.NewDices()
+		startdices_p2 = types.NewDices()
+
+		if startdices_p1.Sum() != startdices_p2.Sum() {
+			if startdices_p1.Sum() < startdices_p2.Sum() {
+				startdices_p1, startdices_p2 = startdices_p2, startdices_p1
+			}
+			break
+		}
+	}
+
+	// Against a bot the player will always start first
+	var start_player = types.GameCurrentPlayerP1
+
+	firstdices := types.NewDices()
+
+	g := types.Game{
+		Player1:       user_id,
+		Player2:       bot_id,
+		Start:         time.Now(),
+		Status:        types.GameStatusOpen,
+		CurrentPlayer: start_player,
+		Dices:         firstdices,
+	}
+
+	slog.With("game", g).Debug("Creating game")
+
+	_, err = db.CreateGame(g)
 	if err != nil {
 		slog.With("error", err).Error("GetMoves failed")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	if !g.WantToDouble {
-		c.JSON(http.StatusBadRequest, "Double not possible")
+	newgame, err := db.GetCurrentGame(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
 		return
+	}
+
+	ng := types.NewGame{
+		DicesP1: startdices_p1,
+		DicesP2: startdices_p2,
+		Game:    *newgame,
+	}
+
+	c.JSON(http.StatusCreated, ng)
+}
+
+func acceptDouble(user_id int64) error {
+	rg, err := db.GetCurrentGame(user_id)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return errors.New("Not in a game")
+		} else {
+			return errors.New("Internal server error")
+		}
+	}
+
+	g, err := db.GetGame(rg.ID)
+	if err != nil {
+		return err
+	}
+
+	if !g.WantToDouble {
+		return errors.New("Double not possible")
 	}
 
 	g.WantToDouble = false
@@ -474,16 +656,14 @@ func AcceptDouble(c *gin.Context) {
 	err = db.UpdateGame(g)
 	if err != nil {
 		slog.With("error", err).Error("GetMoves failed")
-		c.JSON(http.StatusInternalServerError, err)
-		return
+		return errors.New("Internal server error")
 	}
 
 	// save turn as double
 	doublingplayer_id, err := getCurrentPlayer(g.DoubleOwner, g.Player1, g.Player2)
 	if err != nil {
 		slog.With("error", err).Error("GetMoves failed")
-		c.JSON(http.StatusInternalServerError, err)
-		return
+		return errors.New("Internal server error")
 	}
 
 	turn := types.Turn{
@@ -496,10 +676,7 @@ func AcceptDouble(c *gin.Context) {
 	_, err = db.CreateTurn(turn)
 	if err != nil {
 		slog.With("error", err).Error("GetMoves failed")
-		c.JSON(http.StatusInternalServerError, err)
-		return
+		return errors.New("Internal server error")
 	}
-
-	c.JSON(http.StatusCreated, "Double accepted")
-	// TODO: send notification to the other player that he accepts the doubleS
+	return nil
 }

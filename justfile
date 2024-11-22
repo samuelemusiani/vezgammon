@@ -13,7 +13,7 @@ build-client:
     cd client && npm install && npm run build
 
 copy-client:
-    cp -r client/dist server/dist
+    cp -r client/dist server/handler/dist
 
 start-server: generate-swag
     go run ./server ./server/config/test-config.toml
@@ -27,7 +27,7 @@ test-server:
     #!/usr/bin/env sh
     sudo docker-compose -f docker-compose-test.yml up -d
     sleep 2
-    if go test -coverprofile server/coverage.txt ./server/... ; then
+    if go test -coverprofile server/coverage.txt ./server/... -v -p 1; then
         sudo docker-compose -f docker-compose-test.yml down -v;
     else
         sudo docker-compose -f docker-compose-test.yml down -v;
