@@ -1,4 +1,4 @@
-FROM node:alpine as build-client
+FROM node:alpine AS build-client
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ COPY client client
 
 RUN just build-client
 
-FROM golang:1.23.2-alpine as build-server
+FROM golang:1.23.2-alpine AS build-server
 
 WORKDIR /app    
 
@@ -23,7 +23,7 @@ COPY go.sum go.sum
 
 RUN just build-server
 
-FROM alpine
+FROM alpine:latest
 
 WORKDIR /app
 

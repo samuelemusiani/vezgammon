@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import router from '@/router'
 
 import type {
@@ -21,7 +21,6 @@ import ConfettiExplosion from 'vue-confetti-explosion'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
-import { onMounted } from 'vue'
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
 const gameState = ref<GameState | null>(null)
@@ -52,7 +51,7 @@ onMounted(async () => {
 
 const checkWin = () => {
   if (!gameState.value) return false
-  // TODO: when backend is ready, check using gameState.value.status
+  // When backend is ready, check using gameState.value.status
   if (getOutCheckers(gameState.value.current_player) == 15) {
     return true
   }
@@ -301,7 +300,7 @@ const handleTriangleClick = async (position: number) => {
         body: JSON.stringify(movesToSubmit.value),
       })
       console.log('stato POST', res.status)
-      // TODO: change with backend check
+      // Change with backend check
       if (checkWin()) {
         handleWin()
       }
@@ -722,12 +721,15 @@ const exitGame = async () => {
   0% {
     transform: rotate(0deg);
   }
+
   25% {
     transform: rotate(5deg);
   }
+
   75% {
     transform: rotate(-5deg);
   }
+
   100% {
     transform: rotate(0deg);
   }
@@ -753,11 +755,14 @@ const exitGame = async () => {
 
 .captured-checkers-container {
   .h-64 {
-    background: #f5c27a; /* Un colore leggermente più chiaro del tabellone */
+    background: #f5c27a;
+    /* Un colore leggermente più chiaro del tabellone */
   }
+
   .w-full {
     transition: all 0.3s ease-out;
   }
+
   transition: all 0.3s ease;
 }
 </style>

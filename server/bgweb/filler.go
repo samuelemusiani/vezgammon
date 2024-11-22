@@ -19,6 +19,9 @@ func fill(m [][]types.Move, g *types.Game) (r [][]types.Move, modified bool) {
 		currentBoard = g.P1Checkers
 	case types.GameCurrentPlayerP2:
 		currentBoard = g.P2Checkers
+	default:
+		// Invalid current player, pick one
+		currentBoard = g.P1Checkers
 	}
 
 	for i := range m {
