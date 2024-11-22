@@ -121,10 +121,43 @@ const fetchMoves = async () => {
 
 const isCheckerSelectable = (checker: Checker) => {
   if (!gameState.value || !diceRolled.value) return false
+
   // Converti il colore della pedina nel formato del player
   const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
-  console.log(checkerPlayer)
-  return checkerPlayer === gameState.value.current_player
+
+  // Verifica se la pedina appartiene al giocatore corrente
+  if (checkerPlayer !== gameState.value.current_player) return false
+
+  // Check if the player has any checkers in position 0 (the bar)
+  let barCheckersCount = 0
+  if (checkerPlayer === 'p1') {
+    barCheckersCount = gameState.value.p1checkers[0]
+  } else {
+    barCheckersCount = gameState.value.p2checkers[0]
+  }
+
+  // If the player has checkers on the bar (position 0)
+  if (barCheckersCount > 0) {
+    // Only the checker in position 0 is selectable
+    if (checker.position !== 0) return false
+    // Only the top checker in position 0 is selectable
+    if (checker.stackIndex !== barCheckersCount - 1) return false
+
+    return true
+  }
+
+  // Ottieni il numero totale di pedine nella posizione della pedina per questo giocatore
+  let totalCheckersAtPosition = 0
+  if (checkerPlayer === 'p1') {
+    totalCheckersAtPosition = gameState.value.p1checkers[checker.position]
+  } else {
+    totalCheckersAtPosition = gameState.value.p2checkers[checker.position]
+  }
+
+  // Solo la pedina in cima (con stackIndex più alto) è selezionabile
+  if (checker.stackIndex !== totalCheckersAtPosition - 1) return false
+
+  return true
 }
 
 const handleCheckerClick = (checker: Checker) => {
@@ -489,7 +522,7 @@ const exitGame = async () => {
               v-for="(checker, index) in getCheckers()"
               :key="`checker-${index}`"
               :cx="getCheckerX(checker)"
-              :cy="getCheckerY(checker)"
+              :cy="getCheckerY(checker, gameState as GameState)"
               :r="BOARD.checkerRadius"
               :fill="checker.color"
               :stroke="checker.color === 'white' ? 'black' : 'blue'"
@@ -506,15 +539,6 @@ const exitGame = async () => {
       <div
         class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
       >
-        <!--<div class="mb-4 flex flex-col items-center">
-          <button
-            @click="endTurn(gameState)"
-            class="retro-button mb-4 rounded-lg bg-blue-600 px-4 py-2 font-bold text-white transition-colors hover:bg-blue-700"
-          >
-            End Turn
-          </button>
-        </div>-->
-
         <!-- Opponent's Captured Checkers -->
         <div
           class="captured-checkers-container mb-4 flex flex-col place-items-center"
@@ -626,46 +650,6 @@ const exitGame = async () => {
         </div>
       </div>
     </div>
-
-    <!-- Game Info -->
-    <!--<div class="game-info mb-4 text-center">
-           <p class="text-lg font-bold">
-            Current Player:
-            <span
-              :class="
-                gameState.currentPlayer === 'white'
-                  ? 'text-gray-700'
-                  : 'text-gray-900'
-              "
-            >
-              {{ gameState.currentPlayer === 'white' ? 'White' : 'Black' }}
-            </span>
-          </p>
-          <p
-            v-if="gameState.dice.value[0] && gameState.dice.value[1]"
-            class="text-sm text-gray-600"
-          >
-            Moves remaining: {{ movesAvailable }}
-            <br />
-            Available values:
-            <span :class="{ 'line-through': gameState.dice.used[0] }">{{
-              gameState.dice.value[0]
-            }}</span
-            >,
-            <span :class="{ 'line-through': gameState.dice.used[1] }">{{
-              gameState.dice.value[1]
-            }}</span>
-            <span
-              v-if="
-                gameState.dice.value[0] !== gameState.dice.value[1] &&
-                !gameState.dice.used[0] &&
-                !gameState.dice.used[1]
-              "
-            >
-              , or {{ gameState.dice.value[0] + gameState.dice.value[1] }}
-            </span>
-          </p>
-        </div>-->
   </div>
 </template>
 
@@ -753,10 +737,6 @@ const exitGame = async () => {
 
 .dice-rolling {
   animation: dice-shake 0.3s ease-in-out infinite;
-}
-
-.checker-transition {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .selected {
