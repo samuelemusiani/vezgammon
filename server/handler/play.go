@@ -87,14 +87,14 @@ func StartGameLocalcally(c *gin.Context) {
 
 	_, err = db.CreateGame(g)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Creaiting local game")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
 	newgame, err := db.GetCurrentGame(userID)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting current game on local")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -121,15 +121,15 @@ func GetCurrentGame(c *gin.Context) {
 	userId := c.MustGet("user_id").(int64)
 
 	retgame, err := db.GetCurrentGame(userId)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, "Game not found")
-		return
-	}
-
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
-		c.JSON(http.StatusInternalServerError, err)
-		return
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, "Game not found")
+			return
+		} else {
+			slog.With("error", err).Error("Getting current game in /play")
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	c.JSON(http.StatusOK, retgame)
@@ -148,19 +148,20 @@ func SurrendToCurrentGame(c *gin.Context) {
 	userId := c.MustGet("user_id").(int64)
 
 	rg, err := db.GetCurrentGame(userId)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, ErrNotInGame.Error())
-		return
-	}
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
-		c.JSON(http.StatusInternalServerError, err)
-		return
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, ErrNotInGame.Error())
+			return
+		} else {
+			slog.With("error", err).Error("Getting current game in /play [delete]")
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	g, err := db.GetGame(rg.ID)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting game from DB in /play [delete]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -175,7 +176,7 @@ func SurrendToCurrentGame(c *gin.Context) {
 	g.Status = status
 	err = db.UpdateGame(g)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Updating game in /play [delete]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -198,19 +199,20 @@ func GetPossibleMoves(c *gin.Context) {
 	userId := c.MustGet("user_id").(int64)
 
 	rg, err := db.GetCurrentGame(userId)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, ErrNotInGame.Error())
-		return
-	}
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
-		c.JSON(http.StatusInternalServerError, err)
-		return
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, ErrNotInGame.Error())
+			return
+		} else {
+			slog.With("error", err).Error("Getting current game in /moves [get]")
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	g, err := db.GetGame(rg.ID)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting game from DB in /moves [get]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -232,7 +234,7 @@ func GetPossibleMoves(c *gin.Context) {
 	futureturn.CanDouble = (g.CurrentPlayer == g.DoubleOwner)
 	futureturn.PossibleMoves, err = bgweb.GetLegalMoves(g)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting legal moves in /moves [get]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -257,7 +259,7 @@ func PlayMoves(c *gin.Context) {
 	// get moves from body
 	buff, err := io.ReadAll(c.Request.Body)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Reading body in /moves [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -270,19 +272,20 @@ func PlayMoves(c *gin.Context) {
 	}
 
 	rg, err := db.GetCurrentGame(userId)
-	if err == sql.ErrNoRows {
-		c.JSON(http.StatusNotFound, ErrNotInGame.Error())
-		return
-	}
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
-		c.JSON(http.StatusInternalServerError, err)
-		return
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, ErrNotInGame.Error())
+			return
+		} else {
+			slog.With("error", err).Error("Getting current game in /moves [post]")
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
 	}
 
 	g, err := db.GetGame(rg.ID)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting game from DB in /moves [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -302,7 +305,7 @@ func PlayMoves(c *gin.Context) {
 	// check if moves are legal
 	legalmoves, err := bgweb.GetLegalMoves(g)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting legal moves in /moves [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -336,7 +339,7 @@ func PlayMoves(c *gin.Context) {
 
 	_, err = db.CreateTurn(turn)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Creating turn in /moves [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -405,7 +408,7 @@ func WantToDouble(c *gin.Context) {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, ErrNotInGame.Error())
 		} else {
-			slog.With("error", err).Error("GetMoves failed")
+			slog.With("error", err).Error("Getting current game in /double [post]")
 			c.JSON(http.StatusInternalServerError, err)
 		}
 		return
@@ -413,7 +416,7 @@ func WantToDouble(c *gin.Context) {
 
 	g, err := db.GetGame(rg.ID)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting game from DB in /double [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -433,7 +436,7 @@ func WantToDouble(c *gin.Context) {
 
 	err = db.UpdateGame(g)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Updating game in /double [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -471,7 +474,7 @@ func RefuseDouble(c *gin.Context) {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, ErrNotInGame.Error())
 		} else {
-			slog.With("error", err).Error("GetMoves failed")
+			slog.With("error", err).Error("Getting current game in /double [delete]")
 			c.JSON(http.StatusInternalServerError, err)
 		}
 		return
@@ -479,7 +482,7 @@ func RefuseDouble(c *gin.Context) {
 
 	g, err := db.GetGame(rg.ID)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting game from DB in /double [delete]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -508,11 +511,10 @@ func AcceptDouble(c *gin.Context) {
 
 	err := acceptDouble(userId)
 	if err != nil {
-
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, ErrNotInGame.Error())
 		} else if errors.Is(err, ErrInternal) {
-			slog.With("error", err).Error("GetMoves failed")
+			slog.With("error", err).Error("Accepting double")
 			c.JSON(http.StatusInternalServerError, err)
 		} else {
 			c.JSON(http.StatusBadRequest, err)
@@ -617,7 +619,7 @@ func PlayBot(mod string, c *gin.Context) {
 
 	_, err = db.CreateGame(g)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Creaiting bot game")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -661,14 +663,14 @@ func acceptDouble(userId int64) error {
 
 	err = db.UpdateGame(g)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Updating game after accepting double")
 		return ErrInternal
 	}
 
 	// save turn as double
 	doublingplayer_id, err := getCurrentPlayer(g.DoubleOwner, g.Player1, g.Player2)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Getting current player in acceptDouble")
 		return ErrInternal
 	}
 
@@ -681,7 +683,7 @@ func acceptDouble(userId int64) error {
 
 	_, err = db.CreateTurn(turn)
 	if err != nil {
-		slog.With("error", err).Error("GetMoves failed")
+		slog.With("error", err).Error("Creating turn in acceptDouble")
 		return ErrInternal
 	}
 	return nil
