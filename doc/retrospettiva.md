@@ -41,3 +41,25 @@ Carico di lavoro sottostimato, abbiamo un elevato debito per il prossimo sprint.
 #### Developer - Omar Ayache
 Oltre ai commenti e riflessioni dei colleghi che condivido, vorrei che al prossimo sprint si prendesse in considerazione una specie di misura (i.e. i giorni di lavoro o le ore) una misura quantitativa che associ task/tempo di lavoro. Questo dovrebbe comprendere anche la "tassa" della nuova tecnologia utilizzata, per esempio il capire come funziona la gestione del db con pSQL (oppure i possibili problemi che possono nascere). 
 I vantaggi dovrebbero essere che in questo modo riusciamo a valutare meglio sia il carico di lavoro ma anche il peso (punti) da assegnare ad ogni US.
+
+## Sprint 2
+
+Votes: 😃 😐 😡
+
+| Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D | 
+| ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |
+| Scrum Master     | 😃       |            |           |         |            |        |             
+| Product Owner    | 😃       |            |           |         |            |        |             
+| Development Team | 😐       |            |           |         |            |        |             
+| Product Backlog  | 😃       |            |           |         |            |        |             
+| Sprint Planning  | 😐       |            |           |         |            |        |             
+| Sprint Goal      | 😐       |            |           |         |            |        |             
+| Self Menagement  | 😃       |            |           |         |            |        |             
+
+### Commenti personali
+#### Product Owner - Diego Barbieri
+#### Developer - Samuele Musiani
+#### Scrum Master - Lorenzo Peronese
+#### Developer - Fabio Murer
+#### Developer - Emanuele Argonni
+#### Developer - Omar Ayache

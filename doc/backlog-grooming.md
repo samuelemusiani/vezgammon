@@ -26,3 +26,5 @@ nello sprint successivo. Di conseguenza, le attività inizialmente pianificate d
 Product Owner e Scrum Master si incontreranno lunedì per valutare strategie che evitino l'aggiunta di uno sprint 
 supplementare rispetto alla pianificazione iniziale. 
 Qualora l'estensione risultasse inevitabile, si procederà con una nuova distribuzione delle user stories.
+
+## Sprint 2
