@@ -428,8 +428,6 @@ const exitGame = async () => {
             class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
           >
             <button class="btn btn-primary" @click="exitGame">Exit Game</button>
-            <p class="text-sm text-gray-600">Total Time</p>
-            <p class="text-2xl font-bold"></p>
           </div>
 
           <!-- Current Player Info -->
