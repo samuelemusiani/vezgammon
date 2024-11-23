@@ -63,13 +63,13 @@ Valutazioni: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D | 
 | ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |
-| Scrum Master     | 😃       | 😃         | 😃        | 😃      |            | 😃     |             
-| Product Owner    | 😃       | 😃         | 😃        | 😐      |            | 😃     |             
-| Development Team | 😐       | 😃         | 😐        | 😐      |            | 😐     |             
-| Product Backlog  | 😃       | 😃         | 😃        | 😐      |            | 😐     |
-| Sprint Planning  | 😐       | 😡         | 😐        | 😃      |            | 😐     |
-| Sprint Goal      | 😐       | 😐         | 😐        | 😐      |            | 😐     |
-| Self Menagement  | 😃       | 😃         | 😃        | 😃      |            | 😐     |
+| Scrum Master     | 😃       | 😃         | 😃        | 😃      |  😃          | 😃     |             
+| Product Owner    | 😃       | 😃         | 😃        | 😐      |  😃          | 😃     |             
+| Development Team | 😐       | 😃         | 😐        | 😐      |  😃          | 😐     |             
+| Product Backlog  | 😃       | 😃         | 😃        | 😐      |  😐          | 😐     |
+| Sprint Planning  | 😐       | 😡         | 😐        | 😃      |  😐          | 😐     |
+| Sprint Goal      | 😐       | 😐         | 😐        | 😐      |  😐          | 😐     |
+| Self Menagement  | 😃       | 😃         | 😃        | 😃      |  😃          | 😐     |
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
@@ -93,6 +93,14 @@ ma sono soddisfatto del modo in cui queste difficoltà sono state affrontate e s
 
 
 #### Developer - Emanuele Argonni
+Purtroppo anche per questo sprint non siamo riusciti a portare a termine tutte la task, 
+dato un incoveniente con le API del backend che non ritornavano tutte le mosse possibili
+Nella seconda settimana dello sprint grazie al pair-programming tra backend e frontend siamo riusciti a risolvere quasi tutti i problemi riscontrati, 
+nonostante il tempo perso per il debugging.
+Buon lavoro dello scrum master che ha cercato di motivare i developer ed ha organizzato i daily scrum per permettere ai membri del team di confrontarsi
+
+
+
 #### Developer - Omar Ayache
 Sottostima del lavoro e problemi riguardo gestione del bot per le mosse, ottimo l'utilizzo della strategia pair-programming per i prossimi sprint.
 Miglior presa di coscienza generale del carico di lavoro.
