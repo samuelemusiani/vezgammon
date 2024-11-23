@@ -107,9 +107,6 @@ Miglior presa di coscienza generale del carico di lavoro.
 
 
 ### Prolematiche comuni e proposte per risolverle
-TODO diebbo
-- problemi:
-   gli stessi della sprint review
-- soluzioni:
-  - pair programming, coppia frontend dev + backend dev sviluppa una feature, 3 us in parallelo
-  - PO e SM daranno una mano con il codice (e continueranno le attività previste dai loro ruoli)
+Dall'analisi delle opinioni raccolte emerge un miglioramento generale delle prestazioni del team rispetto allo sprint precedente, sebbene persistano alcune criticità nella stima del carico di lavoro e nella comunicazione interna. Alla luce di queste considerazioni, proponiamo le seguenti azioni per il prossimo sprint:
+1. effettuare piu' pair-programming per risolvere problemi di comunicazione. Questo permetterebbe di mettere in diretta relazione persone di diversi ruoli e di far capire meglio il lavoro che si sta svolgendo.
+2. Suddividere il carico di lavoro includendo anche PO e SM in attività di sviluppo, per massimizzare e parallelizzare il lavoro. Questo non sottraendo tempo alle attività già previste dai loro ruoli.
