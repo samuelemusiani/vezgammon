@@ -58,6 +58,9 @@ Votes: 😃 😐 😡
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
+Nel complesso, penso che il team abbia lavorato al meglio delle proprie capacità. Sono stati parzialmente risolti i problemi di comunicazione e di suddivisione del carico di lavoro. Penso che sia necessaria maggiore attenzione agli standard da adottare per le API tra front e back-end. Questo puo' essere risolto con una maggiore attenzione agli schemi di progettazione e alla documentazione. 
+Sono stato negativamente colpito dal fatto che durante l'ultima sprint review, alcuni membri del team non avessero ben chiaro il significato di DOD e della sua importanza. Lo stesso e' successo quando un developer ha mergiato direttamente sul main parte dello sviluppo ancora non pienamente completato. 
+
 #### Developer - Samuele Musiani
 Problemi nel back-end, soprattutto riguardo le api per backgammon. Sotto-stima dei tempi per completare certe US. Buona la scelta di spostare
 un developer del frontend nel backend.
