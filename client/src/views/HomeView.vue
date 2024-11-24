@@ -12,7 +12,7 @@
         <!-- Left Button (Stats) -->
         <div class="absolute left-8">
           <button
-            @click="(e: MouseEvent) => play()"
+            @click="(e: MouseEvent) => router.push('/wip')"
             @mouseenter="(e: MouseEvent) => play()"
             class="retro-button circle"
             title="Statistics"
@@ -30,10 +30,18 @@
           >
             PLAY
           </button>
-          <button @mouseenter="(e: MouseEvent) => play()" class="retro-button">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="router.push('/wip')"
+            class="retro-button"
+          >
             RULES
           </button>
-          <button @mouseenter="(e: MouseEvent) => play()" class="retro-button">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="router.push('/wip')"
+            class="retro-button"
+          >
             SETTINGS
           </button>
         </div>
@@ -77,7 +85,7 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="startGame('online')"
+              @click="router.push('/wip')"
               class="retro-button"
             >
               Play Online
