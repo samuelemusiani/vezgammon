@@ -426,13 +426,13 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
-	if (g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner == g.CurrentPlayer) || g.DoubleValue == 64 {
+	if (g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner != g.CurrentPlayer) || g.DoubleValue == 64 {
 		c.JSON(http.StatusBadRequest, ErrDoubleNotPossible.Error())
 		return
 	}
 
 	g.WantToDouble = true
-	g.DoubleOwner = g.CurrentPlayer
+	g.DoubleOwner = invertPlayer(g.CurrentPlayer)
 
 	err = db.UpdateGame(g)
 	if err != nil {
