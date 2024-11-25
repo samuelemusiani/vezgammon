@@ -87,12 +87,23 @@ const handleDouble = async () => {
     })
     if (res.ok) {
       await fetchGameState()
-      showDoubleModal.value = true
+      if (gameState.value.game_type === 'local') {
+        showDoubleModal.value = true
+      }
     }
   } catch (err) {
     console.error('Error sending double:', err)
   }
 }
+
+const showDoubleButton = computed(() => {
+  if (!gameState.value) return false
+  if (gameState.value.double_owner === 'all') return true
+  if (gameState.value.game_type === 'local') {
+    return gameState.value.current_player === gameState.value.double_owner
+  }
+  return gameState.value.double_owner === whichPlayerAmI.value
+})
 
 const acceptDouble = async () => {
   try {
@@ -526,10 +537,7 @@ const exitGame = async () => {
             <button
               @click="handleDouble"
               class="retro-button mt-2"
-              v-show="
-                gameState?.double_owner === 'all' ||
-                gameState?.double_owner === whichPlayerAmI
-              "
+              v-show="showDoubleButton"
             >
               Double
             </button>
