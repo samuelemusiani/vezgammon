@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import router from '@/router'
 
 import type {
@@ -8,6 +8,7 @@ import type {
   MovesResponse,
   Move,
 } from '@/utils/game/types'
+import type { User } from '@/utils/types'
 import {
   BOARD,
   getTrianglePath,
@@ -30,6 +31,10 @@ const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const displayedDice = ref<number[]>([])
+const doubleDice = ref<number>(64)
+const session = ref<User | undefined>()
+const showDoubleModal = ref(false)
+const showDoubleWinModal = ref(false)
 
 const isRolling = ref(false)
 const diceRolled = ref(false)
@@ -44,10 +49,19 @@ onMounted(async () => {
   try {
     await fetchGameState()
     await fetchMoves()
+    await fetchSession()
   } catch {
     console.error('Error fetching game state')
   }
 })
+
+const fetchSession = async () => {
+  await fetch('/api/session')
+    .then(res => res.json())
+    .then(data => {
+      session.value = data
+    })
+}
 
 const checkWin = () => {
   if (!gameState.value) return false
@@ -65,6 +79,74 @@ const handleWin = () => {
     isExploding.value = false
   }, 5000)
 }
+
+const handleDouble = async () => {
+  try {
+    const res = await fetch('/api/play/double', {
+      method: 'POST',
+    })
+    if (res.ok) {
+      await fetchGameState()
+      if (gameState.value?.game_type === 'local') {
+        showDoubleModal.value = true
+      }
+    }
+  } catch (err) {
+    console.error('Error sending double:', err)
+  }
+}
+
+const showDoubleButton = computed(() => {
+  if (!gameState.value) return false
+  if (gameState.value.double_owner === 'all') return true
+  if (gameState.value.game_type === 'local') {
+    return gameState.value.current_player === gameState.value.double_owner
+  }
+  return gameState.value.double_owner === whichPlayerAmI.value
+})
+
+const acceptDouble = async () => {
+  try {
+    const res = await fetch('/api/play/double', {
+      method: 'PUT',
+    })
+    if (res.ok) {
+      showDoubleModal.value = false
+      await fetchGameState()
+    }
+  } catch (err) {
+    console.error('Error accepting double:', err)
+  }
+}
+
+const declineDouble = async () => {
+  try {
+    const res = await fetch('/api/play/double', {
+      method: 'DELETE',
+    })
+    if (res.ok) {
+      showDoubleModal.value = false
+      showDoubleWinModal.value = true
+      playVictory()
+    }
+  } catch (err) {
+    console.error('Error declining double:', err)
+  }
+}
+
+const handleDoubleWinExit = async () => {
+  showDoubleWinModal.value = false
+  // Usa la funzione exitGame esistente
+  await exitGame()
+}
+
+const whichPlayerAmI = computed(() => {
+  if (gameState.value?.player1 === session.value?.username) {
+    return 'p1'
+  } else {
+    return 'p2'
+  }
+})
 
 const handleDiceRoll = () => {
   if (diceRolled.value || !availableMoves.value?.dices) return
@@ -422,6 +504,45 @@ const exitGame = async () => {
             <p class="text-gray-600">ELO: {{ gameState?.elo2 }}</p>
           </div>
 
+          <!-- Double Dice Here -->
+          <div class="flex flex-col items-center">
+            <div
+              class="retro-box flex h-16 w-16 items-center justify-center rounded-lg bg-white p-2 shadow-lg"
+            >
+              <svg viewBox="0 0 60 60">
+                <!-- Dice border -->
+                <rect
+                  x="1"
+                  y="1"
+                  width="58"
+                  height="58"
+                  rx="8"
+                  fill="#d2691e"
+                  stroke="black"
+                  stroke-width="2"
+                />
+                <!-- Number text -->
+                <text
+                  x="30"
+                  y="40"
+                  text-anchor="middle"
+                  font-size="30"
+                  font-weight="bold"
+                  fill="white"
+                >
+                  {{ gameState?.double_value }}
+                </text>
+              </svg>
+            </div>
+            <button
+              @click="handleDouble"
+              class="retro-button mt-2"
+              v-show="showDoubleButton"
+            >
+              Double
+            </button>
+          </div>
+
           <!-- Game Timer -->
           <div
             class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
@@ -644,6 +765,54 @@ const exitGame = async () => {
               ></div>
             </div>
           </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Double Confirmation Modal -->
+    <div
+      v-if="showDoubleModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="retro-box max-w-md rounded-lg p-6 text-center">
+        <h3 class="mb-4 text-xl font-bold text-amber-900">Confirm Double</h3>
+        <p class="mb-6 text-gray-700">
+          Your opponent has offered a double. Do you accept?
+        </p>
+        <div class="flex justify-center gap-4">
+          <button
+            @click="acceptDouble"
+            class="retro-button bg-green-700 hover:bg-green-800"
+          >
+            Confirm
+          </button>
+          <button
+            @click="declineDouble"
+            class="retro-button bg-red-700 hover:bg-red-800"
+          >
+            Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Double Win Modal -->
+    <div
+      v-if="showDoubleWinModal"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
+    >
+      <div class="retro-box max-w-md rounded-lg p-6 text-center">
+        <h3 class="mb-4 text-2xl font-bold text-amber-900">Victory!</h3>
+        <p class="mb-6 text-lg text-gray-700">
+          Your opponent refused the double. You win the game!
+        </p>
+        <div class="flex justify-center">
+          <button
+            @click="handleDoubleWinExit"
+            class="retro-button bg-green-700 hover:bg-green-800"
+          >
+            Return to Menu
+          </button>
         </div>
       </div>
     </div>

@@ -25,6 +25,7 @@ export interface GameState {
   start: string
   end: string
   status: string
+  game_type: string
   p1checkers: number[]
   p2checkers: number[]
   double_value: number
