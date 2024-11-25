@@ -2,9 +2,11 @@ package handler
 
 import (
 	"embed"
+	"log/slog"
 	"net/http"
 	"strings"
 	"vezgammon/server/config"
+	"vezgammon/server/ws"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -47,6 +49,10 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup.GET("/bot/easy", PlayEasyBot)
 	playGroup.GET("/bot/medium", PlayMediumBot)
 	playGroup.GET("/bot/hard", PlayHardBot)
+	playGroup.GET("/ws", func(c *gin.Context) {
+		slog.Debug("prova")
+		ws.WSHandler(c.Writer, c.Request, c.MustGet("user_id").(int64))
+	})
 
 	// expose swagger web console
 	if conf.Swagger {

@@ -509,6 +509,9 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
+                "token": {
+                    "type": "string"
+                },
                 "username": {
                     "type": "string",
                     "example": "gio"

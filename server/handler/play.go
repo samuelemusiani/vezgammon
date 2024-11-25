@@ -10,6 +10,10 @@ import (
 	"reflect"
 	"time"
 	"vezgammon/server/bgweb"
+	"vezgammon/server/matchmaking"
+	"vezgammon/server/ws"
+
+	"log/slog"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
 
@@ -30,7 +34,25 @@ var ErrDoubleNotPossible = errors.New("Double not possible")
 // @Failure 400 "Already searching or in a game"
 // @Router /play/search [get]
 func StartPlaySearch(c *gin.Context) {
-	// Placeholder, need to implement for matchmaking
+	slog.Debug("Inizio a cercare un game")
+	user_id := c.MustGet("user_id").(int64)
+
+	//send to db the user [searching]
+	ret := matchmaking.SearchGame(user_id)
+	if ret != nil {
+		err := ws.GameNotFound(user_id)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	//return game founded
+	err := ws.SendGameFound(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
 }
 
 // @Summary Stop a running matchmaking search

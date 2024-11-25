@@ -33,6 +33,8 @@ definitions:
       id:
         example: 1
         type: integer
+      token:
+        type: string
       username:
         example: gio
         type: string
