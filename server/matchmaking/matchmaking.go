@@ -29,20 +29,17 @@ func Init() {
 						err := remove(p1)
 						if err != nil {
 							slog.With("err", err).Error("Removing user1 from queue")
-							mutex.Unlock()
 							continue
 						}
 
-						remove(p2)
+						err = remove(p2)
 						if err != nil {
 							slog.With("err", err).Error("Removing user2 from queue")
-							mutex.Unlock()
 							continue
 						}
 
 						if err := createGame(p1.User_id, p2.User_id); err != nil {
 							slog.With("err", err).Error("Creating game")
-							mutex.Unlock()
 							continue
 						}
 
@@ -55,7 +52,6 @@ func Init() {
 						if err != nil {
 							slog.With("err", err).Error("Sending message to player")
 						}
-						mutex.Unlock()
 						continue
 					}
 				}
