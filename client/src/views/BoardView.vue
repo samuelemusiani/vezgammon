@@ -87,7 +87,7 @@ const handleDouble = async () => {
     })
     if (res.ok) {
       await fetchGameState()
-      if (gameState.value.game_type === 'local') {
+      if (gameState.value?.game_type === 'local') {
         showDoubleModal.value = true
       }
     }
