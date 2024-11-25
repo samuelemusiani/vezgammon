@@ -49,7 +49,8 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup.GET("/bot/easy", PlayEasyBot)
 	playGroup.GET("/bot/medium", PlayMediumBot)
 	playGroup.GET("/bot/hard", PlayHardBot)
-	playGroup.GET("/ws", func(c *gin.Context) {
+
+	protected.GET("/ws", func(c *gin.Context) {
 		slog.Debug("prova")
 		ws.WSHandler(c.Writer, c.Request, c.MustGet("user_id").(int64))
 	})
