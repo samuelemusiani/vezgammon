@@ -13,7 +13,6 @@ import (
 	"vezgammon/server/matchmaking"
 	"vezgammon/server/ws"
 
-	"log/slog"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
 
@@ -189,10 +188,13 @@ func SurrendToCurrentGame(c *gin.Context) {
 	}
 
 	var status string
+	var opponentID int64
 	if g.Player1 == userId { // Player 1 surrended, player 2 wins
 		status = types.GameStatusWinP2
+		opponentID = g.Player2
 	} else {
 		status = types.GameStatusWinP1
+		opponentID = g.Player1
 	}
 
 	g.Status = status
@@ -203,9 +205,13 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, "Surrended")
-
 	// Send notification to the other player that the game is over
+	err = ws.GameEnd(opponentID)
+	if err != nil {
+		slog.With("error", err).Error("Sending message to player")
+	}
+
+	c.JSON(http.StatusCreated, "Surrended")
 }
 
 // @Summary Get possible moves for next turn
@@ -404,13 +410,18 @@ func PlayMoves(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
+	} else {
+		// We are playing against another player
+		opponentID, err := getOpponentID(g.CurrentPlayer, g.Player1, g.Player2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
 
-		// Send notification to the other player that it's his turn
+		ws.TurnMade(opponentID)
 	}
 
 	c.JSON(http.StatusCreated, "Moves played")
-
-	// Send notification to the other player that it's his turn
 }
 
 // @Summary The player want to double
