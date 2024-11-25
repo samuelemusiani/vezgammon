@@ -432,7 +432,7 @@ func WantToDouble(c *gin.Context) {
 	}
 
 	g.WantToDouble = true
-	g.DoubleOwner = g.CurrentPlayer
+	g.DoubleOwner = invertPlayer(g.CurrentPlayer)
 
 	err = db.UpdateGame(g)
 	if err != nil {
