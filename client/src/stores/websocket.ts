@@ -4,7 +4,14 @@ import { ref } from 'vue'
 export const useWebSocketStore = defineStore('websocket', () => {
   const socket = ref<WebSocket | null>(null)
   const isConnected = ref(false)
-  const lastMessage = ref<string | null>(null)
+  const messageHandlers = new Set<(message: any) => void>()
+  const addMessageHandler = (handler: (message: any) => void) => {
+    messageHandlers.add(handler)
+  }
+
+  const removeMessageHandler = (handler: (message: any) => void) => {
+    messageHandlers.delete(handler)
+  }
 
   const connect = () => {
     try {
@@ -27,8 +34,10 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
 
       socket.value.onmessage = event => {
-        lastMessage.value = event.data
-        console.log('Received message:', event.data)
+        const data = JSON.parse(event.data)
+        const message = data.type
+        messageHandlers.forEach(handler => handler(message))
+        console.log('Received message:', message)
       }
     } catch (error) {
       console.error('Error connecting to WebSocket:', error)
@@ -51,9 +60,10 @@ export const useWebSocketStore = defineStore('websocket', () => {
   return {
     socket,
     isConnected,
-    lastMessage,
     connect,
     disconnect,
     sendMessage,
+    addMessageHandler,
+    removeMessageHandler,
   }
 })

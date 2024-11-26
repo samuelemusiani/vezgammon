@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import router from '@/router'
 
 import type {
@@ -22,8 +22,8 @@ import ConfettiExplosion from 'vue-confetti-explosion'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
+import lostSfx from '@/utils/sounds/lostgame.mp3'
 import { useWebSocketStore } from '@/stores/websocket'
-import { watch } from 'vue'
 
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
@@ -36,7 +36,8 @@ const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const displayedDice = ref<number[]>([])
 const session = ref<User | undefined>()
 const showDoubleModal = ref(false)
-const showDoubleWinModal = ref(false)
+const showResultModal = ref(false)
+const isWinner = ref(false)
 
 const isRolling = ref(false)
 const diceRolled = ref(false)
@@ -44,6 +45,7 @@ const diceRolled = ref(false)
 const isExploding = ref(false)
 const { play: playVictory } = useSound(victorySfx)
 const { play: playDice } = useSound(diceSfx)
+const { play: playLost } = useSound(lostSfx)
 //const { play: playTin } = useSound(tinSfx)
 const webSocketStore = useWebSocketStore()
 // Fetch a /api/play on mounted
@@ -53,36 +55,28 @@ onMounted(async () => {
     await fetchMoves()
     await fetchSession()
     webSocketStore.connect()
+    webSocketStore.addMessageHandler(handleMessage)
   } catch {
     console.error('Error fetching game state')
   }
 })
 
-watch(
-  () => webSocketStore.lastMessage,
-  newMessage => {
-    if (newMessage) {
-      try {
-        const message = JSON.parse(newMessage)
-        if (message.type === 'turn_made') {
-          fetchGameState()
-          fetchMoves()
-        } else if (message.type === 'want_to_double') {
-          showDoubleModal.value = true
-        } else if (message.type === 'double_accepted') {
-          fetchGameState()
-        } else if (message.type === 'game_end') {
-          // TODO: check which player won
-          showDoubleModal.value = false
-          showDoubleWinModal.value = true
-          playVictory()
-        }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error)
-      }
-    }
-  },
-)
+onUnmounted(() => {
+  webSocketStore.removeMessageHandler(handleMessage)
+})
+
+const handleMessage = async (message: string) => {
+  if (message === 'turn_made') {
+    await fetchGameState()
+    await fetchMoves()
+  } else if (message === 'want_to_double') {
+    showDoubleModal.value = true
+  } else if (message === 'double_accepted') {
+    await fetchGameState()
+  } else if (message === 'game_end') {
+    await handleEnd()
+  }
+}
 
 const fetchSession = async () => {
   await fetch('/api/session')
@@ -101,12 +95,39 @@ const checkWin = () => {
   return false
 }
 
+const fetchWinner = async () => {
+  try {
+    const res = await fetch('/api/play/last/winner')
+    const winner = await res.json()
+    return winner
+  } catch (err) {
+    console.error('Error fetching winner:', err)
+  }
+}
+
+const handleEnd = async () => {
+  const winner = await fetchWinner()
+  if (winner === session.value?.username) {
+    handleWin()
+  } else {
+    handleLose()
+  }
+}
+
 const handleWin = () => {
+  isWinner.value = true
+  showResultModal.value = true
   playVictory()
   isExploding.value = true
   setTimeout(() => {
     isExploding.value = false
   }, 5000)
+}
+
+const handleLose = () => {
+  isWinner.value = false
+  showResultModal.value = true
+  playLost()
 }
 
 const handleDouble = async () => {
@@ -155,8 +176,7 @@ const declineDouble = async () => {
     })
     if (res.ok) {
       showDoubleModal.value = false
-      showDoubleWinModal.value = true
-      playVictory()
+      handleLose()
     }
   } catch (err) {
     console.error('Error declining double:', err)
@@ -164,7 +184,7 @@ const declineDouble = async () => {
 }
 
 const handleDoubleWinExit = async () => {
-  showDoubleWinModal.value = false
+  showResultModal.value = false
   // Usa la funzione exitGame esistente
   await exitGame()
 }
@@ -829,18 +849,29 @@ const exitGame = async () => {
 
     <!-- Double Win Modal -->
     <div
-      v-if="showDoubleWinModal"
+      v-if="showResultModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     >
       <div class="retro-box max-w-md rounded-lg p-6 text-center">
-        <h3 class="mb-4 text-2xl font-bold text-amber-900">Victory!</h3>
+        <h3 class="mb-4 text-2xl font-bold text-amber-900">
+          {{ isWinner ? 'Victory!' : 'Defeat!' }}
+        </h3>
         <p class="mb-6 text-lg text-gray-700">
-          Your opponent refused the double. You win the game!
+          {{
+            isWinner
+              ? 'Congratulations! You won the game!'
+              : 'Game Over! Better luck next time!'
+          }}
         </p>
         <div class="flex justify-center">
           <button
             @click="handleDoubleWinExit"
-            class="retro-button bg-green-700 hover:bg-green-800"
+            class="retro-button"
+            :class="
+              isWinner
+                ? 'bg-green-700 hover:bg-green-800'
+                : 'bg-red-700 hover:bg-red-800'
+            "
           >
             Return to Menu
           </button>

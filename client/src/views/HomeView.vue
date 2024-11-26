@@ -164,9 +164,8 @@ import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useWebSocketStore } from '@/stores/websocket'
-import { watch } from 'vue'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
@@ -174,27 +173,22 @@ const showDifficulty = ref(false)
 
 onMounted(() => {
   webSocketStore.connect()
+  webSocketStore.addMessageHandler(handleMatchmaking)
 })
 
-watch(
-  () => webSocketStore.lastMessage,
-  newMessage => {
-    if (newMessage) {
-      try {
-        const message = JSON.parse(newMessage)
-        if (message.type === 'game_found') {
-          const waitingModal = document.getElementById(
-            'waiting_modal',
-          ) as HTMLDialogElement
-          waitingModal.close()
-          router.push('/game')
-        }
-      } catch (error) {
-        console.error('Error parsing WebSocket message:', error)
-      }
-    }
-  },
-)
+onUnmounted(() => {
+  webSocketStore.removeMessageHandler(handleMatchmaking)
+})
+
+const handleMatchmaking = (message: string) => {
+  if (message === 'game_found') {
+    const waitingModal = document.getElementById(
+      'waiting_modal',
+    ) as HTMLDialogElement
+    waitingModal.close()
+    router.push('/game')
+  }
+}
 
 const modalTitle = computed(() => {
   return showDifficulty.value ? 'Choose Difficulty' : 'Select Game Mode'
