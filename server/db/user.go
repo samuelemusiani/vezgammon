@@ -345,7 +345,11 @@ func GetStats(user_id int64) (*types.Stats, error) {
 	}
 	stats.Elo = append(stats.Elo, u.Elo)
 
-	stats.Winrate = float32(stats.Won / int64(len(stats.Gameplayed)))
+	if len(stats.Gameplayed) == 0 {
+		stats.Winrate = 0
+	} else {
+		stats.Winrate = float32(stats.Won / int64(len(stats.Gameplayed)))
+	}
 	slog.With("stats", stats).Debug("Statistiche")
 
 	return stats, nil

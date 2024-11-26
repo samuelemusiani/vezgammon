@@ -276,6 +276,8 @@ func TestStats(t *testing.T) {
 	tgame, err := CreateGame(game)
 	assert.NilError(t, err)
 
+	slog.With("game creato", tgame).Debug("Statistiche")
+
 	assert.Equal(t, tgame.Player1, game.Player1)
 	assert.Equal(t, tgame.Player2, game.Player2)
 	assert.Equal(t, tgame.Elo1, game.Elo1)
@@ -285,6 +287,8 @@ func TestStats(t *testing.T) {
 	game.Status = types.GameDoubleOwnerP1
 	err = UpdateGame(&game)
 	assert.NilError(t, err)
+
+	slog.With("game finito", game).Debug("Statistiche")
 
 	var stats *types.Stats
 	stats, err = GetStats(tuser.ID)
