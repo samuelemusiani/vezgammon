@@ -454,4 +454,21 @@ paths:
       summary: Get current auth session
       tags:
       - authentication
+  /stats:
+    get:
+      consumes:
+      - application/json
+      description: Get users' stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.User'
+        "500":
+          description: error
+      summary: Get users' stats
+      tags:
+      - authentication
 swagger: "2.0"

@@ -458,6 +458,32 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/stats": {
+            "get": {
+                "description": "Get users' stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get users' stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.User"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
         }
     },
     "definitions": {

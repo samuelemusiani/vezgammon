@@ -17,5 +17,9 @@ type Stats struct {
 	Won        int64
 	Lost       int64
 	Elo        []int64
-	// ... altre stats
+	Winrate    float32
+	Online     int64
+	Local      int64
+	CPU        int64
+	Tournament int64
 }

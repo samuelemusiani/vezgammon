@@ -307,25 +307,46 @@ func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64)
 }
 
 func GetStats(user_id int64) (*types.Stats, error) {
-	var stats *types.Stats
+	stats := new(types.Stats)
 
 	//partite dal db con current state won lost del player(user_id)
-	gp, err := GetAllGameFromUser(user_id)
+	u, err := GetUser(user_id)
 	if err != nil {
 		return nil, err
 	}
 
-	elos, err := calculateEloHistory(gp, user_id)
+	var gp []types.ReturnGame
+	gp, err = GetAllGameFromUser(user_id)
 	if err != nil {
 		return nil, err
 	}
 
-	stats.Elo = elos
+	stats.Gameplayed = gp
+	stats.Tournament = 0 // not implemented yet
+	for i, game := range gp {
+		if game.GameType == types.GameTypeBot {
+			stats.CPU++
+		} else if game.GameType == types.GameTypeLocal {
+			stats.Local++
+		} else if game.GameType == types.GameTypeOnline {
+			stats.Online++
+		}
+
+		if game.Status == types.GameStatusWinP1 && game.Player1 == u.Username || game.Status == types.GameStatusWinP2 && game.Player2 == u.Username {
+			stats.Won++
+		} else {
+			stats.Lost++
+		}
+		if game.Player1 == u.Username {
+			stats.Elo[i] = game.Elo1
+		} else {
+			stats.Elo[i] = game.Elo2
+		}
+	}
+	stats.Elo = append(stats.Elo, u.Elo)
+
+	stats.Winrate = float32(stats.Won / int64(len(stats.Gameplayed)))
+	slog.With("stats", stats).Debug("Statistiche")
 
 	return stats, nil
-}
-
-func calculateEloHistory([]types.ReturnGame, int64) ([]int64, error) {
-	var elos []int64
-	return elos, nil
 }
