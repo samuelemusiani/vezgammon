@@ -28,10 +28,10 @@ async function logout() {
 
 <template>
   <div
-    class="retro-background flex min-h-screen items-center justify-center bg-base-200"
+    class="flex h-full items-center justify-center"
   >
-    <div class="card w-1/2 bg-base-100 shadow-xl">
-      <div class="retro-box card-body">
+    <div class="card w-1/2 bg-base-100 shadow-xl border-primary border-8 rounded-xl">
+      <div class="card-body">
         <h2 class="text-center text-2xl font-bold">Profile</h2>
 
         <div class="divider divider-neutral"></div>
@@ -53,7 +53,7 @@ async function logout() {
           </div>
 
           <div class="mt-10 flex justify-center">
-            <button class="btn btn-warning" @click="logout">LOGOUT</button>
+            <button class="btn btn-primary" @click="logout">LOGOUT</button>
           </div>
         </div>
 
