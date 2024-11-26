@@ -39,7 +39,7 @@ func Init() {
 						}
 
 						if err := createGame(p1.User_id, p2.User_id); err != nil {
-							slog.With("err", err).Error("Creating game")
+							slog.With("err", err, "p1", p1.User_id, "p2", p2.User_id).Error("Creating game")
 							continue
 						}
 
