@@ -62,6 +62,18 @@ definitions:
           type: array
         type: array
     type: object
+  types.LeaderBoardEntry:
+    properties:
+      lose:
+        example: 1
+        type: integer
+      user:
+        example: Giorgio
+        type: string
+      win:
+        example: 1
+        type: integer
+    type: object
   types.Move:
     properties:
       from:
@@ -132,6 +144,9 @@ definitions:
       status:
         example: open
         type: string
+      tournament:
+        example: 1
+        type: integer
       want_to_double:
         example: false
         type: boolean
@@ -149,9 +164,17 @@ definitions:
       end:
         example: "2021-01-01T00:00:00Z"
         type: string
+      games:
+        items:
+          $ref: '#/definitions/types.ReturnGame'
+        type: array
       id:
         example: 1
         type: integer
+      leader_board:
+        items:
+          $ref: '#/definitions/types.LeaderBoardEntry'
+        type: array
       name:
         example: Tournament name
         type: string
@@ -174,6 +197,18 @@ definitions:
         type: array
       visibility:
         example: public
+        type: string
+    type: object
+  types.TournamentInfo:
+    properties:
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Tournament name
+        type: string
+      owner:
+        example: Giorgio
         type: string
     type: object
   types.User:
@@ -482,6 +517,28 @@ paths:
       tags:
       - tournament
   /play/tournament/{tournament_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "404":
+          description: tournament not found
+      summary: Get a tournament
+      tags:
+      - tournament
     post:
       consumes:
       - application/json
@@ -504,6 +561,25 @@ paths:
         "404":
           description: tournament not found
       summary: Join a tournament
+      tags:
+      - tournament
+  /play/tournament/list:
+    get:
+      consumes:
+      - application/json
+      description: List all tournaments you can access
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.TournamentInfo'
+            type: array
+        "500":
+          description: internal server error
+      summary: List all tournaments
       tags:
       - tournament
   /register:

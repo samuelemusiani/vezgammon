@@ -439,7 +439,69 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/tournament/list": {
+            "get": {
+                "description": "List all tournaments you can access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "List all tournaments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.TournamentInfo"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
         "/play/tournament/{tournament_id}": {
+            "get": {
+                "description": "Get a tournament",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Get a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnTournament"
+                        }
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            },
             "post": {
                 "description": "Join a tournament",
                 "consumes": [
@@ -630,6 +692,23 @@ const docTemplate = `{
                 }
             }
         },
+        "types.LeaderBoardEntry": {
+            "type": "object",
+            "properties": {
+                "lose": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "user": {
+                    "type": "string",
+                    "example": "Giorgio"
+                },
+                "win": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "types.Move": {
             "type": "object",
             "properties": {
@@ -728,6 +807,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "open"
                 },
+                "tournament": {
+                    "type": "integer",
+                    "example": 1
+                },
                 "want_to_double": {
                     "type": "boolean",
                     "example": false
@@ -752,9 +835,21 @@ const docTemplate = `{
                     "type": "string",
                     "example": "2021-01-01T00:00:00Z"
                 },
+                "games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
                 "id": {
                     "type": "integer",
                     "example": 1
+                },
+                "leader_board": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.LeaderBoardEntry"
+                    }
                 },
                 "name": {
                     "type": "string",
@@ -786,6 +881,23 @@ const docTemplate = `{
                 "visibility": {
                     "type": "string",
                     "example": "public"
+                }
+            }
+        },
+        "types.TournamentInfo": {
+            "type": "object",
+            "properties": {
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Tournament name"
+                },
+                "owner": {
+                    "type": "string",
+                    "example": "Giorgio"
                 }
             }
         },

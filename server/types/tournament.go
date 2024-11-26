@@ -1,7 +1,7 @@
 package types
 
 const TournamentStatusOpen = "open"
-const TournamentStatusClosed = "closed"
+const TournamentStatusClosed = "close"
 
 const TournamentVisibilityPublic = "public"
 const TournamentVisibilityPrivate = "private"
@@ -18,6 +18,12 @@ type Tournament struct {
 	Users      []int64 `json:"users" example:"1,2,3"`
 }
 
+type LeaderBoardEntry struct {
+	User string `json:"user" example:"Giorgio"`
+	Win  int    `json:"win" example:"1"`
+	Lose int    `json:"lose" example:"1"`
+}
+
 type ReturnTournament struct {
 	ID         int64    `json:"id" example:"1"`
 	Name       string   `json:"name" example:"Tournament name"`
@@ -28,4 +34,15 @@ type ReturnTournament struct {
 	Visibility string   `json:"visibility" example:"public"`
 	AllowUsers []string `json:"allow_users" example:"giorgio,diego,marco"`
 	Users      []string `json:"users" example:"giorgio,diego,marco"`
+
+	LeaderBoard []LeaderBoardEntry `json:"leader_board"`
+	Games       []ReturnGame       `json:"games"`
 }
+
+type TournamentInfo struct {
+	ID    int64  `json:"id" example:"1"`
+	Name  string `json:"name" example:"Tournament name"`
+	Owner string `json:"owner" example:"Giorgio"`
+}
+
+type TournamentList []TournamentInfo

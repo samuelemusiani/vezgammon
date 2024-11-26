@@ -84,7 +84,8 @@ type Game struct {
 
 	CurrentPlayer string `json:"current_player"`
 
-	Dices Dices `json:"dices"`
+	Dices      Dices `json:"dices"`
+	Tournament int64 `json:"tournament"`
 }
 
 func (g *Game) PlayMove(moves []Move) {
@@ -147,4 +148,6 @@ type ReturnGame struct {
 	CurrentPlayer string `json:"current_player" example:"p1"`
 
 	GameType string `json:"game_type" example:"online"`
+
+	Tournament int64 `json:"tournament" example:"1"`
 }
