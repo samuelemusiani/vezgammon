@@ -250,7 +250,7 @@ func GetStats(c *gin.Context) {
 	if true {
 		var stats types.Stats
 		stats.Tournament = 0
-		stats.CPU = 2
+		stats.Cpu = 2
 		stats.Elo = []int64{1000, 1100, 1050, 950, 1000, 1030}
 		stats.Online = 4
 		stats.Won = 3

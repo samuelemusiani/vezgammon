@@ -325,14 +325,14 @@ func GetStats(user_id int64) (*types.Stats, error) {
 	stats.Tournament = 0 // not implemented yet
 	for i, game := range gp {
 		if game.GameType == types.GameTypeBot {
-			stats.CPU++
+			stats.Cpu++
 		} else if game.GameType == types.GameTypeLocal {
 			stats.Local++
 		} else if game.GameType == types.GameTypeOnline {
 			stats.Online++
 		}
 
-		if game.Status == types.GameStatusWinP1 && game.Player1 == u.Username || game.Status == types.GameStatusWinP2 && game.Player2 == u.Username {
+		if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
 			stats.Won++
 		} else {
 			stats.Lost++

@@ -13,13 +13,13 @@ type User struct {
 }
 
 type Stats struct {
-	Gameplayed []ReturnGame
-	Won        int64
-	Lost       int64
-	Elo        []int64
-	Winrate    float32
-	Online     int64
-	Local      int64
-	CPU        int64
-	Tournament int64
+	Gameplayed []ReturnGame `json:"games_played"`
+	Won        int64        `json:"win"`
+	Lost       int64        `json:"lost"`
+	Elo        []int64      `json:"elo"`
+	Winrate    float32      `json:"winrate"`
+	Online     int64        `json:"online"`
+	Local      int64        `json:"local"`
+	Cpu        int64        `json:"cpu"`
+	Tournament int64        `json:"tournament"`
 }
