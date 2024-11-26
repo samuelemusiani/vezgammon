@@ -243,20 +243,35 @@ func GetSession(c *gin.Context) {
 // @Tags authentication
 // @Accept json
 // @Produce json
-// @Success 200 {object} types.User
+// @Success 200 {object} types.Stats
 // @Failure 500 "error"
 // @Router /stats [get]
 func GetStats(c *gin.Context) {
+	if true {
+		var stats types.Stats
+		stats.Tournament = 0
+		stats.CPU = 2
+		stats.Elo = []int64{1000, 1100, 1050, 950, 1000, 1030}
+		stats.Online = 4
+		stats.Won = 3
+		stats.Lost = 3
+		stats.Local = 0
+		stats.Winrate = 50
+
+		c.JSON(http.StatusOK, stats)
+		return
+	}
+
 	user_id := c.MustGet("user_id").(int64)
 
-	stats, err := db.GetStats(user_id)
+	userstats, err := db.GetStats(user_id)
 	if err != nil {
 		slog.With("err", err).Error("User not found")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	c.JSON(http.StatusOK, stats)
+	c.JSON(http.StatusOK, userstats)
 	return
 }
 
