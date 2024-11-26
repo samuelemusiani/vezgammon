@@ -1,10 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import { useTheme } from '@/composables/useTheme' // We'll create this
 import router from '@/router'
-
-// Theme management
-const { currentTheme, themeOptions, changeTheme } = useTheme()
 
 const username = ref('')
 const passwd = ref('')
@@ -61,26 +57,6 @@ function validate() {
   <div class="flex min-h-screen items-center justify-center bg-neutral">
     <div class="card w-96 bg-base-100 shadow-xl">
       <div class="card-body">
-        <div class="mb-4 flex justify-end">
-          <div class="dropdown dropdown-end">
-            <div tabindex="0" role="button" class="btn m-1">
-              Theme: {{ currentTheme }}
-            </div>
-            <ul
-              tabindex="0"
-              class="menu dropdown-content z-[1] w-52 rounded-box bg-base-100 p-2 shadow"
-            >
-              <li
-                v-for="theme in themeOptions"
-                :key="theme"
-                @click="changeTheme(theme)"
-              >
-                <a>{{ theme }}</a>
-              </li>
-            </ul>
-          </div>
-        </div>
-
         <h2 class="card-title">Login</h2>
         <form @submit.prevent="login">
           <div class="form-control">

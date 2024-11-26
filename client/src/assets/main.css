@@ -1,20 +1,3 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-:root {
-  /* Background Colors */
-  --retro-background-base: #2c1810;
-  --retro-background-pattern: rgba(139, 69, 19, 0.1);
-  
-  /* Box Colors */
-  --retro-box-background: #ffe5c9;
-  --retro-box-border: #8b4513;
-  --retro-box-accent: #d2691e;
-  
-  /* Button Colors */
-  --retro-button-background: #d2691e;
-  --retro-button-text: white;
-  --retro-button-border: #8b4513;
-  --retro-button-shadow: rgba(0, 0, 0, 0.2);
-}
