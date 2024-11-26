@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	//"time"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
@@ -247,6 +248,7 @@ func GetSession(c *gin.Context) {
 // @Failure 500 "error"
 // @Router /stats [get]
 func GetStats(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
 	if true {
 		var stats types.Stats
 		stats.Tournament = 0
@@ -258,11 +260,28 @@ func GetStats(c *gin.Context) {
 		stats.Local = 0
 		stats.Winrate = 50
 
+		var game1 types.ReturnGame
+		game1.Status = types.GameStatusWinP1
+		game1.Elo1 = 1000
+		game1.Elo2 = 950
+		game1.GameType = types.GameTypeOnline
+		game1.Player1 = "pippo"
+		game1.Player2 = "paolo"
+
+		var game2 types.ReturnGame
+		game2.Status = types.GameStatusWinP2
+		game2.Elo1 = 1020
+		game2.Elo2 = 950
+		game2.GameType = types.GameTypeOnline
+		game2.Player1 = "pippo"
+		game2.Player2 = "paolo"
+
+		stats.Gameplayed[0] = game1
+		stats.Gameplayed[1] = game2
+
 		c.JSON(http.StatusOK, stats)
 		return
 	}
-
-	user_id := c.MustGet("user_id").(int64)
 
 	userstats, err := db.GetStats(user_id)
 	if err != nil {
