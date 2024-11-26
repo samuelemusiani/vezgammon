@@ -2,7 +2,7 @@ import { ref, onMounted } from 'vue'
 
 export function useTheme() {
   // Custom theme options based on Tailwind config
-  const themeOptions = ['retro', 'retroPastel', 'retroDark', 'light', 'dark']
+  const themeOptions = ['retro', 'retroPastel', 'retroDark', 'dark']
 
   // Current theme state
   const currentTheme = ref('retro')
