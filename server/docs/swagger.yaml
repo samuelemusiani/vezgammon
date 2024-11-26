@@ -136,6 +136,46 @@ definitions:
         example: false
         type: boolean
     type: object
+  types.ReturnTournament:
+    properties:
+      allow_users:
+        example:
+        - giorgio
+        - diego
+        - marco
+        items:
+          type: string
+        type: array
+      end:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Tournament name
+        type: string
+      owner:
+        example: Giorgio
+        type: string
+      start:
+        example: "2021-01-01T00:00:00Z"
+        type: string
+      status:
+        example: open
+        type: string
+      users:
+        example:
+        - giorgio
+        - diego
+        - marco
+        items:
+          type: string
+        type: array
+      visibility:
+        example: public
+        type: string
+    type: object
   types.User:
     properties:
       elo:
@@ -415,6 +455,57 @@ paths:
       summary: Start a matchmaking search for a new game
       tags:
       - play
+  /play/tournament:
+    post:
+      consumes:
+      - application/json
+      description: Create a new tournament
+      parameters:
+      - description: Tournament object
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.ReturnTournament'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "400":
+          description: bad data, tournament alredy open
+        "500":
+          description: internal server error
+      summary: Create a new tournament
+      tags:
+      - tournament
+  /play/tournament/{tournament_id}:
+    post:
+      consumes:
+      - application/json
+      description: Join a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "400":
+          description: alredy in a tournament
+        "404":
+          description: tournament not found
+      summary: Join a tournament
+      tags:
+      - tournament
   /register:
     post:
       consumes:

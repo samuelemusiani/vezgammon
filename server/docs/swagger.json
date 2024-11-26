@@ -388,6 +388,84 @@
                 }
             }
         },
+        "/play/tournament": {
+            "post": {
+                "description": "Create a new tournament",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Create a new tournament",
+                "parameters": [
+                    {
+                        "description": "Tournament object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnTournament"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnTournament"
+                        }
+                    },
+                    "400": {
+                        "description": "bad data, tournament alredy open"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/play/tournament/{tournament_id}": {
+            "post": {
+                "description": "Join a tournament",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Join a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnTournament"
+                        }
+                    },
+                    "400": {
+                        "description": "alredy in a tournament"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Register new user",
@@ -642,6 +720,61 @@
                 "want_to_double": {
                     "type": "boolean",
                     "example": false
+                }
+            }
+        },
+        "types.ReturnTournament": {
+            "type": "object",
+            "properties": {
+                "allow_users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "giorgio",
+                        "diego",
+                        "marco"
+                    ]
+                },
+                "end": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Tournament name"
+                },
+                "owner": {
+                    "type": "string",
+                    "example": "Giorgio"
+                },
+                "start": {
+                    "type": "string",
+                    "example": "2021-01-01T00:00:00Z"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "open"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "giorgio",
+                        "diego",
+                        "marco"
+                    ]
+                },
+                "visibility": {
+                    "type": "string",
+                    "example": "public"
                 }
             }
         },
