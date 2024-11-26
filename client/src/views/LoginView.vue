@@ -123,50 +123,52 @@ function validate() {
 </template>
 
 <style scoped>
+
 .retro-background {
-  background: #2c1810;
-  background-image: repeating-linear-gradient(
+  background: var(--retro-background-base);
+  background-image:
+    repeating-linear-gradient(
       45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
+      var(--retro-background-pattern) 0px,
+      var(--retro-background-pattern) 2px,
       transparent 2px,
       transparent 10px
     ),
     repeating-linear-gradient(
       -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
+      var(--retro-background-pattern) 0px,
+      var(--retro-background-pattern) 2px,
       transparent 2px,
       transparent 10px
     );
   cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
+  border: 6px solid var(--retro-box-accent);
 }
 
 .retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
+  background-color: var(--retro-box-background);
+  border: 5px solid var(--retro-box-border);
   box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
+    0 0 0 4px var(--retro-box-accent),
+    inset 0 0 20px var(--retro-button-shadow);
 }
 
 .retro-button {
   @apply btn;
-  background: #d2691e;
-  color: white;
-  border: 3px solid #8b4513;
+  background: var(--retro-button-background);
+  color: var(--retro-button-text);
+  border: 3px solid var(--retro-button-border);
   font-family: 'Arial Black', serif;
   text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
+  text-shadow: 2px 2px 0 var(--retro-button-shadow);
+  box-shadow: 0 2px 0 var(--retro-button-border);
   font-size: 1.1rem;
 
   &:hover {
     transform: translateY(2px);
     box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
+      inset 0 0 10px var(--retro-button-shadow),
+      0 0px 0 var(--retro-button-border);
     cursor: url('/tortellino.png'), auto;
   }
 }
