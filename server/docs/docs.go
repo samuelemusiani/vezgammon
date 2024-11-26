@@ -268,7 +268,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/play/last/status": {
+        "/play/last/winner": {
             "get": {
                 "description": "Get last fame status",
                 "consumes": [

@@ -331,7 +331,7 @@ paths:
       summary: Accept the double
       tags:
       - play
-  /play/last/status:
+  /play/last/winner:
     get:
       consumes:
       - application/json

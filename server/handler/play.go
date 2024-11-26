@@ -584,11 +584,11 @@ func AcceptDouble(c *gin.Context) {
 // @Produce json
 // @Success 200 {string} string "Status of the last game"
 // @Failure 404 "No games or no status found"
-// @Router /play/last/status [get]
-func GetLastGameStatus(c *gin.Context) {
+// @Router /play/last/winner [get]
+func GetLastGameWinner(c *gin.Context) {
 	userId := c.MustGet("user_id").(int64)
 
-	status, err := db.GetLastGameStatus(userId)
+	status, err := db.GetLastGameWinner(userId)
 	if err != nil {
 		if err == sql.ErrNoRows {
 			c.JSON(http.StatusNotFound, "No games found")

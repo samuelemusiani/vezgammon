@@ -248,14 +248,20 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	return &g, nil
 }
 
-func GetLastGameStatus(userID int64) (string, error) {
-	q := `SELECT status FROM games WHERE p1_id = $1 OR p2_id = $1 
+func GetLastGameWinner(userID int64) (string, error) {
+	q := `
+  SELECT 
+    u1.username AS p1_username,
+    u2.username AS p2_username,
+    status 
+  FROM games WHERE p1_id = $1 OR p2_id = $1 
   ORDER BY start DESC LIMIT 1`
 
 	row := Conn.QueryRow(q, userID)
 
 	var status string
-	err := row.Scan(&status)
+	var username1, username2 string
+	err := row.Scan(&username1, &username2, &status)
 	if err != nil {
 		return "", err
 	}
@@ -264,7 +270,16 @@ func GetLastGameStatus(userID int64) (string, error) {
 		return "", errors.New("Game status not valid")
 	}
 
-	return status, nil
+	switch status {
+	case types.GameStatusWinP1:
+		return username1, nil
+	case types.GameStatusWinP2:
+		return username2, nil
+	case types.GameStatusOpen:
+		return "open", nil
+	default:
+		return "", nil
+	}
 }
 
 func CreateTurn(t types.Turn) (*types.Turn, error) {

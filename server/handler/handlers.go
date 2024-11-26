@@ -36,7 +36,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.GET("/session", GetSession)
 
 	playGroup := protected.Group("/play")
-	playGroup.POST("/last/status", GetLastGameStatus)
+	playGroup.GET("/last/winner", GetLastGameWinner)
 	playGroup.GET("/search", StartPlaySearch)
 	playGroup.DELETE("/search", StopPlaySearch)
 	playGroup.GET("/local", StartGameLocalcally)
