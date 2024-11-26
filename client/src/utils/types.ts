@@ -4,4 +4,6 @@ export interface User {
   firstname: string
   lastname: string
   mail: string
+  is_bot: boolean
+  elo: number
 }

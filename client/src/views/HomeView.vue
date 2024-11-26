@@ -30,10 +30,18 @@
           >
             PLAY
           </button>
-          <button @mouseenter="(e: MouseEvent) => play()" class="retro-button">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="router.push('/wip')"
+            class="retro-button"
+          >
             RULES
           </button>
-          <button @mouseenter="(e: MouseEvent) => play()" class="retro-button">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="router.push('/wip')"
+            class="retro-button"
+          >
             SETTINGS
           </button>
         </div>
@@ -77,7 +85,7 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="startGame('online')"
+              @click="router.push('/wip')"
               class="retro-button"
             >
               Play Online
