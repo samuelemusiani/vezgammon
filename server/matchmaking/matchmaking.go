@@ -16,7 +16,7 @@ func Init() {
 	go func() {
 		for {
 			if length() < 2 {
-				time.Sleep(5 * time.Second)
+				time.Sleep(2 * time.Second)
 				continue
 			}
 
@@ -28,13 +28,13 @@ func Init() {
 					if checkIfValidOpponent(p1.Elo, p2.Elo) {
 						err := remove(p1)
 						if err != nil {
-							slog.With("err", err).Error("Removing user1 from queue")
+							slog.With("err", err, "p1", p1).Error("Removing user1 from queue")
 							continue
 						}
 
 						err = remove(p2)
 						if err != nil {
-							slog.With("err", err).Error("Removing user2 from queue")
+							slog.With("err", err, "p2", p2).Error("Removing user2 from queue")
 							continue
 						}
 
@@ -104,7 +104,7 @@ func SearchGame(uid int64) error {
 	if err != nil {
 		return err
 	}
-	slog.With("user stats: ", u)
+	slog.With("user stats: ", u).Debug("User stats")
 
 	mutex.Lock()
 	err = push(qel{User_id: u.ID, Elo: u.Elo})

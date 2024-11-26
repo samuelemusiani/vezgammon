@@ -207,7 +207,7 @@ func ValidateSessionToken(token string) (int64, error) {
 }
 
 func CreateUser(u types.User, password string) (types.User, error) {
-	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot) 
+	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot)
     VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.IsBot)
 
@@ -273,6 +273,8 @@ func GetUser(userId int64) (*types.User, error) {
 		}
 		return nil, err
 	}
+
+	tmp.ID = userId
 
 	return &tmp, nil
 }

@@ -403,13 +403,13 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 	} else {
-		// We are playing against another player
-		opponentID, err := getOpponentID(g.CurrentPlayer, g.Player1, g.Player2)
+		// We are playing against another player but current player is already inverted
+		opponentID, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
-
+		slog.With("opponentID", opponentID).Debug("Turn made")
 		ws.TurnMade(opponentID)
 	}
 
@@ -475,6 +475,14 @@ func WantToDouble(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
+	} else {
+		id, err := getOpponentID(g.CurrentPlayer, g.Player1, g.Player2)
+		if err != nil {
+			slog.With("error", err).Error("Getting opponent ID in /double [post]")
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		ws.WantToDouble(id)
 	}
 
 	c.JSON(http.StatusCreated, g.DoubleValue*2)
@@ -711,5 +719,14 @@ func acceptDouble(userId int64) error {
 		slog.With("error", err).Error("Creating turn in acceptDouble")
 		return ErrInternal
 	}
+
+	id, err := getOpponentID(g.DoubleOwner, g.Player1, g.Player2)
+	if err != nil {
+		slog.With("error", err).Error("Getting opponent ID in acceptDouble")
+		return ErrInternal
+	}
+	ws.DoubleAccepted(id)
+
 	return nil
+
 }

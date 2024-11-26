@@ -22,6 +22,9 @@ import ConfettiExplosion from 'vue-confetti-explosion'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
+import { useWebSocketStore } from '@/stores/websocket'
+import { watch } from 'vue'
+
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
 const gameState = ref<GameState | null>(null)
@@ -31,7 +34,6 @@ const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const displayedDice = ref<number[]>([])
-const doubleDice = ref<number>(64)
 const session = ref<User | undefined>()
 const showDoubleModal = ref(false)
 const showDoubleWinModal = ref(false)
@@ -43,17 +45,44 @@ const isExploding = ref(false)
 const { play: playVictory } = useSound(victorySfx)
 const { play: playDice } = useSound(diceSfx)
 //const { play: playTin } = useSound(tinSfx)
-
+const webSocketStore = useWebSocketStore()
 // Fetch a /api/play on mounted
 onMounted(async () => {
   try {
     await fetchGameState()
     await fetchMoves()
     await fetchSession()
+    webSocketStore.connect()
   } catch {
     console.error('Error fetching game state')
   }
 })
+
+watch(
+  () => webSocketStore.lastMessage,
+  newMessage => {
+    if (newMessage) {
+      try {
+        const message = JSON.parse(newMessage)
+        if (message.type === 'turn_made') {
+          fetchGameState()
+          fetchMoves()
+        } else if (message.type === 'want_to_double') {
+          showDoubleModal.value = true
+        } else if (message.type === 'double_accepted') {
+          fetchGameState()
+        } else if (message.type === 'game_end') {
+          // TODO: check which player won
+          showDoubleModal.value = false
+          showDoubleWinModal.value = true
+          playVictory()
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error)
+      }
+    }
+  },
+)
 
 const fetchSession = async () => {
   await fetch('/api/session')
@@ -388,8 +417,10 @@ const handleTriangleClick = async (position: number) => {
       }
       movesToSubmit.value = []
       possibleMoves.value = []
-      await fetchGameState()
-      await fetchMoves()
+      if (gameState.value.game_type !== 'online') {
+        await fetchGameState()
+        await fetchMoves()
+      }
     } catch (err) {
       console.error('Error submitting moves:', err)
     }

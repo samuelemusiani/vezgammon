@@ -85,7 +85,7 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="router.push('/wip')"
+              @click="startOnlineGame"
               class="retro-button"
             >
               Play Online
@@ -136,6 +136,25 @@
         <button>close</button>
       </form>
     </dialog>
+
+    <dialog id="waiting_modal" class="modal">
+      <div class="retro-box modal-box text-center">
+        <h3 class="retro-title mb-4 text-2xl font-bold">
+          Waiting for Opponent
+        </h3>
+        <div class="flex flex-col items-center gap-4">
+          <div class="loading loading-spinner loading-lg"></div>
+          <p class="text-lg">Searching for an opponent...</p>
+        </div>
+        <div class="modal-action">
+          <form method="dialog">
+            <button @click="cancelMatchmaking" class="retro-button">
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    </dialog>
   </div>
 </template>
 
@@ -145,10 +164,37 @@ import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useWebSocketStore } from '@/stores/websocket'
+import { watch } from 'vue'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
+const webSocketStore = useWebSocketStore()
 const showDifficulty = ref(false)
+
+onMounted(() => {
+  webSocketStore.connect()
+})
+
+watch(
+  () => webSocketStore.lastMessage,
+  newMessage => {
+    if (newMessage) {
+      try {
+        const message = JSON.parse(newMessage)
+        if (message.type === 'game_found') {
+          const waitingModal = document.getElementById(
+            'waiting_modal',
+          ) as HTMLDialogElement
+          waitingModal.close()
+          router.push('/game')
+        }
+      } catch (error) {
+        console.error('Error parsing WebSocket message:', error)
+      }
+    }
+  },
+)
 
 const modalTitle = computed(() => {
   return showDifficulty.value ? 'Choose Difficulty' : 'Select Game Mode'
@@ -169,10 +215,37 @@ const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
 
   try {
     await fetch(`/api/play/bot/${difficulty}`)
-    router.push('/game')
   } catch (error) {
     console.error('Error starting game with AI:', error)
   }
+}
+
+const startOnlineGame = async () => {
+  try {
+    const modal = document.getElementById('play_modal') as HTMLDialogElement
+    modal.close()
+
+    const waitingModal = document.getElementById(
+      'waiting_modal',
+    ) as HTMLDialogElement
+    waitingModal.showModal()
+
+    await fetch('/api/play/search')
+  } catch (error) {
+    console.error('Error starting online game:', error)
+    // In caso di errore, chiudi il modale di attesa
+    const waitingModal = document.getElementById(
+      'waiting_modal',
+    ) as HTMLDialogElement
+    waitingModal.close()
+  }
+}
+
+const cancelMatchmaking = () => {
+  webSocketStore.sendMessage({
+    type: 'cancel_matchmaking',
+    payload: {},
+  })
 }
 
 const navigateTo = (path: string) => {

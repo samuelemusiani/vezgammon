@@ -47,20 +47,37 @@ func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 func SendMessage(user_id int64, message Message) error {
 	conn, ok := users[user_id]
 	if !ok {
+		slog.Debug("SendMessage error: connection not found for user",
+			"user_id", user_id,
+			"error", ErrConnNotFoundForUser)
 		return ErrConnNotFoundForUser
 	}
 
 	active, ok := clients[conn]
 	if !ok {
+		slog.Debug("SendMessage error: connection not found in clients map",
+			"user_id", user_id,
+			"error", ErrConnNotFound)
 		return ErrConnNotFound
 	}
 
 	if !active {
+		slog.Debug("SendMessage error: inactive connection",
+			"user_id", user_id,
+			"error", ErrConnNotFound)
 		return ErrConnNotFound
 	}
 
-	conn.WriteJSON(message)
+	err := conn.WriteJSON(message)
+	if err != nil {
+		slog.Debug("SendMessage error: failed to write JSON",
+			"user_id", user_id,
+			"error", err)
+		return err
+	}
 
+	slog.Debug("SendMessage: message sent successfully",
+		"user_id", user_id)
 	return nil
 }
 
@@ -83,6 +100,10 @@ func TurnMade(user_id int64) error {
 
 func WantToDouble(user_id int64) error {
 	return SendMessage(user_id, Message{Type: "want_to_double"})
+}
+
+func DoubleAccepted(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "double_accepted"})
 }
 
 func GameEnd(user_id int64) error {

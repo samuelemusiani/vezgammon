@@ -139,7 +139,7 @@ func Login(c *gin.Context) {
 		3600, // scadenza in secondi (1 ora)
 		"/",
 		config.Get().Server.Domain,
-		true,  // solo HTTPS
+		false, // solo HTTPS
 		false, // httpOnly
 	)
 
