@@ -1,14 +1,10 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '@/router'
-import { useTheme } from '@/composables/useTheme'
 
 const username = ref('')
 const passwd = ref('')
 const err = ref('')
-
-// Gestione dei temi
-const { currentTheme, themeOptions, changeTheme } = useTheme()
 
 async function login() {
   if (!validate()) {
@@ -28,8 +24,8 @@ async function login() {
     })
 
     if (!response.ok) {
-      const message = await response.text()
-      throw new Error(message || 'Error during login')
+      const message = await response.json()
+      throw new Error(message?.message || 'Error during login')
     }
 
     router.push({ name: 'home' })
@@ -62,27 +58,6 @@ function validate() {
       <div class="card-body">
         <h2 class="card-title">Login</h2>
         <div class="card-body">
-          <!-- Gestione Tema -->
-          <div class="mb-4 flex justify-end">
-            <div class="dropdown dropdown-end">
-              <div tabindex="0" role="button" class="btn m-1">
-                Theme: {{ currentTheme }}
-              </div>
-              <ul
-                tabindex="0"
-                class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52"
-              >
-                <li
-                  v-for="theme in themeOptions"
-                  :key="theme"
-                  @click="changeTheme(theme)"
-                >
-                  <a>{{ theme }}</a>
-                </li>
-              </ul>
-            </div>
-          </div>
-
           <!-- Form di Login -->
           <form @submit.prevent="login">
             <div class="form-control">
