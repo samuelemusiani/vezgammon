@@ -2,6 +2,7 @@
 import { ref } from 'vue'
 import type { User } from '@/utils/types'
 import router from '@/router'
+import { useTheme } from '@/composables/useTheme'
 
 const session = ref<User | undefined>()
 const error = ref<string>('')
@@ -24,6 +25,12 @@ async function logout() {
   await fetch('/api/logout', { method: 'POST' })
   router.push({ name: 'login' })
 }
+
+async function goBack() {
+  router.push({ name: 'home' })
+}
+
+const { currentTheme, themeOptions, changeTheme } = useTheme()
 </script>
 
 <template>
@@ -52,9 +59,32 @@ async function logout() {
             </span>
           </div>
 
-          <div class="mt-10 flex justify-center">
+          <div class="mt-10 flex justify-center items-center gap-5">
+            <button class="btn btn-seconday" @click="goBack">GO BACK</button>
             <button class="btn btn-primary" @click="logout">LOGOUT</button>
-          </div>
+            <div class="">
+              <div class="dropdown dropdown-end">
+                <div tabindex="0" role="button" class="btn m-1">
+                  Theme: {{ currentTheme }}
+                </div>
+                <ul
+                  tabindex="0"
+                  class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52 border-primary border-4"
+                >
+                  <li
+                    v-for="theme in themeOptions"
+                    :key="theme"
+                    @click="changeTheme(theme)"
+                  >
+                    <a>{{ theme }}</a>
+                  </li>
+                </ul>
+              </div>
+            </div>
+          </div>          <!-- Gestione Tema -->
+
+
+
         </div>
 
         <div v-else class="text-error">
