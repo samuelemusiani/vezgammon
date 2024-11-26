@@ -37,21 +37,13 @@ func StartPlaySearch(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
 	//send to db the user [searching]
-	ret := matchmaking.SearchGame(user_id)
-	if ret != nil {
-		err := ws.GameNotFound(user_id)
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
-		}
+	err := matchmaking.SearchGame(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	//return game founded
-	err := ws.SendGameFound(user_id)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-	}
-
+	c.JSON(http.StatusOK, "Search started")
 }
 
 // @Summary Stop a running matchmaking search
