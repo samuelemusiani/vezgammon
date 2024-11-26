@@ -2,7 +2,7 @@
 import { RouterView } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
 
-//const { theme } = useTheme()
+const { currentTheme, themeOptions, changeTheme } = useTheme()
 </script>
 
 <template>

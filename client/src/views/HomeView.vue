@@ -1,10 +1,10 @@
 <template>
-  <div class="retro-background">
-    <div class="flex max-h-full w-full flex-col items-center justify-center">
+  <div class="flex h-full items-center justify-center w-full">
+    <div class="flex h-[90%] w-[80%] flex-col items-center justify-center bg-base-100 border-8 border-primary rounded-md">
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="retro-title text-7xl">VezGammon</h1>
-        <div class="retro-subtitle">The Ultimate Backgammon Experience</div>
+        <h1 class="text-primary retro-title text-7xl mb-8 p-4">VezGammon</h1>
+        <div class="text-accent">The Ultimate Backgammon Experience</div>
       </div>
 
       <!-- Button Container -->
@@ -201,29 +201,7 @@ const startGame = async (mode: 'local' | 'ai' | 'online') => {
 </script>
 
 <style scoped>
-.retro-background {
-  @apply flex min-h-screen items-center justify-center;
-  background: #2c1810;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
-}
-
 .retro-title {
-  font-family: 'Arial Black', serif;
   color: #ffd700;
   text-shadow:
     4px 4px 0 #8b4513,
@@ -233,18 +211,10 @@ const startGame = async (mode: 'local' | 'ai' | 'online') => {
     1px 1px 0 #000;
   letter-spacing: 3px;
   animation: move-title 8s ease-in-out infinite alternate;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
   border-bottom: 2px solid #8b4513;
 }
 
-.retro-subtitle {
-  font-family: 'Arial Black', serif;
-  color: #d2691e;
-  font-size: 1.2rem;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  letter-spacing: 1px;
-}
+
 
 .retro-box {
   background-color: #ffe5c9;
@@ -255,11 +225,8 @@ const startGame = async (mode: 'local' | 'ai' | 'online') => {
 }
 
 .retro-button {
-  @apply btn;
-  background: #d2691e;
-  color: white;
+  @apply btn bg-primary text-neutral;
   border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 0 #8b4513;
