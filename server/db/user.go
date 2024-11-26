@@ -305,3 +305,27 @@ func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64)
 
 	return nil
 }
+
+func GetStats(user_id int64) (*types.Stats, error) {
+	var stats *types.Stats
+
+	//partite dal db con current state won lost del player(user_id)
+	gp, err := GetAllGameFromUser(user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	elos, err := calculateEloHistory(gp, user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	stats.Elo = elos
+
+	return stats, nil
+}
+
+func calculateEloHistory([]types.ReturnGame, int64) ([]int64, error) {
+	var elos []int64
+	return elos, nil
+}

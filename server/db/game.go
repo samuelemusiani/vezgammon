@@ -314,3 +314,96 @@ func GetLastTurn(gameId int64) (*types.Turn, error) {
 
 	return &turn, nil
 }
+
+func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
+	q := `
+	SELECT
+		g.id,
+		u1.username AS p1_username,
+		u1.id AS p1_id,
+		g.p1elo,
+		u2.username AS p2_username,
+		u2.id AS p2_id,
+		g.p2elo,
+		g.start,
+		g.endtime,
+		g.status,
+		g.p1checkers,
+		g.p2checkers,
+		g.double_value,
+		g.double_owner,
+		g.want_to_double,
+		g.current_player
+	FROM
+		games g
+	JOIN
+		users u1 ON g.p1_id = u1.id
+	JOIN
+		users u2 ON g.p2_id = u2.id
+	WHERE
+		g.status = 'closed' AND (g.p1_id = $1 OR g.p2_id = $1)
+	ORDER BY
+		g.endtime DESC
+	`
+
+	rows, err := Conn.Query(q, userId)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var gamesPlayed []types.ReturnGame
+
+	for rows.Next() {
+		var g types.ReturnGame
+		var p1CheckersDB, p2CheckersDB pq.Int64Array
+		var p1_id, p2_id int64
+
+		err := rows.Scan(
+			&g.ID,
+			&g.Player1,
+			&p1_id,
+			&g.Elo1,
+			&g.Player2,
+			&p2_id,
+			&g.Elo2,
+			&g.Start,
+			&g.End,
+			&g.Status,
+			&p1CheckersDB,
+			&p2CheckersDB,
+			&g.DoubleValue,
+			&g.DoubleOwner,
+			&g.WantToDouble,
+			&g.CurrentPlayer,
+		)
+		if err != nil {
+			return nil, err
+		}
+
+		// Conversion of checkers from int64 to int8
+		for i, v := range p1CheckersDB {
+			g.P1Checkers[i] = int8(v)
+		}
+		for i, v := range p2CheckersDB {
+			g.P2Checkers[i] = int8(v)
+		}
+
+		// Determine game type
+		if p1_id == p2_id {
+			g.GameType = types.GameTypeLocal
+		} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+			g.GameType = types.GameTypeBot
+		} else {
+			g.GameType = types.GameTypeOnline
+		}
+
+		gamesPlayed = append(gamesPlayed, g)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return gamesPlayed, nil
+}

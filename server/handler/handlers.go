@@ -32,6 +32,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.POST("/login", Login)
 	protected.POST("/logout", Logout)
 	protected.GET("/session", GetSession)
+	protected.GET("stats", GetStats)
 
 	playGroup := protected.Group("/play")
 	playGroup.GET("/search", StartPlaySearch)

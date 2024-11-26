@@ -236,6 +236,30 @@ func GetSession(c *gin.Context) {
 	return
 }
 
+// Return the statistics of the current user loggged in
+// @Summary Get users' stats
+// @Schemes
+// @Description Get users' stats
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.User
+// @Failure 500 "error"
+// @Router /stats [get]
+func GetStats(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	stats, err := db.GetStats(user_id)
+	if err != nil {
+		slog.With("err", err).Error("User not found")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, stats)
+	return
+}
+
 /*
 func GetAllUsers(c *gin.Context) {
 	users, err := db.GetUsers()

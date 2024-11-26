@@ -11,3 +11,11 @@ type User struct {
 	Elo       int64  `json:"elo" example:"1000"`
 	IsBot     bool   `json:"is_bot" example:"false"`
 }
+
+type Stats struct {
+	Gameplayed []ReturnGame
+	Won        int64
+	Lost       int64
+	Elo        []int64
+	// ... altre stats
+}
