@@ -136,6 +136,31 @@ definitions:
         example: false
         type: boolean
     type: object
+  types.Stats:
+    properties:
+      cpu:
+        type: integer
+      elo:
+        items:
+          type: integer
+        type: array
+      games_played:
+        items:
+          $ref: '#/definitions/types.ReturnGame'
+        type: array
+      local:
+        type: integer
+      lost:
+        type: integer
+      online:
+        type: integer
+      tournament:
+        type: integer
+      win:
+        type: integer
+      winrate:
+        type: number
+    type: object
   types.User:
     properties:
       elo:
@@ -465,7 +490,7 @@ paths:
         "200":
           description: OK
           schema:
-            $ref: '#/definitions/types.User'
+            $ref: '#/definitions/types.Stats'
         "500":
           description: error
       summary: Get users' stats

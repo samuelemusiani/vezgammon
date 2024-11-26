@@ -476,7 +476,7 @@ const docTemplate = `{
                     "200": {
                         "description": "OK",
                         "schema": {
-                            "$ref": "#/definitions/types.User"
+                            "$ref": "#/definitions/types.Stats"
                         }
                     },
                     "500": {
@@ -679,6 +679,44 @@ const docTemplate = `{
                 "want_to_double": {
                     "type": "boolean",
                     "example": false
+                }
+            }
+        },
+        "types.Stats": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "integer"
+                },
+                "elo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "games_played": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
+                "local": {
+                    "type": "integer"
+                },
+                "lost": {
+                    "type": "integer"
+                },
+                "online": {
+                    "type": "integer"
+                },
+                "tournament": {
+                    "type": "integer"
+                },
+                "win": {
+                    "type": "integer"
+                },
+                "winrate": {
+                    "type": "number"
                 }
             }
         },

@@ -17,44 +17,38 @@
                 <div class="stat-item">
                   <span class="stat-label">Played</span>
                   <span class="stat-value text-lg md:text-xl">
-                    {{ stats.gamesPlayed || 0 }}
+                    {{ 0 }}
                   </span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">Wins</span>
-                  <span class="stat-value">{{ stats.wins || 0 }}</span>
+                  <span class="stat-value">{{ stats.win }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">Lost</span>
-                  <span class="stat-value">{{ stats.losses || 0 }}</span>
+                  <span class="stat-value">{{ stats.lost }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">WinRate</span>
-                  <span class="stat-value"
-                    >{{
-                      calculateWinRate(stats.wins, stats.gamesPlayed)
-                    }}%</span
-                  >
+                  <span class="stat-value">{{ stats.winrate }}%</span>
                 </div>
               </div>
               <div class="stats-grid">
                 <div class="stat-item">
                   <span class="stat-label">CPU</span>
-                  <span class="stat-value">{{ stats.aiGames || 0 }}</span>
+                  <span class="stat-value">{{ stats.cpu }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">Local </span>
-                  <span class="stat-value">{{ stats.localGames || 0 }}</span>
+                  <span class="stat-value">{{ stats.local }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">Online</span>
-                  <span class="stat-value">{{ stats.onlineGames || 0 }}</span>
+                  <span class="stat-value">{{ stats.online }}</span>
                 </div>
                 <div class="stat-item">
                   <span class="stat-label">Tournament</span>
-                  <span class="stat-value">{{
-                    stats.tournamentGames || 0
-                  }}</span>
+                  <span class="stat-value">{{ stats.tournament }}</span>
                 </div>
               </div>
             </div>
@@ -65,17 +59,18 @@
             <h3 class="retro-subtitle mb-4">Recent Games</h3>
             <div class="recent-games">
               <div
-                v-for="game in stats.recentGames"
+                v-for="game in stats.game_played"
                 :key="game.id"
                 class="game-item"
               >
-                <span>{{ game.opponent }}</span>
+                <!-- TODO: Get opponent name from db and winner -->
+                <span>{{ game.player2 }}</span>
                 <span
-                  :class="game.result === 'Won' ? 'text-success' : 'text-error'"
+                  :class="game.status === 'Won' ? 'text-success' : 'text-error'"
                   class="text-center font-bold"
-                  >{{ game.result }}</span
+                  >{{ game.status }}</span
                 >
-                <span class="text-right">{{ game.date }}</span>
+                <span class="text-right">{{ game.start }}</span>
               </div>
             </div>
           </div>
@@ -93,59 +88,50 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
 import router from '@/router'
 
+import type { GameState } from '@/utils/game/types'
+
 interface GameStats {
-  gamesPlayed: number
-  wins: number
-  losses: number
-  aiGames: number
-  localGames: number
-  onlineGames: number
-  tournamentGames: number
-  recentGames: Array<{
-    id: number
-    opponent: string
-    result: 'Won' | 'Lost'
-    date: string
-  }>
+  game_played: GameState[]
+  win: number
+  lost: number
+  winrate: number
+  elo: number[]
+  cpu: number
+  local: number
+  online: number
+  tournament: number
 }
 
 // DUMMY DATA while waiting for API -- TODO: remove
 const stats = ref<GameStats>({
-  gamesPlayed: 0,
-  wins: 0,
-  losses: 0,
-  aiGames: 0,
-  localGames: 0,
-  onlineGames: 0,
-  tournamentGames: 0,
-  recentGames: [
-    { id: 1, opponent: 'CPU', result: 'Won', date: '2024-09-01' },
-    { id: 2, opponent: 'Local', result: 'Lost', date: '2024-09-02' },
-    { id: 3, opponent: 'Online', result: 'Won', date: '2024-09-03' },
-    { id: 4, opponent: 'Tournament', result: 'Lost', date: '2024-09-04' },
-  ],
+  game_played: [],
+  win: 0,
+  lost: 0,
+  winrate: 0,
+  elo: [],
+  cpu: 0,
+  local: 0,
+  online: 0,
+  tournament: 0,
 })
 
-/* TO FETCH DATA FROM API
 onMounted(async () => {
   try {
     const response = await fetch('/api/stats')
     if (!response.ok) {
       throw new Error('Failed to fetch stats')
     }
-    stats.value = await response.json()
+    const tmp: GameStats = await response.json()
+    console.log(tmp)
+    stats.value = tmp
+    console.log(stats.value)
   } catch (error) {
     console.error('Error fetching stats:', error)
   }
-})*/
-
-const calculateWinRate = (wins: number, total: number): number => {
-  if (total === 0) return 0
-  return Math.round((wins / total) * 100)
-}
+})
 
 const navigateHome = () => {
   router.push('/')
