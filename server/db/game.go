@@ -248,6 +248,25 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	return &g, nil
 }
 
+func GetLastGameStatus(userID int64) (string, error) {
+	q := `SELECT status FROM games WHERE p1_id = $1 OR p2_id = $1 
+  ORDER BY start DESC LIMIT 1`
+
+	row := Conn.QueryRow(q, userID)
+
+	var status string
+	err := row.Scan(&status)
+	if err != nil {
+		return "", err
+	}
+
+	if status != types.GameStatusOpen && status != types.GameStatusWinP1 && status != types.GameStatusWinP2 {
+		return "", errors.New("Game status not valid")
+	}
+
+	return status, nil
+}
+
 func CreateTurn(t types.Turn) (*types.Turn, error) {
 	q := `
 	INSERT INTO turns(game_id, user_id, time, dices, double, moves)

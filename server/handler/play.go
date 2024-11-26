@@ -364,6 +364,14 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
+	isEnded, winner := isGameEnded(g)
+	if isEnded {
+		err := endGame(g, winner)
+		slog.With("error", err).Error("Ending game")
+		c.JSON(http.StatusCreated, "Moves played; Game ended")
+		return
+	}
+
 	// Check if we are playing against a bot
 
 	botLevel := db.GetBotLevel(g.Player2)
@@ -402,6 +410,15 @@ func PlayMoves(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
+
+		isEnded, winner := isGameEnded(g)
+		if isEnded {
+			err := endGame(g, winner)
+			slog.With("error", err).Error("Ending game")
+			c.JSON(http.StatusCreated, "Moves played; Game ended")
+			return
+		}
+
 	} else {
 		// We are playing against another player but current player is already inverted
 		opponentID, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
@@ -557,6 +574,32 @@ func AcceptDouble(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, "Double accepted")
 	// Send notification to the other player that he accepts the doubleS
+}
+
+// @Summary Get last game status
+// @Schemes
+// @Description Get last fame status
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Status of the last game"
+// @Failure 404 "No games or no status found"
+// @Router /play/last/status [get]
+func GetLastGameStatus(c *gin.Context) {
+	userId := c.MustGet("user_id").(int64)
+
+	status, err := db.GetLastGameStatus(userId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, "No games found")
+		} else {
+			slog.With("error", err).Error("Getting last game")
+			c.JSON(http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, status)
 }
 
 // @Summary Create a game against an easy bot
@@ -729,4 +772,40 @@ func acceptDouble(userId int64) error {
 
 	return nil
 
+}
+
+// True if the game is ended. Return id of the winner
+func isGameEnded(g *types.Game) (bool, int64) {
+	s := func(a [25]int8) int {
+		sum := 0
+		for i := 0; i < 25; i++ {
+			sum += int(a[i])
+		}
+		return sum
+	}
+
+	if s(g.P1Checkers) == 0 {
+		return true, g.Player1
+	}
+
+	if s(g.P2Checkers) == 0 {
+		return true, g.Player2
+	}
+
+	return false, 0
+}
+
+func endGame(g *types.Game, winnerID int64) error {
+	if winnerID == g.Player1 {
+		g.Status = types.GameStatusWinP1
+	} else {
+		g.Status = types.GameStatusWinP2
+	}
+
+	err := db.UpdateGame(g)
+
+	ws.GameEnd(g.Player1)
+	ws.GameEnd(g.Player2)
+
+	return err
 }
