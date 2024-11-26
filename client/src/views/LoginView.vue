@@ -54,7 +54,7 @@ function validate() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-neutral">
+  <div class="flex min-h-screen items-center justify-center bg-neutral bg-retro-pattern">
     <div class="card w-96 bg-base-100 shadow-xl">
       <div class="card-body">
         <h2 class="card-title">Login</h2>
