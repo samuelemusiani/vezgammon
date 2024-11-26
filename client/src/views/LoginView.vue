@@ -57,8 +57,8 @@ function validate() {
 </script>
 
 <template>
-  <div class="flex min-h-screen items-center justify-center bg-neutral bg-retro-pattern">
-    <div class="card w-96 bg-base-100 shadow-xl">
+  <div class="flex items-center justify-center h-full w-full">
+    <div class="card w-96 bg-base-100 shadow-md border border-primary border-8">
       <div class="card-body">
         <h2 class="card-title">Login</h2>
         <div class="card-body">
@@ -93,7 +93,7 @@ function validate() {
                 type="text"
                 placeholder="Enter Username"
                 v-model="username"
-                class="input input-bordered w-full"
+                class="input input-bordered w-full focus:ring-primary bg-base-200"
               />
             </div>
 
@@ -105,7 +105,7 @@ function validate() {
                 type="password"
                 placeholder="Enter Password"
                 v-model="passwd"
-                class="input input-bordered w-full"
+                class="input input-bordered w-full focus:ring-primary bg-base-200"
               />
               <label class="label">
                 <a href="#" class="link-hover link label-text-alt">Forgot password?</a>
@@ -119,7 +119,7 @@ function validate() {
 
             <!-- Pulsante di invio -->
             <div class="form-control mt-6">
-              <button type="submit" class="btn btn-primary">Login</button>
+              <button type="submit" class="btn btn-primary border-secondary border-4">Login</button>
             </div>
           </form>
 

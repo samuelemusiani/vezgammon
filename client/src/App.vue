@@ -2,9 +2,11 @@
 import { RouterView } from 'vue-router'
 import { useTheme } from '@/composables/useTheme'
 
-const { theme } = useTheme()
+//const { theme } = useTheme()
 </script>
 
 <template>
-  <RouterView />
+  <div class="bg-neutral bg-retro-pattern border-8 border-primary h-screen w-screen">
+    <RouterView />
+  </div>
 </template>
