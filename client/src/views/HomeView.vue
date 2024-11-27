@@ -5,8 +5,8 @@
     >
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl text-primary">VezGammon</h1>
-        <div class="text-accent">The Ultimate Backgammon Experience</div>
+        <h1 class="retro-title mb-8 p-4 text-7xl text-primary font-bold">VezGammon</h1>
+        <div class="text-accent font-bold text-xl">The Ultimate Backgammon Experience</div>
       </div>
 
       <!-- Button Container -->
@@ -35,7 +35,7 @@
           <button
             @mouseenter="(e: MouseEvent) => play()"
             @click="router.push('/wip')"
-            class="retro-button"
+            class="retro-button font-bold"
           >
             RULES
           </button>
@@ -278,7 +278,7 @@ const startLocalGame = async () => {
 }
 
 .retro-button {
-  @apply btn bg-primary text-white;
+  @apply btn bg-primary text-white font-bold;
   border: 3px solid #8b4513;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);

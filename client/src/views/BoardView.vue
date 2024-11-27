@@ -563,7 +563,7 @@ const exitGame = async () => {
                   width="58"
                   height="58"
                   rx="8"
-                  fill="#d2691e"
+                  class="fill-primary"
                   stroke="black"
                   stroke-width="2"
                 />
@@ -905,7 +905,7 @@ const exitGame = async () => {
 }
 
 .retro-background {
-  background: #2c1810;
+  @apply bg-base-100;
   background-image: repeating-linear-gradient(
       45deg,
       rgba(139, 69, 19, 0.1) 0px,
