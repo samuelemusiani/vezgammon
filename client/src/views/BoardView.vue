@@ -513,9 +513,7 @@ const exitGame = async () => {
 </script>
 
 <template>
-  <div
-    class="flex h-full w-full flex-col items-center justify-center p-4"
-  >
+  <div class="flex h-full w-full flex-col items-center justify-center p-4">
     <div class="fixed top-[25%]">
       <ConfettiExplosion
         v-if="isExploding"
@@ -523,11 +521,11 @@ const exitGame = async () => {
         :particleCount="300"
       />
     </div>
-    <div class="flex w-full h-full gap-6">
+    <div class="flex h-full w-full gap-6">
       <!-- Opponent and Player Info -->
       <div class="flex">
         <div
-          class="flex w-48 flex-col justify-evenly rounded-lg p-4 shadow-xl border-8 border-primary bg-base-100"
+          class="flex w-48 flex-col justify-evenly rounded-lg border-8 border-primary bg-base-100 p-4 shadow-xl"
         >
           <!-- Opponent Info -->
           <div class="mb-8 flex flex-col items-center">
@@ -876,6 +874,7 @@ const exitGame = async () => {
       </div>
     </div>
     <Chat
+      v-if="gameState?.game_type === 'online'"
       :myUsername="session?.username as string"
       :opponentUsername="
         gameState?.player1 === session?.username
@@ -926,11 +925,11 @@ const exitGame = async () => {
 }
 
 .retro-box {
-  @apply bg-base-100 shadow-md border-4 border-primary rounded-lg border-primary border-8;
+  @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
 }
 
 .retro-button {
-  @apply btn btn-primary rounded-lg shadow-md border-4 border-primary;
+  @apply btn btn-primary rounded-lg border-4 border-primary shadow-md;
   border: 3px solid #8b4513;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
