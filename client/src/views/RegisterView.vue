@@ -73,10 +73,10 @@ function validate() {
 
 <template>
   <div class="flex items-center justify-center h-full w-full">
-    <div class="card w-96 bg-base-100 shadow-md border border-primary border-8">
+    <div class="card w-[40%] min-w-96 h-[90%] bg-base-100 shadow-md border border-primary border-8 overflow-auto">
       <div class="card-body">
         <h2 class="card-title">Register</h2>
-        <form @submit.prevent="register">
+        <form @submit.prevent="register" class="grid grid-cols-2 gap-4">
           <div class="form-control">
             <label for="input-mail" class="label">
               <span class="label-text">Email</span>
@@ -90,7 +90,20 @@ function validate() {
             />
           </div>
 
-          <div class="form-control mt-4">
+          <div class="form-control">
+            <label for="input-username" class="label">
+              <span class="label-text">Username</span>
+            </label>
+            <input
+              id="input-username"
+              type="text"
+              placeholder="Master725"
+              v-model="username"
+              class="input input-bordered w-full focus:ring-primary bg-base-200"
+            />
+          </div>
+
+          <div class="form-control">
             <label for="input-password1" class="label">
               <span class="label-text">Password</span>
             </label>
@@ -104,7 +117,7 @@ function validate() {
             />
           </div>
 
-          <div class="form-control mt-4">
+          <div class="form-control">
             <label for="input-password2" class="label">
               <span class="label-text">Confirm Password</span>
             </label>
@@ -118,20 +131,7 @@ function validate() {
             />
           </div>
 
-          <div class="form-control mt-4">
-            <label for="input-username" class="label">
-              <span class="label-text">Username</span>
-            </label>
-            <input
-              id="input-username"
-              type="text"
-              placeholder="Master725"
-              v-model="username"
-              class="input input-bordered w-full focus:ring-primary bg-base-200"
-            />
-          </div>
-
-          <div class="form-control mt-4">
+          <div class="form-control">
             <label for="input-name" class="label">
               <span class="label-text">First Name</span>
             </label>
@@ -144,7 +144,7 @@ function validate() {
             />
           </div>
 
-          <div class="form-control mt-4">
+          <div class="form-control">
             <label for="input-surname" class="label">
               <span class="label-text">Last Name</span>
             </label>
@@ -157,19 +157,19 @@ function validate() {
             />
           </div>
 
-          <div class="mt-4 text-error">
+          <div class="col-span-2 text-error mt-6">
             {{ err }}
           </div>
 
-          <div class="form-control mt-6">
+          <div class="form-control col-span-2 mt-2">
             <button type="submit" class="btn btn-primary border-secondary border-4">
               Register
             </button>
           </div>
 
-          <div class="divider">OR</div>
+          <div class="col-span-2 divider">OR</div>
 
-          <div class="text-center">
+          <div class="col-span-2 text-center">
             <p>Already have an account?</p>
             <RouterLink to="/login" class="link link-primary">
               Go back to Login
