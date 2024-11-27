@@ -3,21 +3,20 @@ Prodotto online: https://vezgammon.it/
 	
 User Stories (Taiga/Text)
 	US SEMBRANO AGGIORNATE
-
 Documenti: 
-	   MANCANO ANCORA I DOC DI S2. Mandate un messaggio telegram quando lo fate
 	   I diagrammi metteteli anche in formato .png (non si dovrebbe fare, ma semplifica la vita)
 Sprint preparation: 
 	Backlog grooming ?
 	DOD: in generale bene. La sezione "Requisiti funzionali" sono troppo specifici, dovrebbero diventare
 		delle condizioni di accettazione delle user story
-	DOR: manca
+	DOR: Ok
 Sprint review: 
-	S1:Manca
-	S2:Manca
+	S1:Presente
+	S2:Presente
+	In entrambi i casi, è più una relazione interna che una SR. 
 Retrospective: 
 	S1:Presente come documento, Esplicitare meglio le azioni che sono finite in un altro file
-	S2:Manca 
+	S2:Presente. Pare che le azioni dello S1 abbiano ottenuto il risultato voluto 
 Git Stats: 
         Git tag OK
 	I contributi paiono provenire prevalentemente da Murer, Musiani e Peroni (si conferma impressione)
