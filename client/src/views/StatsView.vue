@@ -1,22 +1,20 @@
 <template>
-  <div
-    class="retro-background min-h-screen items-center justify-center p-4 md:p-8"
-  >
+  <div class="justify-center items-center p-4 h-full md:p-8">
     <div class="mx-auto max-w-7xl">
-      <div class="retro-box card-body p-4 md:p-8">
-        <h2 class="retro-title mb-4 text-center text-2xl md:text-3xl">
+      <div class="p-4 md:p-8 retro-box card-body">
+        <h2 class="mb-4 text-2xl text-center md:text-3xl text-primary">
           Player Statistics
         </h2>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <!-- Overall Stats -->
           <div class="stats-section">
-            <h3 class="retro-subtitle mb-4">Game Performance</h3>
+            <h3 class="mb-4 retro-subtitle">Game Performance</h3>
             <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div class="stats-grid">
                 <div class="stat-item">
                   <span class="stat-label">Played</span>
-                  <span class="stat-value text-lg md:text-xl">
+                  <span class="text-lg md:text-xl stat-value">
                     {{ 0 }}
                   </span>
                 </div>
@@ -56,28 +54,37 @@
 
           <!-- Recent Games -->
           <div class="stats-section">
-            <h3 class="retro-subtitle mb-4">Recent Games</h3>
+            <h3 class="mb-4 retro-subtitle">Recent Games</h3>
             <div class="recent-games">
               <div
-                v-for="game in stats.game_played"
+                v-for="game in stats.games_played.slice(0, 5)"
                 :key="game.id"
-                class="game-item"
+                class="mb-2 game-item"
               >
-                <!-- TODO: Get opponent name from db and winner -->
-                <span>{{ game.player2 }}</span>
+                <span>{{ game.player1 }} vs {{ game.player2 }}</span>
                 <span
-                  :class="game.status === 'Won' ? 'text-success' : 'text-error'"
-                  class="text-center font-bold"
+                  :class="
+                    game.status === game.current_player
+                      ? 'text-success'
+                      : 'text-error'
+                  "
+                  class="font-bold text-center"
                   >{{ game.status }}</span
                 >
-                <span class="text-right">{{ game.start }}</span>
+                <span class="text-right">{{
+                  new Date(game.start).toDateString()
+                }}</span>
               </div>
             </div>
           </div>
         </div>
 
+        <div class="divider"></div>
+        <!-- ELO Chart -->
+        <EloChart :elo="stats.elo" />
+
         <!-- Back Button -->
-        <div class="mt-8 flex justify-center">
+        <div class="flex justify-center mt-8">
           <button @click="navigateHome" class="retro-button">
             Back to Home
           </button>
@@ -90,6 +97,8 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
 import router from '@/router'
+
+import EloChart from '@/components/EloChart.vue'
 
 import type { GameState } from '@/utils/game/types'
 
@@ -106,16 +115,85 @@ interface GameStats {
 }
 
 // DUMMY DATA while waiting for API -- TODO: remove
-const stats = ref<GameStats>({
-  game_played: [],
-  win: 0,
-  lost: 0,
-  winrate: 0,
-  elo: [],
+const stats = ref({
   cpu: 0,
+  elo: [1280, 1300, 1320, 1340, 1360, 1300, 1280, 1200, 1150, 1000, 700, 1450],
+  games_played: [
+    {
+      current_player: 'p1',
+      double_owner: 'all',
+      double_value: 1,
+      elo1: 1000,
+      elo2: 1000,
+      end: '2021-01-01T00:00:00Z',
+      game_type: 'online',
+      id: 0,
+      p1checkers: [0],
+      p2checkers: [0],
+      player1: 'Giorgio',
+      player2: 'Mario',
+      start: '2021-01-01T00:00:00Z',
+      status: 'open',
+      want_to_double: false,
+    },
+    {
+      current_player: 'p2',
+      double_owner: 'p1',
+      double_value: 2,
+      elo1: 1050,
+      elo2: 1020,
+      end: '2021-02-01T00:00:00Z',
+      game_type: 'local',
+      id: 1,
+      p1checkers: [1],
+      p2checkers: [1],
+      player1: 'Alice',
+      player2: 'Bob',
+      start: '2021-02-01T00:00:00Z',
+      status: 'p1',
+      want_to_double: true,
+    },
+    {
+      current_player: 'p1',
+      double_owner: 'p2',
+      double_value: 3,
+      elo1: 1100,
+      elo2: 1080,
+      end: '2021-03-01T00:00:00Z',
+      game_type: 'tournament',
+      id: 2,
+      p1checkers: [2],
+      p2checkers: [2],
+      player1: 'Charlie',
+      player2: 'Dave',
+      start: '2021-03-01T00:00:00Z',
+      status: 'open',
+      want_to_double: false,
+    },
+    {
+      current_player: 'p2',
+      double_owner: 'p1',
+      double_value: 4,
+      elo1: 1150,
+      elo2: 1120,
+      end: '2021-04-01T00:00:00Z',
+      game_type: 'online',
+      id: 3,
+      p1checkers: [3],
+      p2checkers: [3],
+      player1: 'Eve',
+      player2: 'Frank',
+      start: '2021-04-01T00:00:00Z',
+      status: 'p2',
+      want_to_double: true,
+    },
+  ],
   local: 0,
+  lost: 0,
   online: 0,
-  tournament: 0,
+  tournament: 5,
+  win: 100,
+  winrate: 70,
 })
 
 onMounted(async () => {
@@ -125,9 +203,7 @@ onMounted(async () => {
       throw new Error('Failed to fetch stats')
     }
     const tmp: GameStats = await response.json()
-    console.log(tmp)
-    stats.value = tmp
-    console.log(stats.value)
+    //stats.value = tmp
   } catch (error) {
     console.error('Error fetching stats:', error)
   }
@@ -139,50 +215,8 @@ const navigateHome = () => {
 </script>
 
 <style scoped>
-.retro-background {
-  background: #2c1810;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-}
-
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-
-.retro-title {
-  font-family: 'Arial Black', serif;
-  color: #8b4513;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  letter-spacing: 2px;
-}
-
-.retro-subtitle {
-  font-family: 'Arial Black', serif;
-  color: #d2691e;
-  font-size: 1.5rem;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
-}
-
 .stats-section {
-  @apply p-3 md:p-6;
-  background: rgba(210, 105, 30, 0.1);
+  @apply bg-base-100 p-3 md:p-6;
   border: 3px solid #8b4513;
   border-radius: 8px;
 }
@@ -224,23 +258,5 @@ const navigateHome = () => {
   @apply text-base md:text-lg lg:text-xl;
   font-weight: bold;
   color: #d2691e;
-}
-
-.retro-button {
-  background: #d2691e;
-  color: white;
-  border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
-  text-transform: uppercase;
-  padding: 0.5rem 2rem;
-  text-shadow: 1px 1px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  transition: all 0.2s;
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow: none;
-    cursor: url('/tortellino.png'), auto;
-  }
 }
 </style>
