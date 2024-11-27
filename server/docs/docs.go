@@ -668,6 +668,18 @@ const docTemplate = `{
                 }
             }
         },
+        "sql.NullInt64": {
+            "type": "object",
+            "properties": {
+                "int64": {
+                    "type": "integer"
+                },
+                "valid": {
+                    "description": "Valid is true if Int64 is not NULL",
+                    "type": "boolean"
+                }
+            }
+        },
         "types.FutureTurn": {
             "type": "object",
             "properties": {
@@ -808,8 +820,7 @@ const docTemplate = `{
                     "example": "open"
                 },
                 "tournament": {
-                    "type": "integer",
-                    "example": 1
+                    "$ref": "#/definitions/sql.NullInt64"
                 },
                 "want_to_double": {
                     "type": "boolean",

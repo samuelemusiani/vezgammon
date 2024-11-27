@@ -46,6 +46,14 @@ definitions:
         example: gio
         type: string
     type: object
+  sql.NullInt64:
+    properties:
+      int64:
+        type: integer
+      valid:
+        description: Valid is true if Int64 is not NULL
+        type: boolean
+    type: object
   types.FutureTurn:
     properties:
       can_double:
@@ -145,8 +153,7 @@ definitions:
         example: open
         type: string
       tournament:
-        example: 1
-        type: integer
+        $ref: '#/definitions/sql.NullInt64'
       want_to_double:
         example: false
         type: boolean

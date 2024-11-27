@@ -150,5 +150,5 @@ type ReturnGame struct {
 
 	GameType string `json:"game_type" example:"online"`
 
-	Tournament sql.NullInt64 `json:"tournament" example:"1"`
+	Tournament sql.NullInt64 `json:"tournament"`
 }

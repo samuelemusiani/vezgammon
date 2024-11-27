@@ -35,7 +35,7 @@ test-server:
     fi
 
 generate-swag: install-swag
-    cd server && ~/go/bin/swag init
+    cd server && ~/go/bin/swag init --parseDependency database/sql
 
 install-swag:
     go install github.com/swaggo/swag/cmd/swag@latest
