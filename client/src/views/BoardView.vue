@@ -526,7 +526,7 @@ const exitGame = async () => {
         :particleCount="300"
       />
     </div>
-    <div class="flex w-full max-w-screen-2xl gap-6">
+    <div class="flex w-full h-full gap-6">
       <!-- Opponent and Player Info -->
       <div class="flex">
         <div
