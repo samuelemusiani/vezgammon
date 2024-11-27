@@ -6,7 +6,9 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
 </script>
 
 <template>
-  <div class="bg-neutral bg-retro-pattern border-8 border-primary h-screen w-screen">
+  <div
+    class="w-screen h-screen border-8 border-primary bg-neutral bg-retro-pattern"
+  >
     <RouterView />
   </div>
 </template>
