@@ -278,15 +278,9 @@ func GetLastGameWinner(userID int64) (string, error) {
 
 	switch status {
 	case types.GameStatusWinP1:
-		if userID == p1ID {
-			return username1, nil
-		}
-		return username2, nil
-	case types.GameStatusWinP2:
-		if userID == p2ID {
-			return username2, nil
-		}
 		return username1, nil
+	case types.GameStatusWinP2:
+		return username2, nil
 	case types.GameStatusOpen:
 		return "open", nil
 	default:
