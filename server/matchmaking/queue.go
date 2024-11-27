@@ -61,9 +61,9 @@ func remove(e qel) error {
 	for i := range length() {
 		// element founded
 		pos := (i + start) % qlen
-		if e == queue[pos] {
+		if e.User_id == queue[pos].User_id {
 			for j := range (end - pos + qlen - 1) % qlen {
-				queue[(pos+j)%qlen].User_id = queue[(pos+j+1)%qlen].User_id
+				queue[(pos+j)%qlen] = queue[(pos+j+1)%qlen]
 			}
 			end = (end - 1 + qlen) % qlen
 

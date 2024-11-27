@@ -16,11 +16,13 @@ func chat(conn *websocket.Conn, user_id int64) {
 		if err != nil {
 			slog.With("err", err).Error("Error reading message")
 
-			if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
+			if websocket.IsCloseError(err, websocket.CloseGoingAway) {
+				slog.Debug("Normal closure")
 				f, ok := disconnect[user_id]
 				if !ok {
 					break
 				}
+				slog.Debug("Removing player from matchmaking queue")
 
 				err := f(user_id)
 				slog.With("err", err).Error("Removing player from matchmaking queue")

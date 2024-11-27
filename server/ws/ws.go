@@ -113,4 +113,5 @@ func GameEnd(user_id int64) error {
 }
 
 func AddDisconnectHandler(user_id int64, f func(int64) error) {
+	disconnect[user_id] = f
 }
