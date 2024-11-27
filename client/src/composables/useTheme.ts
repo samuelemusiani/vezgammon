@@ -26,13 +26,13 @@ export function useTheme() {
     if (savedTheme && themeOptions.includes(savedTheme)) {
       changeTheme(savedTheme)
     } else {
-      changeTheme('retro')  // Default theme
+      changeTheme('retro') // Default theme
     }
   })
 
   return {
     currentTheme,
     themeOptions,
-    changeTheme
+    changeTheme,
   }
 }

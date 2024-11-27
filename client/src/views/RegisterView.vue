@@ -72,8 +72,10 @@ function validate() {
 </script>
 
 <template>
-  <div class="flex items-center justify-center h-full w-full">
-    <div class="card w-[40%] min-w-96 h-[90%] bg-base-100 shadow-md border border-primary border-8 overflow-auto">
+  <div class="flex h-full w-full items-center justify-center">
+    <div
+      class="card h-[90%] w-[40%] min-w-96 overflow-auto border border-8 border-primary bg-base-100 shadow-md"
+    >
       <div class="card-body">
         <h2 class="card-title">Register</h2>
         <form @submit.prevent="register" class="grid grid-cols-2 gap-4">
@@ -86,7 +88,7 @@ function validate() {
               type="email"
               placeholder="email@example.com"
               v-model="mail"
-              class="input input-bordered w-full focus:ring-primary bg-base-200 invalid:border-error invalid:text-error"
+              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary"
             />
           </div>
 
@@ -99,7 +101,7 @@ function validate() {
               type="text"
               placeholder="Master725"
               v-model="username"
-              class="input input-bordered w-full focus:ring-primary bg-base-200"
+              class="input input-bordered w-full bg-base-200 focus:ring-primary"
             />
           </div>
 
@@ -113,7 +115,7 @@ function validate() {
               placeholder="Choose a password"
               v-model="passwd1"
               minlength="8"
-              class="input input-bordered w-full focus:ring-primary bg-base-200 invalid:border-error invalid:text-error"
+              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary"
             />
           </div>
 
@@ -127,7 +129,7 @@ function validate() {
               placeholder="Confirm password"
               v-model="passwd2"
               minlength="8"
-              class="input input-bordered w-full focus:ring-primary bg-base-200 invalid:border-error invalid:text-error"
+              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary"
             />
           </div>
 
@@ -140,7 +142,7 @@ function validate() {
               type="text"
               placeholder="Alex"
               v-model="firstname"
-              class="input input-bordered w-full focus:ring-primary bg-base-200"
+              class="input input-bordered w-full bg-base-200 focus:ring-primary"
             />
           </div>
 
@@ -153,21 +155,24 @@ function validate() {
               type="text"
               placeholder="Harrison"
               v-model="lastname"
-              class="input input-bordered w-full focus:ring-primary bg-base-200"
+              class="input input-bordered w-full bg-base-200 focus:ring-primary"
             />
           </div>
 
-          <div class="col-span-2 text-error mt-6">
+          <div class="col-span-2 mt-6 text-error">
             {{ err }}
           </div>
 
           <div class="form-control col-span-2 mt-2">
-            <button type="submit" class="btn btn-primary border-secondary border-4">
+            <button
+              type="submit"
+              class="btn btn-primary border-4 border-secondary"
+            >
               Register
             </button>
           </div>
 
-          <div class="col-span-2 divider">OR</div>
+          <div class="divider col-span-2">OR</div>
 
           <div class="col-span-2 text-center">
             <p>Already have an account?</p>

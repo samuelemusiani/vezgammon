@@ -34,10 +34,10 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
 </script>
 
 <template>
-  <div
-    class="flex h-full items-center justify-center"
-  >
-    <div class="card w-1/2 bg-base-100 shadow-xl border-primary border-8 rounded-xl">
+  <div class="flex h-full items-center justify-center">
+    <div
+      class="card w-1/2 rounded-xl border-8 border-primary bg-base-100 shadow-xl"
+    >
       <div class="card-body">
         <h2 class="text-center text-2xl font-bold">Profile</h2>
 
@@ -59,8 +59,8 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
             </span>
           </div>
 
-          <div class="mt-10 flex justify-center items-center gap-5">
-            <button class="btn btn-seconday" @click="goBack">GO BACK</button>
+          <div class="mt-10 flex items-center justify-center gap-5">
+            <button class="btn-seconday btn" @click="goBack">GO BACK</button>
             <button class="btn btn-primary" @click="logout">LOGOUT</button>
             <div class="">
               <div class="dropdown dropdown-end">
@@ -69,7 +69,7 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
                 </div>
                 <ul
                   tabindex="0"
-                  class="p-2 shadow menu dropdown-content bg-base-100 rounded-box w-52 border-primary border-4"
+                  class="menu dropdown-content w-52 rounded-box border-4 border-primary bg-base-100 p-2 shadow"
                 >
                   <li
                     v-for="theme in themeOptions"
@@ -81,10 +81,8 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
                 </ul>
               </div>
             </div>
-          </div>          <!-- Gestione Tema -->
-
-
-
+          </div>
+          <!-- Gestione Tema -->
         </div>
 
         <div v-else class="text-error">

@@ -1,9 +1,11 @@
 <template>
-  <div class="flex h-full items-center justify-center w-full">
-    <div class="flex h-[90%] w-[80%] flex-col items-center justify-center bg-base-100 border-8 border-primary rounded-md">
+  <div class="flex h-full w-full items-center justify-center">
+    <div
+      class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
+    >
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="text-primary retro-title text-7xl mb-8 p-4">VezGammon</h1>
+        <h1 class="retro-title mb-8 p-4 text-7xl text-primary">VezGammon</h1>
         <div class="text-accent">The Ultimate Backgammon Experience</div>
       </div>
 
@@ -148,9 +150,7 @@
         </div>
         <div class="modal-action">
           <form method="dialog">
-            <button @click="cancelMatchmaking" class="retro-button">
-              Cancel
-            </button>
+            <button class="retro-button">Cancel</button>
           </form>
         </div>
       </div>
@@ -268,8 +268,6 @@ const startLocalGame = async () => {
   animation: move-title 8s ease-in-out infinite alternate;
   border-bottom: 2px solid #8b4513;
 }
-
-
 
 .retro-box {
   background-color: #ffe5c9;

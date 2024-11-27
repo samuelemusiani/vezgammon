@@ -10,9 +10,9 @@ export default {
           repeating-linear-gradient(45deg, currentColor 0px, currentColor 2px, transparent 2px, transparent 10px),
           repeating-linear-gradient(-45deg, currentColor 0px, currentColor 2px, transparent 2px, transparent 10px)
         `,
-        },
+      },
       cursor: {
-        'tortellino': 'url("/tortellino.png"), auto',
+        tortellino: 'url("/tortellino.png"), auto',
       },
     },
   },

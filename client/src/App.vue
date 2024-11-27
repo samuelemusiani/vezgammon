@@ -7,7 +7,7 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
 
 <template>
   <div
-    class="w-screen h-screen border-8 border-primary bg-neutral bg-retro-pattern"
+    class="h-screen w-screen border-8 border-primary bg-neutral bg-retro-pattern"
   >
     <RouterView />
   </div>
