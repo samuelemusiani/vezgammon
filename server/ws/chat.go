@@ -3,7 +3,6 @@ package ws
 import (
 	"log/slog"
 	"vezgammon/server/db"
-	"vezgammon/server/matchmaking"
 
 	"github.com/gorilla/websocket"
 )
@@ -18,10 +17,13 @@ func chat(conn *websocket.Conn, user_id int64) {
 			slog.With("err", err).Error("Error reading message")
 
 			if websocket.IsCloseError(err, websocket.CloseNormalClosure) {
-				err := matchmaking.StopSearch(user_id)
-				if err != matchmaking.ErrElementNotFound {
-					slog.With("err", err).Error("Removing player from matchmaking queue")
+				f, ok := disconnect[user_id]
+				if !ok {
+					break
 				}
+
+				err := f(user_id)
+				slog.With("err", err).Error("Removing player from matchmaking queue")
 			}
 			break
 		}

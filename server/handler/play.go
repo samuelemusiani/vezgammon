@@ -43,6 +43,8 @@ func StartPlaySearch(c *gin.Context) {
 		return
 	}
 
+	ws.AddDisconnectHandler(user_id, matchmaking.StopSearch)
+
 	c.JSON(http.StatusOK, "Search started")
 }
 
