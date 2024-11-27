@@ -85,6 +85,7 @@ type loginResponseUser struct {
 	ID       int64  `json:"id" example:"1"`
 	Username string `json:"username" example:"gio"`
 	Email    string `json:"email" example:"giorossi@mail.it"`
+	Token    string `json:"token"`
 }
 
 type loginResponseType struct {
@@ -139,7 +140,7 @@ func Login(c *gin.Context) {
 		3600, // scadenza in secondi (1 ora)
 		"/",
 		config.Get().Server.Domain,
-		true,  // solo HTTPS
+		false, // solo HTTPS
 		false, // httpOnly
 	)
 
@@ -150,6 +151,7 @@ func Login(c *gin.Context) {
 			ID:       user.ID,
 			Username: user.Username,
 			Email:    user.Mail,
+			Token:    sessionToken,
 		},
 	})
 }

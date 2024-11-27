@@ -8,6 +8,7 @@ import (
 	"vezgammon/server/config"
 	"vezgammon/server/db"
 	"vezgammon/server/handler"
+	"vezgammon/server/matchmaking"
 )
 
 func main() {
@@ -31,6 +32,8 @@ func main() {
 	}
 
 	bgweb.Init(conf)
+
+	matchmaking.Init()
 
 	router, err := handler.InitHandlers(conf)
 	if err != nil {

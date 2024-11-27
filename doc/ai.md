@@ -2,6 +2,8 @@
 Questo documento raccoglie le richieste che sono state fatte all'AI durante lo sviluppo di VezGammon©
 
 ## Frontend
+- fix this vue componenet error: `...`
+- how do i refactor the code to make it work with tailwind themes?
 
 ## Backend
 - given these sql tables "..." make a sql query to return the table game with usernames instead of p1_id, p2_id, to return one game with the status 'open' where either `g.p1_id` or `g.p2_id` is equal to 1234

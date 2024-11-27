@@ -20,6 +20,10 @@ func getCurrentPlayer(currentPlayer string, id1, id2 int64) (int64, error) {
 	return id, nil
 }
 
+func getOpponentID(currentPlayer string, id1, id2 int64) (int64, error) {
+	return getCurrentPlayer(currentPlayer, id2, id1)
+}
+
 func invertPlayer(currentPlayer string) string {
 	switch currentPlayer {
 	case types.GameCurrentPlayerP1:

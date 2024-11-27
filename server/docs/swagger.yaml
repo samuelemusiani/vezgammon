@@ -33,6 +33,8 @@ definitions:
       id:
         example: 1
         type: integer
+      token:
+        type: string
       username:
         example: gio
         type: string
@@ -352,6 +354,23 @@ paths:
         "400":
           description: Not in a game or double not possible
       summary: Accept the double
+      tags:
+      - play
+  /play/last/winner:
+    get:
+      consumes:
+      - application/json
+      description: Get last fame status
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Status of the last game
+          schema:
+            type: string
+        "404":
+          description: No games or no status found
+      summary: Get last game status
       tags:
       - play
   /play/local:
