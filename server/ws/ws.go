@@ -35,12 +35,13 @@ func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 		return
 	}
 
+	go chat(conn, user_id)
+
 	// Add client connection to clients connention array
 	clients[conn] = true
 	users[user_id] = conn
 	SendMessage(user_id, Message{Type: "connection_esatablished"})
 	slog.Debug("test")
-
 }
 
 // Send messsage to user
