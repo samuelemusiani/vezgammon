@@ -71,6 +71,7 @@ func CreateGame(g types.Game) (*types.Game, error) {
     )
     RETURNING id
     `
+
 	res := Conn.QueryRow(
 		q,
 		g.Player1, g.Elo1, g.Player2, g.Elo2,

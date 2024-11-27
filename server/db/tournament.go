@@ -1,6 +1,8 @@
 package db
 
 import (
+	"cmp"
+	"slices"
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
@@ -71,6 +73,47 @@ func UpdateTournament(t *types.Tournament) error {
 	return nil
 }
 
+func calcLeaderBoard(games []types.ReturnGame) types.LeaderBoard {
+	type mape struct {
+		win  int
+		lose int
+	}
+
+	m := make(map[string]mape)
+
+	for _, g := range games {
+		switch g.Status {
+		case types.GameStatusWinP1:
+			m[g.Player1] = mape{m[g.Player1].win + 1, m[g.Player1].lose}
+			m[g.Player2] = mape{m[g.Player2].win, m[g.Player2].lose + 1}
+		case types.GameStatusWinP2:
+			m[g.Player2] = mape{m[g.Player2].win + 1, m[g.Player2].lose}
+			m[g.Player1] = mape{m[g.Player1].win, m[g.Player1].lose + 1}
+		}
+	}
+
+	var list []types.LeaderBoardEntry
+	for name, score := range m {
+		entry := types.LeaderBoardEntry{
+			User: name,
+			Win:  score.win,
+			Lose: score.lose,
+		}
+
+		list = append(list, entry)
+	}
+
+	// sort, most wins first
+	slices.SortFunc(list, func(i, j types.LeaderBoardEntry) int {
+		sum1 := i.Win - i.Lose
+		sum2 := j.Win - j.Lose
+
+		return cmp.Compare(sum1, sum2)
+	})
+
+	return list
+}
+
 func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, error) {
 	var rt types.ReturnTournament
 
@@ -124,8 +167,8 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 		rt.Games = append(rt.Games, *GameToReturnGame(&g))
 	}
 
-	// cal leaderboard
-	// TODO:
+	// calc leaderboard
+	rt.LeaderBoard = calcLeaderBoard(rt.Games)
 
 	return &rt, nil
 }

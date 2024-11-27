@@ -69,6 +69,12 @@ func Init(conf *config.Config) error {
 		return err
 	}
 
+	err = InitTournament()
+	if err != nil {
+		slog.With("err", err).Debug("init tournament")
+		return err
+	}
+
 	// game initialization
 	err = initGame()
 	if err != nil {

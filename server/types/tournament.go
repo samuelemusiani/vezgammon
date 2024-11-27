@@ -24,6 +24,8 @@ type LeaderBoardEntry struct {
 	Lose int    `json:"lose" example:"1"`
 }
 
+type LeaderBoard []LeaderBoardEntry
+
 type ReturnTournament struct {
 	ID         int64    `json:"id" example:"1"`
 	Name       string   `json:"name" example:"Tournament name"`
