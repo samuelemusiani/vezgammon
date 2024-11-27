@@ -71,7 +71,7 @@
           <template v-if="!showDifficulty">
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="startGame('local')"
+              @click="startLocalGame"
               class="retro-button"
             >
               Local Game (2 Players)
@@ -209,6 +209,7 @@ const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
 
   try {
     await fetch(`/api/play/bot/${difficulty}`)
+    router.push('/game')
   } catch (error) {
     console.error('Error starting game with AI:', error)
   }
@@ -251,19 +252,12 @@ const openPlayModal = () => {
   modal.showModal()
 }
 
-const startGame = async (mode: 'local' | 'ai' | 'online') => {
+const startLocalGame = async () => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
 
-  switch (mode) {
-    case 'local':
-      await fetch('/api/play/local')
-      router.push('/game')
-      break
-    case 'online':
-      router.push('/game')
-      break
-  }
+  await fetch('/api/play/local')
+  router.push('/game')
 }
 </script>
 

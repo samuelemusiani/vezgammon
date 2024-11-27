@@ -478,7 +478,7 @@ func WantToDouble(c *gin.Context) {
 	if (g.DoubleOwner != types.GameDoubleOwnerAll &&
 		g.DoubleOwner != g.CurrentPlayer) ||
 		g.DoubleValue == 64 ||
-		(g.DoubleOwner == types.GameDoubleOwnerAll && currentPlayerID == userId) {
+		(g.DoubleOwner == types.GameDoubleOwnerAll && currentPlayerID != userId) {
 		c.JSON(http.StatusBadRequest, ErrDoubleNotPossible.Error())
 		return
 	}
