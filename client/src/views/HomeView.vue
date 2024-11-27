@@ -286,7 +286,7 @@ const startLocalGame = async () => {
 }
 
 .retro-button {
-  @apply btn bg-primary text-neutral;
+  @apply btn bg-primary text-white;
   border: 3px solid #8b4513;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
