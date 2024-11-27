@@ -1,15 +1,16 @@
+import type { WSMessage } from '@/utils/types'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
 export const useWebSocketStore = defineStore('websocket', () => {
   const socket = ref<WebSocket | null>(null)
   const isConnected = ref(false)
-  const messageHandlers = new Set<(message: any) => void>()
-  const addMessageHandler = (handler: (message: any) => void) => {
+  const messageHandlers = new Set<(message: WSMessage) => void>()
+  const addMessageHandler = (handler: (message: WSMessage) => void) => {
     messageHandlers.add(handler)
   }
 
-  const removeMessageHandler = (handler: (message: any) => void) => {
+  const removeMessageHandler = (handler: (message: WSMessage) => void) => {
     messageHandlers.delete(handler)
   }
 
@@ -34,8 +35,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
       }
 
       socket.value.onmessage = event => {
-        const data = JSON.parse(event.data)
-        const message = data.type
+        const message = JSON.parse(event.data)
         messageHandlers.forEach(handler => handler(message))
         console.log('Received message:', message)
       }
@@ -51,7 +51,7 @@ export const useWebSocketStore = defineStore('websocket', () => {
     }
   }
 
-  const sendMessage = (message: any) => {
+  const sendMessage = (message: WSMessage) => {
     if (socket.value && isConnected.value) {
       socket.value.send(JSON.stringify(message))
     }

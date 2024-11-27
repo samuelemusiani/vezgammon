@@ -166,6 +166,7 @@ import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useWebSocketStore } from '@/stores/websocket'
+import type { WSMessage } from '@/utils/types'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
@@ -180,8 +181,8 @@ onUnmounted(() => {
   webSocketStore.removeMessageHandler(handleMatchmaking)
 })
 
-const handleMatchmaking = (message: string) => {
-  if (message === 'game_found') {
+const handleMatchmaking = (message: WSMessage) => {
+  if (message.type === 'game_found') {
     const waitingModal = document.getElementById(
       'waiting_modal',
     ) as HTMLDialogElement
@@ -234,13 +235,6 @@ const startOnlineGame = async () => {
     ) as HTMLDialogElement
     waitingModal.close()
   }
-}
-
-const cancelMatchmaking = () => {
-  webSocketStore.sendMessage({
-    type: 'cancel_matchmaking',
-    payload: {},
-  })
 }
 
 const navigateTo = (path: string) => {
