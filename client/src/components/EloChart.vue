@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref } from 'vue'
 import { Line } from 'vue-chartjs'
 import {
   Chart as ChartJS,
@@ -33,7 +33,8 @@ const chartData = ref({
       label: 'Elo Rating',
       data: props.elo,
       fill: true,
-      className: 'border-primary bg-secondary',
+      borderColor: 'rgb(75, 192, 192)',
+      backgroundColor: 'rgba(75, 192, 192, 0.2)',
     },
   ],
 })
@@ -60,7 +61,7 @@ const chartOptions = ref({
 </script>
 
 <template>
-  <div class="p-2 borer-primary mt-2 border-8 bg-">
+  <div class="p-2 border-primary mt-2 border-8 bg-base-200 h-[300px]">
     <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>

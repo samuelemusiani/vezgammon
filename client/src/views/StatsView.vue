@@ -1,91 +1,97 @@
 <template>
-  <div class="justify-center items-center p-4 h-full md:p-8">
-    <div class="mx-auto max-w-7xl">
-      <div class="p-4 md:p-8 retro-box card-body">
-        <h2 class="mb-4 text-2xl text-center md:text-3xl text-primary">
-          Player Statistics
-        </h2>
+  <div class="container py-8 px-4 mx-auto ">
+    <div class="shadow-xl card bg-base-100 overflow-auto h-[90vh]">
+      <div class="card-body">
+        <h2 class="text-center card-title text-primary">Player Statistics</h2>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <!-- Overall Stats -->
-          <div class="stats-section">
-            <h3 class="mb-4 retro-subtitle">Game Performance</h3>
-            <div class="grid grid-cols-1 gap-4 sm:grid-cols-2">
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <span class="stat-label">Played</span>
-                  <span class="text-lg md:text-xl stat-value">
-                    {{ 0 }}
-                  </span>
+          <div class="card bg-base-200">
+            <div class="card-body">
+              <h3 class="card-title">Game Performance</h3>
+              <div class="grid grid-cols-2 gap-4">
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="place-items-center stat">
+                    <div class="stat-title">Played</div>
+                    <div class="stat-value">{{ 0 }}</div>
+                  </div>
+                  <div class="place-items-center stat">
+                    <div class="stat-title">Wins</div>
+                    <div class="stat-value">{{ stats.win }}</div>
+                  </div>
+                  <div class="place-items-center stat">
+                    <div class="stat-title">Lost</div>
+                    <div class="stat-value">{{ stats.lost }}</div>
+                  </div>
+                  <div class="place-items-center stat">
+                    <div class="stat-title">Win Rate</div>
+                    <div class="stat-value">{{ stats.winrate }}%</div>
+                  </div>
                 </div>
-                <div class="stat-item">
-                  <span class="stat-label">Wins</span>
-                  <span class="stat-value">{{ stats.win }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Lost</span>
-                  <span class="stat-value">{{ stats.lost }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">WinRate</span>
-                  <span class="stat-value">{{ stats.winrate }}%</span>
-                </div>
-              </div>
-              <div class="stats-grid">
-                <div class="stat-item">
-                  <span class="stat-label">CPU</span>
-                  <span class="stat-value">{{ stats.cpu }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Local </span>
-                  <span class="stat-value">{{ stats.local }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Online</span>
-                  <span class="stat-value">{{ stats.online }}</span>
-                </div>
-                <div class="stat-item">
-                  <span class="stat-label">Tournament</span>
-                  <span class="stat-value">{{ stats.tournament }}</span>
+                <div class="grid grid-cols-2 gap-2">
+                  <div class="place-items-center stat">
+                    <div class="stat-title">CPU</div>
+                    <div class="stat-value">{{ stats.cpu }}</div>
+                  </div>
+                  <div class="place-items-center stat">
+                    <div class="stat-title">Local</div>
+                    <div class="stat-value">{{ stats.local }}</div>
+                  </div>
+                  <div class="place-items-center stat">
+                    <div class="stat-title">Online</div>
+                    <div class="stat-value">{{ stats.online }}</div>
+                  </div>
+                  <div class="place-items-center stat">
+                    <div class="stat-title">Tournament</div>
+                    <div class="stat-value">{{ stats.tournament }}</div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Recent Games -->
-          <div class="stats-section">
-            <h3 class="mb-4 retro-subtitle">Recent Games</h3>
-            <div class="recent-games">
-              <div
-                v-for="game in stats.games_played.slice(0, 5)"
-                :key="game.id"
-                class="mb-2 game-item"
-              >
-                <span>{{ game.player1 }} vs {{ game.player2 }}</span>
-                <span
-                  :class="
-                    game.status === game.current_player
-                      ? 'text-success'
-                      : 'text-error'
-                  "
-                  class="font-bold text-center"
-                  >{{ game.status }}</span
-                >
-                <span class="text-right">{{
-                  new Date(game.start).toDateString()
-                }}</span>
+          <div class="card bg-base-200">
+            <div class="card-body">
+              <h3 class="card-title">Recent Games</h3>
+              <div class="overflow-x-auto">
+                <table class="table">
+                  <tbody>
+                    <tr
+                      v-for="game in stats.games_played.slice(0, 5)"
+                      :key="game.id"
+                    >
+                      <td>{{ game.player1 }} vs {{ game.player2 }}</td>
+                      <td>
+                        <span
+                          :class="
+                            game.status === game.current_player
+                              ? 'text-success'
+                              : 'text-error'
+                          "
+                        >
+                          {{ game.status }}
+                        </span>
+                      </td>
+                      <td class="text-right">
+                        {{ new Date(game.start).toDateString() }}
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
             </div>
           </div>
         </div>
 
         <div class="divider"></div>
+
         <!-- ELO Chart -->
         <EloChart :elo="stats.elo" />
 
         <!-- Back Button -->
-        <div class="flex justify-center mt-8">
-          <button @click="navigateHome" class="retro-button">
+        <div class="justify-center mt-4 card-actions">
+          <button @click="navigateHome" class="btn btn-primary">
             Back to Home
           </button>
         </div>
@@ -114,7 +120,6 @@ interface GameStats {
   tournament: number
 }
 
-// DUMMY DATA while waiting for API -- TODO: remove
 const stats = ref({
   cpu: 0,
   elo: [1280, 1300, 1320, 1340, 1360, 1300, 1280, 1200, 1150, 1000, 700, 1450],
@@ -213,50 +218,3 @@ const navigateHome = () => {
   router.push('/')
 }
 </script>
-
-<style scoped>
-.stats-section {
-  @apply bg-base-100 p-3 md:p-6;
-  border: 3px solid #8b4513;
-  border-radius: 8px;
-}
-
-.stats-grid {
-  @apply grid grid-cols-1 gap-2 sm:grid-cols-2;
-}
-
-.stat-item {
-  @apply p-2 md:p-4;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  background: rgba(255, 255, 255, 0.6);
-  border: 2px solid #8b4513;
-  border-radius: 4px;
-  justify-content: center;
-  min-height: 70px;
-  height: auto;
-}
-
-.game-item {
-  @apply p-2 md:p-4;
-  display: grid;
-  grid-template-columns: 1fr auto 1fr;
-  gap: 0.5rem;
-  background: rgba(255, 255, 255, 0.6);
-  border: 2px solid #8b4513;
-  border-radius: 4px;
-}
-
-.stat-label {
-  @apply text-sm md:text-base;
-  font-family: 'Arial Black', serif;
-  color: #8b4513;
-}
-
-.stat-value {
-  @apply text-base md:text-lg lg:text-xl;
-  font-weight: bold;
-  color: #d2691e;
-}
-</style>
