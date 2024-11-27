@@ -150,10 +150,42 @@
         </div>
         <div class="modal-action">
           <form method="dialog">
-            <button class="retro-button">Cancel</button>
+            <button @click="handleCancelMatchmaking" class="retro-button">
+              Cancel
+            </button>
           </form>
         </div>
       </div>
+    </dialog>
+
+    <!-- Resume Modal -->
+    <dialog id="resume_game_modal" class="modal">
+      <div class="retro-box modal-box">
+        <h3 class="retro-title mb-4 text-center text-2xl font-bold">
+          Game in Progress
+        </h3>
+        <p class="mb-4 text-center">You have an ongoing game.</p>
+        <div class="flex flex-col gap-4">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="resumeGame"
+            class="retro-button"
+          >
+            Resume Game
+          </button>
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="leaveGame"
+            class="retro-button"
+          >
+            Leave Game
+          </button>
+        </div>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
     </dialog>
   </div>
 </template>
@@ -175,6 +207,7 @@ const showDifficulty = ref(false)
 onMounted(() => {
   webSocketStore.connect()
   webSocketStore.addMessageHandler(handleMatchmaking)
+  checkIfInGame()
 })
 
 onUnmounted(() => {
@@ -189,6 +222,44 @@ const handleMatchmaking = (message: WSMessage) => {
     waitingModal.close()
     router.push('/game')
   }
+}
+
+const checkIfInGame = async () => {
+  const response = await fetch('/api/play')
+  if (response.ok) {
+    const resumeModal = document.getElementById(
+      'resume_game_modal',
+    ) as HTMLDialogElement
+    resumeModal.showModal()
+  }
+}
+
+const resumeGame = () => {
+  const modal = document.getElementById(
+    'resume_game_modal',
+  ) as HTMLDialogElement
+  modal.close()
+  router.push('/game')
+}
+
+const leaveGame = async () => {
+  try {
+    await fetch('/api/play', { method: 'DELETE' })
+    const modal = document.getElementById(
+      'resume_game_modal',
+    ) as HTMLDialogElement
+    modal.close()
+  } catch (error) {
+    console.error('Error leaving game:', error)
+  }
+}
+
+const handleCancelMatchmaking = async () => {
+  await fetch('/api/play/search', { method: 'DELETE' })
+  const waitingModal = document.getElementById(
+    'waiting_modal',
+  ) as HTMLDialogElement
+  waitingModal.close()
 }
 
 const modalTitle = computed(() => {
