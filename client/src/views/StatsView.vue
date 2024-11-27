@@ -60,6 +60,7 @@
                     <tr
                       v-for="game in stats.games_played.slice(0, 5)"
                       :key="game.id"
+                      class="text-xl"
                     >
                       <td>{{ game.player1 }} vs {{ game.player2 }}</td>
                       <td>
@@ -91,7 +92,7 @@
 
         <!-- Back Button -->
         <div class="justify-center mt-4 card-actions">
-          <button @click="navigateHome" class="btn btn-primary">
+          <button @click="navigateHome" class="btn btn-primary text-xl">
             Back to Home
           </button>
         </div>
