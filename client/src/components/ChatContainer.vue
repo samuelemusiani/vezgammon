@@ -3,7 +3,7 @@
     <!-- Chat Button -->
     <button
       @click="toggleChat"
-      class="retro-button circle bg-amber-700 hover:bg-amber-800"
+      class="retro-button circle bg-primary hover:bg-amber-800"
     >
       <i class="fas fa-comments"></i>
 
@@ -22,7 +22,7 @@
     >
       <!-- Chat Header -->
       <div
-        class="flex h-12 items-center justify-between border-b-2 border-amber-900 bg-amber-800 px-4"
+        class="flex h-12 items-center justify-between border-b-2 border-primary bg-primary px-4"
       >
         <h3 class="font-bold text-white">Game Chat</h3>
         <button @click="toggleChat" class="text-white hover:text-gray-300">
@@ -44,13 +44,13 @@
           >
             <div
               :class="[
-                'max-w-[80%] rounded-lg px-4 py-2',
+                'max-w-[80%] rounded-lg px-4 py-2 text-white',
                 msg.sender === myUsername
-                  ? 'bg-amber-700 text-white'
-                  : 'bg-amber-100 text-amber-900',
+                  ? 'bg-primary '
+                  : 'bg-secondary',
               ]"
             >
-              <div class="mb-1 text-xs opacity-50">
+              <div class="mb-1 text-xs opacity-100">
                 {{ msg.sender }}
               </div>
               {{ msg.payload }}
@@ -61,18 +61,18 @@
 
       <!-- Input Area -->
       <div
-        class="absolute bottom-0 left-0 flex h-12 w-full border-t-2 border-amber-900"
+        class="absolute bottom-0 left-0 flex h-12 w-full border-t-2 border-primary"
       >
         <input
           v-model="newMessage"
           type="text"
           placeholder="Type a message..."
-          class="flex-1 bg-amber-50 px-4"
+          class="flex-1 bg-base-100 bg-blur px-4"
           @keyup.enter="sendMessage"
         />
         <button
           @click="sendMessage"
-          class="w-12 bg-amber-700 text-white hover:bg-amber-800"
+          class="w-12 bg-primary text-white hover:bg-primary-700"
         >
           <i class="fas fa-paper-plane"></i>
         </button>
@@ -166,15 +166,21 @@ watch(messages, () => {
     scrollToBottom()
   })
 })
+
+function handleKeyDown(e: KeyboardEvent) {
+  if (e.key === 'Escape') {
+    isOpen.value = false
+  }
+}
+
+onMounted(() => {
+  document.addEventListener('keydown', handleKeyDown)
+})
 </script>
 
 <style scoped>
 .retro-button {
-  @apply btn;
-  background: #d2691e;
-  color: white;
-  border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
+  @apply btn btn-lg btn-circle btn-primary text-white border-accent border-4;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 0 #8b4513;
@@ -197,10 +203,6 @@ watch(messages, () => {
 }
 
 .retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
+  @apply bg-base-100 border-primary border-2 shadow-lg rounded-lg;
 }
 </style>
