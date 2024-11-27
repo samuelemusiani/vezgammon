@@ -517,7 +517,7 @@ const exitGame = async () => {
 
 <template>
   <div
-    class="retro-background flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
+    class="flex h-full w-full flex-col items-center justify-center p-4"
   >
     <div class="fixed top-[25%]">
       <ConfettiExplosion
@@ -530,7 +530,7 @@ const exitGame = async () => {
       <!-- Opponent and Player Info -->
       <div class="flex">
         <div
-          class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-4 shadow-xl"
+          class="flex w-48 flex-col justify-evenly rounded-lg p-4 shadow-xl border-8 border-primary bg-base-100"
         >
           <!-- Opponent Info -->
           <div class="mb-8 flex flex-col items-center">
@@ -558,7 +558,7 @@ const exitGame = async () => {
           <!-- Double Dice Here -->
           <div class="flex flex-col items-center">
             <div
-              class="retro-box flex h-16 w-16 items-center justify-center rounded-lg bg-white p-2 shadow-lg"
+              class="flex h-16 w-16 items-center justify-center rounded-lg p-2"
             >
               <svg viewBox="0 0 60 60">
                 <!-- Dice border -->
@@ -598,7 +598,7 @@ const exitGame = async () => {
           <div
             class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
           >
-            <button class="btn btn-primary" @click="exitGame">Exit Game</button>
+            <button class="retro-button" @click="exitGame">Exit Game</button>
           </div>
 
           <!-- Current Player Info -->
@@ -628,7 +628,7 @@ const exitGame = async () => {
 
       <!-- Board Div -->
       <div class="flex-1">
-        <div class="retro-box h-full rounded-lg bg-white p-4 shadow-xl">
+        <div class="retro-box h-full rounded-lg p-4 shadow-xl">
           <svg
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
@@ -921,19 +921,12 @@ const exitGame = async () => {
 }
 
 .retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
+  @apply bg-base-100 shadow-md border-4 border-primary rounded-lg border-primary border-8;
 }
 
 .retro-button {
-  @apply btn;
-  background: #d2691e;
-  color: white;
+  @apply btn btn-primary rounded-lg shadow-md border-4 border-primary;
   border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 0 #8b4513;

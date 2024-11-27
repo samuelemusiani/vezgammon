@@ -14,6 +14,9 @@ async function login() {
   try {
     const response = await fetch('/api/login', {
       method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify({
         username: username.value,
         password: passwd.value,
@@ -21,153 +24,90 @@ async function login() {
     })
 
     if (!response.ok) {
-      throw new Error('During login: ' + (await response.text()))
+      const message = await response.json()
+      throw new Error(message?.message || 'Error during login')
     }
 
     router.push({ name: 'home' })
   } catch (e) {
     console.error(e)
-    err.value = 'Error during login'
+    err.value = e instanceof Error ? e.message : 'Unexpected error'
   }
 }
 
 function validate() {
-  const el = document.getElementsByClassName('X-required')
-  for (const e of el) {
-    e.setAttribute('required', '')
-  }
-
   let ok = true
-  let e = ''
-  if (username.value.length == 0) {
-    e = "Username can't be empty "
+  let message = ''
+
+  if (!username.value.trim()) {
+    message = "Username can't be empty."
     ok = false
-  } else if (passwd.value.length == 0) {
-    e = "Password can't be empty "
+  } else if (!passwd.value.trim()) {
+    message = "Password can't be empty."
     ok = false
   }
 
-  err.value = e
-
+  err.value = message
   return ok
 }
 </script>
 
 <template>
-  <div
-    class="retro-background flex min-h-screen items-center justify-center bg-base-200"
-  >
-    <div class="card w-96 bg-base-100 shadow-xl">
-      <div class="retro-box card-body">
+  <div class="flex items-center justify-center h-full w-full">
+    <div class="card w-96 bg-base-100 shadow-md border border-primary border-8">
+      <div class="card-body">
         <h2 class="card-title">Login</h2>
-        <form @click.prevent="">
-          <div class="form-control">
-            <label for="input-mail" class="label">
-              <span class="label-text"> Username or mail </span>
-            </label>
-            <div
-              class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
-            >
+        <div class="card-body">
+          <!-- Form di Login -->
+          <form @submit.prevent="login">
+            <div class="form-control">
+              <label class="label">
+                <span class="label-text">Username or Email</span>
+              </label>
               <input
-                id="input-text"
                 type="text"
-                class="X-required grow invalid:text-error"
                 placeholder="Enter Username"
                 v-model="username"
+                class="input input-bordered w-full focus:ring-primary bg-base-200"
               />
             </div>
-          </div>
 
-          <div class="form-control">
-            <label for="input-password" class="label">
-              <span class="label-text"> Password </span>
-            </label>
-            <div
-              class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
-            >
+            <div class="form-control mt-4">
+              <label class="label">
+                <span class="label-text">Password</span>
+              </label>
               <input
-                id="input-password"
                 type="password"
-                class="X-required grow invalid:text-error"
-                placeholder="Enter password"
+                placeholder="Enter Password"
                 v-model="passwd"
+                class="input input-bordered w-full focus:ring-primary bg-base-200"
               />
+              <label class="label">
+                <a href="#" class="link-hover link label-text-alt">Forgot password?</a>
+              </label>
             </div>
-            <div class="label">
-              <a href="#" class="link-hover link label-text-alt"
-                >Forgot password?</a
-              >
+
+            <!-- Errore -->
+            <div class="mt-4 text-error">
+              {{ err }}
             </div>
-          </div>
 
-          <div class="mt-5 text-error">
-            {{ err }}
-          </div>
+            <!-- Pulsante di invio -->
+            <div class="form-control mt-6">
+              <button type="submit" class="btn btn-primary border-secondary border-4">Login</button>
+            </div>
+          </form>
 
-          <div class="form-control mt-6">
-            <button class="retro-button btn btn-primary" @click="login">
-              Login
-            </button>
+          <!-- Divider e Link di Registrazione -->
+          <div class="divider">OR</div>
+          <div class="text-center">
+            <p>Don't have an account?</p>
+            <RouterLink to="/register" class="link link-primary">
+              Sign up now
+            </RouterLink>
           </div>
-        </form>
-        <div class="divider">OR</div>
-        <div class="text-center">
-          <p>Don't have an account?</p>
-          <RouterLink to="/register" class="link link-primary"
-            >Sign up now</RouterLink
-          >
         </div>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.retro-background {
-  background: #2c1810;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
-}
-
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-
-.retro-button {
-  @apply btn;
-  background: #d2691e;
-  color: white;
-  border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-</style>

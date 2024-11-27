@@ -72,116 +72,97 @@ function validate() {
 </script>
 
 <template>
-  <div
-    class="retro-background flex min-h-screen items-center justify-center bg-base-200"
-  >
-    <div class="card w-96 bg-base-100 shadow-xl">
-      <div class="retro-box card-body">
+  <div class="flex items-center justify-center h-full w-full">
+    <div class="card w-96 bg-base-100 shadow-md border border-primary border-8">
+      <div class="card-body">
         <h2 class="card-title">Register</h2>
-        <form @click.prevent="">
+        <form @submit.prevent="register">
           <div class="form-control">
             <label for="input-mail" class="label">
-              <span class="label-text"> Email </span>
+              <span class="label-text">Email</span>
             </label>
-            <div
-              class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
-            >
-              <input
-                id="input-mail"
-                type="email"
-                class="X-required grow invalid:text-error"
-                v-model="mail"
-                placeholder="email@example.com"
-              />
-            </div>
+            <input
+              id="input-mail"
+              type="email"
+              placeholder="email@example.com"
+              v-model="mail"
+              class="input input-bordered w-full focus:ring-primary bg-base-200 invalid:border-error invalid:text-error"
+            />
           </div>
 
-          <div class="form-control mt-5">
+          <div class="form-control mt-4">
             <label for="input-password1" class="label">
-              <span class="label-text"> Password </span>
+              <span class="label-text">Password</span>
             </label>
-            <div
-              class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
-            >
-              <input
-                id="input-password1"
-                type="password"
-                class="X-required grow invalid:text-error"
-                minlength="8"
-                v-model="passwd1"
-                placeholder="Choose a password"
-              />
-            </div>
-            <label for="input-password2" class="label">
-              <span class="label-text"> Confirm Password </span>
-            </label>
-            <div
-              class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
-            >
-              <input
-                id="input-password2"
-                type="password"
-                class="X-required grow invalid:text-error"
-                minlength="8"
-                v-model="passwd2"
-                placeholder="Confirm password"
-              />
-            </div>
-
-            <div class="form-control mt-5">
-              <label for="input-mail" class="label">
-                <span class="label-text"> Username </span>
-              </label>
-              <div
-                class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
-              >
-                <input
-                  id="input-username"
-                  type="text"
-                  class="X-required grow invalid:text-error"
-                  v-model="username"
-                  placeholder="Master725"
-                />
-              </div>
-            </div>
-
-            <div class="form-control mt-5">
-              <label for="input-name" class="label">
-                <span class="label-text"> First Name </span>
-              </label>
-              <div
-                class="input input-bordered flex items-center gap-2 has-[:invalid]:border-error"
-              >
-                <input
-                  id="input-name"
-                  type="text"
-                  class="grow invalid:text-error"
-                  placeholder="Alex"
-                  v-model="firstname"
-                />
-              </div>
-
-              <label for="input-surname" class="label">
-                <span class="label-surname"> Last Name </span>
-              </label>
-              <div class="input input-bordered flex items-center gap-2">
-                <input
-                  id="input-surname"
-                  type="text"
-                  class="grow"
-                  placeholder="Harrison"
-                  v-model="lastname"
-                />
-              </div>
-            </div>
+            <input
+              id="input-password1"
+              type="password"
+              placeholder="Choose a password"
+              v-model="passwd1"
+              minlength="8"
+              class="input input-bordered w-full focus:ring-primary bg-base-200 invalid:border-error invalid:text-error"
+            />
           </div>
 
-          <div class="mt-2 text-error">
+          <div class="form-control mt-4">
+            <label for="input-password2" class="label">
+              <span class="label-text">Confirm Password</span>
+            </label>
+            <input
+              id="input-password2"
+              type="password"
+              placeholder="Confirm password"
+              v-model="passwd2"
+              minlength="8"
+              class="input input-bordered w-full focus:ring-primary bg-base-200 invalid:border-error invalid:text-error"
+            />
+          </div>
+
+          <div class="form-control mt-4">
+            <label for="input-username" class="label">
+              <span class="label-text">Username</span>
+            </label>
+            <input
+              id="input-username"
+              type="text"
+              placeholder="Master725"
+              v-model="username"
+              class="input input-bordered w-full focus:ring-primary bg-base-200"
+            />
+          </div>
+
+          <div class="form-control mt-4">
+            <label for="input-name" class="label">
+              <span class="label-text">First Name</span>
+            </label>
+            <input
+              id="input-name"
+              type="text"
+              placeholder="Alex"
+              v-model="firstname"
+              class="input input-bordered w-full focus:ring-primary bg-base-200"
+            />
+          </div>
+
+          <div class="form-control mt-4">
+            <label for="input-surname" class="label">
+              <span class="label-text">Last Name</span>
+            </label>
+            <input
+              id="input-surname"
+              type="text"
+              placeholder="Harrison"
+              v-model="lastname"
+              class="input input-bordered w-full focus:ring-primary bg-base-200"
+            />
+          </div>
+
+          <div class="mt-4 text-error">
             {{ err }}
           </div>
 
           <div class="form-control mt-6">
-            <button class="retro-button btn btn-secondary" @click="register">
+            <button type="submit" class="btn btn-primary border-secondary border-4">
               Register
             </button>
           </div>
@@ -190,62 +171,12 @@ function validate() {
 
           <div class="text-center">
             <p>Already have an account?</p>
-            <RouterLink to="/login" class="link link-primary"
-              >Go back to Login</RouterLink
-            >
+            <RouterLink to="/login" class="link link-primary">
+              Go back to Login
+            </RouterLink>
           </div>
         </form>
       </div>
     </div>
   </div>
 </template>
-
-<style scoped>
-.retro-background {
-  background: #2c1810;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
-}
-
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-
-.retro-button {
-  @apply btn;
-  background: #d2691e;
-  color: white;
-  border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-</style>
