@@ -63,7 +63,7 @@ func remove(e qel) error {
 		pos := (i + start) % qlen
 		if e == queue[pos] {
 			for j := range (end - pos + qlen - 1) % qlen {
-				queue[(pos+j)%qlen] = queue[(pos+j+1)%qlen]
+				queue[(pos+j)%qlen].User_id = queue[(pos+j+1)%qlen].User_id
 			}
 			end = (end - 1 + qlen) % qlen
 

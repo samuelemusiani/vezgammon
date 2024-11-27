@@ -56,7 +56,15 @@ func StartPlaySearch(c *gin.Context) {
 // @Failure 400 "Not searching"
 // @Router /play/search [delete]
 func StopPlaySearch(c *gin.Context) {
-	// Placeholder, need to implement for matchmaking
+	user_id := c.MustGet("user_id").(int64)
+
+	err := matchmaking.StopSearch(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusNoContent, "Search stopped")
 }
 
 // @Summary Create a local game
