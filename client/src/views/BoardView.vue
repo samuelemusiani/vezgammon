@@ -8,14 +8,13 @@ import type {
   MovesResponse,
   Move,
 } from '@/utils/game/types'
-import type { User } from '@/utils/types'
+import type { User, WSMessage } from '@/utils/types'
 import {
   BOARD,
   getTrianglePath,
   getTriangleColor,
   getCheckerX,
   getCheckerY,
-  //checkWin,
 } from '@/utils/game/game'
 
 import ConfettiExplosion from 'vue-confetti-explosion'
@@ -38,6 +37,7 @@ const session = ref<User | undefined>()
 const showDoubleModal = ref(false)
 const showResultModal = ref(false)
 const isWinner = ref(false)
+import Chat from '@/components/ChatContainer.vue'
 
 const isRolling = ref(false)
 const diceRolled = ref(false)
@@ -48,7 +48,7 @@ const { play: playDice } = useSound(diceSfx)
 const { play: playLost } = useSound(lostSfx)
 //const { play: playTin } = useSound(tinSfx)
 const webSocketStore = useWebSocketStore()
-// Fetch a /api/play on mounted
+
 onMounted(async () => {
   try {
     await fetchGameState()
@@ -65,15 +65,15 @@ onUnmounted(() => {
   webSocketStore.removeMessageHandler(handleMessage)
 })
 
-const handleMessage = async (message: string) => {
-  if (message === 'turn_made') {
+const handleMessage = async (message: WSMessage) => {
+  if (message.type === 'turn_made') {
     await fetchGameState()
     await fetchMoves()
-  } else if (message === 'want_to_double') {
+  } else if (message.type === 'want_to_double') {
     showDoubleModal.value = true
-  } else if (message === 'double_accepted') {
+  } else if (message.type === 'double_accepted') {
     await fetchGameState()
-  } else if (message === 'game_end') {
+  } else if (message.type === 'game_end') {
     await handleEnd()
   }
 }
@@ -185,7 +185,6 @@ const declineDouble = async () => {
 
 const handleDoubleWinExit = async () => {
   showResultModal.value = false
-  // Usa la funzione exitGame esistente
   await exitGame()
 }
 
@@ -204,7 +203,6 @@ const handleDiceRoll = () => {
   diceRolled.value = true
   playDice()
 
-  // Funzione per generare numeri casuali dei dadi
   const generateRandomDice = () => {
     displayedDice.value = [
       Math.floor(Math.random() * 6) + 1,
@@ -212,10 +210,10 @@ const handleDiceRoll = () => {
     ]
   }
 
-  // Genera numeri casuali ogni 100ms durante l'animazione
+  // Generate random dice values every 100ms
   const rollInterval = setInterval(generateRandomDice, 100)
 
-  // Dopo 3 secondi, mostra i veri valori dei dadi
+  // Show real dice value after 1s
   setTimeout(() => {
     clearInterval(rollInterval)
     isRolling.value = false
@@ -226,6 +224,12 @@ const handleDiceRoll = () => {
 const fetchGameState = async () => {
   try {
     const res = await fetch('/api/play/')
+
+    // If the response is not ok, the game is over
+    if (!res.ok) {
+      await handleEnd()
+      return
+    }
     const data: GameState = await res.json()
 
     gameState.value = data
@@ -252,10 +256,8 @@ const fetchMoves = async () => {
 const isCheckerSelectable = (checker: Checker) => {
   if (!gameState.value || !diceRolled.value) return false
 
-  // Converti il colore della pedina nel formato del player
   const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
 
-  // Verifica se la pedina appartiene al giocatore corrente
   if (checkerPlayer !== gameState.value.current_player) return false
 
   // Check if the player has any checkers in position 0 (the bar)
@@ -266,14 +268,9 @@ const isCheckerSelectable = (checker: Checker) => {
     barCheckersCount = gameState.value.p2checkers[0]
   }
 
-  // If the player has checkers on the bar (position 0)
+  // If the player has checkers on the bar Only the top checker in position 0 is selectable
   if (barCheckersCount > 0) {
-    // Only the checker in position 0 is selectable
-    if (checker.position !== 0) return false
-    // Only the top checker in position 0 is selectable
-    if (checker.stackIndex !== barCheckersCount - 1) return false
-
-    return true
+    return checker.position === 0 && checker.stackIndex === barCheckersCount - 1
   }
 
   // Ottieni il numero totale di pedine nella posizione della pedina per questo giocatore
@@ -336,7 +333,7 @@ const handleCheckerClick = (checker: Checker) => {
   ]
   console.log('mosse posibili', possibleMoves.value)
 }
-// Quando si clicca su un triangolo
+
 const handleTriangleClick = async (position: number) => {
   if (
     !selectedChecker.value ||
@@ -878,6 +875,14 @@ const exitGame = async () => {
         </div>
       </div>
     </div>
+    <Chat
+      :myUsername="session?.username as string"
+      :opponentUsername="
+        gameState?.player1 === session?.username
+          ? (gameState?.player2 as string)
+          : (gameState?.player1 as string)
+      "
+    />
   </div>
 </template>
 
