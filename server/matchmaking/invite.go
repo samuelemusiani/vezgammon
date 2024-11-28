@@ -2,6 +2,7 @@ package matchmaking
 
 import (
 	"errors"
+	"vezgammon/server/ws"
 
 	"github.com/google/uuid"
 )
@@ -31,5 +32,11 @@ func JoinLink(link string, user_id int64) error {
 	delete(links, link)
 	delete(users, opp_id)
 
-	return createGame(user_id, opp_id)
+	err := createGame(user_id, opp_id)
+	if err != nil {
+		return err
+	}
+
+	err = ws.SendGameFound(opp_id)
+	return err
 }
