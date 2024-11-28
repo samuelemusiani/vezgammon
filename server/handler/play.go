@@ -799,7 +799,13 @@ func PlayBot(mod string, c *gin.Context) {
 	}
 
 	m := messages[rand.Intn(len(messages))]
-	ws.SendBotMessage(userId, m)
+	go func() {
+		time.Sleep(1 * time.Second)
+		err := ws.SendBotMessage(userId, m)
+		if err != nil {
+			slog.With("error", err).Error("Sending message to player")
+		}
+	}()
 
 	c.JSON(http.StatusCreated, ng)
 }
