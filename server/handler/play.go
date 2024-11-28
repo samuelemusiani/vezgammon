@@ -388,16 +388,16 @@ func PlayMoves(c *gin.Context) {
 	botLevel := db.GetBotLevel(g.Player2)
 	// Against a bot
 	if botLevel > 0 {
-		var t *types.Turn
+		var m []types.Move
 		var err error
 
 		switch botLevel {
 		case 1:
-			t, err = bgweb.GetEasyMove(g)
+			m, err = bgweb.GetEasyMove(g)
 		case 2:
-			t, err = bgweb.GetMediumMove(g)
+			m, err = bgweb.GetMediumMove(g)
 		case 3:
-			t, err = bgweb.GetBestMove(g)
+			m, err = bgweb.GetBestMove(g)
 		default:
 			slog.Error("Invalid bot level")
 			return
@@ -408,7 +408,7 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 
-		g.PlayMove(t.Moves)
+		g.PlayMove(m)
 		err = db.UpdateGame(g)
 
 		if err != nil {
@@ -416,7 +416,14 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 
-		_, err = db.CreateTurn(*t)
+		t := types.Turn{
+			GameId: g.ID,
+			User:   g.Player2,
+			Time:   time.Now(),
+			Moves:  m,
+		}
+
+		_, err = db.CreateTurn(t)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
@@ -469,8 +476,8 @@ func PlayMoves(c *gin.Context) {
 				"Muovo il mio pedone...",
 			}
 
-			send := rand.Intn(5)
-			if send == 1 {
+			send := rand.Intn(1)
+			if send == 0 {
 				m := messages[rand.Intn(len(messages))]
 				err = ws.SendBotMessage(userId, m)
 				if err != nil {
