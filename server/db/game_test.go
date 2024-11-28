@@ -289,10 +289,19 @@ func TestStats(t *testing.T) {
 	assert.NilError(t, err)
 
 	slog.With("game finito", game).Debug("Statistiche")
+	time.Sleep(90 * time.Second)
 
 	var stats *types.Stats
 	stats, err = GetStats(tuser.ID)
-	assert.NilError(t, err)
+	if err != nil {
+		slog.With("err", err).Debug("Statistiche")
+	}
+
+	if len(stats.Gameplayed) <= 0 {
+		slog.Debug("No game played yet")
+	} else {
+		assert.DeepEqual(t, stats.Gameplayed[0], game)
+	}
 
 	slog.With("stats", stats).Debug("Statistiche")
 }

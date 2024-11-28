@@ -251,7 +251,7 @@ func GetSession(c *gin.Context) {
 // @Router /stats [get]
 func GetStats(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
-	if false {
+	if true {
 		var stats types.Stats
 		stats.Tournament = 0
 		stats.Cpu = 2

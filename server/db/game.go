@@ -90,18 +90,19 @@ func CreateGame(g types.Game) (*types.Game, error) {
 }
 
 func UpdateGame(g *types.Game) error {
-	q := `
-		UPDATE games
+	q :=
+		`
+		UPDATE games g
 		SET
-      endtime		      = $1,
-			status		      = $2,
-			p1checkers	    = $3,
-			p2checkers	    = $4,
-			double_value	  = $5,
-			double_owner	  = $6,
-			want_to_double	= $7,
-			current_player	= $8,
-      dices = $9
+      g.endtime		      = $1,
+			g.status		      = $2,
+			g.p1checkers	    = $3,
+			g.p2checkers	    = $4,
+			g.double_value	  = $5,
+			g.double_owner	  = $6,
+			g.want_to_double	= $7,
+			g.current_player	= $8,
+      g.dices = $9
 		WHERE id = $10
 		`
 
@@ -355,89 +356,47 @@ func GetLastTurn(gameId int64) (*types.Turn, error) {
 }
 
 func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
-	q := `
-	SELECT
-		g.id,
-		u1.username AS p1_username,
-		u1.id AS p1_id,
-		g.p1elo,
-		u2.username AS p2_username,
-		u2.id AS p2_id,
-		g.p2elo,
-		g.start,
-		g.endtime,
-		g.status,
-		g.p1checkers,
-		g.p2checkers,
-		g.double_value,
-		g.double_owner,
-		g.want_to_double,
-		g.current_player
-	FROM
-		games g
-	JOIN
-		users u1 ON g.p1_id = u1.id
-	JOIN
-		users u2 ON g.p2_id = u2.id
-	WHERE
-		g.status = 'closed' AND (g.p1_id = $1 OR g.p2_id = $1)
-	ORDER BY
-		g.endtime DESC
-	`
+	q :=
+		`
+    SELECT 
+      id 
+    FROM 
+      games g
+    WHERE
+		  g.p1_id = $1 OR g.p2_id = $1
+	  `
 
 	rows, err := Conn.Query(q, userId)
 	if err != nil {
 		return nil, err
 	}
+	slog.With("rows", rows).Debug("STATS")
 	defer rows.Close()
 
 	var gamesPlayed []types.ReturnGame
+	var gameId int64
 
-	for rows.Next() {
-		var g types.ReturnGame
-		var p1CheckersDB, p2CheckersDB pq.Int64Array
-		var p1_id, p2_id int64
+	for i := 0; rows.Next(); i++ {
+		slog.With("i", i).Debug("STATS")
+		var g *types.Game
+		var retg *types.ReturnGame
 
-		err := rows.Scan(
-			&g.ID,
-			&g.Player1,
-			&p1_id,
-			&g.Elo1,
-			&g.Player2,
-			&p2_id,
-			&g.Elo2,
-			&g.Start,
-			&g.End,
-			&g.Status,
-			&p1CheckersDB,
-			&p2CheckersDB,
-			&g.DoubleValue,
-			&g.DoubleOwner,
-			&g.WantToDouble,
-			&g.CurrentPlayer,
-		)
+		err = rows.Scan(&gameId)
 		if err != nil {
 			return nil, err
 		}
 
-		// Conversion of checkers from int64 to int8
-		for i, v := range p1CheckersDB {
-			g.P1Checkers[i] = int8(v)
+		slog.With("gameId", gameId).Debug("STATS")
+		g, err = GetGame(gameId)
+		if err != nil {
+			return nil, err
 		}
-		for i, v := range p2CheckersDB {
-			g.P2Checkers[i] = int8(v)
-		}
+		slog.With("game", g).Debug("STATS")
 
-		// Determine game type
-		if p1_id == p2_id {
-			g.GameType = types.GameTypeLocal
-		} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
-			g.GameType = types.GameTypeBot
-		} else {
-			g.GameType = types.GameTypeOnline
-		}
+		retg = GameToReturnGame(g)
+		slog.With("retg", retg).Debug("STATS")
 
-		gamesPlayed = append(gamesPlayed, g)
+		gamesPlayed = append(gamesPlayed, *retg)
 	}
 
 	if err = rows.Err(); err != nil {
@@ -445,4 +404,42 @@ func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
 	}
 
 	return gamesPlayed, nil
+}
+
+func GameToReturnGame(g *types.Game) *types.ReturnGame {
+	var rg types.ReturnGame
+	rg.ID = g.ID
+	rg.Elo1 = g.Elo1
+	rg.Elo2 = g.Elo2
+	rg.Start = g.Start
+	rg.End = g.End
+	rg.Status = g.Status
+	rg.P1Checkers = g.P1Checkers
+	rg.P2Checkers = g.P2Checkers
+	rg.DoubleValue = g.DoubleValue
+	rg.DoubleOwner = g.DoubleOwner
+	rg.WantToDouble = g.WantToDouble
+	rg.CurrentPlayer = g.CurrentPlayer
+	rg.GameType = getGameType(g.Player1, g.Player2)
+
+	p1, _ := GetUser(g.Player1)
+	p2, _ := GetUser(g.Player2)
+
+	rg.Player1 = p1.Username
+	rg.Player2 = p2.Username
+
+	return &rg
+}
+
+func getGameType(p1_id, p2_id int64) string {
+	var gameType string
+	if p1_id == p2_id {
+		gameType = types.GameTypeLocal
+	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+		gameType = types.GameTypeBot
+	} else {
+		gameType = types.GameTypeOnline
+	}
+
+	return gameType
 }

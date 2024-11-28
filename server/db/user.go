@@ -322,6 +322,7 @@ func GetStats(user_id int64) (*types.Stats, error) {
 	if err != nil {
 		return nil, err
 	}
+	slog.With("gp", gp).Debug("Array di game giocati")
 
 	stats.Gameplayed = gp
 	stats.Tournament = 0 // not implemented yet
