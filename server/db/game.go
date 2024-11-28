@@ -183,6 +183,7 @@ func GameToReturnGame(g *types.Game) *types.ReturnGame {
 	rg.DoubleOwner = g.DoubleOwner
 	rg.WantToDouble = g.WantToDouble
 	rg.CurrentPlayer = g.CurrentPlayer
+	rg.Tournament = g.Tournament
 	rg.GameType = getGameType(g.Player1, g.Player2)
 
 	p1, _ := GetUser(g.Player1)
@@ -252,6 +253,7 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 		&g.DoubleOwner,
 		&g.WantToDouble,
 		&g.CurrentPlayer,
+		&g.Tournament,
 	)
 
 	if err != nil {
@@ -283,6 +285,46 @@ func getGameType(p1_id, p2_id int64) string {
 	}
 
 	return gameType
+}
+
+func GetLastGameWinner(userID int64) (string, error) {
+	q := `
+    SELECT
+        u1.username AS p1_username,
+        u2.username AS p2_username,
+        status,
+        p1_id,
+        p2_id
+    FROM games g
+    JOIN users u1 ON g.p1_id = u1.id
+    JOIN users u2 ON g.p2_id = u2.id
+    WHERE p1_id = $1 OR p2_id = $1
+    ORDER BY start DESC LIMIT 1`
+
+	row := Conn.QueryRow(q, userID)
+
+	var status string
+	var username1, username2 string
+	var p1ID, p2ID int64
+	err := row.Scan(&username1, &username2, &status, &p1ID, &p2ID)
+	if err != nil {
+		return "", err
+	}
+
+	if status != types.GameStatusOpen && status != types.GameStatusWinP1 && status != types.GameStatusWinP2 {
+		return "", errors.New("Game status not valid")
+	}
+
+	switch status {
+	case types.GameStatusWinP1:
+		return username1, nil
+	case types.GameStatusWinP2:
+		return username2, nil
+	case types.GameStatusOpen:
+		return "open", nil
+	default:
+		return "", nil
+	}
 }
 
 func CreateTurn(t types.Turn) (*types.Turn, error) {
