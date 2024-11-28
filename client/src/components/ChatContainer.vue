@@ -64,6 +64,7 @@
         class="absolute bottom-0 left-0 flex h-12 w-full border-t-2 border-amber-900"
       >
         <input
+          ref="messageInput"
           v-model="newMessage"
           type="text"
           placeholder="Type a message..."
@@ -103,6 +104,7 @@ const messages = ref<{ sender: string; payload: string }[]>([])
 const newMessage = ref('')
 const unreadMessages = ref(0)
 const messagesContainer = ref<HTMLElement | null>(null)
+const messageInput = ref<HTMLInputElement | null>(null)
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
@@ -110,6 +112,7 @@ const toggleChat = () => {
     unreadMessages.value = 0
     nextTick(() => {
       scrollToBottom()
+      messageInput.value?.focus()
     })
   }
 }
