@@ -162,17 +162,6 @@ definitions:
     type: object
   types.ReturnTournament:
     properties:
-      allow_users:
-        example:
-        - giorgio
-        - diego
-        - marco
-        items:
-          type: string
-        type: array
-      end:
-        example: "2021-01-01T00:00:00Z"
-        type: string
       games:
         items:
           $ref: '#/definitions/types.ReturnGame'
@@ -190,9 +179,6 @@ definitions:
       owner:
         example: Giorgio
         type: string
-      start:
-        example: "2021-01-01T00:00:00Z"
-        type: string
       status:
         example: open
         type: string
@@ -204,9 +190,6 @@ definitions:
         items:
           type: string
         type: array
-      visibility:
-        example: public
-        type: string
     type: object
   types.TournamentInfo:
     properties:

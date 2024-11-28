@@ -155,6 +155,36 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 	return &rt, nil
 }
 
+func ReturnTournamentToTournament(rt types.ReturnTournament) (*types.Tournament, error) {
+	var t types.Tournament
+	t.ID = rt.ID
+	t.Name = rt.Name
+	t.Status = rt.Status
+
+	var owner int64
+	var users []int64
+
+	user, err := GetUserByUsername(rt.Owner)
+	if err != nil {
+		return nil, err
+	}
+	owner = user.ID
+
+	for _, u := range rt.Users {
+		user, err := GetUserByUsername(u)
+		if err != nil {
+			return nil, err
+		}
+
+		users = append(users, user.ID)
+	}
+
+	t.Owner = owner
+	t.Users = users
+
+	return &t, nil
+}
+
 func GetTournament(id int64) (*types.ReturnTournament, error) {
 	q := `
 	SELECT *

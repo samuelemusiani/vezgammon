@@ -849,21 +849,6 @@
         "types.ReturnTournament": {
             "type": "object",
             "properties": {
-                "allow_users": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "giorgio",
-                        "diego",
-                        "marco"
-                    ]
-                },
-                "end": {
-                    "type": "string",
-                    "example": "2021-01-01T00:00:00Z"
-                },
                 "games": {
                     "type": "array",
                     "items": {
@@ -888,10 +873,6 @@
                     "type": "string",
                     "example": "Giorgio"
                 },
-                "start": {
-                    "type": "string",
-                    "example": "2021-01-01T00:00:00Z"
-                },
                 "status": {
                     "type": "string",
                     "example": "open"
@@ -906,10 +887,6 @@
                         "diego",
                         "marco"
                     ]
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "public"
                 }
             }
         },

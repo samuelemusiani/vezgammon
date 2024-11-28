@@ -860,21 +860,6 @@ const docTemplate = `{
         "types.ReturnTournament": {
             "type": "object",
             "properties": {
-                "allow_users": {
-                    "type": "array",
-                    "items": {
-                        "type": "string"
-                    },
-                    "example": [
-                        "giorgio",
-                        "diego",
-                        "marco"
-                    ]
-                },
-                "end": {
-                    "type": "string",
-                    "example": "2021-01-01T00:00:00Z"
-                },
                 "games": {
                     "type": "array",
                     "items": {
@@ -899,10 +884,6 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Giorgio"
                 },
-                "start": {
-                    "type": "string",
-                    "example": "2021-01-01T00:00:00Z"
-                },
                 "status": {
                     "type": "string",
                     "example": "open"
@@ -917,10 +898,6 @@ const docTemplate = `{
                         "diego",
                         "marco"
                     ]
-                },
-                "visibility": {
-                    "type": "string",
-                    "example": "public"
                 }
             }
         },
