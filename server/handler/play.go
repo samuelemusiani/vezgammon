@@ -70,6 +70,56 @@ func StopPlaySearch(c *gin.Context) {
 	c.JSON(http.StatusNoContent, "Search stopped")
 }
 
+// @Summary Create a game with a link
+// @Schemes
+// @Description Create a game with a link
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 "Link created"
+// @Router /play/invite [get]
+func StartPlayInviteSearch(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	link, err := matchmaking.GenerateLink(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	type Link struct {
+		Link string
+	}
+
+	c.JSON(http.StatusCreated, Link{Link: link})
+}
+
+// @Summary Join a game with a link
+// @Schemes
+// @Description Join a game with a link
+// @Tags play
+// @Accept json
+// @Produce json
+// @Param id path string true "Link ID"
+// @Success 200 "Link generated"
+// @Failure 400 "Already in a game"
+// @Failure 404 "Link not found"
+// @Router /play/invite/{id} [get]
+func PlayInvite(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	uuid := c.Param("id")
+
+	err := matchmaking.JoinLink(uuid, user_id)
+	if err != nil {
+		slog.With("error", err).Error("Joining link")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, "Link joined")
+}
+
 // @Summary Create a local game
 // @Schemes
 // @Description Create a local game for playing locally in the same device
