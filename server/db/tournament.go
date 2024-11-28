@@ -185,7 +185,7 @@ func ReturnTournamentToTournament(rt types.ReturnTournament) (*types.Tournament,
 	return &t, nil
 }
 
-func GetTournament(id int64) (*types.ReturnTournament, error) {
+func GetTournament(id int64) (*types.Tournament, error) {
 	q := `
 	SELECT *
 	FROM tournaments
@@ -201,12 +201,41 @@ func GetTournament(id int64) (*types.ReturnTournament, error) {
 		return nil, err
 	}
 
-	rt, err := TournamentToReturnTournament(t)
+	return &t, nil
+}
+
+func GetTournamentList() (*types.TournamentList, error) {
+	q := `
+	SELECT id, name, owner
+	FROM tournaments
+	`
+
+	rows, err := Conn.Query(q)
 	if err != nil {
 		return nil, err
 	}
 
-	return rt, nil
+	var list types.TournamentList
+
+	for rows.Next() {
+		var entry types.TournamentInfo
+		var ownerid int64
+		err := rows.Scan(&entry.ID, &entry.Name, &ownerid)
+		if err != nil {
+			return nil, err
+		}
+
+		owner, err := GetUser(ownerid)
+		if err != nil {
+			return nil, err
+		}
+
+		entry.Owner = owner.Username
+
+		list = append(list, entry)
+	}
+
+	return &list, nil
 }
 
 func GetAllTournamentGames(id int64) ([]types.Game, error) {

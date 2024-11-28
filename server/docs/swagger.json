@@ -414,7 +414,96 @@
                 }
             }
         },
-        "/play/tournament": {
+        "/play/tournament/list": {
+            "get": {
+                "description": "List all tournaments you can access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "List all tournaments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.TournamentInfo"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/register": {
+            "post": {
+                "description": "Register new user",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Register new user",
+                "parameters": [
+                    {
+                        "description": "user with password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.customUser"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "user created",
+                        "schema": {
+                            "$ref": "#/definitions/types.User"
+                        }
+                    }
+                }
+            }
+        },
+        "/session": {
+            "get": {
+                "description": "Get auth session",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Get current auth session",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.User"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/tournament": {
             "post": {
                 "description": "Create a new tournament",
                 "consumes": [
@@ -454,36 +543,7 @@
                 }
             }
         },
-        "/play/tournament/list": {
-            "get": {
-                "description": "List all tournaments you can access",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tournament"
-                ],
-                "summary": "List all tournaments",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/types.TournamentInfo"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "internal server error"
-                    }
-                }
-            }
-        },
-        "/play/tournament/{tournament_id}": {
+        "/tournament/{tournament_id}": {
             "get": {
                 "description": "Get a tournament",
                 "consumes": [
@@ -550,66 +610,6 @@
                     },
                     "404": {
                         "description": "tournament not found"
-                    }
-                }
-            }
-        },
-        "/register": {
-            "post": {
-                "description": "Register new user",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "authentication"
-                ],
-                "summary": "Register new user",
-                "parameters": [
-                    {
-                        "description": "user with password",
-                        "name": "request",
-                        "in": "body",
-                        "required": true,
-                        "schema": {
-                            "$ref": "#/definitions/handler.customUser"
-                        }
-                    }
-                ],
-                "responses": {
-                    "201": {
-                        "description": "user created",
-                        "schema": {
-                            "$ref": "#/definitions/types.User"
-                        }
-                    }
-                }
-            }
-        },
-        "/session": {
-            "get": {
-                "description": "Get auth session",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "authentication"
-                ],
-                "summary": "Get current auth session",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/types.User"
-                        }
-                    },
-                    "500": {
-                        "description": "error"
                     }
                 }
             }

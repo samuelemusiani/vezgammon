@@ -499,79 +499,6 @@ paths:
       summary: Start a matchmaking search for a new game
       tags:
       - play
-  /play/tournament:
-    post:
-      consumes:
-      - application/json
-      description: Create a new tournament
-      parameters:
-      - description: Tournament object
-        in: body
-        name: request
-        required: true
-        schema:
-          $ref: '#/definitions/types.ReturnTournament'
-      produces:
-      - application/json
-      responses:
-        "201":
-          description: Created
-          schema:
-            $ref: '#/definitions/types.ReturnTournament'
-        "400":
-          description: bad data, tournament alredy open
-        "500":
-          description: internal server error
-      summary: Create a new tournament
-      tags:
-      - tournament
-  /play/tournament/{tournament_id}:
-    get:
-      consumes:
-      - application/json
-      description: Get a tournament
-      parameters:
-      - description: Tournament ID
-        in: path
-        name: tournament_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/types.ReturnTournament'
-        "404":
-          description: tournament not found
-      summary: Get a tournament
-      tags:
-      - tournament
-    post:
-      consumes:
-      - application/json
-      description: Join a tournament
-      parameters:
-      - description: Tournament ID
-        in: path
-        name: tournament_id
-        required: true
-        type: integer
-      produces:
-      - application/json
-      responses:
-        "200":
-          description: OK
-          schema:
-            $ref: '#/definitions/types.ReturnTournament'
-        "400":
-          description: alredy in a tournament
-        "404":
-          description: tournament not found
-      summary: Join a tournament
-      tags:
-      - tournament
   /play/tournament/list:
     get:
       consumes:
@@ -630,4 +557,77 @@ paths:
       summary: Get current auth session
       tags:
       - authentication
+  /tournament:
+    post:
+      consumes:
+      - application/json
+      description: Create a new tournament
+      parameters:
+      - description: Tournament object
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/types.ReturnTournament'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "400":
+          description: bad data, tournament alredy open
+        "500":
+          description: internal server error
+      summary: Create a new tournament
+      tags:
+      - tournament
+  /tournament/{tournament_id}:
+    get:
+      consumes:
+      - application/json
+      description: Get a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "404":
+          description: tournament not found
+      summary: Get a tournament
+      tags:
+      - tournament
+    post:
+      consumes:
+      - application/json
+      description: Join a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "400":
+          description: alredy in a tournament
+        "404":
+          description: tournament not found
+      summary: Join a tournament
+      tags:
+      - tournament
 swagger: "2.0"

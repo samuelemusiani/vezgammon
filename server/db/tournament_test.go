@@ -60,7 +60,7 @@ func TestGetTournament(t *testing.T) {
 	assert.Equal(t, tour.ID, tournament.ID)
 	assert.Equal(t, tour.Name, tournament.Name)
 	assert.Equal(t, tour.Status, tournament.Status)
-	assert.DeepEqual(t, tour.Users, []string{u1.Username, u2.Username})
+	assert.DeepEqual(t, tour.Users, tournament.Users)
 }
 
 func TestCreateGameTournament(t *testing.T) {
