@@ -33,14 +33,14 @@ func InitTournament() error {
 
 func CreateTournament(t types.Tournament) (*types.Tournament, error) {
 	q := `
-	INSERT INTO tournaments(name, owner, start, status, visibility, allows_users, users)
-	values($1, $2, $3, $4, $5, $6, $7)
+	INSERT INTO tournaments(name, owner, start, status, users)
+	values($1, $2, $3, $4, $5)
 	RETURNING id
 	`
 
 	res := Conn.QueryRow(
 		q,
-		t.Name, t.Owner, t.Start, t.Status, t.Visibility, pq.Array(t.AllowUsers), pq.Array(t.Users),
+		t.Name, t.Owner, t.Start, t.Status, pq.Array(t.Users),
 	)
 
 	var id int64
@@ -58,13 +58,13 @@ func CreateTournament(t types.Tournament) (*types.Tournament, error) {
 func UpdateTournament(t *types.Tournament) error {
 	q := `
 	UPDATE tournaments
-	SET status=$1, visibility=$2, allows_users=$3, users=$4
-	WHERE id=$5
+	SET status=$1, users=$2
+	WHERE id=$3
 	`
 
 	_, err := Conn.Exec(
 		q,
-		t.Status, t.Visibility, pq.Array(t.AllowUsers), pq.Array(t.Users), t.ID,
+		t.Status, pq.Array(t.Users), t.ID,
 	)
 	if err != nil {
 		return err
@@ -122,12 +122,10 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 	rt.Start = t.Start
 	rt.End = t.End
 	rt.Status = t.Status
-	rt.Visibility = t.Visibility
 
 	// get usernames
 	var owner string
 	var users []string
-	var allowUsers []string
 
 	var user *types.User
 
@@ -147,17 +145,7 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 		}
 	}
 
-	for _, u := range t.AllowUsers {
-		user, err := GetUser(u)
-		if err != nil {
-			return nil, err
-		} else {
-			allowUsers = append(allowUsers, user.Username)
-		}
-	}
-
 	rt.Owner = owner
-	rt.AllowUsers = allowUsers
 	rt.Users = users
 
 	// get games
@@ -184,7 +172,7 @@ func GetTournament(id int64) (*types.ReturnTournament, error) {
 
 	var t types.Tournament
 
-	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Start, &t.End, &t.Status, &t.Visibility, pq.Array(&t.AllowUsers), pq.Array(&t.Users))
+	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Start, &t.End, &t.Status, pq.Array(&t.Users))
 	if err != nil {
 		return nil, err
 	}
