@@ -7,8 +7,6 @@ type Tournament struct {
 	ID     int64   `json:"id" example:"1"`
 	Name   string  `json:"name" example:"Tournament name"`
 	Owner  int64   `json:"owner" example:"1"`
-	Start  string  `json:"start" example:"2021-01-01T00:00:00Z"`
-	End    string  `json:"end" example:"2021-01-01T00:00:00Z"`
 	Status string  `json:"status" example:"open"`
 	Users  []int64 `json:"users" example:"1,2,3"`
 }
@@ -25,8 +23,6 @@ type ReturnTournament struct {
 	ID     int64    `json:"id" example:"1"`
 	Name   string   `json:"name" example:"Tournament name"`
 	Owner  string   `json:"owner" example:"Giorgio"`
-	Start  string   `json:"start" example:"2021-01-01T00:00:00Z"`
-	End    string   `json:"end" example:"2021-01-01T00:00:00Z"`
 	Status string   `json:"status" example:"open"`
 	Users  []string `json:"users" example:"giorgio,diego,marco"`
 

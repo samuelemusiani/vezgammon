@@ -14,11 +14,7 @@ func InitTournament() error {
 		id SERIAL PRIMARY KEY,
 		name BPCHAR,
 		owner INTEGER REFERENCES users(id),
-		start TIMESTAMP,
-		endtime TIMESTAMP,
 		status BPCHAR DEFAULT 'open',
-		visibility BPCHAR DEFAULT 'public',
-		allows_users INTEGER [],
 		users INTEGER []
 	)
 	`
@@ -33,14 +29,14 @@ func InitTournament() error {
 
 func CreateTournament(t types.Tournament) (*types.Tournament, error) {
 	q := `
-	INSERT INTO tournaments(name, owner, start, status, users)
-	values($1, $2, $3, $4, $5)
+	INSERT INTO tournaments(name, owner, status, users)
+	values($1, $2, $3, $4)
 	RETURNING id
 	`
 
 	res := Conn.QueryRow(
 		q,
-		t.Name, t.Owner, t.Start, t.Status, pq.Array(t.Users),
+		t.Name, t.Owner, t.Status, pq.Array(t.Users),
 	)
 
 	var id int64
@@ -119,8 +115,6 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 
 	rt.ID = t.ID
 	rt.Name = t.Name
-	rt.Start = t.Start
-	rt.End = t.End
 	rt.Status = t.Status
 
 	// get usernames
@@ -172,7 +166,7 @@ func GetTournament(id int64) (*types.ReturnTournament, error) {
 
 	var t types.Tournament
 
-	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Start, &t.End, &t.Status, pq.Array(&t.Users))
+	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Status, pq.Array(&t.Users))
 	if err != nil {
 		return nil, err
 	}
