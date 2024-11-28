@@ -45,19 +45,11 @@ const router = createRouter({
       name: 'wip',
       component: WipView,
     },
-    {
-      path: '/about',
-      name: 'about',
-      // route level code-splitting
-      // this generates a separate chunk (About.[hash].js) for this route
-      // which is lazy-loaded when the route is visited.
-      component: () => import('../views/AboutView.vue'),
-    },
   ],
 })
 
 router.beforeEach(async to => {
-  const publicPages = ['/login', '/register']
+  const publicPages = ['/login', '/register', '/player']
   const authRequired = !publicPages.includes(to.path)
 
   // Probably should use the Pinia authStore

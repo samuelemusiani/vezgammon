@@ -1,6 +1,6 @@
 <template>
-  <div class="container py-8 px-4 mx-auto ">
-    <div class="shadow-xl card bg-base-100 overflow-auto h-[90vh]">
+  <div class="container py-8 px-4 mx-auto">
+    <div class="overflow-auto shadow-xl card h-[90vh] bg-base-100">
       <div class="card-body">
         <h2 class="text-center card-title text-primary">Player Statistics</h2>
 
@@ -92,9 +92,37 @@
 
         <!-- Back Button -->
         <div class="justify-center mt-4 card-actions">
-          <button @click="navigateHome" class="btn btn-primary text-xl">
+          <button @click="navigateHome" class="text-xl btn btn-primary">
             Back to Home
           </button>
+          <ShareNetwork
+            network="facebook"
+            :url="gameShareUrl"
+            :title="shareTitle"
+            :description="shareDescription"
+            quote="Check out my Backgammon stats!"
+          >
+            <button class="text-xl btn btn-success">Share on Facebook</button>
+          </ShareNetwork>
+
+          <ShareNetwork
+            network="twitter"
+            :url="gameShareUrl"
+            :title="shareTitle"
+          >
+            <button class="text-xl btn bg-blue-400">
+              <svg
+                class="w-10 h-10"
+                fill="currentColor"
+                viewBox="0 0 24 24"
+                aria-hidden="true"
+              >
+                <path
+                  d="M8.29 20.251c7.547 0 11.675-6.253 11.675-11.675 0-.178 0-.355-.012-.53A8.348 8.348 0 0022 5.92a8.19 8.19 0 01-2.357.646 4.118 4.118 0 001.804-2.27 8.224 8.224 0 01-2.605.996 4.107 4.107 0 00-6.993 3.743 11.65 11.65 0 01-8.457-4.287 4.106 4.106 0 001.27 5.477A4.072 4.072 0 012.8 9.713v.052a4.105 4.105 0 003.292 4.022 4.095 4.095 0 01-1.853.07 4.108 4.108 0 003.834 2.85A8.233 8.233 0 012 18.407a11.616 11.616 0 006.29 1.84"
+                ></path>
+              </svg>
+            </button>
+          </ShareNetwork>
         </div>
       </div>
     </div>
@@ -102,12 +130,18 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import router from '@/router'
 
 import EloChart from '@/components/EloChart.vue'
 
 import type { GameState } from '@/utils/game/types'
+import type { User } from '@/utils/auth/types'
+import { ShareNetwork } from 'vue-social-sharing'
+
+const props = defineProps<{
+  playerId?: string
+}>()
 
 interface GameStats {
   game_played: GameState[]
@@ -202,9 +236,42 @@ const stats = ref({
   winrate: 70,
 })
 
+// Reactive variable to store user ID
+const currentUserId = ref<string | null>(null)
+
+// Reactive variable for game share URL
+const gameShareUrl = ref('')
+
+// Computed properties for share title and description
+const shareTitle = computed(() => `Backgammon Player Stats`)
+const shareDescription = computed(
+  () =>
+    `Win Rate: ${stats.value.winrate}% | Games Played: ${stats.value.game_played?.length || 0}`,
+)
+
 onMounted(async () => {
+  // getting player id from session | props
+  const playerId = props.playerId
   try {
-    const response = await fetch('/api/stats')
+    const userResponse = await fetch('/api/session')
+    if (!userResponse.ok) {
+      throw new Error('Failed to fetch user session')
+    }
+    const user: User = await userResponse.json()
+
+    // Determine user ID - prioritize prop, then session user, then null
+    currentUserId.value = props.playerId || user.id || null
+
+    // Construct share URL
+    gameShareUrl.value = `${window.location.origin}/player/${currentUserId.value}`
+
+    let response
+    if (!playerId) {
+      response = await fetch('/api/stats')
+    } else {
+      response = await fetch(`/api/stats/${playerId}`)
+    }
+
     if (!response.ok) {
       throw new Error('Failed to fetch stats')
     }
