@@ -322,11 +322,10 @@ func GetStats(user_id int64) (*types.Stats, error) {
 	if err != nil {
 		return nil, err
 	}
-	slog.With("gp", gp).Debug("Array di game giocati")
 
 	stats.Gameplayed = gp
 	stats.Tournament = 0 // not implemented yet
-	for i, game := range gp {
+	for _, game := range gp {
 		if game.GameType == types.GameTypeBot {
 			stats.Cpu++
 		} else if game.GameType == types.GameTypeLocal {
@@ -341,9 +340,9 @@ func GetStats(user_id int64) (*types.Stats, error) {
 			stats.Lost++
 		}
 		if game.Player1 == u.Username {
-			stats.Elo[i] = game.Elo1
+			stats.Elo = append(stats.Elo, game.Elo1)
 		} else {
-			stats.Elo[i] = game.Elo2
+			stats.Elo = append(stats.Elo, game.Elo2)
 		}
 	}
 	stats.Elo = append(stats.Elo, u.Elo)

@@ -90,19 +90,18 @@ func CreateGame(g types.Game) (*types.Game, error) {
 }
 
 func UpdateGame(g *types.Game) error {
-	q :=
-		`
-		UPDATE games g
+	q := `
+		UPDATE games
 		SET
-      g.endtime		      = $1,
-			g.status		      = $2,
-			g.p1checkers	    = $3,
-			g.p2checkers	    = $4,
-			g.double_value	  = $5,
-			g.double_owner	  = $6,
-			g.want_to_double	= $7,
-			g.current_player	= $8,
-      g.dices = $9
+      endtime		      = $1,
+			status		      = $2,
+			p1checkers	    = $3,
+			p2checkers	    = $4,
+			double_value	  = $5,
+			double_owner	  = $6,
+			want_to_double	= $7,
+			current_player	= $8,
+      dices = $9
 		WHERE id = $10
 		`
 
@@ -363,8 +362,8 @@ func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
     FROM 
       games g
     WHERE
-		  g.p1_id = $1 OR g.p2_id = $1
-	  `
+		  g.status != 'open' AND (g.p1_id = $1 OR p2_id = $1)
+	`
 
 	rows, err := Conn.Query(q, userId)
 	if err != nil {
@@ -376,8 +375,7 @@ func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
 	var gamesPlayed []types.ReturnGame
 	var gameId int64
 
-	for i := 0; rows.Next(); i++ {
-		slog.With("i", i).Debug("STATS")
+	for rows.Next() {
 		var g *types.Game
 		var retg *types.ReturnGame
 
