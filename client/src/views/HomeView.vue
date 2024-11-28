@@ -70,7 +70,7 @@
         </h3>
         <!-- Options -->
         <div class="flex flex-col gap-4">
-          <template v-if="!showDifficulty">
+          <template v-if="modals === 0">
             <button
               @mouseenter="(e: MouseEvent) => play()"
               @click="startLocalGame"
@@ -92,9 +92,15 @@
             >
               Play Online
             </button>
+            <button
+              class="retro-button"
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="showTournamentMenu">
+              Tournaments
+            </button>
           </template>
 
-          <template v-else>
+          <template v-else-if="modals === 1">
             <button
               @mouseenter="(e: MouseEvent) => play()"
               @click="startGameWithAI('easy')"
@@ -117,19 +123,36 @@
               Hard
             </button>
           </template>
+
+          <template v-else>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="router.push('/tournaments/create')"
+              class="retro-button"
+            >
+              Create
+            </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="router.push('/tournaments')"
+              class="retro-button"
+            >
+              Join
+            </button>
+          </template>
         </div>
 
         <!-- Close button -->
         <div class="modal-action w-full">
           <form method="dialog" class="flex w-full justify-between">
             <button
-              v-if="showDifficulty"
+              v-if="modals !== 0"
               @click="backToGameMode"
               class="retro-button"
             >
               Back
             </button>
-            <button class="retro-button ml-auto">Close</button>
+            <button class="retro-button ml-auto" @click="backToGameMode">Close</button>
           </form>
         </div>
       </div>
@@ -170,7 +193,7 @@ import type { WSMessage } from '@/utils/types'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
-const showDifficulty = ref(false)
+const modals = ref(0) // 0 for base, 1 for bot difficulty, 2 for tournaments menu
 
 onMounted(() => {
   webSocketStore.connect()
@@ -192,21 +215,26 @@ const handleMatchmaking = (message: WSMessage) => {
 }
 
 const modalTitle = computed(() => {
-  return showDifficulty.value ? 'Choose Difficulty' : 'Select Game Mode'
+  return modals.value === 0 ? 'Choose Difficulty' :
+    modals.value === 1 ? 'Select Game Mode' : 'Tournament menu'
 })
 
 const showAIDifficulty = () => {
-  showDifficulty.value = true
+  modals.value = 1
+}
+
+const showTournamentMenu = () => {
+  modals.value = 2
 }
 
 const backToGameMode = () => {
-  showDifficulty.value = false
+  modals.value = 0
 }
 
 const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
-  showDifficulty.value = false
+  modals.value = 0
 
   try {
     await fetch(`/api/play/bot/${difficulty}`)

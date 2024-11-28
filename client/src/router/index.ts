@@ -1,10 +1,11 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
+import HomeView from '@/views/HomeView.vue'
+import LoginView from '@/views/LoginView.vue'
+import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
-import BoardView from '../views/BoardView.vue'
-import WipView from '../views/WipView.vue'
+import BoardView from '@/views/BoardView.vue'
+import WipView from '@/views/WipView.vue'
+import TournamentsView from "@/views/TournamentsView.vue";
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -33,6 +34,11 @@ const router = createRouter({
       path: '/game',
       name: 'game',
       component: BoardView,
+    },
+    {
+      path: '/tournaments',
+      name: 'tournaments',
+      component: TournamentsView,
     },
     {
       path: '/wip',
