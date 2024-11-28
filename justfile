@@ -20,7 +20,7 @@ start-server: generate-swag
     go run ./server ./server/config/test-config.toml
 
 start-client:
-    cd client && npm run dev
+    cd client && npm i && npm run dev
 
 test: test-server
 
