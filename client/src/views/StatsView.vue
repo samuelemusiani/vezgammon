@@ -139,12 +139,8 @@ import type { GameState } from '@/utils/game/types'
 import type { User } from '@/utils/auth/types'
 import { ShareNetwork } from 'vue-social-sharing'
 
-const props = defineProps<{
-  playerId?: string
-}>()
-
 interface GameStats {
-  game_played: GameState[]
+  games_played: GameState[]
   win: number
   lost: number
   winrate: number
@@ -155,7 +151,7 @@ interface GameStats {
   tournament: number
 }
 
-const stats = ref({
+/* const stats = ref({
   cpu: 0,
   elo: [1280, 1300, 1320, 1340, 1360, 1300, 1280, 1200, 1150, 1000, 700, 1450],
   games_played: [
@@ -234,6 +230,17 @@ const stats = ref({
   tournament: 5,
   win: 100,
   winrate: 70,
+}) */
+const stats = ref<GameStats>({
+  games_played: [],
+  win: 0,
+  lost: 0,
+  winrate: 0,
+  elo: [],
+  cpu: 0,
+  local: 0,
+  online: 0,
+  tournament: 0,
 })
 
 // Reactive variable to store user ID
@@ -243,15 +250,14 @@ const currentUserId = ref<string | null>(null)
 const gameShareUrl = ref('')
 
 // Computed properties for share title and description
-const shareTitle = computed(() => `Backgammon Player Stats`)
+const shareTitle = computed(() => `Check out my Backgammon stats!`)
 const shareDescription = computed(
   () =>
     `Win Rate: ${stats.value.winrate}% | Games Played: ${stats.value.game_played?.length || 0}`,
 )
 
 onMounted(async () => {
-  // getting player id from session | props
-  const playerId = props.playerId
+  // getting player id from session
   try {
     const userResponse = await fetch('/api/session')
     if (!userResponse.ok) {
@@ -260,23 +266,18 @@ onMounted(async () => {
     const user: User = await userResponse.json()
 
     // Determine user ID - prioritize prop, then session user, then null
-    currentUserId.value = props.playerId || user.id || null
+    currentUserId.value = user.id || null
 
     // Construct share URL
     gameShareUrl.value = `${window.location.origin}/player/${currentUserId.value}`
 
-    let response
-    if (!playerId) {
-      response = await fetch('/api/stats')
-    } else {
-      response = await fetch(`/api/stats/${playerId}`)
-    }
+    const response = await fetch('/api/stats')
 
     if (!response.ok) {
       throw new Error('Failed to fetch stats')
     }
     const tmp: GameStats = await response.json()
-    //stats.value = tmp
+    stats.value = tmp
   } catch (error) {
     console.error('Error fetching stats:', error)
   }
