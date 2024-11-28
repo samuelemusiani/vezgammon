@@ -83,7 +83,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
 import { useWebSocketStore } from '@/stores/websocket'
@@ -94,6 +94,7 @@ import { useSound } from '@vueuse/sound'
 const props = defineProps<{
   myUsername: string
   opponentUsername: string
+  gameType: string
 }>()
 
 const { play: playTin } = useSound(tinSfx, { volume: 0.5 })
@@ -127,10 +128,12 @@ const sendMessage = () => {
   if (!newMessage.value.trim()) return
 
   // Invia il messaggio tramite WebSocket
-  webSocketStore.sendMessage({
-    type: 'chat_message',
-    payload: newMessage.value,
-  })
+  if (props.gameType !== 'bot') {
+    webSocketStore.sendMessage({
+      type: 'chat_message',
+      payload: newMessage.value,
+    })
+  }
   // Aggiungi il messaggio localmente
   messages.value.push({
     sender: props.myUsername,
@@ -146,12 +149,14 @@ const sendMessage = () => {
 // Gestione dei messaggi in arrivo
 const handleIncomingMessage = (message: WSMessage) => {
   if (message.type === 'chat_message') {
+    console.log(props.opponentUsername)
     messages.value.push({
       sender: props.opponentUsername,
       payload: message.payload,
     })
     if (!isOpen.value) {
       playTin()
+      console.log(message.payload)
       unreadMessages.value++
     }
     nextTick(() => {
@@ -162,6 +167,10 @@ const handleIncomingMessage = (message: WSMessage) => {
 
 onMounted(() => {
   webSocketStore.addMessageHandler(handleIncomingMessage)
+})
+
+onUnmounted(() => {
+  webSocketStore.removeMessageHandler(handleIncomingMessage)
 })
 
 watch(messages, () => {

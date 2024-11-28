@@ -33,7 +33,7 @@ const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const displayedDice = ref<number[]>([])
-const session = ref<User | undefined>()
+const session = ref<User>()
 const showDoubleModal = ref(false)
 const showResultModal = ref(false)
 const isWinner = ref(false)
@@ -84,15 +84,6 @@ const fetchSession = async () => {
     .then(data => {
       session.value = data
     })
-}
-
-const checkWin = () => {
-  if (!gameState.value) return false
-  // When backend is ready, check using gameState.value.status
-  if (getOutCheckers(gameState.value.current_player) == 15) {
-    return true
-  }
-  return false
 }
 
 const fetchWinner = async () => {
@@ -428,10 +419,7 @@ const handleTriangleClick = async (position: number) => {
         body: JSON.stringify(movesToSubmit.value),
       })
       console.log('stato POST', res.status)
-      // Change with backend check
-      if (checkWin()) {
-        handleWin()
-      }
+
       movesToSubmit.value = []
       possibleMoves.value = []
       if (gameState.value.game_type !== 'online') {
@@ -874,13 +862,17 @@ const exitGame = async () => {
       </div>
     </div>
     <Chat
-      v-if="gameState?.game_type === 'online'"
-      :myUsername="session?.username as string"
+      v-if="
+        session?.username &&
+        (gameState?.game_type === 'online' || gameState?.game_type === 'bot')
+      "
       :opponentUsername="
         gameState?.player1 === session?.username
-          ? (gameState?.player2 as string)
-          : (gameState?.player1 as string)
+          ? gameState?.player2 || ''
+          : gameState?.player1 || ''
       "
+      :gameType="gameState?.game_type || ''"
+      :myUsername="session?.username || ''"
     />
   </div>
 </template>
