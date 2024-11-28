@@ -73,8 +73,45 @@ const handleMessage = async (message: WSMessage) => {
     showDoubleModal.value = true
   } else if (message.type === 'double_accepted') {
     await fetchGameState()
+  } else if (message.type === 'dice_rolled') {
+    // Mostra i dadi dell'avversario
+    isRolling.value = true
+    diceRolled.value = true
+    playDice()
+
+    const diceData = JSON.parse(message.payload)
+
+    setTimeout(() => {
+      isRolling.value = false
+      displayedDice.value = diceData.dices
+    }, 1000)
   } else if (message.type === 'game_end') {
     await handleEnd()
+  } else if (message.type === 'move_made') {
+    if (!gameState.value) return
+
+    const moveData = JSON.parse(message.payload)
+    const move = moveData.move as Move
+
+    if (whichPlayerAmI.value === 'p1') {
+      if (gameState.value.p1checkers[25 - move.to] === 1) {
+        gameState.value.p1checkers[25 - move.to] = 0
+        gameState.value.p1checkers[0]++
+      }
+      gameState.value.p2checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p2checkers[move.to]++
+      }
+    } else {
+      if (gameState.value.p2checkers[25 - move.to] === 1) {
+        gameState.value.p2checkers[25 - move.to] = 0
+        gameState.value.p2checkers[0]++
+      }
+      gameState.value.p1checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p1checkers[move.to]++
+      }
+    }
   }
 }
 
@@ -209,6 +246,15 @@ const handleDiceRoll = () => {
     clearInterval(rollInterval)
     isRolling.value = false
     displayedDice.value = availableMoves.value!.dices
+
+    if (gameState.value?.game_type === 'online') {
+      webSocketStore.sendMessage({
+        type: 'dice_rolled',
+        payload: JSON.stringify({
+          dices: availableMoves.value!.dices,
+        }),
+      })
+    }
   }, 1000)
 }
 
@@ -393,6 +439,15 @@ const handleTriangleClick = async (position: number) => {
       // Solo se non è una mossa di uscita
       gameState.value.p2checkers[currentMove.to]++
     }
+  }
+
+  if (gameState.value?.game_type === 'online') {
+    webSocketStore.sendMessage({
+      type: 'move_made',
+      payload: JSON.stringify({
+        move: currentMove,
+      }),
+    })
   }
 
   // Aggiungi la mossa a quelle fatte

@@ -127,14 +127,12 @@ const scrollToBottom = () => {
 const sendMessage = () => {
   if (!newMessage.value.trim()) return
 
-  // Invia il messaggio tramite WebSocket
   if (props.gameType !== 'bot') {
     webSocketStore.sendMessage({
       type: 'chat_message',
       payload: newMessage.value,
     })
   }
-  // Aggiungi il messaggio localmente
   messages.value.push({
     sender: props.myUsername,
     payload: newMessage.value,
@@ -146,7 +144,6 @@ const sendMessage = () => {
   })
 }
 
-// Gestione dei messaggi in arrivo
 const handleIncomingMessage = (message: WSMessage) => {
   if (message.type === 'chat_message') {
     console.log(props.opponentUsername)
