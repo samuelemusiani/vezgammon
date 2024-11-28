@@ -115,3 +115,7 @@ func GameEnd(user_id int64) error {
 func AddDisconnectHandler(user_id int64, f func(int64) error) {
 	disconnect[user_id] = f
 }
+
+func SendBotMessage(user_id int64, message string) error {
+	return SendMessage(user_id, Message{Type: "chat_message", Payload: message})
+}

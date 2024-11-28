@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"math/rand"
 	"net/http"
 	"reflect"
 	"time"
@@ -425,8 +426,57 @@ func PlayMoves(c *gin.Context) {
 		if isEnded {
 			err := endGame(g, winner)
 			slog.With("error", err).Error("Ending game")
+
+			botWin := db.GetBotLevel(winner) != 0
+
+			messagesWinUser := []string{
+				"Bella partita! Torna quando vuoi per una rivincita.",
+				"Non è stata una partita facile, ma alla fine hai vinto. Complimenti!",
+				"Bravo! Hai vinto contro un avversario molto forte.",
+				"Posso direi che ti ho lasciato vincere?",
+				"Okay hai vinto, ma non illuderti. Non succederà più.",
+			}
+
+			messagesWinBot := []string{
+				"Non sottovalutare l'importanza di pianificare. Bravo comunque",
+				"Ehm... scusa, mi è scappata la mano. Rivincita?",
+				"Non è stata una partita facile, ma alla fine ho vinto. Che peccato!",
+				"Ti avevo avvisato, non perdo mai!",
+				"Skill issues?",
+			}
+
+			var messages []string
+
+			if botWin {
+				messages = messagesWinBot
+			} else {
+				messages = messagesWinUser
+			}
+
+			m := messages[rand.Intn(len(messages))]
+			err = ws.SendBotMessage(userId, m)
+			if err != nil {
+				slog.With("error", err).Error("Sending message to player")
+			}
+
 			c.JSON(http.StatusCreated, "Moves played; Game ended")
 			return
+		} else {
+
+			messages := []string{
+				"Bella mossa!",
+				"Giocata ben fatta!",
+				"Muovo il mio pedone...",
+			}
+
+			send := rand.Intn(5)
+			if send == 1 {
+				m := messages[rand.Intn(len(messages))]
+				err = ws.SendBotMessage(userId, m)
+				if err != nil {
+					slog.With("error", err).Error("Sending message to player")
+				}
+			}
 		}
 
 	} else {
@@ -731,6 +781,18 @@ func PlayBot(mod string, c *gin.Context) {
 		DicesP2: startdicesP2,
 		Game:    *newgame,
 	}
+
+	messages := []string{
+		"Pronto per giocare? Buona fortuna!",
+		"Vediamo chi è il più bravo!",
+		"Preparati a perdere!",
+		"Pronto per la sfida?",
+		"Finalmente un avversario all'altezza!",
+		"Finalmente qualcuno che pensa di potermi battere. Che coraggio!",
+	}
+
+	m := messages[rand.Intn(len(messages))]
+	ws.SendBotMessage(userId, m)
 
 	c.JSON(http.StatusCreated, ng)
 }
