@@ -10,6 +10,9 @@ import (
 	"reflect"
 	"time"
 	"vezgammon/server/bgweb"
+	"vezgammon/server/matchmaking"
+	"vezgammon/server/ws"
+
 	"vezgammon/server/db"
 	"vezgammon/server/types"
 
@@ -30,7 +33,17 @@ var ErrDoubleNotPossible = errors.New("Double not possible")
 // @Failure 400 "Already searching or in a game"
 // @Router /play/search [get]
 func StartPlaySearch(c *gin.Context) {
-	// Placeholder, need to implement for matchmaking
+	slog.Debug("Inizio a cercare un game")
+	user_id := c.MustGet("user_id").(int64)
+
+	//send to db the user [searching]
+	err := matchmaking.SearchGame(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, "Search started")
 }
 
 // @Summary Stop a running matchmaking search
@@ -167,10 +180,13 @@ func SurrendToCurrentGame(c *gin.Context) {
 	}
 
 	var status string
+	var opponentID int64
 	if g.Player1 == userId { // Player 1 surrended, player 2 wins
 		status = types.GameStatusWinP2
+		opponentID = g.Player2
 	} else {
 		status = types.GameStatusWinP1
+		opponentID = g.Player1
 	}
 
 	g.Status = status
@@ -181,9 +197,13 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 
-	c.JSON(http.StatusCreated, "Surrended")
-
 	// Send notification to the other player that the game is over
+	err = ws.GameEnd(opponentID)
+	if err != nil {
+		slog.With("error", err).Error("Sending message to player")
+	}
+
+	c.JSON(http.StatusCreated, "Surrended")
 }
 
 // @Summary Get possible moves for next turn
@@ -344,6 +364,14 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
+	isEnded, winner := isGameEnded(g)
+	if isEnded {
+		err := endGame(g, winner)
+		slog.With("error", err).Error("Ending game")
+		c.JSON(http.StatusCreated, "Moves played; Game ended")
+		return
+	}
+
 	// Check if we are playing against a bot
 
 	botLevel := db.GetBotLevel(g.Player2)
@@ -383,12 +411,26 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 
-		// Send notification to the other player that it's his turn
+		isEnded, winner := isGameEnded(g)
+		if isEnded {
+			err := endGame(g, winner)
+			slog.With("error", err).Error("Ending game")
+			c.JSON(http.StatusCreated, "Moves played; Game ended")
+			return
+		}
+
+	} else {
+		// We are playing against another player but current player is already inverted
+		opponentID, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		slog.With("opponentID", opponentID).Debug("Turn made")
+		ws.TurnMade(opponentID)
 	}
 
 	c.JSON(http.StatusCreated, "Moves played")
-
-	// Send notification to the other player that it's his turn
 }
 
 // @Summary The player want to double
@@ -426,7 +468,17 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
-	if (g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner != g.CurrentPlayer) || g.DoubleValue == 64 {
+	currentPlayerID, err := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
+	if err != nil {
+		slog.With("error", err).Error("Getting current player in /double [post]")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	if (g.DoubleOwner != types.GameDoubleOwnerAll &&
+		g.DoubleOwner != g.CurrentPlayer) ||
+		g.DoubleValue == 64 ||
+		(g.DoubleOwner == types.GameDoubleOwnerAll && currentPlayerID != userId) {
 		c.JSON(http.StatusBadRequest, ErrDoubleNotPossible.Error())
 		return
 	}
@@ -450,6 +502,14 @@ func WantToDouble(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
+	} else {
+		id, err := getOpponentID(g.CurrentPlayer, g.Player1, g.Player2)
+		if err != nil {
+			slog.With("error", err).Error("Getting opponent ID in /double [post]")
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		ws.WantToDouble(id)
 	}
 
 	c.JSON(http.StatusCreated, g.DoubleValue*2)
@@ -524,6 +584,32 @@ func AcceptDouble(c *gin.Context) {
 
 	c.JSON(http.StatusCreated, "Double accepted")
 	// Send notification to the other player that he accepts the doubleS
+}
+
+// @Summary Get last game status
+// @Schemes
+// @Description Get last fame status
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 200 {string} string "Status of the last game"
+// @Failure 404 "No games or no status found"
+// @Router /play/last/winner [get]
+func GetLastGameWinner(c *gin.Context) {
+	userId := c.MustGet("user_id").(int64)
+
+	status, err := db.GetLastGameWinner(userId)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			c.JSON(http.StatusNotFound, "No games found")
+		} else {
+			slog.With("error", err).Error("Getting last game")
+			c.JSON(http.StatusInternalServerError, err)
+		}
+		return
+	}
+
+	c.JSON(http.StatusOK, status)
 }
 
 // @Summary Create a game against an easy bot
@@ -686,5 +772,50 @@ func acceptDouble(userId int64) error {
 		slog.With("error", err).Error("Creating turn in acceptDouble")
 		return ErrInternal
 	}
+
+	id, err := getOpponentID(g.DoubleOwner, g.Player1, g.Player2)
+	if err != nil {
+		slog.With("error", err).Error("Getting opponent ID in acceptDouble")
+		return ErrInternal
+	}
+	ws.DoubleAccepted(id)
+
 	return nil
+
+}
+
+// True if the game is ended. Return id of the winner
+func isGameEnded(g *types.Game) (bool, int64) {
+	s := func(a [25]int8) int {
+		sum := 0
+		for i := 0; i < 25; i++ {
+			sum += int(a[i])
+		}
+		return sum
+	}
+
+	if s(g.P1Checkers) == 0 {
+		return true, g.Player1
+	}
+
+	if s(g.P2Checkers) == 0 {
+		return true, g.Player2
+	}
+
+	return false, 0
+}
+
+func endGame(g *types.Game, winnerID int64) error {
+	if winnerID == g.Player1 {
+		g.Status = types.GameStatusWinP1
+	} else {
+		g.Status = types.GameStatusWinP2
+	}
+
+	err := db.UpdateGame(g)
+
+	ws.GameEnd(g.Player1)
+	ws.GameEnd(g.Player2)
+
+	return err
 }

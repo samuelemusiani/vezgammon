@@ -7,3 +7,8 @@ export interface User {
   is_bot: boolean
   elo: number
 }
+
+export interface WSMessage {
+  type: string
+  payload: string
+}

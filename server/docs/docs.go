@@ -268,6 +268,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/last/winner": {
+            "get": {
+                "description": "Get last fame status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get last game status",
+                "responses": {
+                    "200": {
+                        "description": "Status of the last game",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "No games or no status found"
+                    }
+                }
+            }
+        },
         "/play/local": {
             "get": {
                 "description": "Create a local game for playing locally in the same device",
@@ -648,6 +674,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "example": 1
+                },
+                "token": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string",

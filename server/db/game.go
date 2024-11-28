@@ -252,7 +252,6 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 		&g.DoubleOwner,
 		&g.WantToDouble,
 		&g.CurrentPlayer,
-		&g.Tournament,
 	)
 
 	if err != nil {
