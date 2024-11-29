@@ -124,10 +124,10 @@
             </button>
           </template>
 
-          <template v-else>
+          <template v-else-if="modals === 2">
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="router.push('/tournaments/create')"
+              @click="createTournaments"
               class="retro-button"
             >
               Create
@@ -139,6 +139,10 @@
             >
               Join
             </button>
+          </template>
+          <template v-else-if="modals === 3">
+            <input v-model="tourn_name" type="text" class="input border-2" placeholder="Tournament name" />
+            <button @mouseenter="play" @click="create_tourn" class="retro-button">Create</button>
           </template>
         </div>
 
@@ -193,7 +197,7 @@ import type { WSMessage } from '@/utils/types'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
-const modals = ref(0) // 0 for base, 1 for bot difficulty, 2 for tournaments menu
+const modals = ref(0) // 0 for base, 1 for bot difficulty, 2 for tournaments menu, 3 for creating tournament
 
 onMounted(() => {
   webSocketStore.connect()
@@ -215,8 +219,16 @@ const handleMatchmaking = (message: WSMessage) => {
 }
 
 const modalTitle = computed(() => {
-  return modals.value === 0 ? 'Choose Difficulty' :
-    modals.value === 1 ? 'Select Game Mode' : 'Tournament menu'
+  switch (modals.value) {
+    case 0:
+      return 'Select Game Mode'
+    case 1:
+      return 'Select AI Difficulty'
+    case 2:
+      return 'Tournaments'
+    case 3:
+      return 'Create Tournament'
+  }
 })
 
 const showAIDifficulty = () => {
@@ -225,6 +237,10 @@ const showAIDifficulty = () => {
 
 const showTournamentMenu = () => {
   modals.value = 2
+}
+
+const createTournaments = () => {
+  modals.value = 3
 }
 
 const backToGameMode = () => {
@@ -281,6 +297,26 @@ const startLocalGame = async () => {
   await fetch('/api/play/local')
   router.push('/game')
 }
+
+const tourn_name = ref('')
+
+function create_tourn() {
+  fetch('/api/tournament', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name: tourn_name.value }),
+  })
+    .then((res) => res.json())
+    .then((data) => {
+      const id = data.id
+      console.log(data)
+      router.push('/tournaments/' + id)
+    })
+    .catch((err) => console.error(err))
+}
+
 </script>
 
 <style scoped>
