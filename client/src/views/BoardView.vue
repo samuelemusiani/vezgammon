@@ -59,12 +59,16 @@ onMounted(async () => {
     await fetchSession()
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
+    if (isMyTurn.value && gameState.value?.game_type === 'online') {
+      startTimer()
+    }
   } catch {
     console.error('Error fetching game state')
   }
 })
 
 onUnmounted(() => {
+  stopTimer()
   webSocketStore.removeMessageHandler(handleMessage)
 })
 
@@ -72,6 +76,8 @@ const handleMessage = async (message: WSMessage) => {
   if (message.type === 'turn_made') {
     await fetchGameState()
     await fetchMoves()
+    startTimer()
+    isMyTurn.value = true
   } else if (message.type === 'want_to_double') {
     showDoubleModal.value = true
   } else if (message.type === 'double_accepted') {
@@ -177,6 +183,22 @@ const handleDouble = async () => {
   }
 }
 
+const handleRetire = async () => {
+  try {
+    const res = await fetch('/api/play/', {
+      method: 'DELETE',
+    })
+
+    if (!res.ok) {
+      console.error('Error retiring:', res)
+    }
+
+    handleLose()
+  } catch (err) {
+    console.error('Error exiting game:', err)
+  }
+}
+
 const showDoubleButton = computed(() => {
   if (!gameState.value) return false
   if (gameState.value.double_owner === 'all') return true
@@ -216,7 +238,7 @@ const declineDouble = async () => {
 
 const handleDoubleWinExit = async () => {
   showResultModal.value = false
-  await exitGame()
+  handleReturnHome()
 }
 
 const whichPlayerAmI = computed(() => {
@@ -261,6 +283,34 @@ const handleDiceRoll = () => {
   }, 1000)
 }
 
+const startTimer = () => {
+  timeLeft.value = 10
+
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+  }
+
+  timerInterval.value = setInterval(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      stopTimer()
+      handleTimeout()
+    }
+  }, 1000)
+}
+
+const stopTimer = () => {
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+    timerInterval.value = null
+  }
+}
+
+const handleTimeout = async () => {
+  clearInterval(timerInterval.value!)
+  await handleRetire()
+}
+
 const fetchGameState = async () => {
   try {
     const res = await fetch('/api/play/')
@@ -271,7 +321,6 @@ const fetchGameState = async () => {
       return
     }
     const data: GameState = await res.json()
-
     gameState.value = data
 
     console.log(gameState.value)
@@ -284,9 +333,11 @@ const fetchMoves = async () => {
   try {
     const res = await fetch('/api/play/moves')
     const data: MovesResponse = await res.json()
+    if (!res.ok) return
     availableMoves.value = data
     diceRolled.value = false
     displayedDice.value = []
+    isMyTurn.value = true
     console.log(availableMoves.value)
   } catch (err) {
     console.error('Error fetching moves:', err)
@@ -483,6 +534,9 @@ const handleTriangleClick = async (position: number) => {
       if (gameState.value.game_type !== 'online') {
         await fetchGameState()
         await fetchMoves()
+      } else {
+        stopTimer()
+        isMyTurn.value = false
       }
     } catch (err) {
       console.error('Error submitting moves:', err)
@@ -545,13 +599,14 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   return initialCheckers - remainingCheckers
 }
 
+const handleReturnHome = () => {
+  router.push('/')
+}
+
 const exitGame = async () => {
   try {
-    const res = await fetch('/api/play/', {
-      method: 'DELETE',
-    })
-    console.log(res.status)
-    router.push('/')
+    await handleRetire()
+    handleReturnHome()
   } catch (err) {
     console.error('Error exiting game:', err)
   }
