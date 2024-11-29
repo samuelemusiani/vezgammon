@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"strings"
 	"time"
 	"vezgammon/server/types"
@@ -334,11 +335,14 @@ func GetStats(user_id int64) (*types.Stats, error) {
 			stats.Online++
 		}
 
-		if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
-			stats.Won++
-		} else {
-			stats.Lost++
+		if game.GameType != types.GameTypeLocal { // no sense to count local games in winrate statistics
+			if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
+				stats.Won++
+			} else {
+				stats.Lost++
+			}
 		}
+
 		if game.Player1 == u.Username {
 			stats.Elo = append(stats.Elo, game.Elo1)
 		} else {
@@ -350,7 +354,9 @@ func GetStats(user_id int64) (*types.Stats, error) {
 	if len(stats.Gameplayed) == 0 {
 		stats.Winrate = 0
 	} else {
-		stats.Winrate = float32(stats.Won / int64(len(stats.Gameplayed)))
+		// no local games
+		gameSum := stats.Won + stats.Lost
+		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(gameSum))*100)) / 100
 	}
 	slog.With("stats", stats).Debug("Statistiche")
 
