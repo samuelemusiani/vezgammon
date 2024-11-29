@@ -213,7 +213,7 @@ func GetTournament(c *gin.Context) {
 // @Produce  json
 // @Success 200 {object} types.TournamentList
 // @Failure 500 "internal server error"
-// @Router /play/tournament/list [get]
+// @Router /tournament/list [get]
 func ListTournaments(c *gin.Context) {
 	tournamentlist, err := db.GetTournamentList()
 	if err != nil {

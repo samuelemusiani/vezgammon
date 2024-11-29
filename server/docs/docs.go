@@ -425,35 +425,6 @@ const docTemplate = `{
                 }
             }
         },
-        "/play/tournament/list": {
-            "get": {
-                "description": "List all tournaments you can access",
-                "consumes": [
-                    "application/json"
-                ],
-                "produces": [
-                    "application/json"
-                ],
-                "tags": [
-                    "tournament"
-                ],
-                "summary": "List all tournaments",
-                "responses": {
-                    "200": {
-                        "description": "OK",
-                        "schema": {
-                            "type": "array",
-                            "items": {
-                                "$ref": "#/definitions/types.TournamentInfo"
-                            }
-                        }
-                    },
-                    "500": {
-                        "description": "internal server error"
-                    }
-                }
-            }
-        },
         "/register": {
             "post": {
                 "description": "Register new user",
@@ -547,6 +518,35 @@ const docTemplate = `{
                     },
                     "400": {
                         "description": "bad data, tournament alredy open"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/tournament/list": {
+            "get": {
+                "description": "List all tournaments you can access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "List all tournaments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.TournamentInfo"
+                            }
+                        }
                     },
                     "500": {
                         "description": "internal server error"
