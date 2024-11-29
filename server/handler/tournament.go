@@ -3,6 +3,7 @@ package handler
 import (
 	"encoding/json"
 	"io"
+	"log/slog"
 	"net/http"
 	"slices"
 	"strconv"
@@ -92,20 +93,30 @@ func JoinTournament(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, "alredy in a tournament")
 		return
 	}
-	tournament.Users = append(tournament.Users, userID)
-	err = db.UpdateTournament(tournament)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
 
-	returnTournament, err := db.TournamentToReturnTournament(*tournament)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
+	if len(tournament.Users) >= 4 {
+		c.JSON(http.StatusBadRequest, "tournament is full")
+		// start tournament
+		err = tournamentMatchCreator(tournament)
+		if err != nil {
+			slog.With("error", err).Debug("at starting tournament")
+		}
+	} else {
+		tournament.Users = append(tournament.Users, userID)
+		err = db.UpdateTournament(tournament)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
 
-	c.JSON(http.StatusOK, returnTournament)
+		returnTournament, err := db.TournamentToReturnTournament(*tournament)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		c.JSON(http.StatusOK, returnTournament)
+	}
 }
 
 // @Summary Leave a tournament

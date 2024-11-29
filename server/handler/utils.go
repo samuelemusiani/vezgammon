@@ -3,6 +3,7 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"vezgammon/server/db"
 	"vezgammon/server/matchmaking"
 	"vezgammon/server/types"
 	"vezgammon/server/ws"
@@ -96,5 +97,25 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 		}
 	}
 
+	return nil
+}
+
+func tournamentGameEndHandler(tournamentId int64, winnerId int64) error {
+	tournament, err := db.GetTournament(tournamentId)
+	if err != nil {
+		return err
+	}
+
+	tournament.Winners = append(tournament.Winners, winnerId)
+
+	err = db.UpdateTournament(tournament)
+	if err != nil {
+		return err
+	}
+
+	err = tournamentMatchCreator(tournament) // create next matches if needed
+	if err != nil {
+		return err
+	}
 	return nil
 }

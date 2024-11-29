@@ -204,6 +204,14 @@ func SurrendToCurrentGame(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, "Surrended")
+
+	if g.Tournament.Valid {
+		err = tournamentGameEndHandler(g.Tournament.Int64, opponentID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+	}
 }
 
 // @Summary Get possible moves for next turn
@@ -369,6 +377,15 @@ func PlayMoves(c *gin.Context) {
 		err := endGame(g, winner)
 		slog.With("error", err).Error("Ending game")
 		c.JSON(http.StatusCreated, "Moves played; Game ended")
+
+		if g.Tournament.Valid {
+			err = tournamentGameEndHandler(g.Tournament.Int64, winner)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err)
+				return
+			}
+		}
+
 		return
 	}
 
