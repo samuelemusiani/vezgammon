@@ -5,8 +5,12 @@
     >
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl text-primary font-bold">VezGammon</h1>
-        <div class="text-accent font-bold text-xl">The Ultimate Backgammon Experience</div>
+        <h1 class="retro-title mb-8 p-4 text-7xl font-bold text-primary">
+          VezGammon
+        </h1>
+        <div class="text-xl font-bold text-accent">
+          The Ultimate Backgammon Experience
+        </div>
       </div>
 
       <!-- Button Container -->
@@ -278,7 +282,7 @@ const startLocalGame = async () => {
 }
 
 .retro-button {
-  @apply btn bg-primary text-white font-bold;
+  @apply btn bg-primary font-bold text-white;
   border: 3px solid #8b4513;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
