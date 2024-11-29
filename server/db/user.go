@@ -362,3 +362,9 @@ func GetStats(user_id int64) (*types.Stats, error) {
 
 	return stats, nil
 }
+
+func UpdateUserElo(user_id int64, elo int64) error {
+	q := `UPDATE users SET elo = $1 WHERE id = $2`
+	_, err := Conn.Exec(q, elo, user_id)
+	return err
+}
