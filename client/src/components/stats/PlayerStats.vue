@@ -34,7 +34,7 @@
 import { ref, onMounted, computed, defineProps } from 'vue'
 import router from '@/router'
 
-import EloChart from '@/components/EloChart.vue'
+import EloChart from '@/components/stats/EloChart.vue'
 import GamePerformanceCard from './GamePerformanceCard.vue'
 import RecentGamesCard from './RecentGamesCard.vue'
 import BackToHomeButton from '@/components/buttons/BackHome.vue'
