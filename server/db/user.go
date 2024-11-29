@@ -370,7 +370,6 @@ func UpdateUserElo(user_id int64, elo int64) error {
 }
 
 func GetBadge(user_id int64) (*types.Badge, error) {
-
 	user, err := GetUser(user_id)
 	if err != nil {
 		slog.With("err", err).Debug("Badge")
@@ -379,19 +378,11 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 
 	var badge types.Badge
 
-	// elo
-	if user.Elo <= 1000 {
-		badge.Elo = 1
-	} else if user.Elo <= 1200 {
-		badge.Elo = 2
-	} else {
-		badge.Elo = 3
-	}
+	var gw int
+	var gameEnded int
+	shortestGame := time.Hour //no badge anyway
 
 	var gp []types.ReturnGame
-	var gameEnded int
-	var gw int
-	shortestGame := time.Hour //no badge anyway
 	gp, err = GetAllGameFromUser(user_id)
 
 	var homepieces int
@@ -430,10 +421,24 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		}
 
 		//bot difficulty
-		// if game.GameType == types.GameTypeBot {
-		//   if GetBotLevel() == game.Player1 || GetBotLevel() == game.Player2 {
-		//   }
-		// }
+		if game.GameType == types.GameTypeBot {
+			p1, e1 := GetUserByUsername(game.Player1)
+			if e1 != nil {
+				return nil, err
+			}
+
+			p2, e2 := GetUserByUsername(game.Player1)
+			if e2 != nil {
+				return nil, err
+			}
+
+			// One return 0 the other is 1/2/3 depends on difficulty
+			badge.Bot = GetBotLevel(p1.ID) + GetBotLevel(p2.ID)
+			if badge.Bot < 0 || badge.Bot > 3 {
+				err := errors.New("2 Humans or 2 Bots")
+				return nil, err
+			}
+		}
 
 	}
 
@@ -456,15 +461,22 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 	}
 
 	// game won
-	if gameEnded <= 1 {
+	if gw <= 1 {
 		badge.Wongames = 1
-	} else if gameEnded <= 10 {
+	} else if gw <= 10 {
 		badge.Wongames = 2
 	} else {
 		badge.Wongames = 3
 	}
 
-	// bot difficulty
+	// elo
+	if user.Elo <= 1000 {
+		badge.Elo = 1
+	} else if user.Elo <= 1200 {
+		badge.Elo = 2
+	} else {
+		badge.Elo = 3
+	}
 
 	slog.With("badge", badge).Debug("BADGE")
 	return &badge, nil
