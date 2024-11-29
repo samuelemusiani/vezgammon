@@ -70,10 +70,10 @@ const stats = ref<GameStats>({
 
 const props = withDefaults(defineProps<{
   sharingEnabled?: boolean
-  playerId?: string | null
+  username?: string | null
 }>(), {
   sharingEnabled: true,
-  playerId: null
+  username: null
 })
 
 const currentUserId = ref<string | null>(null)
@@ -90,7 +90,7 @@ async function fetchUserStats() {
   if (!props.playerId) {
     response = await fetch('/api/stats')
   } else {
-    response = await fetch(`/api/stats/${props.playerId}`)
+    response = await fetch(`/api/player/${props.usernname}`)
   }
   if (!response.ok) {
     throw new Error('Failed to fetch user stats')
