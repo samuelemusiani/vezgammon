@@ -331,6 +331,42 @@ paths:
       summary: Accept the double
       tags:
       - play
+  /play/invite:
+    get:
+      consumes:
+      - application/json
+      description: Create a game with a link
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Link created
+      summary: Create a game with a link
+      tags:
+      - play
+  /play/invite/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Join a game with a link
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Link generated
+        "400":
+          description: Already in a game
+        "404":
+          description: Link not found
+      summary: Join a game with a link
+      tags:
+      - play
   /play/last/winner:
     get:
       consumes:

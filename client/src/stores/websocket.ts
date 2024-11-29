@@ -36,8 +36,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
       socket.value.onmessage = event => {
         const message = JSON.parse(event.data)
-        messageHandlers.forEach(handler => handler(message))
         console.log('Received message:', message)
+        messageHandlers.forEach(handler => handler(message))
       }
     } catch (error) {
       console.error('Error connecting to WebSocket:', error)

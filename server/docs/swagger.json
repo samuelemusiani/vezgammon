@@ -257,6 +257,61 @@
                 }
             }
         },
+        "/play/invite": {
+            "get": {
+                "description": "Create a game with a link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game with a link",
+                "responses": {
+                    "201": {
+                        "description": "Link created"
+                    }
+                }
+            }
+        },
+        "/play/invite/{id}": {
+            "get": {
+                "description": "Join a game with a link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Join a game with a link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Link ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Link generated"
+                    },
+                    "400": {
+                        "description": "Already in a game"
+                    },
+                    "404": {
+                        "description": "Link not found"
+                    }
+                }
+            }
+        },
         "/play/last/winner": {
             "get": {
                 "description": "Get last fame status",

@@ -33,7 +33,7 @@ const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const displayedDice = ref<number[]>([])
-const session = ref<User | undefined>()
+const session = ref<User>()
 const showDoubleModal = ref(false)
 const showResultModal = ref(false)
 const isWinner = ref(false)
@@ -73,8 +73,45 @@ const handleMessage = async (message: WSMessage) => {
     showDoubleModal.value = true
   } else if (message.type === 'double_accepted') {
     await fetchGameState()
+  } else if (message.type === 'dice_rolled') {
+    // Mostra i dadi dell'avversario
+    isRolling.value = true
+    diceRolled.value = true
+    playDice()
+
+    const diceData = JSON.parse(message.payload)
+
+    setTimeout(() => {
+      isRolling.value = false
+      displayedDice.value = diceData.dices
+    }, 1000)
   } else if (message.type === 'game_end') {
     await handleEnd()
+  } else if (message.type === 'move_made') {
+    if (!gameState.value) return
+
+    const moveData = JSON.parse(message.payload)
+    const move = moveData.move as Move
+
+    if (whichPlayerAmI.value === 'p1') {
+      if (gameState.value.p1checkers[25 - move.to] === 1) {
+        gameState.value.p1checkers[25 - move.to] = 0
+        gameState.value.p1checkers[0]++
+      }
+      gameState.value.p2checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p2checkers[move.to]++
+      }
+    } else {
+      if (gameState.value.p2checkers[25 - move.to] === 1) {
+        gameState.value.p2checkers[25 - move.to] = 0
+        gameState.value.p2checkers[0]++
+      }
+      gameState.value.p1checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p1checkers[move.to]++
+      }
+    }
   }
 }
 
@@ -84,15 +121,6 @@ const fetchSession = async () => {
     .then(data => {
       session.value = data
     })
-}
-
-const checkWin = () => {
-  if (!gameState.value) return false
-  // When backend is ready, check using gameState.value.status
-  if (getOutCheckers(gameState.value.current_player) == 15) {
-    return true
-  }
-  return false
 }
 
 const fetchWinner = async () => {
@@ -218,6 +246,15 @@ const handleDiceRoll = () => {
     clearInterval(rollInterval)
     isRolling.value = false
     displayedDice.value = availableMoves.value!.dices
+
+    if (gameState.value?.game_type === 'online') {
+      webSocketStore.sendMessage({
+        type: 'dice_rolled',
+        payload: JSON.stringify({
+          dices: availableMoves.value!.dices,
+        }),
+      })
+    }
   }, 1000)
 }
 
@@ -404,6 +441,15 @@ const handleTriangleClick = async (position: number) => {
     }
   }
 
+  if (gameState.value?.game_type === 'online') {
+    webSocketStore.sendMessage({
+      type: 'move_made',
+      payload: JSON.stringify({
+        move: currentMove,
+      }),
+    })
+  }
+
   // Aggiungi la mossa a quelle fatte
   movesToSubmit.value.push(currentMove)
   console.log('mosse effettuate', movesToSubmit.value)
@@ -428,10 +474,7 @@ const handleTriangleClick = async (position: number) => {
         body: JSON.stringify(movesToSubmit.value),
       })
       console.log('stato POST', res.status)
-      // Change with backend check
-      if (checkWin()) {
-        handleWin()
-      }
+
       movesToSubmit.value = []
       possibleMoves.value = []
       if (gameState.value.game_type !== 'online') {
@@ -874,13 +917,17 @@ const exitGame = async () => {
       </div>
     </div>
     <Chat
-      v-if="gameState?.game_type === 'online'"
-      :myUsername="session?.username as string"
+      v-if="
+        session?.username &&
+        (gameState?.game_type === 'online' || gameState?.game_type === 'bot')
+      "
       :opponentUsername="
         gameState?.player1 === session?.username
-          ? (gameState?.player2 as string)
-          : (gameState?.player1 as string)
+          ? gameState?.player2 || ''
+          : gameState?.player1 || ''
       "
+      :gameType="gameState?.game_type || ''"
+      :myUsername="session?.username || ''"
     />
   </div>
 </template>

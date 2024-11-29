@@ -5,6 +5,7 @@ import RegisterView from '../views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import BoardView from '../views/BoardView.vue'
 import WipView from '../views/WipView.vue'
+import InviteView from '../views/InviteView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -38,6 +39,11 @@ const router = createRouter({
       path: '/wip',
       name: 'wip',
       component: WipView,
+    },
+    {
+      path: '/invite/:code',
+      name: 'invite',
+      component: InviteView,
     },
     {
       path: '/about',
