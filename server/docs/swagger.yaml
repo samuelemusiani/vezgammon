@@ -459,6 +459,23 @@ paths:
       summary: Start a matchmaking search for a new game
       tags:
       - play
+  /player/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Get users' stats WITHOUT AUTH
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Stats'
+        "500":
+          description: error
+      summary: Get users' stats WITHOUT AUTH
+      tags:
+      - public
   /register:
     post:
       consumes:
@@ -513,6 +530,4 @@ paths:
         "500":
           description: error
       summary: Get users' stats
-      tags:
-      - authentication
 swagger: "2.0"

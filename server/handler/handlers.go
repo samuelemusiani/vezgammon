@@ -27,6 +27,8 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
 	// middleware for backend API
 	protected := router.Group("/api")
+	protected.GET("/player/:username", GetPlayer)
+
 	protected.Use(AuthMiddleware())
 
 	// Gruppo di rotte protette per le API

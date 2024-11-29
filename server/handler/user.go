@@ -243,7 +243,6 @@ func GetSession(c *gin.Context) {
 // @Summary Get users' stats
 // @Schemes
 // @Description Get users' stats
-// @Tags authentication
 // @Accept json
 // @Produce json
 // @Success 200 {object} types.Stats
@@ -261,6 +260,33 @@ func GetStats(c *gin.Context) {
 
 	c.JSON(http.StatusOK, userstats)
 	return
+}
+
+// Return the statistics of the current user loggged in
+// @Summary Get users' stats WITHOUT AUTH
+// @Schemes
+// @Description Get users' stats WITHOUT AUTH
+// @Tags public
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Stats
+// @Failure 500 "error"
+// @Router /player/{username} [get]
+func GetPlayer(c *gin.Context) {
+	username := c.Param("username")
+	u, err := db.GetUserByUsername(username)
+	if err != nil {
+		if errors.Is(err, db.UserNotFound) {
+			c.JSON(http.StatusNotFound, "User not found")
+			return
+		}
+		slog.With("err", err).Error("Getting user")
+		c.JSON(http.StatusInternalServerError, "")
+		return
+	}
+
+	c.Set("user_id", u.ID)
+	GetStats(c)
 }
 
 /*

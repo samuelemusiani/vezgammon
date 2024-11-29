@@ -45,9 +45,7 @@
             <div
               :class="[
                 'max-w-[80%] rounded-lg px-4 py-2 text-white',
-                msg.sender === myUsername
-                  ? 'bg-primary '
-                  : 'bg-secondary',
+                msg.sender === myUsername ? 'bg-primary' : 'bg-secondary',
               ]"
             >
               <div class="mb-1 text-xs opacity-100">
@@ -67,12 +65,12 @@
           v-model="newMessage"
           type="text"
           placeholder="Type a message..."
-          class="flex-1 bg-base-100 bg-blur px-4"
+          class="bg-blur flex-1 bg-base-100 px-4"
           @keyup.enter="sendMessage"
         />
         <button
           @click="sendMessage"
-          class="w-12 bg-primary text-white hover:bg-primary-700"
+          class="hover:bg-primary-700 w-12 bg-primary text-white"
         >
           <i class="fas fa-paper-plane"></i>
         </button>
@@ -180,7 +178,7 @@ onMounted(() => {
 
 <style scoped>
 .retro-button {
-  @apply btn btn-lg btn-circle btn-primary text-white border-accent border-4;
+  @apply btn btn-circle btn-primary btn-lg border-4 border-accent text-white;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 0 #8b4513;
@@ -203,6 +201,6 @@ onMounted(() => {
 }
 
 .retro-box {
-  @apply bg-base-100 border-primary border-2 shadow-lg rounded-lg;
+  @apply rounded-lg border-2 border-primary bg-base-100 shadow-lg;
 }
 </style>

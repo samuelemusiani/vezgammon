@@ -19,7 +19,7 @@ ChartJS.register(
   LineElement,
   CategoryScale,
   LinearScale,
-  PointElement
+  PointElement,
 )
 
 const props = defineProps<{
@@ -61,7 +61,7 @@ const chartOptions = ref({
 </script>
 
 <template>
-  <div class="p-2 border-primary mt-2 border-8 bg-base-200 h-[300px]">
+  <div class="mt-2 h-[300px] border-8 border-primary bg-base-200 p-2">
     <Line :data="chartData" :options="chartOptions" />
   </div>
 </template>
