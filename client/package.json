@@ -19,6 +19,7 @@
     "@vueuse/sound": "^2.0.1",
     "chart.js": "^4.4.6",
     "pinia": "^2.2.4",
+    "primeicons": "^7.0.0",
     "vue": "^3.5.12",
     "vue-chartjs": "^5.3.2",
     "vue-confetti-explosion": "^1.0.2",
