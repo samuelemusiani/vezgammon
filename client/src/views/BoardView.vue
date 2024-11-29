@@ -18,6 +18,7 @@ import {
 } from '@/utils/game/game'
 
 import ConfettiExplosion from 'vue-confetti-explosion'
+import Chat from '@/components/ChatContainer.vue'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
@@ -37,7 +38,9 @@ const session = ref<User>()
 const showDoubleModal = ref(false)
 const showResultModal = ref(false)
 const isWinner = ref(false)
-import Chat from '@/components/ChatContainer.vue'
+const timeLeft = ref(60)
+const timerInterval = ref<number | null>(null)
+const isMyTurn = ref(false)
 
 const isRolling = ref(false)
 const diceRolled = ref(false)
@@ -634,8 +637,23 @@ const exitGame = async () => {
 
           <!-- Game Timer -->
           <div
-            class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
+            class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
           >
+            <div v-show="isMyTurn" class="w-full">
+              <div class="mb-2 text-center text-xl font-bold">
+                Time Left: {{ timeLeft }}s
+              </div>
+              <div class="h-2 w-full rounded-full bg-gray-200">
+                <div
+                  class="h-full rounded-full bg-primary transition-all duration-1000"
+                  :style="{ width: `${(timeLeft / 60) * 100}%` }"
+                  :class="{
+                    'bg-red-500': timeLeft <= 10,
+                    'bg-yellow-500': timeLeft <= 30 && timeLeft > 10,
+                  }"
+                ></div>
+              </div>
+            </div>
             <button class="retro-button" @click="exitGame">Exit Game</button>
           </div>
 
@@ -767,7 +785,7 @@ const exitGame = async () => {
 
         <!-- Roll Dice Button -->
         <div
-          v-if="!diceRolled && availableMoves?.dices"
+          v-show="!diceRolled && availableMoves?.dices"
           class="mb-4 flex justify-center"
         >
           <button @click="handleDiceRoll" class="retro-button">
