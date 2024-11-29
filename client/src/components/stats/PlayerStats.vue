@@ -22,6 +22,9 @@
           />
           <TwitterShareButton :url="gameShareUrl" :title="shareTitle" />
         </div>
+        <div v-else class="justify-center mt-4 card-actions">
+          <BackToHomeButton @click="navigateHome" />
+        </div>
       </div>
     </div>
   </div>
@@ -65,10 +68,12 @@ const stats = ref<GameStats>({
   tournament: 0,
 })
 
-withDefaults(defineProps<{
+const props = withDefaults(defineProps<{
   sharingEnabled?: boolean
+  playerId?: string | null
 }>(), {
-  sharingEnabled: true
+  sharingEnabled: true,
+  playerId: null
 })
 
 const currentUserId = ref<string | null>(null)
@@ -79,6 +84,20 @@ const shareDescription = computed(
   () =>
     `Win Rate: ${stats.value.winrate}% | Games Played: ${stats.value.games_played.length || 0}`,
 )
+
+async function fetchUserStats() {
+  let response
+  if (!props.playerId) {
+    response = await fetch('/api/stats')
+  } else {
+    response = await fetch(`/api/stats/${props.playerId}`)
+  }
+  if (!response.ok) {
+    throw new Error('Failed to fetch user stats')
+  }
+  const tmp: GameStats = await response.json()
+  stats.value = tmp
+}
 
 onMounted(async () => {
   try {
@@ -91,13 +110,12 @@ onMounted(async () => {
     currentUserId.value = user.id || null
     gameShareUrl.value = `${window.location.origin}/player/${currentUserId.value}`
 
-    const response = await fetch('/api/stats')
+  } catch (error) {
+    console.error('Error fetching user info:', error)
+  }
 
-    if (!response.ok) {
-      throw new Error('Failed to fetch stats')
-    }
-    const tmp: GameStats = await response.json()
-    stats.value = tmp
+  try {
+    await fetchUserStats()
   } catch (error) {
     console.error('Error fetching stats:', error)
   }
