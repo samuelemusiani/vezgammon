@@ -15,7 +15,8 @@ func InitTournament() error {
 		name BPCHAR,
 		owner INTEGER REFERENCES users(id),
 		status BPCHAR DEFAULT 'open',
-		users INTEGER []
+		users INTEGER [],
+		winners INTEGER [] DEFAULT '{}'::INTEGER[]
 	)
 	`
 
@@ -54,13 +55,13 @@ func CreateTournament(t types.Tournament) (*types.Tournament, error) {
 func UpdateTournament(t *types.Tournament) error {
 	q := `
 	UPDATE tournaments
-	SET status=$1, users=$2
-	WHERE id=$3
+	SET status=$1, users=$2, winners=$3
+	WHERE id=$4
 	`
 
 	_, err := Conn.Exec(
 		q,
-		t.Status, pq.Array(t.Users), t.ID,
+		t.Status, pq.Array(t.Users), pq.Array(t.Winners), t.ID,
 	)
 	if err != nil {
 		return err
@@ -69,45 +70,46 @@ func UpdateTournament(t *types.Tournament) error {
 	return nil
 }
 
-func calcLeaderBoard(games []types.ReturnGame) types.LeaderBoard {
-	type mape struct {
-		win  int
-		lose int
-	}
+func winNumber(winners []int64, user int64) int {
+	var count int
 
-	m := make(map[string]mape)
-
-	for _, g := range games {
-		switch g.Status {
-		case types.GameStatusWinP1:
-			m[g.Player1] = mape{m[g.Player1].win + 1, m[g.Player1].lose}
-			m[g.Player2] = mape{m[g.Player2].win, m[g.Player2].lose + 1}
-		case types.GameStatusWinP2:
-			m[g.Player2] = mape{m[g.Player2].win + 1, m[g.Player2].lose}
-			m[g.Player1] = mape{m[g.Player1].win, m[g.Player1].lose + 1}
+	for _, w := range winners {
+		if w == user {
+			count++
 		}
 	}
 
-	var list []types.LeaderBoardEntry
-	for name, score := range m {
-		entry := types.LeaderBoardEntry{
-			User: name,
-			Win:  score.win,
-			Lose: score.lose,
-		}
+	return count
+}
 
-		list = append(list, entry)
-	}
+func calcLeaderBoard(tournament *types.Tournament) (types.LeaderBoard, error) {
+	sortedUsers := slices.Clone(tournament.Users)
 
-	// sort, most wins first
-	slices.SortFunc(list, func(i, j types.LeaderBoardEntry) int {
-		sum1 := i.Win - i.Lose
-		sum2 := j.Win - j.Lose
-
-		return cmp.Compare(sum1, sum2)
+	slices.SortFunc(sortedUsers, func(a, b int64) int {
+		return cmp.Compare(winNumber(tournament.Winners, a), winNumber(tournament.Winners, b))
 	})
 
-	return list
+	var lb types.LeaderBoard
+
+	for _, u := range sortedUsers {
+		user, err := GetUser(u)
+		if err != nil {
+			return nil, err
+		}
+
+		wins := winNumber(tournament.Winners, u)
+		loses := 2 - wins
+
+		lbe := types.LeaderBoardEntry{
+			User: user.Username,
+			Win:  wins,
+			Lose: loses,
+		}
+
+		lb = append(lb, lbe)
+	}
+
+	return lb, nil
 }
 
 func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, error) {
@@ -150,7 +152,10 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 	}
 
 	// calc leaderboard
-	rt.LeaderBoard = calcLeaderBoard(rt.Games)
+	rt.LeaderBoard, err = calcLeaderBoard(&t)
+	if err != nil {
+		return nil, err
+	}
 
 	return &rt, nil
 }
@@ -196,7 +201,7 @@ func GetTournament(id int64) (*types.Tournament, error) {
 
 	var t types.Tournament
 
-	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Status, pq.Array(&t.Users))
+	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Status, pq.Array(&t.Users), pq.Array(&t.Winners))
 	if err != nil {
 		return nil, err
 	}

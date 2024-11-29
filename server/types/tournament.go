@@ -4,11 +4,12 @@ const TournamentStatusOpen = "open"
 const TournamentStatusClosed = "close"
 
 type Tournament struct {
-	ID     int64   `json:"id" example:"1"`
-	Name   string  `json:"name" example:"Tournament name"`
-	Owner  int64   `json:"owner" example:"1"`
-	Status string  `json:"status" example:"open"`
-	Users  []int64 `json:"users" example:"1,2,3"`
+	ID      int64   `json:"id" example:"1"`
+	Name    string  `json:"name" example:"Tournament name"`
+	Owner   int64   `json:"owner" example:"1"`
+	Status  string  `json:"status" example:"open"`
+	Users   []int64 `json:"users" example:"1,2,3"`
+	Winners []int64 `json:"winners" example:"1,2,3"` // last winner at the end, used to calculate the next round and the leader board
 }
 
 type LeaderBoardEntry struct {
