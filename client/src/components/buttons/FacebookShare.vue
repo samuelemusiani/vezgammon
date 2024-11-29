@@ -6,7 +6,7 @@
     :description="description"
     quote="Check out my Backgammon stats!"
   >
-    <button class="text-xl btn btn-success">Share on Facebook</button>
+    <button class="btn btn-success text-xl">Share on Facebook</button>
   </ShareNetwork>
 </template>
 

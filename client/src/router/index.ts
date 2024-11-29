@@ -56,7 +56,8 @@ const router = createRouter({
 
 router.beforeEach(async to => {
   const publicPages = ['/login', '/register']
-  const authRequired = !publicPages.includes(to.path) && !to.path.startsWith('/player')
+  const authRequired =
+    !publicPages.includes(to.path) && !to.path.startsWith('/player')
 
   // Probably should use the Pinia authStore
   if (authRequired) {

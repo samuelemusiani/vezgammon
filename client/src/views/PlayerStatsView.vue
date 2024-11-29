@@ -9,5 +9,4 @@ import { useRoute } from 'vue-router'
 // get player id from url
 const route = useRoute()
 const playerId = route.params.username as string
-
 </script>

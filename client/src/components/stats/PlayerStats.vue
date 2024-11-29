@@ -1,8 +1,8 @@
 <template>
-  <div class="container py-8 px-4 mx-auto">
-    <div class="overflow-auto shadow-xl card h-[90vh] bg-base-100">
+  <div class="container mx-auto px-4 py-8">
+    <div class="card h-[90vh] overflow-auto bg-base-100 shadow-xl">
       <div class="card-body">
-        <h2 class="text-center card-title text-primary">Player Statistics</h2>
+        <h2 class="card-title text-center text-primary">Player Statistics</h2>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <GamePerformanceCard :stats="stats" />
@@ -13,7 +13,7 @@
 
         <EloChart :elo="stats.elo" />
 
-        <div v-if="sharingEnabled" class="justify-center mt-4 card-actions">
+        <div v-if="sharingEnabled" class="card-actions mt-4 justify-center">
           <BackToHomeButton @click="navigateHome" />
           <FacebookShareButton
             :url="gameShareUrl"
@@ -22,7 +22,7 @@
           />
           <TwitterShareButton :url="gameShareUrl" :title="shareTitle" />
         </div>
-        <div v-else class="justify-center mt-4 card-actions">
+        <div v-else class="card-actions mt-4 justify-center">
           <BackToHomeButton @click="navigateHome" />
         </div>
       </div>
@@ -68,13 +68,16 @@ const stats = ref<GameStats>({
   tournament: 0,
 })
 
-const props = withDefaults(defineProps<{
-  sharingEnabled?: boolean
-  username?: string | null
-}>(), {
-  sharingEnabled: true,
-  username: null
-})
+const props = withDefaults(
+  defineProps<{
+    sharingEnabled?: boolean
+    username?: string | null
+  }>(),
+  {
+    sharingEnabled: true,
+    username: null,
+  },
+)
 
 const currentUserId = ref<string | null>(null)
 const gameShareUrl = ref('')
@@ -109,7 +112,6 @@ onMounted(async () => {
 
     currentUserId.value = user.id || null
     gameShareUrl.value = `${window.location.origin}/player/${currentUserId.value}`
-
   } catch (error) {
     console.error('Error fetching user info:', error)
   }

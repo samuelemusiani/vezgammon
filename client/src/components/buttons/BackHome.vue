@@ -1,5 +1,5 @@
 <template>
-  <button @click="$emit('click')" class="text-xl btn btn-primary">
+  <button @click="$emit('click')" class="btn btn-primary text-xl">
     Back to Home
   </button>
 </template>

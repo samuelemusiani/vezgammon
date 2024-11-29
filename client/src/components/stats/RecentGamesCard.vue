@@ -5,11 +5,7 @@
       <div class="overflow-x-auto">
         <table class="table">
           <tbody>
-            <tr
-              v-for="game in games"
-              :key="game.id"
-              class="text-xl"
-            >
+            <tr v-for="game in games" :key="game.id" class="text-xl">
               <td>{{ game.player1 }} vs {{ game.player2 }}</td>
               <td>
                 <span

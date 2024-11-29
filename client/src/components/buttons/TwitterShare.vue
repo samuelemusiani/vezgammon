@@ -1,12 +1,8 @@
 <template>
-  <ShareNetwork
-    network="twitter"
-    :url="url"
-    :title="title"
-  >
-    <button class="text-xl btn bg-blue-400">
+  <ShareNetwork network="twitter" :url="url" :title="title">
+    <button class="btn bg-blue-400 text-xl">
       <svg
-        class="w-10 h-10"
+        class="h-10 w-10"
         fill="currentColor"
         viewBox="0 0 24 24"
         aria-hidden="true"

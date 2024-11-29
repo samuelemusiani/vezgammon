@@ -1,5 +1,5 @@
 <template>
-  <div class="place-items-center stat">
+  <div class="stat place-items-center">
     <div class="stat-title">{{ title }}</div>
     <div class="stat-value">{{ value }}</div>
   </div>
