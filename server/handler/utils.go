@@ -2,6 +2,7 @@ package handler
 
 import (
 	"errors"
+	"math"
 	"vezgammon/server/types"
 )
 
@@ -33,4 +34,22 @@ func invertPlayer(currentPlayer string) string {
 	default:
 		return ""
 	}
+}
+
+func calculateElo(elo1, elo2 int64, winner1 bool) (int64, int64) {
+	diff := float64((elo2 - elo1) / 400)
+	pow := math.Pow(10, diff)
+
+	var w1 float64 = 0
+	if winner1 {
+		w1 = 1
+	}
+
+	ea := w1 - 1/(1+pow)
+
+	K := 32
+	elo1 += int64(float64(K) * ea)
+	elo2 -= int64(float64(K) * ea)
+
+	return elo1, elo2
 }
