@@ -32,9 +32,10 @@ type ReturnTournament struct {
 }
 
 type TournamentInfo struct {
-	ID    int64  `json:"id" example:"1"`
-	Name  string `json:"name" example:"Tournament name"`
-	Owner string `json:"owner" example:"Giorgio"`
+	ID         int64  `json:"id" example:"1"`
+	Name       string `json:"name" example:"Tournament name"`
+	Owner      string `json:"owner" example:"Giorgio"`
+	UserNumber int    `json:"user_number" example:"3"`
 }
 
 type TournamentList []TournamentInfo

@@ -12,12 +12,16 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+type createTurnamentRequest struct {
+	Name string `json:"name" example:"Tournament name"`
+}
+
 // @Summary Create a new tournament
 // @Description Create a new tournament
 // @Tags tournament
 // @Accept  json
 // @Produce  json
-// @Param request body types.ReturnTournament true "Tournament object"
+// @Param request body createTurnamentRequest true "createTurnamentRequest object"
 // @Success 201 {object} types.ReturnTournament
 // @Failure 400 "bad data, tournament alredy open"
 // @Failure 500 "internal server error"
@@ -31,22 +35,17 @@ func CreateTournament(c *gin.Context) {
 		return
 	}
 
-	var rt types.ReturnTournament
-	err = json.Unmarshal(buff, &rt)
+	var ct createTurnamentRequest
+	err = json.Unmarshal(buff, &ct)
 	if err != nil {
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
-	t, err := db.ReturnTournamentToTournament(rt)
-	if err != nil {
-		c.JSON(http.StatusInternalServerError, err)
-		return
-	}
-
-	if t.Owner != userID {
-		c.JSON(http.StatusBadRequest, "you are not the owner")
-		return
+	t := &types.Tournament{
+		Name:  ct.Name,
+		Owner: userID,
+		Users: []int64{userID},
 	}
 
 	t, err = db.CreateTournament(*t)

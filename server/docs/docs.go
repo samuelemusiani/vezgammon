@@ -529,12 +529,12 @@ const docTemplate = `{
                 "summary": "Create a new tournament",
                 "parameters": [
                     {
-                        "description": "Tournament object",
+                        "description": "createTurnamentRequest object",
                         "name": "request",
                         "in": "body",
                         "required": true,
                         "schema": {
-                            "$ref": "#/definitions/types.ReturnTournament"
+                            "$ref": "#/definitions/handler.createTurnamentRequest"
                         }
                     }
                 ],
@@ -627,6 +627,15 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.createTurnamentRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Tournament name"
+                }
+            }
+        },
         "handler.customUser": {
             "type": "object",
             "properties": {
@@ -915,6 +924,10 @@ const docTemplate = `{
                 "owner": {
                     "type": "string",
                     "example": "Giorgio"
+                },
+                "user_number": {
+                    "type": "integer",
+                    "example": 3
                 }
             }
         },

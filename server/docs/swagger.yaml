@@ -1,4 +1,10 @@
 definitions:
+  handler.createTurnamentRequest:
+    properties:
+      name:
+        example: Tournament name
+        type: string
+    type: object
   handler.customUser:
     properties:
       firstname:
@@ -202,6 +208,9 @@ definitions:
       owner:
         example: Giorgio
         type: string
+      user_number:
+        example: 3
+        type: integer
     type: object
   types.User:
     properties:
@@ -563,12 +572,12 @@ paths:
       - application/json
       description: Create a new tournament
       parameters:
-      - description: Tournament object
+      - description: createTurnamentRequest object
         in: body
         name: request
         required: true
         schema:
-          $ref: '#/definitions/types.ReturnTournament'
+          $ref: '#/definitions/handler.createTurnamentRequest'
       produces:
       - application/json
       responses:

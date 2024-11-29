@@ -211,7 +211,7 @@ func GetTournament(id int64) (*types.Tournament, error) {
 
 func GetTournamentList() (*types.TournamentList, error) {
 	q := `
-	SELECT id, name, owner
+	SELECT id, name, owner, users
 	FROM tournaments
 	`
 
@@ -225,7 +225,8 @@ func GetTournamentList() (*types.TournamentList, error) {
 	for rows.Next() {
 		var entry types.TournamentInfo
 		var ownerid int64
-		err := rows.Scan(&entry.ID, &entry.Name, &ownerid)
+		var users []int64
+		err := rows.Scan(&entry.ID, &entry.Name, &ownerid, pq.Array(&users))
 		if err != nil {
 			return nil, err
 		}
@@ -236,6 +237,7 @@ func GetTournamentList() (*types.TournamentList, error) {
 		}
 
 		entry.Owner = owner.Username
+		entry.UserNumber = len(users)
 
 		list = append(list, entry)
 	}
