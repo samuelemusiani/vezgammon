@@ -819,30 +819,34 @@ func endGame(g *types.Game, winnerID int64) error {
 		return err
 	}
 
-	u1, err := db.GetUser(g.Player1)
-	if err != nil {
-		slog.With("error", err).Error("Getting user in endGame")
-		return err
-	}
+	rg := db.GameToReturnGame(g)
 
-	u2, err := db.GetUser(g.Player2)
-	if err != nil {
-		slog.With("error", err).Error("Getting user in endGame")
-		return err
-	}
+	if rg.GameType == types.GameTypeOnline {
+		u1, err := db.GetUser(g.Player1)
+		if err != nil {
+			slog.With("error", err).Error("Getting user in endGame")
+			return err
+		}
 
-	elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1)
+		u2, err := db.GetUser(g.Player2)
+		if err != nil {
+			slog.With("error", err).Error("Getting user in endGame")
+			return err
+		}
 
-	err = db.UpdateUserElo(g.Player1, elo1)
-	if err != nil {
-		slog.With("error", err).Error("Updating elo in endGame")
-		return err
-	}
+		elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1)
 
-	err = db.UpdateUserElo(g.Player2, elo2)
-	if err != nil {
-		slog.With("error", err).Error("Updating elo in endGame")
-		return err
+		err = db.UpdateUserElo(g.Player1, elo1)
+		if err != nil {
+			slog.With("error", err).Error("Updating elo in endGame")
+			return err
+		}
+
+		err = db.UpdateUserElo(g.Player2, elo2)
+		if err != nil {
+			slog.With("error", err).Error("Updating elo in endGame")
+			return err
+		}
 	}
 
 	ws.GameEnd(g.Player1)
