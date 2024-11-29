@@ -1,8 +1,8 @@
 <template>
-  <div class="container py-8 px-4 mx-auto">
-    <div class="overflow-auto shadow-xl card h-[90vh] bg-base-100">
+  <div class="container mx-auto px-4 py-8">
+    <div class="card h-[90vh] overflow-auto bg-base-100 shadow-xl">
       <div class="card-body">
-        <h2 class="text-center card-title text-primary">Player Statistics</h2>
+        <h2 class="card-title text-center text-primary">Player Statistics</h2>
 
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <!-- Overall Stats -->
@@ -11,37 +11,37 @@
               <h3 class="card-title">Game Performance</h3>
               <div class="grid grid-cols-2 gap-4">
                 <div class="grid grid-cols-2 gap-2">
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">Played</div>
                     <div class="stat-value">{{ 0 }}</div>
                   </div>
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">Wins</div>
                     <div class="stat-value">{{ stats.win }}</div>
                   </div>
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">Lost</div>
                     <div class="stat-value">{{ stats.lost }}</div>
                   </div>
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">Win Rate</div>
                     <div class="stat-value">{{ stats.winrate }}%</div>
                   </div>
                 </div>
                 <div class="grid grid-cols-2 gap-2">
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">CPU</div>
                     <div class="stat-value">{{ stats.cpu }}</div>
                   </div>
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">Local</div>
                     <div class="stat-value">{{ stats.local }}</div>
                   </div>
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">Online</div>
                     <div class="stat-value">{{ stats.online }}</div>
                   </div>
-                  <div class="place-items-center stat">
+                  <div class="stat place-items-center">
                     <div class="stat-title">Tournament</div>
                     <div class="stat-value">{{ stats.tournament }}</div>
                   </div>
@@ -91,8 +91,8 @@
         <EloChart :elo="stats.elo" />
 
         <!-- Back Button -->
-        <div class="justify-center mt-4 card-actions">
-          <button @click="navigateHome" class="text-xl btn btn-primary">
+        <div class="card-actions mt-4 justify-center">
+          <button @click="navigateHome" class="btn btn-primary text-xl">
             Back to Home
           </button>
           <ShareNetwork
@@ -102,7 +102,7 @@
             :description="shareDescription"
             quote="Check out my Backgammon stats!"
           >
-            <button class="text-xl btn btn-success">Share on Facebook</button>
+            <button class="btn btn-success text-xl">Share on Facebook</button>
           </ShareNetwork>
 
           <ShareNetwork
@@ -110,9 +110,9 @@
             :url="gameShareUrl"
             :title="shareTitle"
           >
-            <button class="text-xl btn bg-blue-400">
+            <button class="btn bg-blue-400 text-xl">
               <svg
-                class="w-10 h-10"
+                class="h-10 w-10"
                 fill="currentColor"
                 viewBox="0 0 24 24"
                 aria-hidden="true"
@@ -266,7 +266,7 @@ onMounted(async () => {
     const user: User = await userResponse.json()
 
     // Determine user ID - prioritize prop, then session user, then null
-    currentUserId.value = user.id || null
+    currentUserId.value = user.username || null
 
     // Construct share URL
     gameShareUrl.value = `${window.location.origin}/player/${currentUserId.value}`

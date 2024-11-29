@@ -24,7 +24,7 @@ export interface GameState {
   elo2: number
   start: string
   end: string
-  status: "p1" | "p2" | "open"
+  status: 'p1' | 'p2' | 'open'
   game_type: string
   p1checkers: number[]
   p2checkers: number[]

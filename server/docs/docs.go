@@ -425,6 +425,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/player/{username}": {
+            "get": {
+                "description": "Get users' stats WITHOUT AUTH",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get users' stats WITHOUT AUTH",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Stats"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Register new user",
@@ -493,9 +519,6 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
-                ],
-                "tags": [
-                    "authentication"
                 ],
                 "summary": "Get users' stats",
                 "responses": {
