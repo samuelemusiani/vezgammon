@@ -42,7 +42,7 @@ import FacebookShareButton from '@/components/buttons/FacebookShare.vue'
 import TwitterShareButton from '@/components/buttons/TwitterShare.vue'
 
 import type { GameState } from '@/utils/game/types'
-import type { User } from '@/utils/auth/types'
+import type { User } from '@/utils/types'
 
 interface GameStats {
   games_played: GameState[]
@@ -79,7 +79,7 @@ const props = withDefaults(
   },
 )
 
-const currentUserId = ref<string | null>(null)
+const currentUsername = ref<string | null>(null)
 const gameShareUrl = ref('')
 
 const shareTitle = computed(() => `Check out my Backgammon stats!`)
@@ -90,10 +90,10 @@ const shareDescription = computed(
 
 async function fetchUserStats() {
   let response
-  if (!props.playerId) {
+  if (!props.username) {
     response = await fetch('/api/stats')
   } else {
-    response = await fetch(`/api/player/${props.usernname}`)
+    response = await fetch(`/api/player/${props.username}`)
   }
   if (!response.ok) {
     throw new Error('Failed to fetch user stats')
@@ -102,18 +102,27 @@ async function fetchUserStats() {
   stats.value = tmp
 }
 
+async function fetchUser() {
+  const response = await fetch('/api/session')
+  if (!response.ok) {
+    throw new Error('Failed to fetch user')
+  }
+  const user: User = await response.json()
+  currentUsername.value = user.username
+}
+
 onMounted(async () => {
   try {
-    const userResponse = await fetch('/api/session')
-    if (!userResponse.ok) {
-      throw new Error('Failed to fetch user session')
-    }
-    const user: User = await userResponse.json()
+    if (props.username) {
+      gameShareUrl.value = `${window.location.origin}/player/${props.username}`
+    } else {
+      await fetchUser()
 
-    currentUserId.value = user.id || null
-    gameShareUrl.value = `${window.location.origin}/player/${currentUserId.value}`
+      gameShareUrl.value = `${window.location.origin}/player/${currentUsername.value}`
+    }
+
   } catch (error) {
-    console.error('Error fetching user info:', error)
+    console.error('Error fetching user:', error)
   }
 
   try {

@@ -16,7 +16,7 @@
 </template>
 
 <script setup lang="ts">
-import { ShareNetwork } from 'vue-social-sharing'
+import ShareNetwork from 'vue-social-sharing'
 
 defineProps<{
   url: string
