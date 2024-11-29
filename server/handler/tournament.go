@@ -108,6 +108,61 @@ func JoinTournament(c *gin.Context) {
 	c.JSON(http.StatusOK, returnTournament)
 }
 
+// @Summary Leave a tournament
+// @Description Leave a tournament if the tournament is not started
+// @Tags tournament
+// @Accept  json
+// @Produce  json
+// @Param tournament_id path int true "Tournament ID"
+// @Success 201 "leaved"
+// @Failure 400 "not in this tournament"
+// @Failure 400 "tournament alredy started"
+// @Failure 400 "you are the owner"
+// @Failure 404 "tournament not found"
+// @Router /tournament/{tournament_id} [delete]
+func LeaveTournament(c *gin.Context) {
+	userID := c.MustGet("userID").(int64)
+	id := c.Param("tournament_id")
+	id64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	t, err := db.GetTournament(id64)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "tournament not found")
+		return
+	}
+
+	if t.Owner == userID {
+		c.JSON(http.StatusBadRequest, "you are the owner")
+		return
+	}
+
+	if !slices.Contains(t.Users, userID) {
+		c.JSON(http.StatusBadRequest, "not in this tournament")
+		return
+	}
+
+	var newUserList []int64
+	for _, u := range t.Users {
+		if u != userID {
+			newUserList = append(newUserList, u)
+		}
+	}
+
+	t.Users = newUserList
+
+	err = db.UpdateTournament(t)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, "leaved")
+}
+
 // @Summary Get a tournament
 // @Description Get a tournament
 // @Tags tournament

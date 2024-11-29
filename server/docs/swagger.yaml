@@ -593,6 +593,28 @@ paths:
       tags:
       - tournament
   /tournament/{tournament_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Leave a tournament if the tournament is not started
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: leaved
+        "400":
+          description: you are the owner
+        "404":
+          description: tournament not found
+      summary: Leave a tournament
+      tags:
+      - tournament
     get:
       consumes:
       - application/json

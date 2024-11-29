@@ -612,6 +612,39 @@
                         "description": "tournament not found"
                     }
                 }
+            },
+            "delete": {
+                "description": "Leave a tournament if the tournament is not started",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Leave a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "leaved"
+                    },
+                    "400": {
+                        "description": "you are the owner"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
             }
         }
     },

@@ -54,6 +54,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	tournamentGroup := protected.Group("/tournament")
 	tournamentGroup.POST("/", CreateTournament)
 	tournamentGroup.POST("/:tournament_id", JoinTournament)
+	tournamentGroup.DELETE("/:tournament_id", LeaveTournament)
 	tournamentGroup.GET("/:tournament_id", GetTournament)
 	tournamentGroup.GET("/list", ListTournaments)
 
