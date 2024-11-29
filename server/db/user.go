@@ -368,3 +368,120 @@ func UpdateUserElo(user_id int64, elo int64) error {
 	_, err := Conn.Exec(q, elo, user_id)
 	return err
 }
+
+func GetBadge(user_id int64) (*types.Badge, error) {
+
+	user, err := GetUser(user_id)
+	if err != nil {
+		slog.With("err", err).Debug("Badge")
+		return nil, err
+	}
+
+	var badge types.Badge
+
+	// elo
+	if user.Elo <= 1000 {
+		badge.Elo = 1
+	} else if user.Elo <= 1200 {
+		badge.Elo = 2
+	} else {
+		badge.Elo = 3
+	}
+
+	var gp []types.ReturnGame
+	var gameEnded int
+	var gw int
+	shortestGame := time.Hour //no badge anyway
+	gp, err = GetAllGameFromUser(user_id)
+
+	var homepieces int
+	for _, game := range gp {
+		if game.Status == types.GameStatusOpen {
+			continue
+		}
+
+		homepieces += calculateHomePieces(game, user.Username)
+		slog.With("home pieces", homepieces).Debug("Badge")
+
+		// homepieces
+		if homepieces <= 50 {
+			badge.Homepieces = 1
+		} else if user.Elo <= 100 {
+			badge.Homepieces = 2
+		} else {
+			badge.Homepieces = 3
+		}
+
+		//game played
+		if game.GameType != types.GameStatusOpen {
+			gameEnded++
+		}
+
+		// game won
+		if user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2 {
+			gw++
+		}
+
+		//shortest game
+		timeDiff := game.End.Sub(game.Start)
+
+		if timeDiff < shortestGame {
+			shortestGame = timeDiff
+		}
+
+		//bot difficulty
+		// if game.GameType == types.GameTypeBot {
+		//   if GetBotLevel() == game.Player1 || GetBotLevel() == game.Player2 {
+		//   }
+		// }
+
+	}
+
+	// shortest game
+	if shortestGame <= 10*time.Minute {
+		badge.Wontime = 1
+	} else if shortestGame <= 5*time.Minute {
+		badge.Wontime = 2
+	} else {
+		badge.Wontime = 3
+	}
+
+	// game played
+	if gameEnded <= 1 {
+		badge.Gameplayed = 1
+	} else if gameEnded <= 10 {
+		badge.Gameplayed = 2
+	} else {
+		badge.Gameplayed = 3
+	}
+
+	// game won
+	if gameEnded <= 1 {
+		badge.Wongames = 1
+	} else if gameEnded <= 10 {
+		badge.Wongames = 2
+	} else {
+		badge.Wongames = 3
+	}
+
+	// bot difficulty
+
+	slog.With("badge", badge).Debug("BADGE")
+	return &badge, nil
+}
+
+func calculateHomePieces(game types.ReturnGame, u string) int {
+	var piecesOnBoard int
+
+	if u == game.Player1 {
+		for _, t := range game.P1Checkers {
+			piecesOnBoard += int(t)
+		}
+	} else {
+		for _, t := range game.P2Checkers {
+			piecesOnBoard += int(t)
+		}
+	}
+
+	return 15 - piecesOnBoard
+}

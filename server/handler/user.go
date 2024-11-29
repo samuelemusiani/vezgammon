@@ -301,3 +301,26 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 */
+
+// Return all the badges user aquired
+// @Summary Get user's badges
+// @Schemes
+// @Description Get user's badges
+// @Tags authentication
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Badge
+// @Failure 500 "error"
+// @Router /badge [get]
+func GetBadge(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	badge, err := db.GetBadge(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	slog.With("badge", badge).Debug("Badge")
+	c.JSON(http.StatusOK, badge)
+
+}
