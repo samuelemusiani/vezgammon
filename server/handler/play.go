@@ -812,6 +812,8 @@ func endGame(g *types.Game, winnerID int64) error {
 		g.Status = types.GameStatusWinP2
 	}
 
+	g.End = time.Now()
+
 	err := db.UpdateGame(g)
 	if err != nil {
 		return err
