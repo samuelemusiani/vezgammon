@@ -110,3 +110,7 @@ func DoubleAccepted(user_id int64) error {
 func GameEnd(user_id int64) error {
 	return SendMessage(user_id, Message{Type: "game_end"})
 }
+
+func GameTournamentReady(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "game_tournament_ready"})
+}
