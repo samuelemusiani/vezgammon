@@ -26,9 +26,9 @@ type createTurnamentRequest struct {
 // @Success 201 {object} types.ReturnTournament
 // @Failure 400 "bad data, tournament alredy open"
 // @Failure 500 "internal server error"
-// @Router /tournament [post]
+// @Router /tournament/create [post]
 func CreateTournament(c *gin.Context) {
-	userID := c.MustGet("userID").(int64)
+	userID := c.MustGet("user_id").(int64)
 
 	buff, err := io.ReadAll(c.Request.Body)
 	if err != nil {
@@ -75,7 +75,7 @@ func CreateTournament(c *gin.Context) {
 // @Failure 400 "alredy in a tournament"
 // @Router /tournament/{tournament_id} [post]
 func JoinTournament(c *gin.Context) {
-	userID := c.MustGet("userID").(int64)
+	userID := c.MustGet("user_id").(int64)
 	id := c.Param("tournament_id")
 	id64, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
@@ -132,7 +132,7 @@ func JoinTournament(c *gin.Context) {
 // @Failure 404 "tournament not found"
 // @Router /tournament/{tournament_id} [delete]
 func LeaveTournament(c *gin.Context) {
-	userID := c.MustGet("userID").(int64)
+	userID := c.MustGet("user_id").(int64)
 	id := c.Param("tournament_id")
 	id64, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {

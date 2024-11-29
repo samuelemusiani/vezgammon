@@ -514,7 +514,7 @@ const docTemplate = `{
                 }
             }
         },
-        "/tournament": {
+        "/tournament/create": {
             "post": {
                 "description": "Create a new tournament",
                 "consumes": [

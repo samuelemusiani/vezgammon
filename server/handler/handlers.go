@@ -52,7 +52,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup.GET("/bot/hard", PlayHardBot)
 
 	tournamentGroup := protected.Group("/tournament")
-	tournamentGroup.POST("/", CreateTournament)
+	tournamentGroup.POST("/create", CreateTournament)
 	tournamentGroup.POST("/:tournament_id", JoinTournament)
 	tournamentGroup.DELETE("/:tournament_id", LeaveTournament)
 	tournamentGroup.GET("/:tournament_id", GetTournament)
