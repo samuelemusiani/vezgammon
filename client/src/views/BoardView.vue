@@ -39,7 +39,7 @@ const showDoubleModal = ref(false)
 const showResultModal = ref(false)
 const isWinner = ref(false)
 const timeLeft = ref(60)
-const timerInterval = ref<number | null>(null)
+const timerInterval = ref<ReturnType<typeof setTimeout> | null>(null)
 const isMyTurn = ref(false)
 
 const isRolling = ref(false)
@@ -290,7 +290,7 @@ const startTimer = () => {
     clearInterval(timerInterval.value)
   }
 
-  timerInterval.value = setInterval(() => {
+  timerInterval.value = setTimeout(() => {
     timeLeft.value--
     if (timeLeft.value <= 0) {
       stopTimer()
