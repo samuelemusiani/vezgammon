@@ -397,7 +397,7 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		// homepieces
 		if homepieces <= 50 {
 			badge.Homepieces = 1
-		} else if user.Elo <= 100 {
+		} else if homepieces <= 100 {
 			badge.Homepieces = 2
 		} else {
 			badge.Homepieces = 3
@@ -447,12 +447,14 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		badge.Wontime = 1
 	} else if shortestGame <= 5*time.Minute {
 		badge.Wontime = 2
-	} else {
+	} else if shortestGame <= 3*time.Minute {
 		badge.Wontime = 3
 	}
 
 	// game played
-	if gameEnded <= 1 {
+	if gameEnded == 0 {
+		badge.Gameplayed = 0
+	} else if gameEnded == 1 {
 		badge.Gameplayed = 1
 	} else if gameEnded <= 10 {
 		badge.Gameplayed = 2
@@ -461,7 +463,9 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 	}
 
 	// game won
-	if gw <= 1 {
+	if gw == 0 {
+		badge.Wongames = 0
+	} else if gw == 1 {
 		badge.Wongames = 1
 	} else if gw <= 10 {
 		badge.Wongames = 2
@@ -470,12 +474,14 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 	}
 
 	// elo
-	if user.Elo <= 1000 {
-		badge.Elo = 1
-	} else if user.Elo <= 1200 {
-		badge.Elo = 2
-	} else {
-		badge.Elo = 3
+	if user.Elo < 1000 {
+		if user.Elo >= 1001 && user.Elo < 1200 {
+			badge.Elo = 1
+		} else if user.Elo <= 1200 && user.Elo < 1399 {
+			badge.Elo = 2
+		} else if user.Elo >= 1400 {
+			badge.Elo = 3
+		}
 	}
 
 	slog.With("badge", badge).Debug("BADGE")

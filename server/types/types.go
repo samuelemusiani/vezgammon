@@ -30,6 +30,5 @@ type Badge struct {
 	Wongames   int `json:"win_games"`
 	Elo        int `json:"elo"`
 	Wontime    int `json:"win_time"`
-	Friends    int `json:"friends"`
 	Gameplayed int `json:"game_played"`
 }

@@ -15,6 +15,32 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/badge": {
+            "get": {
+                "description": "Get user's badges",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "badge"
+                ],
+                "summary": "Get user's badges",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Badge"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Login with a user",
@@ -603,6 +629,29 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "gio"
+                }
+            }
+        },
+        "types.Badge": {
+            "type": "object",
+            "properties": {
+                "bot_icon": {
+                    "type": "integer"
+                },
+                "elo": {
+                    "type": "integer"
+                },
+                "game_played": {
+                    "type": "integer"
+                },
+                "home_pieces": {
+                    "type": "integer"
+                },
+                "win_games": {
+                    "type": "integer"
+                },
+                "win_time": {
+                    "type": "integer"
                 }
             }
         },

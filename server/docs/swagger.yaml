@@ -48,6 +48,21 @@ definitions:
         example: gio
         type: string
     type: object
+  types.Badge:
+    properties:
+      bot_icon:
+        type: integer
+      elo:
+        type: integer
+      game_played:
+        type: integer
+      home_pieces:
+        type: integer
+      win_games:
+        type: integer
+      win_time:
+        type: integer
+    type: object
   types.FutureTurn:
     properties:
       can_double:
@@ -190,6 +205,23 @@ definitions:
 info:
   contact: {}
 paths:
+  /badge:
+    get:
+      consumes:
+      - application/json
+      description: Get user's badges
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Badge'
+        "500":
+          description: error
+      summary: Get user's badges
+      tags:
+      - badge
   /login:
     post:
       consumes:
