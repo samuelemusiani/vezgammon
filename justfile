@@ -2,7 +2,7 @@ build: clean build-client copy-client build-server
 
 clean:
   rm -rf ./build/vezgammon
-  rm -rf ./server/dist
+  rm -rf ./server/handler/dist
 
 build-server:
     mkdir -p build
@@ -13,8 +13,8 @@ build-client:
     cd client && npm install && npm run build
 
 copy-client:
-    rm -rf server/dist
-    cp -r client/dist server/dist
+    rm -rf server/handler/dist
+    cp -r client/dist server/handler/dist
 
 start-server: generate-swag
     go run ./server ./server/config/test-config.toml
