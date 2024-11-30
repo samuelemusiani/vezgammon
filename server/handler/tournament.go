@@ -96,17 +96,28 @@ func JoinTournament(c *gin.Context) {
 
 	if len(tournament.Users) >= 4 {
 		c.JSON(http.StatusBadRequest, "tournament is full")
-		// start tournament
-		err = tournamentMatchCreator(tournament)
-		if err != nil {
-			slog.With("error", err).Debug("at starting tournament")
-		}
+
 	} else {
 		tournament.Users = append(tournament.Users, userID)
 		err = db.UpdateTournament(tournament)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
+		}
+
+		if len(tournament.Users) == 4 {
+			// start tournament
+			tournament.Status = types.TournamentStatusInProgress
+			err = db.UpdateTournament(tournament)
+			if err != nil {
+				c.JSON(http.StatusInternalServerError, err)
+				return
+			}
+
+			err = tournamentMatchCreator(tournament)
+			if err != nil {
+				slog.With("error", err).Debug("at starting tournament")
+			}
 		}
 
 		returnTournament, err := db.TournamentToReturnTournament(*tournament)

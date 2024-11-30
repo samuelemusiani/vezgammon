@@ -108,14 +108,27 @@ func tournamentGameEndHandler(tournamentId int64, winnerId int64) error {
 
 	tournament.Winners = append(tournament.Winners, winnerId)
 
+	if len(tournament.Winners) == 4 {
+		tournament.Status = types.TournamentStatusEnded
+	}
+
 	err = db.UpdateTournament(tournament)
 	if err != nil {
 		return err
 	}
 
-	err = tournamentMatchCreator(tournament) // create next matches if needed
-	if err != nil {
-		return err
+	if len(tournament.Winners) == 4 { // if tournament ended
+		for _, user := range tournament.Users {
+			err = ws.TournamentEnded(user)
+			if err != nil {
+				return err
+			}
+		}
+	} else {
+		err = tournamentMatchCreator(tournament) // create next matches if needed
+		if err != nil {
+			return err
+		}
 	}
 	return nil
 }

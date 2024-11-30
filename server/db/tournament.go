@@ -14,7 +14,7 @@ func InitTournament() error {
 		id SERIAL PRIMARY KEY,
 		name BPCHAR,
 		owner INTEGER REFERENCES users(id),
-		status BPCHAR DEFAULT 'open',
+		status BPCHAR DEFAULT 'waiting',
 		users INTEGER [],
 		winners INTEGER [] DEFAULT '{}'::INTEGER[]
 	)

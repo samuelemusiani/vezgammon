@@ -1,7 +1,8 @@
 package types
 
-const TournamentStatusOpen = "open"
-const TournamentStatusClosed = "close"
+const TournamentStatusWaiting = "waiting"
+const TournamentStatusInProgress = "in_progress"
+const TournamentStatusEnded = "ended"
 
 type Tournament struct {
 	ID      int64   `json:"id" example:"1"`
