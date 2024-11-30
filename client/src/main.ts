@@ -4,9 +4,12 @@ import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 
 import App from './App.vue'
+import VueSocialSharing from 'vue-social-sharing'
+
 import router from './router'
 
 const app = createApp(App)
+app.use(VueSocialSharing)
 
 app.use(createPinia())
 app.use(router)

@@ -1,6 +1,8 @@
 package db
 
-import "vezgammon/server/types"
+import (
+	"vezgammon/server/types"
+)
 
 func MovesArrayToArray(m []types.Move) []int64 {
 	var moves []int64

@@ -138,6 +138,31 @@ definitions:
         example: false
         type: boolean
     type: object
+  types.Stats:
+    properties:
+      cpu:
+        type: integer
+      elo:
+        items:
+          type: integer
+        type: array
+      games_played:
+        items:
+          $ref: '#/definitions/types.ReturnGame'
+        type: array
+      local:
+        type: integer
+      lost:
+        type: integer
+      online:
+        type: integer
+      tournament:
+        type: integer
+      win:
+        type: integer
+      winrate:
+        type: number
+    type: object
   types.User:
     properties:
       elo:
@@ -470,6 +495,23 @@ paths:
       summary: Start a matchmaking search for a new game
       tags:
       - play
+  /player/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Get users' stats WITHOUT AUTH
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Stats'
+        "500":
+          description: error
+      summary: Get users' stats WITHOUT AUTH
+      tags:
+      - public
   /register:
     post:
       consumes:
@@ -509,4 +551,19 @@ paths:
       summary: Get current auth session
       tags:
       - authentication
+  /stats:
+    get:
+      consumes:
+      - application/json
+      description: Get users' stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Stats'
+        "500":
+          description: error
+      summary: Get users' stats
 swagger: "2.0"

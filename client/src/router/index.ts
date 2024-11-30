@@ -1,10 +1,13 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import HomeView from '../views/HomeView.vue'
-import LoginView from '../views/LoginView.vue'
-import RegisterView from '../views/RegisterView.vue'
+import HomeView from '@/views/HomeView.vue'
+import LoginView from '@/views/LoginView.vue'
+import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
-import BoardView from '../views/BoardView.vue'
-import WipView from '../views/WipView.vue'
+
+import BoardView from '@/views/BoardView.vue'
+import StatsView from '@/views/StatsView.vue'
+import WipView from '@/views/WipView.vue'
+import PlayerStatsView from '@/views/PlayerStatsView.vue'
 import InviteView from '../views/InviteView.vue'
 
 const router = createRouter({
@@ -31,9 +34,19 @@ const router = createRouter({
       component: ProfileView,
     },
     {
+      path: '/stats',
+      name: 'stats',
+      component: StatsView,
+    },
+    {
       path: '/game',
       name: 'game',
       component: BoardView,
+    },
+    {
+      path: '/player/:username',
+      name: 'player',
+      component: PlayerStatsView,
     },
     {
       path: '/wip',
@@ -58,7 +71,8 @@ const router = createRouter({
 
 router.beforeEach(async to => {
   const publicPages = ['/login', '/register']
-  const authRequired = !publicPages.includes(to.path)
+  const authRequired =
+    !publicPages.includes(to.path) && !to.path.startsWith('/player')
 
   // Probably should use the Pinia authStore
   if (authRequired) {

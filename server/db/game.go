@@ -353,3 +353,91 @@ func GetLastTurn(gameId int64) (*types.Turn, error) {
 
 	return &turn, nil
 }
+
+func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
+	q :=
+		`
+    SELECT 
+      id 
+    FROM 
+      games g
+    WHERE
+		  g.status != 'open' AND (g.p1_id = $1 OR p2_id = $1)
+	`
+
+	rows, err := Conn.Query(q, userId)
+	if err != nil {
+		return nil, err
+	}
+	slog.With("rows", rows).Debug("STATS")
+	defer rows.Close()
+
+	var gamesPlayed []types.ReturnGame
+	var gameId int64
+
+	for rows.Next() {
+		var g *types.Game
+		var retg *types.ReturnGame
+
+		err = rows.Scan(&gameId)
+		if err != nil {
+			return nil, err
+		}
+
+		slog.With("gameId", gameId).Debug("STATS")
+		g, err = GetGame(gameId)
+		if err != nil {
+			return nil, err
+		}
+		slog.With("game", g).Debug("STATS")
+
+		retg = GameToReturnGame(g)
+		slog.With("retg", retg).Debug("STATS")
+
+		gamesPlayed = append(gamesPlayed, *retg)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return gamesPlayed, nil
+}
+
+func GameToReturnGame(g *types.Game) *types.ReturnGame {
+	var rg types.ReturnGame
+	rg.ID = g.ID
+	rg.Elo1 = g.Elo1
+	rg.Elo2 = g.Elo2
+	rg.Start = g.Start
+	rg.End = g.End
+	rg.Status = g.Status
+	rg.P1Checkers = g.P1Checkers
+	rg.P2Checkers = g.P2Checkers
+	rg.DoubleValue = g.DoubleValue
+	rg.DoubleOwner = g.DoubleOwner
+	rg.WantToDouble = g.WantToDouble
+	rg.CurrentPlayer = g.CurrentPlayer
+	rg.GameType = getGameType(g.Player1, g.Player2)
+
+	p1, _ := GetUser(g.Player1)
+	p2, _ := GetUser(g.Player2)
+
+	rg.Player1 = p1.Username
+	rg.Player2 = p2.Username
+
+	return &rg
+}
+
+func getGameType(p1_id, p2_id int64) string {
+	var gameType string
+	if p1_id == p2_id {
+		gameType = types.GameTypeLocal
+	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+		gameType = types.GameTypeBot
+	} else {
+		gameType = types.GameTypeOnline
+	}
+
+	return gameType
+}

@@ -2,7 +2,7 @@ build: clean build-client copy-client build-server
 
 clean:
   rm -rf ./build/vezgammon
-  rm -rf ./server/dist
+  rm -rf ./server/handler/dist
 
 build-server:
     mkdir -p build
@@ -13,13 +13,14 @@ build-client:
     cd client && npm install && npm run build
 
 copy-client:
+    rm -rf server/handler/dist
     cp -r client/dist server/handler/dist
 
 start-server: generate-swag
     go run ./server ./server/config/test-config.toml
 
 start-client:
-    cd client && npm run dev
+    cd client && npm i && npm run dev
 
 test: test-server
 
@@ -39,3 +40,6 @@ generate-swag: install-swag
 
 install-swag:
     go install github.com/swaggo/swag/cmd/swag@latest
+
+test-client:
+    cd client && npm run test

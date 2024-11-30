@@ -480,6 +480,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/player/{username}": {
+            "get": {
+                "description": "Get users' stats WITHOUT AUTH",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get users' stats WITHOUT AUTH",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Stats"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Register new user",
@@ -532,6 +558,29 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/types.User"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/stats": {
+            "get": {
+                "description": "Get users' stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get users' stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Stats"
                         }
                     },
                     "500": {
@@ -737,6 +786,44 @@ const docTemplate = `{
                 "want_to_double": {
                     "type": "boolean",
                     "example": false
+                }
+            }
+        },
+        "types.Stats": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "integer"
+                },
+                "elo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "games_played": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
+                "local": {
+                    "type": "integer"
+                },
+                "lost": {
+                    "type": "integer"
+                },
+                "online": {
+                    "type": "integer"
+                },
+                "tournament": {
+                    "type": "integer"
+                },
+                "win": {
+                    "type": "integer"
+                },
+                "winrate": {
+                    "type": "number"
                 }
             }
         },

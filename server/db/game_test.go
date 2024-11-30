@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log/slog"
 	"testing"
 	"time"
 	"vezgammon/server/types"
@@ -247,4 +248,56 @@ func TestGetLastTurn(t *testing.T) {
 
 	tturn2.Time = lastturn.Time
 	assert.DeepEqual(t, tturn2, lastturn)
+}
+
+func TestStats(t *testing.T) {
+
+	tuser := types.User{
+		Username:  "teststats",
+		Firstname: "teststats",
+		Lastname:  "teststats",
+		Mail:      "mail@example.com",
+	}
+
+	var err error
+	tuser, err = CreateUser(tuser, "tturn")
+	assert.NilError(t, err)
+
+	game := types.Game{
+		Player1: tuser.ID,
+		Elo1:    950,
+		Player2: tuser.ID,
+		Elo2:    1000,
+		Start:   time.Now(),
+		End:     time.Now(),
+	}
+
+	tgame, err := CreateGame(game)
+	assert.NilError(t, err)
+
+	slog.With("game creato", tgame).Debug("Statistiche")
+
+	assert.Equal(t, tgame.Player1, game.Player1)
+	assert.Equal(t, tgame.Player2, game.Player2)
+	assert.Equal(t, tgame.Elo1, game.Elo1)
+	assert.Equal(t, tgame.Elo2, game.Elo2)
+	assert.Equal(t, tgame.Status, game.Status)
+
+	tgame.Status = types.GameDoubleOwnerP1
+	err = UpdateGame(tgame)
+	assert.NilError(t, err)
+
+	slog.With("game finito", tgame).Debug("Statistiche")
+
+	var stats *types.Stats
+	stats, err = GetStats(tuser.ID)
+	if err != nil {
+		slog.With("err", err).Debug("Statistiche")
+	}
+
+	if len(stats.Gameplayed) <= 0 {
+		slog.Debug("No game played yet")
+	}
+
+	slog.With("stats", stats).Debug("Statistiche")
 }
