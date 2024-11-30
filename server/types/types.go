@@ -25,10 +25,10 @@ type Stats struct {
 }
 
 type Badge struct {
-	Bot        int `json:"bot_icon"`
-	Homepieces int `json:"home_pieces"`
-	Wongames   int `json:"win_games"`
+	Bot        int `json:"bot"`
+	Homepieces int `json:"pieces"`
+	Wongames   int `json:"win"`
 	Elo        int `json:"elo"`
-	Wontime    int `json:"win_time"`
-	Gameplayed int `json:"game_played"`
+	Wontime    int `json:"time"`
+	Gameplayed int `json:"played"`
 }
