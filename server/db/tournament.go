@@ -16,7 +16,8 @@ func InitTournament() error {
 		owner INTEGER REFERENCES users(id),
 		status BPCHAR DEFAULT 'waiting',
 		users INTEGER [],
-		winners INTEGER [] DEFAULT '{}'::INTEGER[]
+		winners INTEGER [] DEFAULT '{}'::INTEGER[],
+		creation_date TIMESTAMP
 	)
 	`
 
@@ -30,14 +31,14 @@ func InitTournament() error {
 
 func CreateTournament(t types.Tournament) (*types.Tournament, error) {
 	q := `
-	INSERT INTO tournaments(name, owner, status, users)
-	values($1, $2, $3, $4)
+	INSERT INTO tournaments(name, owner, status, users, creation_date)
+	values($1, $2, $3, $4, $5)
 	RETURNING id
 	`
 
 	res := Conn.QueryRow(
 		q,
-		t.Name, t.Owner, t.Status, pq.Array(t.Users),
+		t.Name, t.Owner, t.Status, pq.Array(t.Users), t.CreationDate,
 	)
 
 	var id int64
@@ -118,6 +119,7 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 	rt.ID = t.ID
 	rt.Name = t.Name
 	rt.Status = t.Status
+	rt.CreationDate = t.CreationDate
 
 	// get usernames
 	var owner string
@@ -165,6 +167,7 @@ func ReturnTournamentToTournament(rt types.ReturnTournament) (*types.Tournament,
 	t.ID = rt.ID
 	t.Name = rt.Name
 	t.Status = rt.Status
+	t.CreationDate = rt.CreationDate
 
 	var owner int64
 	var users []int64
@@ -201,7 +204,7 @@ func GetTournament(id int64) (*types.Tournament, error) {
 
 	var t types.Tournament
 
-	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Status, pq.Array(&t.Users), pq.Array(&t.Winners))
+	err := res.Scan(&t.ID, &t.Name, &t.Owner, &t.Status, pq.Array(&t.Users), pq.Array(&t.Winners), &t.CreationDate)
 	if err != nil {
 		return nil, err
 	}
@@ -211,7 +214,7 @@ func GetTournament(id int64) (*types.Tournament, error) {
 
 func GetTournamentList() (*types.TournamentList, error) {
 	q := `
-	SELECT id, name, owner, users
+	SELECT id, name, owner, users, creation_date
 	FROM tournaments
 	`
 
@@ -226,7 +229,7 @@ func GetTournamentList() (*types.TournamentList, error) {
 		var entry types.TournamentInfo
 		var ownerid int64
 		var users []int64
-		err := rows.Scan(&entry.ID, &entry.Name, &ownerid, pq.Array(&users))
+		err := rows.Scan(&entry.ID, &entry.Name, &ownerid, pq.Array(&users), &entry.CreationDate)
 		if err != nil {
 			return nil, err
 		}

@@ -902,6 +902,10 @@ const docTemplate = `{
         "types.ReturnTournament": {
             "type": "object",
             "properties": {
+                "creation_date": {
+                    "type": "string",
+                    "example": "2021-09-01T00:00:00Z"
+                },
                 "games": {
                     "type": "array",
                     "items": {
@@ -946,6 +950,10 @@ const docTemplate = `{
         "types.TournamentInfo": {
             "type": "object",
             "properties": {
+                "creation_date": {
+                    "type": "string",
+                    "example": "2021-09-01T00:00:00Z"
+                },
                 "id": {
                     "type": "integer",
                     "example": 1

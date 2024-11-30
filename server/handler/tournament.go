@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"slices"
 	"strconv"
+	"time"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
 
@@ -44,9 +45,10 @@ func CreateTournament(c *gin.Context) {
 	}
 
 	t := &types.Tournament{
-		Name:  ct.Name,
-		Owner: userID,
-		Users: []int64{userID},
+		Name:         ct.Name,
+		Owner:        userID,
+		Users:        []int64{userID},
+		CreationDate: time.Now(),
 	}
 
 	t, err = db.CreateTournament(*t)
