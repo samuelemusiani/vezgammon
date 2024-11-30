@@ -24,6 +24,7 @@ var ErrConnNotFoundForUser = errors.New("Connetion not found for user")
 
 var clients = make(map[*websocket.Conn]bool)
 var users = make(map[int64]*websocket.Conn)
+var disconnect = make(map[int64]func(int64) error)
 
 func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 	slog.Info("Starting WebSocket connection", "user_id", user_id)
@@ -109,4 +110,12 @@ func DoubleAccepted(user_id int64) error {
 
 func GameEnd(user_id int64) error {
 	return SendMessage(user_id, Message{Type: "game_end"})
+}
+
+func AddDisconnectHandler(user_id int64, f func(int64) error) {
+	disconnect[user_id] = f
+}
+
+func SendBotMessage(user_id int64, message string) error {
+	return SendMessage(user_id, Message{Type: "chat_message", Payload: message})
 }

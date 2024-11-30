@@ -238,9 +238,10 @@ func GametoMoveArgs(g *types.Game, engineConfig EngineConfig) *MoveArgs {
 }
 
 // dont't set Dices, had to be done separately
-func (m *Move) toTurn() (*types.Turn, error) {
-	var t types.Turn
+func (m *Move) toMoves() ([]types.Move, error) {
+	var moves []types.Move
 	var err error
+
 	for _, play := range m.Play {
 		var to, from int64
 		if play.From == "bar" {
@@ -256,11 +257,10 @@ func (m *Move) toTurn() (*types.Turn, error) {
 		}
 
 		m := types.Move{From: from, To: to}
-		t.Moves = append(t.Moves, m)
+		moves = append(moves, m)
 	}
 
-	t.Double = false // engine can't double
-	return &t, err
+	return moves, err
 }
 
 var DefaultMoveArgs MoveArgs = MoveArgs{
@@ -368,7 +368,7 @@ func normalizeTurn(t *types.Turn, g *types.Game) *types.Turn {
 	return t
 }
 
-func GetBestMove(g *types.Game) (*types.Turn, error) {
+func GetBestMove(g *types.Game) ([]types.Move, error) {
 	mv := GametoMoveArgs(g, get_best_move_config)
 
 	moves, err := GetMoves(mv)
@@ -376,17 +376,19 @@ func GetBestMove(g *types.Game) (*types.Turn, error) {
 		return nil, err
 	}
 
-	turn, err := moves[0].toTurn()
+	if len(moves) == 0 {
+		return make([]types.Move, 0), nil
+	}
+
+	m, err := moves[0].toMoves()
 	if err != nil {
 		return nil, err
 	}
 
-	turn = normalizeTurn(turn, g)
-
-	return turn, nil
+	return m, nil
 }
 
-func GetEasyMove(g *types.Game) (*types.Turn, error) {
+func GetEasyMove(g *types.Game) ([]types.Move, error) {
 	conf := EngineConfig{
 		MaxMoves:   5,
 		ScoreMoves: true,
@@ -398,21 +400,23 @@ func GetEasyMove(g *types.Game) (*types.Turn, error) {
 		return nil, err
 	}
 
+	if len(moves) == 0 {
+		return make([]types.Move, 0), nil
+	}
+
 	move := moves[len(moves)-1] // get second best move
 
-	turn, err := move.toTurn()
+	m, err := move.toMoves()
 	if err != nil {
 		return nil, err
 	}
 
-	turn = normalizeTurn(turn, g)
-
-	return turn, nil
+	return m, nil
 }
 
-func GetMediumMove(g *types.Game) (*types.Turn, error) {
+func GetMediumMove(g *types.Game) ([]types.Move, error) {
 	conf := EngineConfig{
-		MaxMoves:   3,
+		MaxMoves:   5,
 		ScoreMoves: true,
 	}
 	mv := GametoMoveArgs(g, conf)
@@ -422,14 +426,16 @@ func GetMediumMove(g *types.Game) (*types.Turn, error) {
 		return nil, err
 	}
 
-	move := moves[len(moves)-1] // get third best move
+	if len(moves) == 0 {
+		return make([]types.Move, 0), nil
+	}
 
-	turn, err := move.toTurn()
+	move := moves[len(moves)-1] // get second best move
+
+	m, err := move.toMoves()
 	if err != nil {
 		return nil, err
 	}
 
-	turn = normalizeTurn(turn, g)
-
-	return turn, nil
+	return m, nil
 }

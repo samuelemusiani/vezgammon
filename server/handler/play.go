@@ -6,6 +6,7 @@ import (
 	"errors"
 	"io"
 	"log/slog"
+	"math/rand"
 	"net/http"
 	"reflect"
 	"time"
@@ -43,6 +44,8 @@ func StartPlaySearch(c *gin.Context) {
 		return
 	}
 
+	ws.AddDisconnectHandler(user_id, matchmaking.StopSearch)
+
 	c.JSON(http.StatusOK, "Search started")
 }
 
@@ -56,7 +59,65 @@ func StartPlaySearch(c *gin.Context) {
 // @Failure 400 "Not searching"
 // @Router /play/search [delete]
 func StopPlaySearch(c *gin.Context) {
-	// Placeholder, need to implement for matchmaking
+	user_id := c.MustGet("user_id").(int64)
+
+	err := matchmaking.StopSearch(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusNoContent, "Search stopped")
+}
+
+// @Summary Create a game with a link
+// @Schemes
+// @Description Create a game with a link
+// @Tags play
+// @Accept json
+// @Produce json
+// @Success 201 "Link created"
+// @Router /play/invite [get]
+func StartPlayInviteSearch(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	link, err := matchmaking.GenerateLink(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	type Link struct {
+		Link string
+	}
+
+	c.JSON(http.StatusCreated, Link{Link: link})
+}
+
+// @Summary Join a game with a link
+// @Schemes
+// @Description Join a game with a link
+// @Tags play
+// @Accept json
+// @Produce json
+// @Param id path string true "Link ID"
+// @Success 200 "Link generated"
+// @Failure 400 "Already in a game"
+// @Failure 404 "Link not found"
+// @Router /play/invite/{id} [get]
+func PlayInvite(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	uuid := c.Param("id")
+
+	err := matchmaking.JoinLink(uuid, user_id)
+	if err != nil {
+		slog.With("error", err).Error("Joining link")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, "Link joined")
 }
 
 // @Summary Create a local game
@@ -377,16 +438,16 @@ func PlayMoves(c *gin.Context) {
 	botLevel := db.GetBotLevel(g.Player2)
 	// Against a bot
 	if botLevel > 0 {
-		var t *types.Turn
+		var m []types.Move
 		var err error
 
 		switch botLevel {
 		case 1:
-			t, err = bgweb.GetEasyMove(g)
+			m, err = bgweb.GetEasyMove(g)
 		case 2:
-			t, err = bgweb.GetMediumMove(g)
+			m, err = bgweb.GetMediumMove(g)
 		case 3:
-			t, err = bgweb.GetBestMove(g)
+			m, err = bgweb.GetBestMove(g)
 		default:
 			slog.Error("Invalid bot level")
 			return
@@ -397,7 +458,7 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 
-		g.PlayMove(t.Moves)
+		g.PlayMove(m)
 		err = db.UpdateGame(g)
 
 		if err != nil {
@@ -405,7 +466,14 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 
-		_, err = db.CreateTurn(*t)
+		t := types.Turn{
+			GameId: g.ID,
+			User:   g.Player2,
+			Time:   time.Now(),
+			Moves:  m,
+		}
+
+		_, err = db.CreateTurn(t)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return
@@ -415,8 +483,57 @@ func PlayMoves(c *gin.Context) {
 		if isEnded {
 			err := endGame(g, winner)
 			slog.With("error", err).Error("Ending game")
+
+			botWin := db.GetBotLevel(winner) != 0
+
+			messagesWinUser := []string{
+				"Bella partita! Torna quando vuoi per una rivincita.",
+				"Non è stata una partita facile, ma alla fine hai vinto. Complimenti!",
+				"Bravo! Hai vinto contro un avversario molto forte.",
+				"Posso direi che ti ho lasciato vincere?",
+				"Okay hai vinto, ma non illuderti. Non succederà più.",
+			}
+
+			messagesWinBot := []string{
+				"Non sottovalutare l'importanza di pianificare. Bravo comunque",
+				"Ehm... scusa, mi è scappata la mano. Rivincita?",
+				"Non è stata una partita facile, ma alla fine ho vinto. Che peccato!",
+				"Ti avevo avvisato, non perdo mai!",
+				"Skill issues?",
+			}
+
+			var messages []string
+
+			if botWin {
+				messages = messagesWinBot
+			} else {
+				messages = messagesWinUser
+			}
+
+			m := messages[rand.Intn(len(messages))]
+			err = ws.SendBotMessage(userId, m)
+			if err != nil {
+				slog.With("error", err).Error("Sending message to player")
+			}
+
 			c.JSON(http.StatusCreated, "Moves played; Game ended")
 			return
+		} else {
+
+			messages := []string{
+				"Bella mossa!",
+				"Giocata ben fatta!",
+				"Muovo il mio pedone...",
+			}
+
+			send := rand.Intn(3)
+			if send == 0 {
+				m := messages[rand.Intn(len(messages))]
+				err = ws.SendBotMessage(userId, m)
+				if err != nil {
+					slog.With("error", err).Error("Sending message to player")
+				}
+			}
 		}
 
 	} else {
@@ -721,6 +838,24 @@ func PlayBot(mod string, c *gin.Context) {
 		DicesP2: startdicesP2,
 		Game:    *newgame,
 	}
+
+	messages := []string{
+		"Pronto per giocare? Buona fortuna!",
+		"Vediamo chi è il più bravo!",
+		"Preparati a perdere!",
+		"Pronto per la sfida?",
+		"Finalmente un avversario all'altezza!",
+		"Finalmente qualcuno che pensa di potermi battere. Che coraggio!",
+	}
+
+	m := messages[rand.Intn(len(messages))]
+	go func() {
+		time.Sleep(1 * time.Second)
+		err := ws.SendBotMessage(userId, m)
+		if err != nil {
+			slog.With("error", err).Error("Sending message to player")
+		}
+	}()
 
 	c.JSON(http.StatusCreated, ng)
 }

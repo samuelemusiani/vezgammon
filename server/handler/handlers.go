@@ -41,6 +41,8 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup := protected.Group("/play")
 	//playGroup.GET("/last/winner", GetLastGameWinner)
 	playGroup.GET("/search", StartPlaySearch)
+	playGroup.GET("/invite", StartPlayInviteSearch)
+	playGroup.GET("/invite/:id", PlayInvite)
 	playGroup.DELETE("/search", StopPlaySearch)
 	playGroup.GET("/local", StartGameLocalcally)
 	playGroup.GET("/", GetCurrentGame)

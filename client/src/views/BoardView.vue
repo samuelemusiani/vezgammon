@@ -18,6 +18,7 @@ import {
 } from '@/utils/game/game'
 
 import ConfettiExplosion from 'vue-confetti-explosion'
+import Chat from '@/components/ChatContainer.vue'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
@@ -33,11 +34,13 @@ const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const displayedDice = ref<number[]>([])
-const session = ref<User | undefined>()
+const session = ref<User>()
 const showDoubleModal = ref(false)
 const showResultModal = ref(false)
 const isWinner = ref(false)
-import Chat from '@/components/ChatContainer.vue'
+const timeLeft = ref(60)
+const timerInterval = ref<ReturnType<typeof setTimeout> | null>(null)
+const isMyTurn = ref(false)
 
 const isRolling = ref(false)
 const diceRolled = ref(false)
@@ -56,12 +59,16 @@ onMounted(async () => {
     await fetchSession()
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
+    if (isMyTurn.value && gameState.value?.game_type === 'online') {
+      startTimer()
+    }
   } catch {
     console.error('Error fetching game state')
   }
 })
 
 onUnmounted(() => {
+  stopTimer()
   webSocketStore.removeMessageHandler(handleMessage)
 })
 
@@ -69,12 +76,51 @@ const handleMessage = async (message: WSMessage) => {
   if (message.type === 'turn_made') {
     await fetchGameState()
     await fetchMoves()
+    startTimer()
+    isMyTurn.value = true
   } else if (message.type === 'want_to_double') {
     showDoubleModal.value = true
   } else if (message.type === 'double_accepted') {
     await fetchGameState()
+  } else if (message.type === 'dice_rolled') {
+    // Mostra i dadi dell'avversario
+    isRolling.value = true
+    diceRolled.value = true
+    playDice()
+
+    const diceData = JSON.parse(message.payload)
+
+    setTimeout(() => {
+      isRolling.value = false
+      displayedDice.value = diceData.dices
+    }, 1000)
   } else if (message.type === 'game_end') {
     await handleEnd()
+  } else if (message.type === 'move_made') {
+    if (!gameState.value) return
+
+    const moveData = JSON.parse(message.payload)
+    const move = moveData.move as Move
+
+    if (whichPlayerAmI.value === 'p1') {
+      if (gameState.value.p1checkers[25 - move.to] === 1) {
+        gameState.value.p1checkers[25 - move.to] = 0
+        gameState.value.p1checkers[0]++
+      }
+      gameState.value.p2checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p2checkers[move.to]++
+      }
+    } else {
+      if (gameState.value.p2checkers[25 - move.to] === 1) {
+        gameState.value.p2checkers[25 - move.to] = 0
+        gameState.value.p2checkers[0]++
+      }
+      gameState.value.p1checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p1checkers[move.to]++
+      }
+    }
   }
 }
 
@@ -84,15 +130,6 @@ const fetchSession = async () => {
     .then(data => {
       session.value = data
     })
-}
-
-const checkWin = () => {
-  if (!gameState.value) return false
-  // When backend is ready, check using gameState.value.status
-  if (getOutCheckers(gameState.value.current_player) == 15) {
-    return true
-  }
-  return false
 }
 
 const fetchWinner = async () => {
@@ -146,6 +183,22 @@ const handleDouble = async () => {
   }
 }
 
+const handleRetire = async () => {
+  try {
+    const res = await fetch('/api/play/', {
+      method: 'DELETE',
+    })
+
+    if (!res.ok) {
+      console.error('Error retiring:', res)
+    }
+
+    handleLose()
+  } catch (err) {
+    console.error('Error exiting game:', err)
+  }
+}
+
 const showDoubleButton = computed(() => {
   if (!gameState.value) return false
   if (gameState.value.double_owner === 'all') return true
@@ -185,7 +238,7 @@ const declineDouble = async () => {
 
 const handleDoubleWinExit = async () => {
   showResultModal.value = false
-  await exitGame()
+  handleReturnHome()
 }
 
 const whichPlayerAmI = computed(() => {
@@ -218,7 +271,44 @@ const handleDiceRoll = () => {
     clearInterval(rollInterval)
     isRolling.value = false
     displayedDice.value = availableMoves.value!.dices
+
+    if (gameState.value?.game_type === 'online') {
+      webSocketStore.sendMessage({
+        type: 'dice_rolled',
+        payload: JSON.stringify({
+          dices: availableMoves.value!.dices,
+        }),
+      })
+    }
   }, 1000)
+}
+
+const startTimer = () => {
+  timeLeft.value = 10
+
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+  }
+
+  timerInterval.value = setTimeout(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      stopTimer()
+      handleTimeout()
+    }
+  }, 1000)
+}
+
+const stopTimer = () => {
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+    timerInterval.value = null
+  }
+}
+
+const handleTimeout = async () => {
+  clearInterval(timerInterval.value!)
+  await handleRetire()
 }
 
 const fetchGameState = async () => {
@@ -231,7 +321,6 @@ const fetchGameState = async () => {
       return
     }
     const data: GameState = await res.json()
-
     gameState.value = data
 
     console.log(gameState.value)
@@ -244,9 +333,11 @@ const fetchMoves = async () => {
   try {
     const res = await fetch('/api/play/moves')
     const data: MovesResponse = await res.json()
+    if (!res.ok) return
     availableMoves.value = data
     diceRolled.value = false
     displayedDice.value = []
+    isMyTurn.value = true
     console.log(availableMoves.value)
   } catch (err) {
     console.error('Error fetching moves:', err)
@@ -404,6 +495,15 @@ const handleTriangleClick = async (position: number) => {
     }
   }
 
+  if (gameState.value?.game_type === 'online') {
+    webSocketStore.sendMessage({
+      type: 'move_made',
+      payload: JSON.stringify({
+        move: currentMove,
+      }),
+    })
+  }
+
   // Aggiungi la mossa a quelle fatte
   movesToSubmit.value.push(currentMove)
   console.log('mosse effettuate', movesToSubmit.value)
@@ -428,15 +528,15 @@ const handleTriangleClick = async (position: number) => {
         body: JSON.stringify(movesToSubmit.value),
       })
       console.log('stato POST', res.status)
-      // Change with backend check
-      if (checkWin()) {
-        handleWin()
-      }
+
       movesToSubmit.value = []
       possibleMoves.value = []
       if (gameState.value.game_type !== 'online') {
         await fetchGameState()
         await fetchMoves()
+      } else {
+        stopTimer()
+        isMyTurn.value = false
       }
     } catch (err) {
       console.error('Error submitting moves:', err)
@@ -499,13 +599,14 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   return initialCheckers - remainingCheckers
 }
 
+const handleReturnHome = () => {
+  router.push('/')
+}
+
 const exitGame = async () => {
   try {
-    const res = await fetch('/api/play/', {
-      method: 'DELETE',
-    })
-    console.log(res.status)
-    router.push('/')
+    await handleRetire()
+    handleReturnHome()
   } catch (err) {
     console.error('Error exiting game:', err)
   }
@@ -591,8 +692,23 @@ const exitGame = async () => {
 
           <!-- Game Timer -->
           <div
-            class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
+            class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
           >
+            <div v-show="isMyTurn" class="w-full">
+              <div class="mb-2 text-center text-xl font-bold">
+                Time Left: {{ timeLeft }}s
+              </div>
+              <div class="h-2 w-full rounded-full bg-gray-200">
+                <div
+                  class="h-full rounded-full bg-primary transition-all duration-1000"
+                  :style="{ width: `${(timeLeft / 60) * 100}%` }"
+                  :class="{
+                    'bg-red-500': timeLeft <= 10,
+                    'bg-yellow-500': timeLeft <= 30 && timeLeft > 10,
+                  }"
+                ></div>
+              </div>
+            </div>
             <button class="retro-button" @click="exitGame">Exit Game</button>
           </div>
 
@@ -724,7 +840,7 @@ const exitGame = async () => {
 
         <!-- Roll Dice Button -->
         <div
-          v-if="!diceRolled && availableMoves?.dices"
+          v-show="!diceRolled && availableMoves?.dices"
           class="mb-4 flex justify-center"
         >
           <button @click="handleDiceRoll" class="retro-button">
@@ -874,13 +990,17 @@ const exitGame = async () => {
       </div>
     </div>
     <Chat
-      v-if="gameState?.game_type === 'online'"
-      :myUsername="session?.username as string"
+      v-if="
+        session?.username &&
+        (gameState?.game_type === 'online' || gameState?.game_type === 'bot')
+      "
       :opponentUsername="
         gameState?.player1 === session?.username
-          ? (gameState?.player2 as string)
-          : (gameState?.player1 as string)
+          ? gameState?.player2 || ''
+          : gameState?.player1 || ''
       "
+      :gameType="gameState?.game_type || ''"
+      :myUsername="session?.username || ''"
     />
   </div>
 </template>
