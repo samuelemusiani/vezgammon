@@ -45,14 +45,8 @@ func tournamentMatchCreate(user1, user2 int64, tournament sql.NullInt64) error {
 		return err
 	}
 
-	err = ws.GameTournamentReady(user1)
-	if err != nil {
-		return err
-	}
-	err = ws.GameTournamentReady(user2)
-	if err != nil {
-		return err
-	}
+	ws.GameTournamentReady(user1)
+	ws.GameTournamentReady(user2)
 
 	return nil
 }
@@ -79,7 +73,7 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 
 	// start finals and third/fourth place match
 	if len(tournament.Winners) == 2 {
-		err = tournamentMatchCreate(tournament.Winners[0], tournament.Users[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
+		err = tournamentMatchCreate(tournament.Winners[0], tournament.Winners[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
 		if err != nil {
 			return err
 		}
@@ -119,10 +113,7 @@ func tournamentGameEndHandler(tournamentId int64, winnerId int64) error {
 
 	if len(tournament.Winners) == 4 { // if tournament ended
 		for _, user := range tournament.Users {
-			err = ws.TournamentEnded(user)
-			if err != nil {
-				return err
-			}
+			ws.TournamentEnded(user)
 		}
 	} else {
 		err = tournamentMatchCreator(tournament) // create next matches if needed
