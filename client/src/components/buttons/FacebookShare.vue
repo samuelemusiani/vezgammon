@@ -6,13 +6,14 @@
     :description="description"
     quote="Check out my Backgammon stats!"
   >
-    <button class="btn btn-success text-xl">Share on Facebook</button>
+    <button class="btn btn-success btn-md text-xl">
+      <i class="fab fa-facebook"></i>
+      Post
+    </button>
   </ShareNetwork>
 </template>
 
 <script setup lang="ts">
-import ShareNetwork from 'vue-social-sharing'
-
 defineProps<{
   url: string
   title: string
