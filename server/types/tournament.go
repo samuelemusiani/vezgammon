@@ -1,15 +1,19 @@
 package types
 
-const TournamentStatusOpen = "open"
-const TournamentStatusClosed = "close"
+import "time"
+
+const TournamentStatusWaiting = "waiting"
+const TournamentStatusInProgress = "in_progress"
+const TournamentStatusEnded = "ended"
 
 type Tournament struct {
-	ID      int64   `json:"id" example:"1"`
-	Name    string  `json:"name" example:"Tournament name"`
-	Owner   int64   `json:"owner" example:"1"`
-	Status  string  `json:"status" example:"open"`
-	Users   []int64 `json:"users" example:"1,2,3"`
-	Winners []int64 `json:"winners" example:"1,2,3"` // last winner at the end, used to calculate the next round and the leader board
+	ID           int64     `json:"id" example:"1"`
+	Name         string    `json:"name" example:"Tournament name"`
+	Owner        int64     `json:"owner" example:"1"`
+	Status       string    `json:"status" example:"open"`
+	Users        []int64   `json:"users" example:"1,2,3"`
+	Winners      []int64   `json:"winners" example:"1,2,3"` // last winner at the end, used to calculate the next round and the leader board
+	CreationDate time.Time `json:"creation_date" example:"2021-09-01T00:00:00Z"`
 }
 
 type LeaderBoardEntry struct {
@@ -27,15 +31,17 @@ type ReturnTournament struct {
 	Status string   `json:"status" example:"open"`
 	Users  []string `json:"users" example:"giorgio,diego,marco"`
 
-	LeaderBoard []LeaderBoardEntry `json:"leader_board"`
-	Games       []ReturnGame       `json:"games"`
+	LeaderBoard  []LeaderBoardEntry `json:"leader_board"`
+	Games        []ReturnGame       `json:"games"`
+	CreationDate time.Time          `json:"creation_date" example:"2021-09-01T00:00:00Z"`
 }
 
 type TournamentInfo struct {
-	ID         int64  `json:"id" example:"1"`
-	Name       string `json:"name" example:"Tournament name"`
-	Owner      string `json:"owner" example:"Giorgio"`
-	UserNumber int    `json:"user_number" example:"3"`
+	ID           int64     `json:"id" example:"1"`
+	Name         string    `json:"name" example:"Tournament name"`
+	Owner        string    `json:"owner" example:"Giorgio"`
+	UserNumber   int       `json:"user_number" example:"3"`
+	CreationDate time.Time `json:"creation_date" example:"2021-09-01T00:00:00Z"`
 }
 
 type TournamentList []TournamentInfo

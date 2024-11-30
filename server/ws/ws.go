@@ -114,3 +114,7 @@ func GameEnd(user_id int64) error {
 func GameTournamentReady(user_id int64) error {
 	return SendMessage(user_id, Message{Type: "game_tournament_ready"})
 }
+
+func TournamentEnded(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_ended"})
+}

@@ -37,7 +37,7 @@ func TestCreateTournament(t *testing.T) {
 	tournament = types.Tournament{
 		Name:   "Tournament1",
 		Owner:  retuser1.ID,
-		Status: types.TournamentStatusOpen,
+		Status: types.TournamentStatusInProgress,
 		Users:  []int64{retuser1.ID, retuser2.ID},
 	}
 
@@ -48,7 +48,7 @@ func TestCreateTournament(t *testing.T) {
 }
 
 func TestUpdateTournament(t *testing.T) {
-	tournament.Status = types.TournamentStatusClosed
+	tournament.Status = types.TournamentStatusEnded
 
 	err := UpdateTournament(&tournament)
 	assert.NilError(t, err)

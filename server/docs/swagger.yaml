@@ -168,6 +168,9 @@ definitions:
     type: object
   types.ReturnTournament:
     properties:
+      creation_date:
+        example: "2021-09-01T00:00:00Z"
+        type: string
       games:
         items:
           $ref: '#/definitions/types.ReturnGame'
@@ -199,6 +202,9 @@ definitions:
     type: object
   types.TournamentInfo:
     properties:
+      creation_date:
+        example: "2021-09-01T00:00:00Z"
+        type: string
       id:
         example: 1
         type: integer
