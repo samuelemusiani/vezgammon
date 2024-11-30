@@ -23,7 +23,7 @@
               </p>
             </div>
             <div class="text-primary text-xl">
-              {{ tournament.participants }}/4
+              {{ tournament.user_number }}/4
             </div>
           </div>
         </div>
@@ -40,15 +40,15 @@
             {{ selectedTournament?.startDate }} | Owner: {{ selectedTournament?.owner }}
           </div>
           <div class="flex flex-row justify-center gap-8 items-center">
-            <div v-for="i in selectedTournament?.participants" :key="i">
+            <div v-for="(user, index) in selectedTournament?.users" :key="index">
               <div class="h-16 w-16 overflow-hidden rounded-full bg-gray-200 border-primary border-2 hover:scale-[1.02]">
                 <img
-                  :src="`https://api.dicebear.com/6.x/avataaars/svg?seed=${users[i]}`"
+                  :src="`https://api.dicebear.com/6.x/avataaars/svg?seed=${user}`"
                   alt="Opponent avatar"
                   class="h-full w-full object-cover"
                 />
               </div>
-              <div class="text-center text-[#8b4513] font-bold">{{ users[i-1] }}</div>
+              <div class="text-center text-[#8b4513] font-bold">{{ user }}</div>
             </div>
           </div>
           <div class="flex w-full justify-between">
@@ -66,59 +66,34 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import {onMounted, ref} from 'vue'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
+import router from "@/router";
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 
-const tournaments = ref([
-  {
-    id: 1,
-    name: 'Beginners Challenge',
-    startDate: 'December 1st, 2024 - 3:00 PM',
-    owner: 'Omar',
-    participants: 3,
-  },
-  {
-    id: 2,
-    name: 'Pro Masters Tournament',
-    startDate: 'January 15th, 2025 - 6:00 PM',
-    owner: 'Lele',
-    participants: 2,
-  },
-  {
-    id: 3,
-    name: 'Global Backgammon Championship',
-    startDate: 'March 20th, 2025 - 8:00 PM',
-    owner: 'Samu',
-    participants: 1,
-  },
-  {
-    id: 4,
-    name: 'Retro Gaming Tournament',
-    startDate: 'April 5th, 2025 - 10:00 AM',
-    owner: 'Lollo',
-    participants: 4,
-  },
-  {
-    id: 5,
-    name: 'Retro Gaming Tournament',
-    startDate: 'April 5th, 2025 - 10:00 AM',
-    owner: 'Fabio',
-    participants: 2,
+const tournaments = ref()
+
+onMounted(async () => {
+  try {
+    const response = await fetch('/api/tournament/list')
+    tournaments.value = await response.json()
+    console.log('Tournaments:', tournaments.value)
+  } catch (error) {
+    console.error('Error fetching tournaments:', error)
   }
-])
+})
 
-tournaments.value = tournaments.value.filter(tournament => tournament.participants < 4)
 
-const users = [ 'Omar', 'Lele', 'Samu' ]
 // Selected tournament for modal
 const selectedTournament = ref(null)
 
 // Open modal with selected tournament
-const openTournamentModal = (tournament) => {
-  selectedTournament.value = tournament
+const openTournamentModal = async (tournament) => {
+  const data = await fetch(`/api/tournament/${tournament.id}`)
+  selectedTournament.value = await data.json()
+  console.log('Selected tournament:', selectedTournament.value)
   document.getElementById('select_tournament').showModal()
 }
 
@@ -130,8 +105,11 @@ const closeTournamentModal = () => {
 
 const joinTournament = async (tournamentId: number) => {
   try {
-    await fetch(`/api/tournaments/${tournamentId}/join`)
-    // Additional logic for tournament registration
+    await fetch(`/api/tournament/${tournamentId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' }
+    })
+    router.push('/tournament' + tournamentId)
   } catch (error) {
     console.error('Error joining tournament:', error)
   }

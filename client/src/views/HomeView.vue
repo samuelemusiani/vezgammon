@@ -301,7 +301,7 @@ const startLocalGame = async () => {
 const tourn_name = ref('')
 
 function create_tourn() {
-  fetch('/api/tournament', {
+  fetch('/api/tournament/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
