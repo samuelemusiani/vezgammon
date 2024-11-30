@@ -1,28 +1,29 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <div class="card h-[90vh] overflow-auto bg-base-100 shadow-xl">
-      <div class="card-body">
-        <h2 class="card-title text-center text-primary">Player Statistics</h2>
-
+  <div class="flex h-full items-center justify-center overflow-auto">
+    <div class="card w-4/5 overflow-auto bg-base-100 shadow-xl">
+      <div class="card-body w-full">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <GamePerformanceCard :stats="stats" />
-          <RecentGamesCard :games="stats.games_played.slice(0, 5)" />
+          <RecentGamesCard
+            :games="stats.games_played"
+            :currentUser="currentUsername as string"
+          />
         </div>
 
-        <div class="divider"></div>
+        <div class="card mt-2 bg-base-200/80 shadow-lg">
+          <EloChart :elo="stats.elo" />
+        </div>
 
-        <EloChart :elo="stats.elo" />
-
-        <div v-if="sharingEnabled" class="card-actions mt-4 justify-center">
-          <BackToHomeButton @click="navigateHome" />
+        <div v-if="sharingEnabled" class="card-actions mt-2 justify-center">
           <FacebookShareButton
             :url="gameShareUrl"
             :title="shareTitle"
             :description="shareDescription"
           />
+          <BackToHomeButton @click="navigateHome" />
           <TwitterShareButton :url="gameShareUrl" :title="shareTitle" />
         </div>
-        <div v-else class="card-actions mt-4 justify-center">
+        <div v-else class="card-actions mt-2 justify-center">
           <BackToHomeButton @click="navigateHome" />
         </div>
       </div>
@@ -120,7 +121,6 @@ onMounted(async () => {
 
       gameShareUrl.value = `${window.location.origin}/player/${currentUsername.value}`
     }
-
   } catch (error) {
     console.error('Error fetching user:', error)
   }
