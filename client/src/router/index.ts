@@ -10,7 +10,6 @@ import WipView from '@/views/WipView.vue'
 import PlayerStatsView from '@/views/PlayerStatsView.vue'
 import InviteView from '../views/InviteView.vue'
 
-
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
