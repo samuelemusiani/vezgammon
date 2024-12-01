@@ -286,7 +286,7 @@ func CancelTournament(c *gin.Context) {
 
 	// send cancel message to all users
 	for _, u := range tournament.Users {
-		ws.TournamentCanceled(u)
+		ws.TournamentCancelled(u)
 	}
 }
 

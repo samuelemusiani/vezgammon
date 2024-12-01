@@ -119,8 +119,8 @@ func TournamentEnded(user_id int64) error {
 	return SendMessage(user_id, Message{Type: "tournament_ended"})
 }
 
-func TournamentCanceled(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "tournament_canceled"})
+func TournamentCancelled(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_cancelled"})
 }
 
 func TournamentNewUserEnrolled(user_id int64) error {
