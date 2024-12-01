@@ -107,21 +107,6 @@ func JoinTournament(c *gin.Context) {
 			return
 		}
 
-		if len(tournament.Users) == 4 {
-			// start tournament
-			tournament.Status = types.TournamentStatusInProgress
-			err = db.UpdateTournament(tournament)
-			if err != nil {
-				c.JSON(http.StatusInternalServerError, err)
-				return
-			}
-
-			err = tournamentMatchCreator(tournament)
-			if err != nil {
-				slog.With("error", err).Debug("at starting tournament")
-			}
-		}
-
 		returnTournament, err := db.TournamentToReturnTournament(*tournament)
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
@@ -159,6 +144,11 @@ func LeaveTournament(c *gin.Context) {
 		return
 	}
 
+	if t.Status != types.TournamentStatusWaiting {
+		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		return
+	}
+
 	if t.Owner == userID {
 		c.JSON(http.StatusBadRequest, "you are the owner")
 		return
@@ -185,6 +175,62 @@ func LeaveTournament(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, "leaved")
+}
+
+// @Summary Start a tournament
+// @Description Start a tournament, only the owner can start it
+// @Tags tournament
+// @Accept  json
+// @Produce  json
+// @Param tournament_id path int true "Tournament ID"
+// @Success 201 "tournament started"
+// @Failure 400 "tournament alredy started"
+// @Failure 400 "not enough players"
+// @Failure 400 "you are not the owner"
+// @Failure 404 "tournament not found"
+// @Router /tournament/{tournament_id}/start [post]
+func StartTournament(c *gin.Context) {
+	userID := c.MustGet("user_id").(int64)
+	id := c.Param("tournament_id")
+	id64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	tournament, err := db.GetTournament(id64)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	if tournament.Owner != userID {
+		c.JSON(http.StatusBadRequest, "you are not the owner")
+		return
+	}
+
+	if tournament.Status != types.TournamentStatusWaiting {
+		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		return
+	}
+
+	if len(tournament.Users) == 4 {
+		// start tournament
+		tournament.Status = types.TournamentStatusInProgress
+		err = db.UpdateTournament(tournament)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+
+		err = tournamentMatchCreator(tournament)
+		if err != nil {
+			slog.With("error", err).Debug("at starting tournament")
+		}
+
+		c.JSON(http.StatusCreated, "tournament started")
+	} else {
+		c.JSON(http.StatusBadRequest, "not enough players")
+	}
 }
 
 // @Summary Get a tournament

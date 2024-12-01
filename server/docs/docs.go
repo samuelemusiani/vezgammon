@@ -657,6 +657,41 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tournament/{tournament_id}/start": {
+            "post": {
+                "description": "Start a tournament, only the owner can start it",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Start a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "tournament started"
+                    },
+                    "400": {
+                        "description": "you are not the owner"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            }
         }
     },
     "definitions": {
