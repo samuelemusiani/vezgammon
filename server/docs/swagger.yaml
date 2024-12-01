@@ -50,18 +50,30 @@ definitions:
     type: object
   types.Badge:
     properties:
-      bot_icon:
-        type: integer
+      bot:
+        items:
+          type: integer
+        type: array
       elo:
-        type: integer
-      game_played:
-        type: integer
-      home_pieces:
-        type: integer
-      win_games:
-        type: integer
-      win_time:
-        type: integer
+        items:
+          type: integer
+        type: array
+      pieces:
+        items:
+          type: integer
+        type: array
+      played:
+        items:
+          type: integer
+        type: array
+      time:
+        items:
+          type: integer
+        type: array
+      win:
+        items:
+          type: integer
+        type: array
     type: object
   types.FutureTurn:
     properties:

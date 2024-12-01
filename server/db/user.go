@@ -376,39 +376,33 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		return nil, err
 	}
 
-	var badge types.Badge
+	var (
+		badge types.Badge
 
-	var gw int
-	var gameEnded int
-	shortestGame := time.Hour //no badge anyway
+		gp []types.ReturnGame
 
-	var gp []types.ReturnGame
+		gw         int
+		gameEnded  int
+		homepieces int
+	)
+
 	gp, err = GetAllGameFromUser(user_id)
 
-	var homepieces int
 	for _, game := range gp {
 		if game.Status == types.GameStatusOpen {
 			continue
 		}
 
+		// homepieces
 		homepieces += calculateHomePieces(game, user.Username)
 		slog.With("home pieces", homepieces).Debug("Badge")
 
-		// homepieces
-		if homepieces <= 50 {
-			badge.Homepieces = 1
-		} else if homepieces <= 100 {
-			badge.Homepieces = 2
-		} else {
-			badge.Homepieces = 3
-		}
-
-		//game played
-		if game.GameType != types.GameStatusOpen {
+		//game played counter
+		if game.Status != types.GameStatusOpen {
 			gameEnded++
 		}
 
-		// game won
+		// game won counter
 		if user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2 {
 			gw++
 		}
@@ -416,8 +410,12 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		//shortest game
 		timeDiff := game.End.Sub(game.Start)
 
-		if timeDiff < shortestGame {
-			shortestGame = timeDiff
+		if timeDiff <= 10*time.Minute {
+			badge.Wontime[0] = 1
+		} else if timeDiff <= 5*time.Minute {
+			badge.Wontime[1] = 2
+		} else if timeDiff <= 3*time.Minute {
+			badge.Wontime[2] = 3
 		}
 
 		//bot difficulty
@@ -433,8 +431,15 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 			}
 
 			// One return 0 the other is 1/2/3 depends on difficulty
-			badge.Bot = GetBotLevel(p1.ID) + GetBotLevel(p2.ID)
-			if badge.Bot < 0 || badge.Bot > 3 {
+			sum := GetBotLevel(p1.ID) + GetBotLevel(p2.ID)
+			switch sum {
+			case 1:
+				badge.Bot[0] = sum
+			case 2:
+				badge.Bot[1] = sum
+			case 3:
+				badge.Bot[2] = sum
+			default:
 				err := errors.New("2 Humans or 2 Bots")
 				return nil, err
 			}
@@ -442,45 +447,59 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 
 	}
 
-	// shortest game
-	if shortestGame <= 10*time.Minute {
-		badge.Wontime = 1
-	} else if shortestGame <= 5*time.Minute {
-		badge.Wontime = 2
-	} else if shortestGame <= 3*time.Minute {
-		badge.Wontime = 3
+	//homepieces
+	if homepieces >= 50 {
+		if homepieces <= 100 {
+			badge.Homepieces[0] = 1
+		} else if homepieces < 200 {
+			badge.Homepieces[0] = 1
+			badge.Homepieces[1] = 2
+		} else {
+			badge.Homepieces[0] = 1
+			badge.Homepieces[1] = 2
+			badge.Homepieces[2] = 3
+		}
 	}
 
 	// game played
-	if gameEnded == 0 {
-		badge.Gameplayed = 0
-	} else if gameEnded == 1 {
-		badge.Gameplayed = 1
-	} else if gameEnded <= 10 {
-		badge.Gameplayed = 2
-	} else {
-		badge.Gameplayed = 3
+	if gameEnded > 0 {
+		if gameEnded <= 10 {
+			badge.Gameplayed[0] = 1
+		} else if gameEnded <= 100 {
+			badge.Gameplayed[0] = 1
+			badge.Gameplayed[1] = 2
+		} else {
+			badge.Gameplayed[0] = 1
+			badge.Gameplayed[1] = 2
+			badge.Gameplayed[2] = 3
+		}
 	}
 
 	// game won
-	if gw == 0 {
-		badge.Wongames = 0
-	} else if gw == 1 {
-		badge.Wongames = 1
-	} else if gw <= 10 {
-		badge.Wongames = 2
-	} else {
-		badge.Wongames = 3
+	if gw > 0 {
+		if gw <= 10 {
+			badge.Wongames[0] = 1
+		} else if gw <= 50 {
+			badge.Wongames[0] = 1
+			badge.Wongames[1] = 2
+		} else {
+			badge.Wongames[0] = 1
+			badge.Wongames[1] = 2
+			badge.Wongames[2] = 3
+		}
 	}
 
 	// elo
-	if user.Elo < 1000 {
-		if user.Elo >= 1001 && user.Elo < 1200 {
-			badge.Elo = 1
-		} else if user.Elo <= 1200 && user.Elo < 1399 {
-			badge.Elo = 2
-		} else if user.Elo >= 1400 {
-			badge.Elo = 3
+	if user.Elo > 1001 {
+		if user.Elo < 1200 {
+			badge.Elo[0] = 1
+		} else if user.Elo < 1400 {
+			badge.Elo[0] = 1
+			badge.Elo[1] = 2
+		} else {
+			badge.Elo[0] = 1
+			badge.Elo[1] = 2
+			badge.Elo[2] = 3
 		}
 	}
 

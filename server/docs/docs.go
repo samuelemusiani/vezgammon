@@ -635,23 +635,41 @@ const docTemplate = `{
         "types.Badge": {
             "type": "object",
             "properties": {
-                "bot_icon": {
-                    "type": "integer"
+                "bot": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
                 "elo": {
-                    "type": "integer"
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "game_played": {
-                    "type": "integer"
+                "pieces": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "home_pieces": {
-                    "type": "integer"
+                "played": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "win_games": {
-                    "type": "integer"
+                "time": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 },
-                "win_time": {
-                    "type": "integer"
+                "win": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
                 }
             }
         },
