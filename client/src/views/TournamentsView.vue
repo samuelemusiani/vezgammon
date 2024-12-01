@@ -19,7 +19,7 @@
             <div>
               <h2 class="text-2xl font-bold text-[#8b4513]">{{ tournament.name }}</h2>
               <p class="text-[#d2691e]">
-                {{ tournament.startDate }} | Owner: {{ tournament.owner }}
+                {{ dateformatter.format(new Date(tournament.creation_date)) }} | Owner: {{ tournament.owner }}
               </p>
             </div>
             <div class="text-primary text-xl">
@@ -37,9 +37,10 @@
         <!-- Options -->
         <div class="flex flex-col gap-4">
           <div class="text-center">
-            {{ selectedTournament?.startDate }} | Owner: {{ selectedTournament?.owner }}
+           {{ selectedTournament? dateformatter.format(new Date(selectedTournament.creation_date)) : '' }} | Owner: {{ selectedTournament?.owner }}
           </div>
           <div class="flex flex-row justify-center gap-8 items-center">
+            <!-- href to user profile in the div below -->
             <div v-for="(user, index) in selectedTournament?.users" :key="index">
               <div class="h-16 w-16 overflow-hidden rounded-full bg-gray-200 border-primary border-2 hover:scale-[1.02]">
                 <img
@@ -93,27 +94,40 @@ const selectedTournament = ref(null)
 const openTournamentModal = async (tournament) => {
   const data = await fetch(`/api/tournament/${tournament.id}`)
   selectedTournament.value = await data.json()
-  console.log('Selected tournament:', selectedTournament.value)
+  console.log(selectedTournament.value.creation_date)
   document.getElementById('select_tournament').showModal()
 }
 
 // Close modal
-const closeTournamentModal = () => {
+const closeTournamentModal = async () => {
+  const response = await fetch('/api/tournament/list')
+  tournaments.value = await response.json()
   document.getElementById('select_tournament').close()
   selectedTournament.value = null
 }
 
 const joinTournament = async (tournamentId: number) => {
   try {
-    await fetch(`/api/tournament/${tournamentId}`, {
+    const response = await fetch(`/api/tournament/${tournamentId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' }
     })
-    router.push('/tournament' + tournamentId)
+    if(response.ok) {
+      await router.push('/tournaments/' + tournamentId)
+    }
+    else {
+      console.error('Error joining tournament:', response)
+    }
   } catch (error) {
     console.error('Error joining tournament:', error)
   }
 }
+
+const dateformatter = new Intl.DateTimeFormat('it-IT', {
+  hour12: false,
+  dateStyle: 'medium',
+  timeStyle: 'short'
+});
 </script>
 
 <style scoped>
