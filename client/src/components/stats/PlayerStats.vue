@@ -120,7 +120,6 @@ onMounted(async () => {
 
       gameShareUrl.value = `${window.location.origin}/player/${currentUsername.value}`
     }
-
   } catch (error) {
     console.error('Error fetching user:', error)
   }

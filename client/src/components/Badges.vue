@@ -19,6 +19,10 @@ const props = defineProps<{
 const hoveredBadge = ref<{ category: BadgeCategory; level: number } | null>(
   null,
 )
+const selectedBadge = ref<{ category: BadgeCategory; level: number } | null>(
+  null,
+)
+const isModalOpen = ref(false)
 
 const badgeCategories: Record<BadgeCategory, string> = {
   bot: '🤖 Bot Difficulties',
@@ -53,7 +57,21 @@ const getBadgeDescription = (category: string, level: number) => {
   return descriptions[category]?.[level - 1]
 }
 
+function openBadgeModal(category: BadgeCategory, level: number) {
+  if (props.badges && level <= props.badges[category]) {
+    selectedBadge.value = { category, level }
+    isModalOpen.value = true
+  }
+}
+
+function closeModal() {
+  isModalOpen.value = false
+  setTimeout(() => {
+    selectedBadge.value = null
+  }, 300)
+}
 </script>
+
 <template>
   <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
     <div
@@ -104,6 +122,27 @@ const getBadgeDescription = (category: string, level: number) => {
       </div>
     </div>
   </div>
+
+  <div
+    v-if="selectedBadge"
+    class="modal-backdrop"
+    :class="{ 'modal-open': isModalOpen }"
+    @click="closeModal"
+  >
+    <div class="modal-image">
+      <img
+        :src="`/badges/${selectedBadge.category}_${selectedBadge.level}.png`"
+        :alt="`${selectedBadge.category} badge level ${selectedBadge.level}`"
+        class="open-image-animation"
+      />
+      <h3 class="mt-2 text-2xl font-bold text-primary">
+        {{ badgeCategories[selectedBadge.category] }}
+      </h3>
+      <p class="mt-2 text-lg">
+        {{ getBadgeDescription(selectedBadge.category, selectedBadge.level) }}
+      </p>
+    </div>
+  </div>
 </template>
 
 <style scoped>
@@ -112,6 +151,38 @@ const getBadgeDescription = (category: string, level: number) => {
 }
 .badge-category:hover {
   @apply border-2 border-primary bg-base-300 shadow-xl;
+}
+
+.modal-backdrop {
+  @apply fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-60 backdrop-blur-md;
+  opacity: 0;
+  visibility: hidden;
+  transition: all 0.4s ease-in-out;
+}
+
+.modal-backdrop.modal-open {
+  opacity: 1;
+  visibility: visible;
+}
+
+.modal-image {
+  @apply flex flex-col items-center bg-none;
+  transition: all 0.5s ease-in-out;
+}
+
+.open-image-animation {
+  animation: badge-pop 0.7s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+@keyframes badge-pop {
+  0% {
+    transform: scale(0.4) rotate(-30deg);
+    opacity: 0;
+  }
+  100% {
+    transform: scale(1) rotate(0deg);
+    opacity: 1;
+  }
 }
 
 .category-highlighted {
