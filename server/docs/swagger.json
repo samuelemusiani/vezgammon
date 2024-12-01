@@ -647,6 +647,41 @@
                 }
             }
         },
+        "/tournament/{tournament_id}/cancel": {
+            "post": {
+                "description": "Cancel a waiting tournament, only the owner can cancel it",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Cancel a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "tournament canceled"
+                    },
+                    "400": {
+                        "description": "you are not the owner"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            }
+        },
         "/tournament/{tournament_id}/start": {
             "post": {
                 "description": "Start a tournament, only the owner can start it",

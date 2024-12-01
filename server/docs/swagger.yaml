@@ -622,6 +622,29 @@ paths:
       summary: Join a tournament
       tags:
       - tournament
+  /tournament/{tournament_id}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Cancel a waiting tournament, only the owner can cancel it
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: tournament canceled
+        "400":
+          description: you are not the owner
+        "404":
+          description: tournament not found
+      summary: Cancel a tournament
+      tags:
+      - tournament
   /tournament/{tournament_id}/start:
     post:
       consumes:

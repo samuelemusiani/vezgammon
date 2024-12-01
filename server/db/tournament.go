@@ -53,6 +53,20 @@ func CreateTournament(t types.Tournament) (*types.Tournament, error) {
 	return &t, nil
 }
 
+func DeleteTournament(id int64) error {
+	q := `
+	DELETE FROM tournaments
+	WHERE id=$1
+	`
+
+	_, err := Conn.Exec(q, id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func UpdateTournament(t *types.Tournament) error {
 	q := `
 	UPDATE tournaments

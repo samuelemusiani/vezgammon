@@ -10,6 +10,7 @@ import (
 	"time"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
+	"vezgammon/server/ws"
 
 	"github.com/gin-gonic/gin"
 )
@@ -230,6 +231,55 @@ func StartTournament(c *gin.Context) {
 		c.JSON(http.StatusCreated, "tournament started")
 	} else {
 		c.JSON(http.StatusBadRequest, "not enough players")
+	}
+}
+
+// @Summary Cancel a tournament
+// @Description Cancel a waiting tournament, only the owner can cancel it
+// @Tags tournament
+// @Accept  json
+// @Produce  json
+// @Param tournament_id path int true "Tournament ID"
+// @Success 201 "tournament canceled"
+// @Failure 400 "tournament alredy started"
+// @Failure 400 "you are not the owner"
+// @Failure 404 "tournament not found"
+// @Router /tournament/{tournament_id}/cancel [post]
+func CancelTournament(c *gin.Context) {
+	userID := c.MustGet("user_id").(int64)
+	id := c.Param("tournament_id")
+	id64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	tournament, err := db.GetTournament(id64)
+	if err != nil {
+		c.JSON(http.StatusNotFound, err)
+	}
+
+	if tournament.Owner != userID {
+		c.JSON(http.StatusBadRequest, "you are not the owner")
+		return
+	}
+
+	if tournament.Status != types.TournamentStatusWaiting {
+		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		return
+	}
+
+	err = db.DeleteTournament(id64)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusCreated, "tournament canceled")
+
+	// send cancel message to all users
+	for _, u := range tournament.Users {
+		ws.TournamentCanceled(u)
 	}
 }
 
