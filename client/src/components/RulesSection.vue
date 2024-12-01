@@ -1,5 +1,5 @@
 <template>
-  <div class="text-primary">
+  <div class="space-y-5 text-primary">
     <h3 class="mb-6 text-center text-3xl font-bold text-primary">
       Backgammon Rules
     </h3>
@@ -17,6 +17,80 @@
 
       <div class="animate-fadeIn" v-show="activeSection === index">
         <p class="mb-2">{{ section.content }}</p>
+      </div>
+    </div>
+
+    <!-- Doubling Cube -->
+    <div
+      class="rule-section"
+      :class="{ active: activeSection === 5 }"
+      @click="activeSection = 5"
+    >
+      <h4 class="mb-2 flex cursor-pointer items-center text-xl font-bold">
+        <span class="mr-2">🎲 The Doubling Cube</span>
+        <span class="ml-auto text-sm">Click to expand</span>
+      </h4>
+
+      <div class="rule-content" v-show="activeSection === 5">
+        <div class="space-y-4">
+          <div class="">
+            <h5 class="mb-2 font-bold">What is the Doubling Cube?</h5>
+            <p>
+              The doubling cube is a fundamental element in backgammon that
+              allows players to raise the stakes of the game. It's what makes
+              backgammon not just a game of skill, but also a game of strategy.
+            </p>
+          </div>
+          <div>
+            <h5 class="mb-2 font-bold">Basic Rules:</h5>
+            <ul class="list-disc space-y-2 pl-6">
+              <li>
+                At the start of each game, either player has the right to
+                propose doubling the stakes
+              </li>
+              <li>
+                When a player is offered a double, they have two options:
+                <ul class="list-circle mt-1 pl-6">
+                  <li>
+                    <span class="font-bold">Accept</span> - The game continues
+                    with doubled stakes
+                  </li>
+                  <li>
+                    <span class="font-bold">Decline</span> - The game ends and
+                    the opponent wins the current stakes
+                  </li>
+                </ul>
+              </li>
+              <li>
+                Once a double is accepted, the accepting player now owns the
+                cube and is the only one who can offer the next double
+              </li>
+              <li>Each double multiplies the original stake by 2</li>
+            </ul>
+          </div>
+
+          <div class="rounded-lg bg-primary/10 p-4">
+            <h5 class="mb-2 font-bold">When to Use the Doubling Cube:</h5>
+            <ul class="list-disc space-y-1 pl-4">
+              <li>When you have a clear advantage in position</li>
+              <li>When you have better chances of winning</li>
+              <li>When your opponent is in a difficult position</li>
+              <li>
+                When you want to put psychological pressure on your opponent
+              </li>
+            </ul>
+          </div>
+
+          <div class="border-l-4 border-primary bg-primary/5 p-4">
+            <p class="font-bold">Important Note:</p>
+            <p>
+              The doubling cube adds an extra layer of strategy to backgammon
+              and can significantly impact the outcome of the game.
+              Understanding when to offer and accept doubles is crucial for
+              advanced play.
+            </p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -78,5 +152,9 @@ const ruleSections = [
 
 .animate-fadeIn {
   animation: fadeIn 0.4s ease-in-out;
+}
+
+.list-circle {
+  list-style-type: circle;
 }
 </style>
