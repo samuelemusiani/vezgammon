@@ -186,7 +186,7 @@ func LeaveTournament(c *gin.Context) {
 	// send message to all users that the user left
 	for _, u := range t.Users {
 		if u != userID {
-			ws.TournamentUserLeaved(u)
+			ws.TournamentUserLeft(u)
 		}
 	}
 

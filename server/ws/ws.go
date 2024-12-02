@@ -127,6 +127,6 @@ func TournamentNewUserEnrolled(user_id int64) error {
 	return SendMessage(user_id, Message{Type: "tournament_new_user_enrolled"})
 }
 
-func TournamentUserLeaved(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "tournament_user_leaved"})
+func TournamentUserLeft(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_user_left"})
 }
