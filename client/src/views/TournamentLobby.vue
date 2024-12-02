@@ -1,12 +1,13 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100">
-      <div v-if="players.includes(myUsername)" class="text-center">
+      <div v-if="tournament" class="text-center">
         <div v-if="!showBracket">
           <h1 class="text-5xl font-bold mb-6 retro-title">Tournament Lobby</h1>
+          <p class="text-accent font-semibold">Owner: {{ owner ? 'me' : tournament?.owner }}</p>
           <div class="grid grid-cols-2 grid-rows-2 gap-4 mt-16 mb-16">
           <div
-              v-for="(player, index) in players" :key="index"
+              v-for="(player, index) in tournament.users" :key="index"
               class=" p-4 retro-box"
               :class="{
                 'text-primary': player === myUsername,
@@ -17,7 +18,7 @@
             </div>
 
             <div
-              v-for="n in (4 - players.length)"
+              v-for="n in (4 - tournament.users.length)"
               :key="`empty-${n}`"
               class="flex items-center justify-center p-4 rounded-lg bg-gray-50 border-2 border-dashed border-gray-200"
             >
@@ -25,18 +26,26 @@
             </div>
         </div>
 
-          <div class="flex justify-center gap-2 mt-2">
+          <div v-if="owner" class="flex justify-center gap-2 mt-2">
             <button
-              class="px-6 py-3 bg-red-500 text-white rounded-lg hover:bg-red-600 transition-colors duration-300"
-              @click="exitTournament"
+              class="retro-button"
+              @click="deleteTournament"
             >
-              Exit Tournament
+              Delete Tournament
             </button>
             <button
-              class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors duration-300"
+              class="retro-button"
               @click="showTournamentBracket"
             >
               Start Tournament
+            </button>
+          </div>
+          <div v-else>
+            <button
+              class="retro-button"
+              @click="exitTournament"
+            >
+              Exit Tournament
             </button>
           </div>
         </div>
@@ -44,9 +53,10 @@
         <!-- Tournament Bracket -->
         <div
           v-else
-          class="w-full h-full flex flex-col space-y-16"
+          class="w-full h-full flex flex-col space-y-4"
         >
           <h2 class="text-5xl font-bold retro-title mb-4">Tournament Bracket</h2>
+          <p class="text-accent font-semibold">Owner: {{ owner ? 'me' : tournament?.owner }}</p>
           <div class="flex flex-row justify-between gap-8">
           <div class="flex flex-col gap-4 w-1/4">
             <!-- Semi-Final 1 -->
@@ -54,20 +64,20 @@
               <div
                 class="retro-box w-full p-3 text-center font-semibold"
                 :class="{
-            'text-green-500': semifinal1Winner === players[0],
-            'text-red-500': semifinal1Winner === players[1]
+            'text-green-500': semifinal1Winner === tournament.users[0],
+            'text-red-500': semifinal1Winner === tournament.users[1]
           }"
               >
-                {{ players[0] || 'TBD' }}
+                {{ tournament.users[0] || 'TBD' }}
               </div>
               <div
                 class="retro-box w-full p-3 text-center font-semibold"
                 :class="{
-            'text-green-500': semifinal1Winner === players[1],
-            'text-red-500': semifinal1Winner === players[0]
+            'text-green-500': semifinal1Winner === tournament.users[1],
+            'text-red-500': semifinal1Winner === tournament.users[0]
           }"
               >
-                {{ players[1] || 'TBD' }}
+                {{ tournament.users[1] || 'TBD' }}
               </div>
             </div>
 
@@ -76,20 +86,20 @@
               <div
                 class="retro-box w-full p-3 text-center font-semibold"
                 :class="{
-            'text-green-500': semifinal2Winner === players[2],
-            'text-red-500': semifinal2Winner === players[3]
+            'text-green-500': semifinal2Winner === tournament.users[2],
+            'text-red-500': semifinal2Winner === tournament.users[3]
           }"
               >
-                {{ players[2] || 'TBD' }}
+                {{ tournament.users[2] || 'TBD' }}
               </div>
               <div
                 class="retro-box w-full p-3 text-center font-semibold"
                 :class="{
-            'text-green-500': semifinal2Winner === players[3],
-            'text-red-500': semifinal2Winner === players[2]
+            'text-green-500': semifinal2Winner === tournament.users[3],
+            'text-red-500': semifinal2Winner === tournament.users[2]
           }"
               >
-                {{ players[3] || 'TBD' }}
+                {{ tournament.users[3] || 'TBD' }}
               </div>
             </div>
           </div>
@@ -116,12 +126,12 @@
               </div>
             </div>
               <!-- Final 3 place-->
-              <div class="flex flex-row items-center space-x-2 w-1/2 h-1/4 mt-10">
+              <div class="flex flex-row items-center space-x-2 w-2/3 h-1/4 mt-10">
                 <div
                   class="retro-box w-full h-full p-3 text-center text-2xl font-bold"
                   :class="{
-            'text-green-500': secondPlace === semifinal1Looser,
-            'text-red-500': secondPlace === semifinal2Looser
+            'text-green-500': thirdplace === semifinal1Looser,
+            'text-red-500': thirdplace === semifinal2Looser
           }"
                 >
                   {{ semifinal1Looser || 'TBD' }}
@@ -129,8 +139,8 @@
                 <div
                   class="retro-box w-full h-full p-3 text-center text-2xl font-bold"
                   :class="{
-            'text-green-500': secondPlace === semifinal2Looser,
-            'text-red-500': secondPlace === semifinal1Looser
+            'text-green-500': thirdplace === semifinal2Looser,
+            'text-red-500': thirdplace === semifinal1Looser
           }"
                 >
                   {{ semifinal2Looser || 'TBD' }}
@@ -178,41 +188,75 @@
 
 
 <script setup lang="ts">
-import { onMounted, ref } from 'vue'
+import {onMounted, onUnmounted, ref} from 'vue'
 import router from "@/router";
+import { useWebSocketStore } from '@/stores/websocket'
+import type {Tournament, WSMessage} from "@/utils/types";
 
-const semifinal1Winner = ref('TBD')
-const semifinal2Winner = ref('TBD')
-const semifinal1Looser = ref('TBD')
-const semifinal2Looser = ref('TBD')
-const tournamentWinner = ref('')
-const secondPlace = ref('')
+const semifinal1Winner = ref<string | undefined>('TBD')
+const semifinal2Winner = ref<string | undefined>('TBD')
+const semifinal1Looser = ref<string | undefined>('TBD')
+const semifinal2Looser = ref<string | undefined>('TBD')
+const tournamentWinner = ref<string | undefined>('')
+const thirdplace = ref<string | undefined>('')
 
 
-const players = ref([])
+const tournament = ref<Tournament | null>(null)
 const myUsername = ref('')
-const showBracket = ref(0)
+const showBracket = ref(false)
 
 const tournamentId = router.currentRoute.value.params.id
+const owner = ref<boolean>('')
+const webSocketStore = useWebSocketStore()
 
-onMounted(async () => {
+const fetchTournament = async () => {
   try {
     const response = await fetch(`/api/tournament/${tournamentId}`)
-    const tournament = await response.json()
-    players.value = tournament.users
+    tournament.value = await response.json()
   }
   catch (error) {
-    console.error(error)
+    console.error('tournament: ' + error)
   }
+}
+
+const fetchMe = async () => {
   try {
     const response = await fetch('/api/session')
     const user = await response.json()
     myUsername.value = user.username
   }
   catch (error) {
-    console.error(error)
+    console.error('me: ' + error)
+  }
+}
+
+onMounted(async () => {
+  await fetchTournament()
+  await fetchMe()
+  owner.value = tournament.value?.owner === myUsername.value
+  try {
+    webSocketStore.connect()
+    webSocketStore.addMessageHandler(handleMessage)
+  }
+  catch (error) {
+    console.error('websocket: ' + error)
   }
 })
+
+onUnmounted(() => {
+  webSocketStore.removeMessageHandler(handleMessage)
+})
+
+const handleMessage = async (message: WSMessage) => {
+  console.log('TOURNAMENTS: Received message:', message)
+  if (message.type === 'tournament_cancelled') {
+    alert('Tournament has been cancelled')
+    await router.push('/')
+  }
+  else if(message.type === 'tournament_new_user_enrolled') {
+    await fetchTournament()
+  }
+}
 
 function exitTournament() {
   try {
@@ -229,26 +273,42 @@ function exitTournament() {
   }
 }
 
+function deleteTournament() {
+  try {
+    fetch(`/api/tournament/${tournamentId}/cancel`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+    alert('Tournament has been cancelled')
+    router.push('/')
+  }
+  catch (error) {
+    console.error(error)
+  }
+}
+
 function showTournamentBracket() {
   showBracket.value = true
 }
 
 function progressSemifinal1() {
-  semifinal1Winner.value = players.value[0] === semifinal1Winner.value
-    ? players.value[1]
-    : players.value[0]
-  semifinal1Looser.value = players.value[0] === semifinal1Winner.value
-    ? players.value[1]
-    : players.value[0]
+  semifinal1Winner.value = tournament.value?.users[0] === semifinal1Winner.value
+    ? tournament.value?.users[1]
+    : tournament.value?.users[0]
+  semifinal1Looser.value = tournament.value?.users[0] === semifinal1Winner.value
+    ? tournament.value?.users[1]
+    : tournament.value?.users[0]
 }
 
 function progressSemifinal2() {
-  semifinal2Winner.value = players.value[2] === semifinal2Winner.value
-    ? players.value[3]
-    : players.value[2]
-  semifinal2Looser.value = players.value[2] === semifinal2Winner.value
-    ? players.value[3]
-    : players.value[2]
+  semifinal2Winner.value = tournament.value?.users[2] === semifinal2Winner.value
+    ? tournament.value?.users[3]
+    : tournament.value?.users[2]
+  semifinal2Looser.value = tournament.value?.users[2] === semifinal2Winner.value
+    ? tournament.value?.users[3]
+    : tournament.value?.users[2]
 }
 
 function crownChampion() {
@@ -256,9 +316,9 @@ function crownChampion() {
     tournamentWinner.value = Math.random() > 0.5
       ? semifinal1Winner.value
       : semifinal2Winner.value
-    secondPlace.value = tournamentWinner.value === semifinal1Winner.value
-      ? semifinal2Winner.value
-      : semifinal1Winner.value
+    thirdplace.value = Math.random() > 0.5
+      ? semifinal1Looser.value
+      : semifinal2Looser.value
   }
 }
 </script>

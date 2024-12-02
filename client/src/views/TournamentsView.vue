@@ -18,11 +18,11 @@
           <div class="flex justify-between items-center">
             <div>
               <h2 class="text-2xl font-bold text-[#8b4513]">{{ tournament.name }}</h2>
-              <p class="text-[#d2691e]">
+              <p class="text-accent">
                 {{ dateformatter.format(new Date(tournament.creation_date)) }} | Owner: {{ tournament.owner }}
               </p>
             </div>
-            <div class="text-primary text-xl">
+            <div class="text-primary text-xl font-semibold text-accent">
               {{ tournament.user_number }}/4
             </div>
           </div>
@@ -30,13 +30,13 @@
       </div>
     </div>
     <dialog id="select_tournament" class="modal">
-      <div class="retro-box modal-box">
+      <div class="retro-box modal-box" v-if="selectedTournament">
         <h3 class="retro-title mb-4 text-center text-2xl font-bold">
           {{ selectedTournament?.name }}
         </h3>
         <!-- Options -->
         <div class="flex flex-col gap-4">
-          <div class="text-center">
+          <div class="text-center text-accent font-semibold">
            {{ selectedTournament? dateformatter.format(new Date(selectedTournament.creation_date)) : '' }} | Owner: {{ selectedTournament?.owner }}
           </div>
           <div class="flex flex-row justify-center gap-8 items-center">
@@ -71,10 +71,19 @@ import {onMounted, ref} from 'vue'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import router from "@/router";
+import type {Tournament} from "@/utils/types";
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 
-const tournaments = ref()
+interface SimpleTournament {
+  id: number
+  name: string
+  creation_date: string
+  owner: string
+  user_number: number
+}
+
+const tournaments = ref<SimpleTournament[] | null>(null)
 
 onMounted(async () => {
   try {
@@ -88,21 +97,22 @@ onMounted(async () => {
 
 
 // Selected tournament for modal
-const selectedTournament = ref(null)
+const selectedTournament = ref<Tournament | null>(null)
 
 // Open modal with selected tournament
-const openTournamentModal = async (tournament) => {
+const openTournamentModal = async (tournament: SimpleTournament) => {
   const data = await fetch(`/api/tournament/${tournament.id}`)
   selectedTournament.value = await data.json()
-  console.log(selectedTournament.value.creation_date)
-  document.getElementById('select_tournament').showModal()
+  const el = document.getElementById('select_tournament') as HTMLDialogElement
+  el.showModal()
 }
 
 // Close modal
 const closeTournamentModal = async () => {
   const response = await fetch('/api/tournament/list')
   tournaments.value = await response.json()
-  document.getElementById('select_tournament').close()
+  const el = document.getElementById('select_tournament') as HTMLDialogElement
+  el.close()
   selectedTournament.value = null
 }
 
