@@ -50,6 +50,7 @@ func CreateTournament(c *gin.Context) {
 		Owner:        userID,
 		Users:        []int64{userID},
 		CreationDate: time.Now(),
+		Status:       types.TournamentStatusWaiting,
 	}
 
 	t, err = db.CreateTournament(*t)
