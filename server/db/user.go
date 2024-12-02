@@ -390,7 +390,7 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 	slog.With("gp", gp).Debug("Badge games")
 
 	for _, game := range gp {
-		//skip current ongoing games
+		// skip ongoing games
 		if game.Status == types.GameStatusOpen {
 			continue
 		}
@@ -402,6 +402,10 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 
 		//bot difficulty
 		if game.GameType == types.GameTypeBot {
+			// if lost against bot skip game
+			if !(user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2) {
+				continue
+			}
 			slog.With("game type", game.GameType).Debug("capiamo?")
 			p1, e1 := GetUserByUsername(game.Player1)
 			if e1 != nil {
@@ -433,16 +437,14 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 			continue
 		}
 
-		// homepieces
+		//only online games
+		gameEnded++
+
+		//homepieces
 		homepieces += calculateHomePieces(game, user.Username)
 		slog.With("home pieces", homepieces).Debug("Badge")
 
-		//game played counter
-		if game.Status != types.GameStatusOpen {
-			gameEnded++
-		}
-
-		// game won counter
+		//game won counter
 		if user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2 {
 			gw++
 		}
@@ -474,7 +476,7 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		}
 	}
 
-	// game played
+	//game played
 	if gameEnded > 0 {
 		if gameEnded <= 10 {
 			badge.Gameplayed[0] = 1
@@ -502,8 +504,8 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		}
 	}
 
-	// elo
-	if user.Elo > 1001 {
+	//elo
+	if user.Elo > 1000 {
 		if user.Elo < 1200 {
 			badge.Elo[0] = 1
 		} else if user.Elo < 1400 {
