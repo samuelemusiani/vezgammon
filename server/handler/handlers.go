@@ -39,7 +39,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.GET("stats", GetStats)
 
 	playGroup := protected.Group("/play")
-	//playGroup.GET("/last/winner", GetLastGameWinner)
+	playGroup.GET("/last/winner", GetLastGameWinner)
 	playGroup.GET("/search", StartPlaySearch)
 	playGroup.GET("/invite", StartPlayInviteSearch)
 	playGroup.GET("/invite/:id", PlayInvite)
