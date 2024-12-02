@@ -38,7 +38,7 @@
           </button>
           <button
             @mouseenter="(e: MouseEvent) => play()"
-            @click="router.push('/wip')"
+            @click="openRulesModal"
             class="retro-button font-bold"
           >
             RULES
@@ -245,12 +245,27 @@
         <button>close</button>
       </form>
     </dialog>
+
+    <dialog id="rules_modal" class="modal">
+      <div
+        class="modal-box max-h-[85vh] max-w-3xl overflow-y-auto border-4 border-primary"
+      >
+        <RulesSection />
+
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="retro-button">Close</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
+import RulesSection from '@/components/RulesSection.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
@@ -424,6 +439,11 @@ const startLocalGame = async () => {
   await fetch('/api/play/local')
   router.push('/game')
 }
+
+const openRulesModal = () => {
+  const modal = document.getElementById('rules_modal') as HTMLDialogElement
+  modal.showModal()
+}
 </script>
 
 <style scoped>
@@ -474,10 +494,10 @@ const startLocalGame = async () => {
 
 @keyframes move-title {
   from {
-    transform: rotate(-4deg);
+    transform: rotate(-2deg);
   }
   to {
-    transform: rotate(4deg);
+    transform: rotate(2deg);
   }
 }
 </style>
