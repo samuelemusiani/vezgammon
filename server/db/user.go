@@ -387,9 +387,49 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 	)
 
 	gp, err = GetAllGameFromUser(user_id)
+	slog.With("gp", gp).Debug("Badge games")
 
 	for _, game := range gp {
+		//skip current ongoing games
 		if game.Status == types.GameStatusOpen {
+			continue
+		}
+
+		//skip local games
+		if game.GameType == types.GameTypeLocal {
+			continue
+		}
+
+		//bot difficulty
+		if game.GameType == types.GameTypeBot {
+			slog.With("game type", game.GameType).Debug("capiamo?")
+			p1, e1 := GetUserByUsername(game.Player1)
+			if e1 != nil {
+				return nil, err
+			}
+			slog.With("p1", p1).Debug("Badge")
+
+			p2, e2 := GetUserByUsername(game.Player2)
+			if e2 != nil {
+				return nil, err
+			}
+			slog.With("p2", p2).Debug("Badge")
+
+			// One return 0 the other is 1/2/3 depends on difficulty
+			sum := GetBotLevel(p1.ID) + GetBotLevel(p2.ID)
+			switch sum {
+			case 1:
+				badge.Bot[0] = sum
+			case 2:
+				badge.Bot[1] = sum
+			case 3:
+				badge.Bot[2] = sum
+			default:
+				slog.Debug("2 Humans or 2 Bots")
+				err := errors.New("2 Humans or 2 Bots")
+				return nil, err
+			}
+			slog.With("bot", badge.Bot, "sum", sum).Debug("Badge")
 			continue
 		}
 
@@ -416,33 +456,6 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 			badge.Wontime[1] = 2
 		} else if timeDiff <= 3*time.Minute {
 			badge.Wontime[2] = 3
-		}
-
-		//bot difficulty
-		if game.GameType == types.GameTypeBot {
-			p1, e1 := GetUserByUsername(game.Player1)
-			if e1 != nil {
-				return nil, err
-			}
-
-			p2, e2 := GetUserByUsername(game.Player1)
-			if e2 != nil {
-				return nil, err
-			}
-
-			// One return 0 the other is 1/2/3 depends on difficulty
-			sum := GetBotLevel(p1.ID) + GetBotLevel(p2.ID)
-			switch sum {
-			case 1:
-				badge.Bot[0] = sum
-			case 2:
-				badge.Bot[1] = sum
-			case 3:
-				badge.Bot[2] = sum
-			default:
-				err := errors.New("2 Humans or 2 Bots")
-				return nil, err
-			}
 		}
 
 	}
