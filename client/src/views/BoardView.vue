@@ -19,6 +19,7 @@ import {
 
 import ConfettiExplosion from 'vue-confetti-explosion'
 import Chat from '@/components/ChatContainer.vue'
+import TutorialButton from '@/components/buttons/TutorialButton.vue'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
@@ -51,6 +52,13 @@ const { play: playDice } = useSound(diceSfx)
 const { play: playLost } = useSound(lostSfx)
 //const { play: playTin } = useSound(tinSfx)
 const webSocketStore = useWebSocketStore()
+
+const isTutorial = ref(false)
+
+// get the variant option from the query
+const query = new URLSearchParams(window.location.search)
+const variant = query.get('variant')
+isTutorial.value = variant === 'tutorial'
 
 onMounted(async () => {
   try {
@@ -1002,6 +1010,7 @@ const exitGame = async () => {
       :gameType="gameState?.game_type || ''"
       :myUsername="session?.username || ''"
     />
+    <TutorialButton v-if="isTutorial" />
   </div>
 </template>
 

@@ -96,6 +96,13 @@
             >
               Play Online
             </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="playTutorial"
+              class="retro-button"
+              >
+               Play Tutorial
+            </button>
           </template>
 
           <template v-else>
@@ -413,14 +420,15 @@ const backToGameMode = () => {
   showDifficulty.value = false
 }
 
-const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
+const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard', variant=null) => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
   showDifficulty.value = false
 
   try {
     await fetch(`/api/play/bot/${difficulty}`)
-    router.push('/game')
+    const destination = variant ? `/game?variant=${variant}` : '/game'
+    router.push(destination)
   } catch (error) {
     console.error('Error starting game with AI:', error)
   }
@@ -454,6 +462,13 @@ const navigateTo = (path: string) => {
 const openPlayModal = () => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.showModal()
+}
+
+const playTutorial = () => {
+  const modal = document.getElementById('play_modal') as HTMLDialogElement
+  modal.close()
+  // launch a easy game with bot and show tutorial variant
+  startGameWithAI('easy', 'tutorial')
 }
 
 const startLocalGame = async () => {
