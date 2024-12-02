@@ -1,10 +1,16 @@
 <template>
-  <div class="retro-background">
-    <div class="flex max-h-full w-full flex-col items-center justify-center">
+  <div class="flex h-full w-full items-center justify-center">
+    <div
+      class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
+    >
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="retro-title text-7xl">VezGammon</h1>
-        <div class="retro-subtitle">The Ultimate Backgammon Experience</div>
+        <h1 class="retro-title mb-8 p-4 text-7xl font-bold text-primary">
+          VezGammon
+        </h1>
+        <div class="text-xl font-bold text-accent">
+          The Ultimate Backgammon Experience
+        </div>
       </div>
 
       <!-- Button Container -->
@@ -12,7 +18,7 @@
         <!-- Left Button (Stats) -->
         <div class="absolute left-8">
           <button
-            @click="(e: MouseEvent) => router.push('/wip')"
+            @click="navigateTo('/stats')"
             @mouseenter="(e: MouseEvent) => play()"
             class="retro-button circle"
             title="Statistics"
@@ -32,8 +38,8 @@
           </button>
           <button
             @mouseenter="(e: MouseEvent) => play()"
-            @click="router.push('/wip')"
-            class="retro-button"
+            @click="openRulesModal"
+            class="retro-button font-bold"
           >
             RULES
           </button>
@@ -71,7 +77,7 @@
           <template v-if="!showDifficulty">
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="startGame('local')"
+              @click="startLocalGame"
               class="retro-button"
             >
               Local Game (2 Players)
@@ -85,7 +91,7 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="router.push('/wip')"
+              @click="showOnlineOptions"
               class="retro-button"
             >
               Play Online
@@ -136,19 +142,240 @@
         <button>close</button>
       </form>
     </dialog>
+
+    <dialog id="waiting_modal" class="modal">
+      <div class="retro-box modal-box text-center">
+        <h3 class="retro-title mb-4 text-2xl font-bold">
+          Waiting for Opponent
+        </h3>
+        <div class="flex flex-col items-center gap-4">
+          <div class="loading loading-spinner loading-lg"></div>
+          <p class="text-lg">Searching for an opponent...</p>
+        </div>
+        <div class="modal-action">
+          <form method="dialog">
+            <button @click="handleCancelMatchmaking" class="retro-button">
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Resume Modal -->
+    <dialog id="resume_game_modal" class="modal">
+      <div class="retro-box modal-box">
+        <h3 class="retro-title mb-4 text-center text-2xl font-bold">
+          Game in Progress
+        </h3>
+        <p class="mb-4 text-center">You have an ongoing game.</p>
+        <div class="flex flex-col gap-4">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="resumeGame"
+            class="retro-button"
+          >
+            Resume Game
+          </button>
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="leaveGame"
+            class="retro-button"
+          >
+            Leave Game
+          </button>
+        </div>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="online_options_modal" class="modal">
+      <div class="retro-box modal-box">
+        <h3 class="retro-title mb-4 text-center text-2xl font-bold">
+          Online Game Options
+        </h3>
+        <div class="flex flex-col gap-4">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="startRandomGame"
+            class="retro-button"
+          >
+            Random Opponent
+          </button>
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="createInviteLink"
+            class="retro-button"
+          >
+            Invite Friend
+          </button>
+        </div>
+
+        <!-- Invite Link -->
+        <div v-if="inviteLink" class="mt-4">
+          <div class="flex items-center gap-2 rounded bg-base-200 p-2">
+            <input
+              type="text"
+              :value="inviteLink"
+              class="w-full bg-transparent p-2"
+              readonly
+            />
+            <button
+              @click="copyInviteLink"
+              class="retro-button px-4"
+              :class="{ 'bg-success': linkCopied }"
+            >
+              {{ linkCopied ? 'Copied!' : 'Copy' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Close button -->
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="retro-button">Close</button>
+          </form>
+        </div>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="rules_modal" class="modal">
+      <div
+        class="modal-box max-h-[85vh] max-w-3xl overflow-y-auto border-4 border-primary"
+      >
+        <RulesSection />
+
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="retro-button">Close</button>
+          </form>
+        </div>
+      </div>
+    </dialog>
   </div>
 </template>
 
 <script setup lang="ts">
 import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
+import RulesSection from '@/components/RulesSection.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
+import { useWebSocketStore } from '@/stores/websocket'
+import type { WSMessage } from '@/utils/types'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
+const webSocketStore = useWebSocketStore()
 const showDifficulty = ref(false)
+const inviteLink = ref('')
+const linkCopied = ref(false)
+
+onMounted(() => {
+  webSocketStore.connect()
+  webSocketStore.addMessageHandler(handleMatchmaking)
+  checkIfInGame()
+})
+
+onUnmounted(() => {
+  webSocketStore.removeMessageHandler(handleMatchmaking)
+})
+
+const handleMatchmaking = (message: WSMessage) => {
+  if (message.type === 'game_found') {
+    const waitingModal = document.getElementById(
+      'waiting_modal',
+    ) as HTMLDialogElement
+    waitingModal.close()
+    router.push('/game')
+  }
+}
+
+const showOnlineOptions = () => {
+  const playModal = document.getElementById('play_modal') as HTMLDialogElement
+  playModal.close()
+  const onlineModal = document.getElementById(
+    'online_options_modal',
+  ) as HTMLDialogElement
+  onlineModal.showModal()
+}
+
+const startRandomGame = () => {
+  const modal = document.getElementById(
+    'online_options_modal',
+  ) as HTMLDialogElement
+  modal.close()
+  startOnlineGame()
+}
+
+const createInviteLink = async () => {
+  try {
+    const response = await fetch('/api/play/invite')
+    const data = await response.json()
+    inviteLink.value = `${window.location.origin}/invite/${data.Link}`
+    linkCopied.value = false
+  } catch (error) {
+    console.error('Error creating invite link:', error)
+  }
+}
+
+const copyInviteLink = async () => {
+  try {
+    await navigator.clipboard.writeText(inviteLink.value)
+    linkCopied.value = true
+    setTimeout(() => {
+      linkCopied.value = false
+    }, 2000)
+  } catch (error) {
+    console.error('Error copying to clipboard:', error)
+  }
+}
+
+const checkIfInGame = async () => {
+  const response = await fetch('/api/play')
+  if (response.ok) {
+    const resumeModal = document.getElementById(
+      'resume_game_modal',
+    ) as HTMLDialogElement
+    resumeModal.showModal()
+  }
+}
+
+const resumeGame = () => {
+  const modal = document.getElementById(
+    'resume_game_modal',
+  ) as HTMLDialogElement
+  modal.close()
+  router.push('/game')
+}
+
+const leaveGame = async () => {
+  try {
+    await fetch('/api/play', { method: 'DELETE' })
+    const modal = document.getElementById(
+      'resume_game_modal',
+    ) as HTMLDialogElement
+    modal.close()
+  } catch (error) {
+    console.error('Error leaving game:', error)
+  }
+}
+
+const handleCancelMatchmaking = async () => {
+  await fetch('/api/play/search', { method: 'DELETE' })
+  const waitingModal = document.getElementById(
+    'waiting_modal',
+  ) as HTMLDialogElement
+  waitingModal.close()
+}
 
 const modalTitle = computed(() => {
   return showDifficulty.value ? 'Choose Difficulty' : 'Select Game Mode'
@@ -175,6 +402,27 @@ const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
   }
 }
 
+const startOnlineGame = async () => {
+  try {
+    const modal = document.getElementById('play_modal') as HTMLDialogElement
+    modal.close()
+
+    const waitingModal = document.getElementById(
+      'waiting_modal',
+    ) as HTMLDialogElement
+    waitingModal.showModal()
+
+    await fetch('/api/play/search')
+  } catch (error) {
+    console.error('Error starting online game:', error)
+    // In caso di errore, chiudi il modale di attesa
+    const waitingModal = document.getElementById(
+      'waiting_modal',
+    ) as HTMLDialogElement
+    waitingModal.close()
+  }
+}
+
 const navigateTo = (path: string) => {
   router.push(path)
 }
@@ -184,46 +432,22 @@ const openPlayModal = () => {
   modal.showModal()
 }
 
-const startGame = async (mode: 'local' | 'ai' | 'online') => {
+const startLocalGame = async () => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
 
-  switch (mode) {
-    case 'local':
-      await fetch('/api/play/local')
-      router.push('/game')
-      break
-    case 'online':
-      router.push('/game')
-      break
-  }
+  await fetch('/api/play/local')
+  router.push('/game')
+}
+
+const openRulesModal = () => {
+  const modal = document.getElementById('rules_modal') as HTMLDialogElement
+  modal.showModal()
 }
 </script>
 
 <style scoped>
-.retro-background {
-  @apply flex min-h-screen items-center justify-center;
-  background: #2c1810;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
-}
-
 .retro-title {
-  font-family: 'Arial Black', serif;
   color: #ffd700;
   text-shadow:
     4px 4px 0 #8b4513,
@@ -233,17 +457,7 @@ const startGame = async (mode: 'local' | 'ai' | 'online') => {
     1px 1px 0 #000;
   letter-spacing: 3px;
   animation: move-title 8s ease-in-out infinite alternate;
-  padding-bottom: 10px;
-  margin-bottom: 20px;
   border-bottom: 2px solid #8b4513;
-}
-
-.retro-subtitle {
-  font-family: 'Arial Black', serif;
-  color: #d2691e;
-  font-size: 1.2rem;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.5);
-  letter-spacing: 1px;
 }
 
 .retro-box {
@@ -255,11 +469,8 @@ const startGame = async (mode: 'local' | 'ai' | 'online') => {
 }
 
 .retro-button {
-  @apply btn;
-  background: #d2691e;
-  color: white;
+  @apply btn bg-primary font-bold text-white;
   border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 0 #8b4513;
@@ -283,10 +494,10 @@ const startGame = async (mode: 'local' | 'ai' | 'online') => {
 
 @keyframes move-title {
   from {
-    transform: rotate(-4deg);
+    transform: rotate(-2deg);
   }
   to {
-    transform: rotate(4deg);
+    transform: rotate(2deg);
   }
 }
 </style>

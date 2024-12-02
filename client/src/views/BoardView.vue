@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, onUnmounted } from 'vue'
 import router from '@/router'
 
 import type {
@@ -8,20 +8,23 @@ import type {
   MovesResponse,
   Move,
 } from '@/utils/game/types'
-import type { User } from '@/utils/types'
+import type { User, WSMessage } from '@/utils/types'
 import {
   BOARD,
   getTrianglePath,
   getTriangleColor,
   getCheckerX,
   getCheckerY,
-  //checkWin,
 } from '@/utils/game/game'
 
 import ConfettiExplosion from 'vue-confetti-explosion'
+import Chat from '@/components/ChatContainer.vue'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
+import lostSfx from '@/utils/sounds/lostgame.mp3'
+import { useWebSocketStore } from '@/stores/websocket'
+
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
 const gameState = ref<GameState | null>(null)
@@ -31,10 +34,13 @@ const availableMoves = ref<MovesResponse | null>(null)
 const possibleMoves = ref<number[]>([])
 const movesToSubmit = ref<Move[]>([]) // mosse già fatte
 const displayedDice = ref<number[]>([])
-const doubleDice = ref<number>(64)
-const session = ref<User | undefined>()
+const session = ref<User>()
 const showDoubleModal = ref(false)
-const showDoubleWinModal = ref(false)
+const showResultModal = ref(false)
+const isWinner = ref(false)
+const timeLeft = ref(60)
+const timerInterval = ref<ReturnType<typeof setTimeout> | null>(null)
+const isMyTurn = ref(false)
 
 const isRolling = ref(false)
 const diceRolled = ref(false)
@@ -42,18 +48,81 @@ const diceRolled = ref(false)
 const isExploding = ref(false)
 const { play: playVictory } = useSound(victorySfx)
 const { play: playDice } = useSound(diceSfx)
+const { play: playLost } = useSound(lostSfx)
 //const { play: playTin } = useSound(tinSfx)
+const webSocketStore = useWebSocketStore()
 
-// Fetch a /api/play on mounted
 onMounted(async () => {
   try {
     await fetchGameState()
     await fetchMoves()
     await fetchSession()
+    webSocketStore.connect()
+    webSocketStore.addMessageHandler(handleMessage)
+    if (isMyTurn.value && gameState.value?.game_type === 'online') {
+      startTimer()
+    }
   } catch {
     console.error('Error fetching game state')
   }
 })
+
+onUnmounted(() => {
+  stopTimer()
+  webSocketStore.removeMessageHandler(handleMessage)
+})
+
+const handleMessage = async (message: WSMessage) => {
+  if (message.type === 'turn_made') {
+    await fetchGameState()
+    await fetchMoves()
+    startTimer()
+    isMyTurn.value = true
+  } else if (message.type === 'want_to_double') {
+    showDoubleModal.value = true
+  } else if (message.type === 'double_accepted') {
+    await fetchGameState()
+  } else if (message.type === 'dice_rolled') {
+    // Mostra i dadi dell'avversario
+    isRolling.value = true
+    diceRolled.value = true
+    playDice()
+
+    const diceData = JSON.parse(message.payload)
+
+    setTimeout(() => {
+      isRolling.value = false
+      displayedDice.value = diceData.dices
+    }, 1000)
+  } else if (message.type === 'game_end') {
+    await handleEnd()
+  } else if (message.type === 'move_made') {
+    if (!gameState.value) return
+
+    const moveData = JSON.parse(message.payload)
+    const move = moveData.move as Move
+
+    if (whichPlayerAmI.value === 'p1') {
+      if (gameState.value.p1checkers[25 - move.to] === 1) {
+        gameState.value.p1checkers[25 - move.to] = 0
+        gameState.value.p1checkers[0]++
+      }
+      gameState.value.p2checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p2checkers[move.to]++
+      }
+    } else {
+      if (gameState.value.p2checkers[25 - move.to] === 1) {
+        gameState.value.p2checkers[25 - move.to] = 0
+        gameState.value.p2checkers[0]++
+      }
+      gameState.value.p1checkers[move.from]--
+      if (move.to !== 25) {
+        gameState.value.p1checkers[move.to]++
+      }
+    }
+  }
+}
 
 const fetchSession = async () => {
   await fetch('/api/session')
@@ -63,21 +132,39 @@ const fetchSession = async () => {
     })
 }
 
-const checkWin = () => {
-  if (!gameState.value) return false
-  // When backend is ready, check using gameState.value.status
-  if (getOutCheckers(gameState.value.current_player) == 15) {
-    return true
+const fetchWinner = async () => {
+  try {
+    const res = await fetch('/api/play/last/winner')
+    const winner = await res.json()
+    return winner
+  } catch (err) {
+    console.error('Error fetching winner:', err)
   }
-  return false
+}
+
+const handleEnd = async () => {
+  const winner = await fetchWinner()
+  if (winner === session.value?.username) {
+    handleWin()
+  } else {
+    handleLose()
+  }
 }
 
 const handleWin = () => {
+  isWinner.value = true
+  showResultModal.value = true
   playVictory()
   isExploding.value = true
   setTimeout(() => {
     isExploding.value = false
   }, 5000)
+}
+
+const handleLose = () => {
+  isWinner.value = false
+  showResultModal.value = true
+  playLost()
 }
 
 const handleDouble = async () => {
@@ -93,6 +180,22 @@ const handleDouble = async () => {
     }
   } catch (err) {
     console.error('Error sending double:', err)
+  }
+}
+
+const handleRetire = async () => {
+  try {
+    const res = await fetch('/api/play/', {
+      method: 'DELETE',
+    })
+
+    if (!res.ok) {
+      console.error('Error retiring:', res)
+    }
+
+    handleLose()
+  } catch (err) {
+    console.error('Error exiting game:', err)
   }
 }
 
@@ -126,8 +229,7 @@ const declineDouble = async () => {
     })
     if (res.ok) {
       showDoubleModal.value = false
-      showDoubleWinModal.value = true
-      playVictory()
+      handleLose()
     }
   } catch (err) {
     console.error('Error declining double:', err)
@@ -135,9 +237,8 @@ const declineDouble = async () => {
 }
 
 const handleDoubleWinExit = async () => {
-  showDoubleWinModal.value = false
-  // Usa la funzione exitGame esistente
-  await exitGame()
+  showResultModal.value = false
+  handleReturnHome()
 }
 
 const whichPlayerAmI = computed(() => {
@@ -155,7 +256,6 @@ const handleDiceRoll = () => {
   diceRolled.value = true
   playDice()
 
-  // Funzione per generare numeri casuali dei dadi
   const generateRandomDice = () => {
     displayedDice.value = [
       Math.floor(Math.random() * 6) + 1,
@@ -163,22 +263,64 @@ const handleDiceRoll = () => {
     ]
   }
 
-  // Genera numeri casuali ogni 100ms durante l'animazione
+  // Generate random dice values every 100ms
   const rollInterval = setInterval(generateRandomDice, 100)
 
-  // Dopo 3 secondi, mostra i veri valori dei dadi
+  // Show real dice value after 1s
   setTimeout(() => {
     clearInterval(rollInterval)
     isRolling.value = false
     displayedDice.value = availableMoves.value!.dices
+
+    if (gameState.value?.game_type === 'online') {
+      webSocketStore.sendMessage({
+        type: 'dice_rolled',
+        payload: JSON.stringify({
+          dices: availableMoves.value!.dices,
+        }),
+      })
+    }
   }, 1000)
+}
+
+const startTimer = () => {
+  timeLeft.value = 10
+
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+  }
+
+  timerInterval.value = setTimeout(() => {
+    timeLeft.value--
+    if (timeLeft.value <= 0) {
+      stopTimer()
+      handleTimeout()
+    }
+  }, 1000)
+}
+
+const stopTimer = () => {
+  if (timerInterval.value) {
+    clearInterval(timerInterval.value)
+    timerInterval.value = null
+  }
+}
+
+const handleTimeout = async () => {
+  clearInterval(timerInterval.value!)
+  await handleRetire()
 }
 
 const fetchGameState = async () => {
   try {
     const res = await fetch('/api/play/')
-    const data: GameState = await res.json()
 
+    // If the response is not ok, the game is over
+    if (!res.ok) {
+      await handleEnd()
+      return
+    }
+    const data: GameState = await res.json()
     gameState.value = data
 
     console.log(gameState.value)
@@ -191,9 +333,11 @@ const fetchMoves = async () => {
   try {
     const res = await fetch('/api/play/moves')
     const data: MovesResponse = await res.json()
+    if (!res.ok) return
     availableMoves.value = data
     diceRolled.value = false
     displayedDice.value = []
+    isMyTurn.value = true
     console.log(availableMoves.value)
   } catch (err) {
     console.error('Error fetching moves:', err)
@@ -203,10 +347,8 @@ const fetchMoves = async () => {
 const isCheckerSelectable = (checker: Checker) => {
   if (!gameState.value || !diceRolled.value) return false
 
-  // Converti il colore della pedina nel formato del player
   const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
 
-  // Verifica se la pedina appartiene al giocatore corrente
   if (checkerPlayer !== gameState.value.current_player) return false
 
   // Check if the player has any checkers in position 0 (the bar)
@@ -217,14 +359,9 @@ const isCheckerSelectable = (checker: Checker) => {
     barCheckersCount = gameState.value.p2checkers[0]
   }
 
-  // If the player has checkers on the bar (position 0)
+  // If the player has checkers on the bar Only the top checker in position 0 is selectable
   if (barCheckersCount > 0) {
-    // Only the checker in position 0 is selectable
-    if (checker.position !== 0) return false
-    // Only the top checker in position 0 is selectable
-    if (checker.stackIndex !== barCheckersCount - 1) return false
-
-    return true
+    return checker.position === 0 && checker.stackIndex === barCheckersCount - 1
   }
 
   // Ottieni il numero totale di pedine nella posizione della pedina per questo giocatore
@@ -287,7 +424,7 @@ const handleCheckerClick = (checker: Checker) => {
   ]
   console.log('mosse posibili', possibleMoves.value)
 }
-// Quando si clicca su un triangolo
+
 const handleTriangleClick = async (position: number) => {
   if (
     !selectedChecker.value ||
@@ -358,6 +495,15 @@ const handleTriangleClick = async (position: number) => {
     }
   }
 
+  if (gameState.value?.game_type === 'online') {
+    webSocketStore.sendMessage({
+      type: 'move_made',
+      payload: JSON.stringify({
+        move: currentMove,
+      }),
+    })
+  }
+
   // Aggiungi la mossa a quelle fatte
   movesToSubmit.value.push(currentMove)
   console.log('mosse effettuate', movesToSubmit.value)
@@ -382,14 +528,16 @@ const handleTriangleClick = async (position: number) => {
         body: JSON.stringify(movesToSubmit.value),
       })
       console.log('stato POST', res.status)
-      // Change with backend check
-      if (checkWin()) {
-        handleWin()
-      }
+
       movesToSubmit.value = []
       possibleMoves.value = []
-      await fetchGameState()
-      await fetchMoves()
+      if (gameState.value.game_type !== 'online') {
+        await fetchGameState()
+        await fetchMoves()
+      } else {
+        stopTimer()
+        isMyTurn.value = false
+      }
     } catch (err) {
       console.error('Error submitting moves:', err)
     }
@@ -451,13 +599,14 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   return initialCheckers - remainingCheckers
 }
 
+const handleReturnHome = () => {
+  router.push('/')
+}
+
 const exitGame = async () => {
   try {
-    const res = await fetch('/api/play/', {
-      method: 'DELETE',
-    })
-    console.log(res.status)
-    router.push('/')
+    await handleRetire()
+    handleReturnHome()
   } catch (err) {
     console.error('Error exiting game:', err)
   }
@@ -465,9 +614,7 @@ const exitGame = async () => {
 </script>
 
 <template>
-  <div
-    class="retro-background flex min-h-screen flex-col items-center justify-center bg-gray-100 p-4"
-  >
+  <div class="flex h-full w-full flex-col items-center justify-center p-4">
     <div class="fixed top-[25%]">
       <ConfettiExplosion
         v-if="isExploding"
@@ -475,11 +622,11 @@ const exitGame = async () => {
         :particleCount="300"
       />
     </div>
-    <div class="flex w-full max-w-screen-2xl gap-6">
+    <div class="flex h-full w-full gap-6">
       <!-- Opponent and Player Info -->
       <div class="flex">
         <div
-          class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-4 shadow-xl"
+          class="flex w-48 flex-col justify-evenly rounded-lg border-8 border-primary bg-base-100 p-4 shadow-xl"
         >
           <!-- Opponent Info -->
           <div class="mb-8 flex flex-col items-center">
@@ -507,7 +654,7 @@ const exitGame = async () => {
           <!-- Double Dice Here -->
           <div class="flex flex-col items-center">
             <div
-              class="retro-box flex h-16 w-16 items-center justify-center rounded-lg bg-white p-2 shadow-lg"
+              class="flex h-16 w-16 items-center justify-center rounded-lg p-2"
             >
               <svg viewBox="0 0 60 60">
                 <!-- Dice border -->
@@ -517,7 +664,7 @@ const exitGame = async () => {
                   width="58"
                   height="58"
                   rx="8"
-                  fill="#d2691e"
+                  class="fill-primary"
                   stroke="black"
                   stroke-width="2"
                 />
@@ -545,9 +692,24 @@ const exitGame = async () => {
 
           <!-- Game Timer -->
           <div
-            class="my-8 flex flex-col items-center border-y border-gray-200 py-4"
+            class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
           >
-            <button class="btn btn-primary" @click="exitGame">Exit Game</button>
+            <div v-show="isMyTurn" class="w-full">
+              <div class="mb-2 text-center text-xl font-bold">
+                Time Left: {{ timeLeft }}s
+              </div>
+              <div class="h-2 w-full rounded-full bg-gray-200">
+                <div
+                  class="h-full rounded-full bg-primary transition-all duration-1000"
+                  :style="{ width: `${(timeLeft / 60) * 100}%` }"
+                  :class="{
+                    'bg-red-500': timeLeft <= 10,
+                    'bg-yellow-500': timeLeft <= 30 && timeLeft > 10,
+                  }"
+                ></div>
+              </div>
+            </div>
+            <button class="retro-button" @click="exitGame">Exit Game</button>
           </div>
 
           <!-- Current Player Info -->
@@ -577,7 +739,7 @@ const exitGame = async () => {
 
       <!-- Board Div -->
       <div class="flex-1">
-        <div class="retro-box h-full rounded-lg bg-white p-4 shadow-xl">
+        <div class="retro-box h-full rounded-lg p-4 shadow-xl">
           <svg
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
@@ -678,7 +840,7 @@ const exitGame = async () => {
 
         <!-- Roll Dice Button -->
         <div
-          v-if="!diceRolled && availableMoves?.dices"
+          v-show="!diceRolled && availableMoves?.dices"
           class="mb-4 flex justify-center"
         >
           <button @click="handleDiceRoll" class="retro-button">
@@ -798,24 +960,48 @@ const exitGame = async () => {
 
     <!-- Double Win Modal -->
     <div
-      v-if="showDoubleWinModal"
+      v-if="showResultModal"
       class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     >
       <div class="retro-box max-w-md rounded-lg p-6 text-center">
-        <h3 class="mb-4 text-2xl font-bold text-amber-900">Victory!</h3>
+        <h3 class="mb-4 text-2xl font-bold text-amber-900">
+          {{ isWinner ? 'Victory!' : 'Defeat!' }}
+        </h3>
         <p class="mb-6 text-lg text-gray-700">
-          Your opponent refused the double. You win the game!
+          {{
+            isWinner
+              ? 'Congratulations! You won the game!'
+              : 'Game Over! Better luck next time!'
+          }}
         </p>
         <div class="flex justify-center">
           <button
             @click="handleDoubleWinExit"
-            class="retro-button bg-green-700 hover:bg-green-800"
+            class="retro-button"
+            :class="
+              isWinner
+                ? 'bg-green-700 hover:bg-green-800'
+                : 'bg-red-700 hover:bg-red-800'
+            "
           >
             Return to Menu
           </button>
         </div>
       </div>
     </div>
+    <Chat
+      v-if="
+        session?.username &&
+        (gameState?.game_type === 'online' || gameState?.game_type === 'bot')
+      "
+      :opponentUsername="
+        gameState?.player1 === session?.username
+          ? gameState?.player2 || ''
+          : gameState?.player1 || ''
+      "
+      :gameType="gameState?.game_type || ''"
+      :myUsername="session?.username || ''"
+    />
   </div>
 </template>
 
@@ -839,7 +1025,7 @@ const exitGame = async () => {
 }
 
 .retro-background {
-  background: #2c1810;
+  @apply bg-base-100;
   background-image: repeating-linear-gradient(
       45deg,
       rgba(139, 69, 19, 0.1) 0px,
@@ -859,19 +1045,12 @@ const exitGame = async () => {
 }
 
 .retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
+  @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
 }
 
 .retro-button {
-  @apply btn;
-  background: #d2691e;
-  color: white;
+  @apply btn btn-primary rounded-lg border-4 border-primary shadow-md;
   border: 3px solid #8b4513;
-  font-family: 'Arial Black', serif;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 0 #8b4513;

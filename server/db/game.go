@@ -248,6 +248,45 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	return &g, nil
 }
 
+func GetLastGameWinner(userID int64) (string, error) {
+	q := `
+    SELECT
+        u1.username AS p1_username,
+        u2.username AS p2_username,
+        status,
+        p1_id,
+        p2_id
+    FROM games g
+    JOIN users u1 ON g.p1_id = u1.id
+    JOIN users u2 ON g.p2_id = u2.id
+    WHERE p1_id = $1 OR p2_id = $1
+    ORDER BY start DESC LIMIT 1`
+
+	row := Conn.QueryRow(q, userID)
+
+	var status string
+	var username1, username2 string
+	var p1ID, p2ID int64
+	err := row.Scan(&username1, &username2, &status, &p1ID, &p2ID)
+	if err != nil {
+		return "", err
+	}
+
+	if status != types.GameStatusOpen && status != types.GameStatusWinP1 && status != types.GameStatusWinP2 {
+		return "", errors.New("Game status not valid")
+	}
+
+	switch status {
+	case types.GameStatusWinP1:
+		return username1, nil
+	case types.GameStatusWinP2:
+		return username2, nil
+	case types.GameStatusOpen:
+		return "open", nil
+	default:
+		return "", nil
+	}
+}
 func CreateTurn(t types.Turn) (*types.Turn, error) {
 	q := `
 	INSERT INTO turns(game_id, user_id, time, dices, double, moves)
@@ -313,4 +352,92 @@ func GetLastTurn(gameId int64) (*types.Turn, error) {
 	turn.Moves = ArrayToMovesArray(moves)
 
 	return &turn, nil
+}
+
+func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
+	q :=
+		`
+    SELECT 
+      id 
+    FROM 
+      games g
+    WHERE
+		  g.status != 'open' AND (g.p1_id = $1 OR p2_id = $1)
+	`
+
+	rows, err := Conn.Query(q, userId)
+	if err != nil {
+		return nil, err
+	}
+	slog.With("rows", rows).Debug("STATS")
+	defer rows.Close()
+
+	var gamesPlayed []types.ReturnGame
+	var gameId int64
+
+	for rows.Next() {
+		var g *types.Game
+		var retg *types.ReturnGame
+
+		err = rows.Scan(&gameId)
+		if err != nil {
+			return nil, err
+		}
+
+		slog.With("gameId", gameId).Debug("STATS")
+		g, err = GetGame(gameId)
+		if err != nil {
+			return nil, err
+		}
+		slog.With("game", g).Debug("STATS")
+
+		retg = GameToReturnGame(g)
+		slog.With("retg", retg).Debug("STATS")
+
+		gamesPlayed = append(gamesPlayed, *retg)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return gamesPlayed, nil
+}
+
+func GameToReturnGame(g *types.Game) *types.ReturnGame {
+	var rg types.ReturnGame
+	rg.ID = g.ID
+	rg.Elo1 = g.Elo1
+	rg.Elo2 = g.Elo2
+	rg.Start = g.Start
+	rg.End = g.End
+	rg.Status = g.Status
+	rg.P1Checkers = g.P1Checkers
+	rg.P2Checkers = g.P2Checkers
+	rg.DoubleValue = g.DoubleValue
+	rg.DoubleOwner = g.DoubleOwner
+	rg.WantToDouble = g.WantToDouble
+	rg.CurrentPlayer = g.CurrentPlayer
+	rg.GameType = getGameType(g.Player1, g.Player2)
+
+	p1, _ := GetUser(g.Player1)
+	p2, _ := GetUser(g.Player2)
+
+	rg.Player1 = p1.Username
+	rg.Player2 = p2.Username
+
+	return &rg
+}
+
+func getGameType(p1_id, p2_id int64) string {
+	var gameType string
+	if p1_id == p2_id {
+		gameType = types.GameTypeLocal
+	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+		gameType = types.GameTypeBot
+	} else {
+		gameType = types.GameTypeOnline
+	}
+
+	return gameType
 }

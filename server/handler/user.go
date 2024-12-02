@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	//"time"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
@@ -84,6 +85,7 @@ type loginResponseUser struct {
 	ID       int64  `json:"id" example:"1"`
 	Username string `json:"username" example:"gio"`
 	Email    string `json:"email" example:"giorossi@mail.it"`
+	Token    string `json:"token"`
 }
 
 type loginResponseType struct {
@@ -138,7 +140,7 @@ func Login(c *gin.Context) {
 		3600, // scadenza in secondi (1 ora)
 		"/",
 		config.Get().Server.Domain,
-		true,  // solo HTTPS
+		false, // solo HTTPS
 		false, // httpOnly
 	)
 
@@ -149,6 +151,7 @@ func Login(c *gin.Context) {
 			ID:       user.ID,
 			Username: user.Username,
 			Email:    user.Mail,
+			Token:    sessionToken,
 		},
 	})
 }
@@ -234,6 +237,56 @@ func GetSession(c *gin.Context) {
 
 	c.JSON(http.StatusOK, user)
 	return
+}
+
+// Return the statistics of the current user loggged in
+// @Summary Get users' stats
+// @Schemes
+// @Description Get users' stats
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Stats
+// @Failure 500 "error"
+// @Router /stats [get]
+func GetStats(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	userstats, err := db.GetStats(user_id)
+	if err != nil {
+		slog.With("err", err).Error("User not found")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, userstats)
+	return
+}
+
+// Return the statistics of the current user loggged in
+// @Summary Get users' stats WITHOUT AUTH
+// @Schemes
+// @Description Get users' stats WITHOUT AUTH
+// @Tags public
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Stats
+// @Failure 500 "error"
+// @Router /player/{username} [get]
+func GetPlayer(c *gin.Context) {
+	username := c.Param("username")
+	u, err := db.GetUserByUsername(username)
+	if err != nil {
+		if errors.Is(err, db.UserNotFound) {
+			c.JSON(http.StatusNotFound, "User not found")
+			return
+		}
+		slog.With("err", err).Error("Getting user")
+		c.JSON(http.StatusInternalServerError, "")
+		return
+	}
+
+	c.Set("user_id", u.ID)
+	GetStats(c)
 }
 
 /*

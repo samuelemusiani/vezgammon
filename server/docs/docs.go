@@ -268,6 +268,87 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/invite": {
+            "get": {
+                "description": "Create a game with a link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game with a link",
+                "responses": {
+                    "201": {
+                        "description": "Link created"
+                    }
+                }
+            }
+        },
+        "/play/invite/{id}": {
+            "get": {
+                "description": "Join a game with a link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Join a game with a link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Link ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Link generated"
+                    },
+                    "400": {
+                        "description": "Already in a game"
+                    },
+                    "404": {
+                        "description": "Link not found"
+                    }
+                }
+            }
+        },
+        "/play/last/winner": {
+            "get": {
+                "description": "Get last fame status",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Get last game status",
+                "responses": {
+                    "200": {
+                        "description": "Status of the last game",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "No games or no status found"
+                    }
+                }
+            }
+        },
         "/play/local": {
             "get": {
                 "description": "Create a local game for playing locally in the same device",
@@ -399,6 +480,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/player/{username}": {
+            "get": {
+                "description": "Get users' stats WITHOUT AUTH",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get users' stats WITHOUT AUTH",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Stats"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Register new user",
@@ -458,6 +565,29 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/stats": {
+            "get": {
+                "description": "Get users' stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get users' stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Stats"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
         }
     },
     "definitions": {
@@ -508,6 +638,9 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "example": 1
+                },
+                "token": {
+                    "type": "string"
                 },
                 "username": {
                     "type": "string",
@@ -653,6 +786,44 @@ const docTemplate = `{
                 "want_to_double": {
                     "type": "boolean",
                     "example": false
+                }
+            }
+        },
+        "types.Stats": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "integer"
+                },
+                "elo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "games_played": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
+                "local": {
+                    "type": "integer"
+                },
+                "lost": {
+                    "type": "integer"
+                },
+                "online": {
+                    "type": "integer"
+                },
+                "tournament": {
+                    "type": "integer"
+                },
+                "win": {
+                    "type": "integer"
+                },
+                "winrate": {
+                    "type": "number"
                 }
             }
         },

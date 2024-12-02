@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
+	"math"
 	"strings"
 	"time"
 	"vezgammon/server/types"
@@ -207,7 +208,7 @@ func ValidateSessionToken(token string) (int64, error) {
 }
 
 func CreateUser(u types.User, password string) (types.User, error) {
-	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot) 
+	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot)
     VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
 	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.IsBot)
 
@@ -274,6 +275,8 @@ func GetUser(userId int64) (*types.User, error) {
 		return nil, err
 	}
 
+	tmp.ID = userId
+
 	return &tmp, nil
 }
 
@@ -304,4 +307,64 @@ func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64)
 	}
 
 	return nil
+}
+
+func GetStats(user_id int64) (*types.Stats, error) {
+	stats := new(types.Stats)
+
+	//partite dal db con current state won lost del player(user_id)
+	u, err := GetUser(user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	var gp []types.ReturnGame
+	gp, err = GetAllGameFromUser(user_id)
+	if err != nil {
+		return nil, err
+	}
+
+	stats.Gameplayed = gp
+	stats.Tournament = 0 // not implemented yet
+	for _, game := range gp {
+		if game.GameType == types.GameTypeBot {
+			stats.Cpu++
+		} else if game.GameType == types.GameTypeLocal {
+			stats.Local++
+		} else if game.GameType == types.GameTypeOnline {
+			stats.Online++
+		}
+
+		if game.GameType != types.GameTypeLocal { // no sense to count local games in winrate statistics
+			if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
+				stats.Won++
+			} else {
+				stats.Lost++
+			}
+		}
+
+		if game.Player1 == u.Username {
+			stats.Elo = append(stats.Elo, game.Elo1)
+		} else {
+			stats.Elo = append(stats.Elo, game.Elo2)
+		}
+	}
+	stats.Elo = append(stats.Elo, u.Elo)
+
+	if len(stats.Gameplayed) == 0 {
+		stats.Winrate = 0
+	} else {
+		// no local games
+		gameSum := stats.Won + stats.Lost
+		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(gameSum))*100)) / 100
+	}
+	slog.With("stats", stats).Debug("Statistiche")
+
+	return stats, nil
+}
+
+func UpdateUserElo(user_id int64, elo int64) error {
+	q := `UPDATE users SET elo = $1 WHERE id = $2`
+	_, err := Conn.Exec(q, elo, user_id)
+	return err
 }

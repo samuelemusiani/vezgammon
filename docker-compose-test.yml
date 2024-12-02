@@ -12,13 +12,26 @@ services:
     ports:
       - "5432:5432"
     healthcheck:
-      test: [ "CMD", "pg_isready" ]
+      test: ["CMD", "pg_isready"]
       interval: 10s
       timeout: 5s
       retries: 5
-  
+
   bgweb:
     image: foochu/bgweb-api:latest
     restart: always
     ports:
       - 3030:8080
+
+  pgweb:
+    container_name: pgweb # optional
+    restart: always # optional
+    image: sosedoff/pgweb
+    ports:
+      - "8081:8081"
+    links:
+      - db:db # my database container is called postgres, not db
+    environment:
+      - DATABASE_URL=postgres://test:test@db:5432/vezgammon?sslmode=disable
+    depends_on:
+      - db # my database container is called postgres, not db

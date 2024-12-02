@@ -2,9 +2,11 @@ package handler
 
 import (
 	"embed"
+	"log/slog"
 	"net/http"
 	"strings"
 	"vezgammon/server/config"
+	"vezgammon/server/ws"
 
 	"github.com/gin-contrib/static"
 	"github.com/gin-gonic/gin"
@@ -25,6 +27,8 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
 	// middleware for backend API
 	protected := router.Group("/api")
+	protected.GET("/player/:username", GetPlayer)
+
 	protected.Use(AuthMiddleware())
 
 	// Gruppo di rotte protette per le API
@@ -32,9 +36,13 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.POST("/login", Login)
 	protected.POST("/logout", Logout)
 	protected.GET("/session", GetSession)
+	protected.GET("stats", GetStats)
 
 	playGroup := protected.Group("/play")
+	//playGroup.GET("/last/winner", GetLastGameWinner)
 	playGroup.GET("/search", StartPlaySearch)
+	playGroup.GET("/invite", StartPlayInviteSearch)
+	playGroup.GET("/invite/:id", PlayInvite)
 	playGroup.DELETE("/search", StopPlaySearch)
 	playGroup.GET("/local", StartGameLocalcally)
 	playGroup.GET("/", GetCurrentGame)
@@ -47,6 +55,11 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup.GET("/bot/easy", PlayEasyBot)
 	playGroup.GET("/bot/medium", PlayMediumBot)
 	playGroup.GET("/bot/hard", PlayHardBot)
+
+	protected.GET("/ws", func(c *gin.Context) {
+		slog.Debug("prova")
+		ws.WSHandler(c.Writer, c.Request, c.MustGet("user_id").(int64))
+	})
 
 	// expose swagger web console
 	if conf.Swagger {

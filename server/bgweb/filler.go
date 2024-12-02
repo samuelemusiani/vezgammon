@@ -33,7 +33,15 @@ func fill(m [][]types.Move, g *types.Game) (r [][]types.Move, modified bool) {
 
 			to := m[i][j].To
 			from := m[i][j+1].From
-			if to == from && currentBoard[to] == 0 {
+
+			var previousMoves []types.Move
+			if j >= 2 {
+				previousMoves = m[i][:j-1]
+			} else {
+				previousMoves = []types.Move{}
+			}
+
+			if to == from && currentBoard[to]+countMan(to, previousMoves) == 0 {
 				continue
 			}
 
@@ -73,4 +81,17 @@ func contains(a [][]types.Move, b []types.Move) bool {
 	}
 
 	return false
+}
+
+func countMan(pos int64, m []types.Move) int8 {
+	count := int8(0)
+	for i := range m {
+		if m[i].From == pos {
+			count--
+		} else if m[i].To == pos {
+			count++
+		}
+	}
+
+	return count
 }
