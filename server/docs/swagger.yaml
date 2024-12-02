@@ -232,8 +232,6 @@ paths:
         "500":
           description: error
       summary: Get user's badges
-      tags:
-      - badge
   /login:
     post:
       consumes:

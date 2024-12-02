@@ -306,7 +306,6 @@ func GetAllUsers(c *gin.Context) {
 // @Summary Get user's badges
 // @Schemes
 // @Description Get user's badges
-// @Tags badge
 // @Accept json
 // @Produce json
 // @Success 200 {object} types.Badge

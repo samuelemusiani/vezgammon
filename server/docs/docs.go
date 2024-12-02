@@ -24,9 +24,6 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
-                "tags": [
-                    "badge"
-                ],
                 "summary": "Get user's badges",
                 "responses": {
                     "200": {
