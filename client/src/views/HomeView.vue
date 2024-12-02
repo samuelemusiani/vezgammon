@@ -223,6 +223,7 @@
               class="w-full bg-transparent p-2"
               readonly
             />
+
             <button
               @click="copyInviteLink"
               class="retro-button px-4"
@@ -235,6 +236,29 @@
 
         <!-- Close button -->
         <div class="modal-action">
+          <div v-if="inviteLink" class="mr-5 mt-1 flex justify-start gap-2">
+            <ShareNetwork
+              network="telegram"
+              :url="inviteLink"
+              title="Do you want to play with me? Join me on VezGammon!"
+            >
+              <button class="btn btn-info btn-md text-xl">
+                <i class="fab fa-telegram"></i>
+                Telegram
+              </button>
+            </ShareNetwork>
+
+            <ShareNetwork
+              network="whatsapp"
+              :url="inviteLink"
+              title="Do you want to play with me? Join me on VezGammon!"
+            >
+              <button class="btn btn-md bg-green-400 text-xl">
+                <i class="fab fa-whatsapp"></i>
+                Whatsapp
+              </button>
+            </ShareNetwork>
+          </div>
           <form method="dialog">
             <button class="retro-button">Close</button>
           </form>

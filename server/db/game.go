@@ -357,9 +357,9 @@ func GetLastTurn(gameId int64) (*types.Turn, error) {
 func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
 	q :=
 		`
-    SELECT 
-      id 
-    FROM 
+    SELECT
+      id
+    FROM
       games g
     WHERE
 		  g.status != 'open' AND (g.p1_id = $1 OR p2_id = $1)
@@ -372,7 +372,7 @@ func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
 	slog.With("rows", rows).Debug("STATS")
 	defer rows.Close()
 
-	var gamesPlayed []types.ReturnGame
+	var gamesPlayed []types.ReturnGame = make([]types.ReturnGame, 0)
 	var gameId int64
 
 	for rows.Next() {
