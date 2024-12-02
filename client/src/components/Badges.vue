@@ -4,12 +4,12 @@ import { ref } from 'vue'
 type BadgeCategory = 'bot' | 'elo' | 'pieces' | 'played' | 'time' | 'win'
 
 interface Badges {
-  bot: number
-  elo: number
-  pieces: number
-  played: number
-  time: number
-  win: number
+  bot: number[]
+  elo: number[]
+  pieces: number[]
+  played: number[]
+  time: number[]
+  win: number[]
 }
 
 const props = defineProps<{
@@ -58,7 +58,7 @@ const getBadgeDescription = (category: string, level: number) => {
 }
 
 function openBadgeModal(category: BadgeCategory, level: number) {
-  if (props.badges && level <= props.badges[category]) {
+  if (props.badges && props.badges[category][level - 1] !== 0) {
     selectedBadge.value = { category, level }
     isModalOpen.value = true
   }
@@ -70,12 +70,16 @@ function closeModal() {
     selectedBadge.value = null
   }, 300)
 }
+
+function getEarnedBadgesCount(badges: number[]): number {
+  return badges.filter(badge => badge !== 0).length
+}
 </script>
 
 <template>
   <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
     <div
-      v-for="(value, category) in badges"
+      v-for="(badgeArray, category) in badges"
       :key="category"
       class="badge-category"
     >
@@ -98,8 +102,8 @@ function closeModal() {
               :alt="`${category} badge level ${level}`"
               class="badge-image"
               :class="{
-                unearned: level > value,
-                'hover:scale-[1.4]': level <= value,
+                unearned: badgeArray[level - 1] === 0,
+                'hover:scale-[1.4]': badgeArray[level - 1] !== 0,
               }"
             />
 
@@ -107,7 +111,7 @@ function closeModal() {
               v-if="
                 hoveredBadge?.category === category &&
                 hoveredBadge?.level === level &&
-                level <= value
+                badgeArray[level - 1] !== 0
               "
               class="badge-tooltip"
             >
@@ -118,11 +122,14 @@ function closeModal() {
       </div>
 
       <div class="mt-2 text-center">
-        <span class="badge badge-primary badge-md"> {{ value }}/3 </span>
+        <span class="badge badge-primary badge-md">
+          {{ getEarnedBadgesCount(badgeArray) }}/3
+        </span>
       </div>
     </div>
   </div>
 
+  <!-- Modal resta invariato -->
   <div
     v-if="selectedBadge"
     class="modal-backdrop"
