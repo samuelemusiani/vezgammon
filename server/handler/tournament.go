@@ -265,12 +265,14 @@ func CancelTournament(c *gin.Context) {
 	id := c.Param("tournament_id")
 	id64, err := strconv.ParseInt(id, 10, 64)
 	if err != nil {
+		slog.With("error", err).Debug("at cancel tournament 1")
 		c.JSON(http.StatusBadRequest, err)
 		return
 	}
 
 	tournament, err := db.GetTournament(id64)
 	if err != nil {
+		slog.With("error", err).Debug("at cancel tournament 2")
 		c.JSON(http.StatusNotFound, err)
 	}
 
@@ -286,6 +288,7 @@ func CancelTournament(c *gin.Context) {
 
 	err = db.DeleteTournament(id64)
 	if err != nil {
+		slog.With("error", err).Debug("at cancel tournament 3")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
