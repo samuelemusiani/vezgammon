@@ -284,13 +284,13 @@ const handleDiceRoll = () => {
 }
 
 const startTimer = () => {
-  timeLeft.value = 10
+  timeLeft.value = 60
 
   if (timerInterval.value) {
     clearInterval(timerInterval.value)
   }
 
-  timerInterval.value = setTimeout(() => {
+  timerInterval.value = setInterval(() => {
     timeLeft.value--
     if (timeLeft.value <= 0) {
       stopTimer()
