@@ -83,7 +83,11 @@ func GetReplay(c *gin.Context) {
 	}
 
 	for i := range tmp.Move {
-		g.PlayMove(turns[i].Moves)
+		t := turns[i]
+		if t.Double {
+			continue
+		}
+		g.PlayMove(t.Moves)
 	}
 
 	u1, err := db.GetUser(g.Player1)
