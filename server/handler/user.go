@@ -323,3 +323,44 @@ func GetBadge(c *gin.Context) {
 	c.JSON(http.StatusOK, badge)
 
 }
+
+type changePasswordType struct {
+	NewPass string `json:"new_pass"`
+	OldPass string `json:"old_pass"`
+}
+
+// Change password
+// @Summary Change password of the user
+// @Schemes
+// @Description Change password given the old and new pass
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500 "error"
+// @Router /ChangePass [post]
+func ChangePass(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	user, err := db.GetUser(user_id)
+	if err != nil {
+		slog.With("err", err).Error("Bad request")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	var s changePasswordType
+	if err := c.BindJSON(&s); err != nil {
+		slog.With("err", err).Error("Bad request unmarshal")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	err = db.ChangePass(user.Username, s.NewPass, s.OldPass)
+	if err != nil {
+		slog.With("err", err).Debug("Changing password")
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password has been changed successfuly"})
+	return
+}
