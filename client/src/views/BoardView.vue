@@ -19,6 +19,8 @@ import {
 
 import ConfettiExplosion from 'vue-confetti-explosion'
 import Chat from '@/components/ChatContainer.vue'
+import GameTimer from '@/components/game/GameTimer.vue'
+import PlayerInfo from '@/components/game/PlayerInfo.vue'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
@@ -629,27 +631,12 @@ const exitGame = async () => {
           class="flex w-48 flex-col justify-evenly rounded-lg border-8 border-primary bg-base-100 p-4 shadow-xl"
         >
           <!-- Opponent Info -->
-          <div class="mb-8 flex flex-col items-center">
-            <div class="relative mb-2">
-              <div class="h-16 w-16 overflow-hidden rounded-full bg-gray-200">
-                <img
-                  src="https://api.dicebear.com/6.x/avataaars/svg?seed=opponent"
-                  alt="Opponent avatar"
-                  class="h-full w-full object-cover"
-                />
-              </div>
-              <div
-                :class="[
-                  'absolute -bottom-1 right-0 h-4 w-4 rounded-full border-2 border-white',
-                  gameState?.current_player === 'p1'
-                    ? 'bg-green-500'
-                    : 'bg-gray-300',
-                ]"
-              ></div>
-            </div>
-            <h3 class="text-lg font-bold">{{ gameState?.player2 }}</h3>
-            <p class="text-gray-600">ELO: {{ gameState?.elo2 }}</p>
-          </div>
+          <PlayerInfo
+            :username="gameState?.player2 || ''"
+            :elo="gameState?.elo2 || 0"
+            :isCurrentTurn="gameState?.current_player === 'p1'"
+            :isOpponent="true"
+          />
 
           <!-- Double Dice Here -->
           <div class="flex flex-col items-center">
@@ -694,46 +681,16 @@ const exitGame = async () => {
           <div
             class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
           >
-            <div v-show="isMyTurn" class="w-full">
-              <div class="mb-2 text-center text-xl font-bold">
-                Time Left: {{ timeLeft }}s
-              </div>
-              <div class="h-2 w-full rounded-full bg-gray-200">
-                <div
-                  class="h-full rounded-full bg-primary transition-all duration-1000"
-                  :style="{ width: `${(timeLeft / 60) * 100}%` }"
-                  :class="{
-                    'bg-red-500': timeLeft <= 10,
-                    'bg-yellow-500': timeLeft <= 30 && timeLeft > 10,
-                  }"
-                ></div>
-              </div>
-            </div>
+            <GameTimer :timeLeft="timeLeft" :isMyTurn="isMyTurn" />
             <button class="retro-button" @click="exitGame">Exit Game</button>
           </div>
 
           <!-- Current Player Info -->
-          <div class="mt-8 flex flex-col items-center">
-            <div class="relative mb-2">
-              <div class="h-16 w-16 overflow-hidden rounded-full bg-gray-200">
-                <img
-                  src="https://api.dicebear.com/6.x/avataaars/svg?seed=player"
-                  alt="Player avatar"
-                  class="h-full w-full object-cover"
-                />
-              </div>
-              <div
-                :class="[
-                  'absolute -bottom-1 right-0 h-4 w-4 rounded-full border-2 border-white',
-                  gameState?.current_player === 'p2'
-                    ? 'bg-green-500'
-                    : 'bg-gray-300',
-                ]"
-              ></div>
-            </div>
-            <h3 class="text-lg font-bold">{{ gameState?.player1 }}</h3>
-            <p class="text-gray-600">ELO: {{ gameState?.elo1 }}</p>
-          </div>
+          <PlayerInfo
+            :username="gameState?.player1 || ''"
+            :elo="gameState?.elo1 || 0"
+            :isCurrentTurn="gameState?.current_player === 'p2'"
+          />
         </div>
       </div>
 
