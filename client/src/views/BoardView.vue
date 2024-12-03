@@ -23,6 +23,7 @@ import GameTimer from '@/components/game/GameTimer.vue'
 import PlayerInfo from '@/components/game/PlayerInfo.vue'
 import DoubleDice from '@/components/game/DoubleDice.vue'
 import DiceContainer from '@/components/game/DiceContainer.vue'
+import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
@@ -745,24 +746,13 @@ const exitGame = async () => {
       <div
         class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
       >
-        <!-- Opponent's Captured Checkers -->
-        <div
-          class="captured-checkers-container mb-4 flex flex-col place-items-center"
-          :class="{ 'highlight-container': possibleMoves.includes(25) }"
+        <!-- Captured Checkers -->
+        <CapturedCheckers
+          player="p1"
+          :checkerCount="getOutCheckers('p1')"
+          :isHighlighted="possibleMoves.includes(25)"
           @click="handleTriangleClick(25)"
-        >
-          <div
-            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
-          >
-            <div class="flex flex-col gap-1">
-              <div
-                v-for="i in getOutCheckers('p1')"
-                :key="'black-' + i"
-                class="h-3 w-full rounded-full border border-blue-500 bg-black"
-              ></div>
-            </div>
-          </div>
-        </div>
+        />
 
         <!-- Roll Dice Button -->
         <DiceContainer
@@ -773,23 +763,13 @@ const exitGame = async () => {
           @roll="handleDiceRoll"
         />
 
-        <div
-          class="captured-checkers-container mt-4 flex flex-col place-items-center"
-          :class="{ 'highlight-container': possibleMoves.includes(25) }"
+        <!-- Captured Checkers -->
+        <CapturedCheckers
+          player="p2"
+          :checkerCount="getOutCheckers('p2')"
+          :isHighlighted="possibleMoves.includes(25)"
           @click="handleTriangleClick(25)"
-        >
-          <div
-            class="h-64 w-16 overflow-hidden rounded-lg border-2 border-amber-900 p-1"
-          >
-            <div class="flex flex-col gap-1">
-              <div
-                v-for="i in getOutCheckers('p2')"
-                :key="'white-' + i"
-                class="h-3 w-full rounded-full border border-black bg-white"
-              ></div>
-            </div>
-          </div>
-        </div>
+        />
       </div>
     </div>
 
