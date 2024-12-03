@@ -21,6 +21,8 @@ import ConfettiExplosion from 'vue-confetti-explosion'
 import Chat from '@/components/ChatContainer.vue'
 import GameTimer from '@/components/game/GameTimer.vue'
 import PlayerInfo from '@/components/game/PlayerInfo.vue'
+import DoubleDice from '@/components/game/DoubleDice.vue'
+import DiceContainer from '@/components/game/DiceContainer.vue'
 import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import diceSfx from '@/utils/sounds/dice.mp3'
@@ -639,44 +641,11 @@ const exitGame = async () => {
           />
 
           <!-- Double Dice Here -->
-          <div class="flex flex-col items-center">
-            <div
-              class="flex h-16 w-16 items-center justify-center rounded-lg p-2"
-            >
-              <svg viewBox="0 0 60 60">
-                <!-- Dice border -->
-                <rect
-                  x="1"
-                  y="1"
-                  width="58"
-                  height="58"
-                  rx="8"
-                  class="fill-primary"
-                  stroke="black"
-                  stroke-width="2"
-                />
-                <!-- Number text -->
-                <text
-                  x="30"
-                  y="40"
-                  text-anchor="middle"
-                  font-size="30"
-                  font-weight="bold"
-                  fill="white"
-                >
-                  {{ gameState?.double_value }}
-                </text>
-              </svg>
-            </div>
-            <button
-              @click="handleDouble"
-              class="retro-button mt-2"
-              v-show="showDoubleButton"
-            >
-              Double
-            </button>
-          </div>
-
+          <DoubleDice
+            :doubleValue="gameState?.double_value || 1"
+            :showDoubleButton="showDoubleButton"
+            @double="handleDouble"
+          />
           <!-- Game Timer -->
           <div
             class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
@@ -796,77 +765,13 @@ const exitGame = async () => {
         </div>
 
         <!-- Roll Dice Button -->
-        <div
-          v-show="!diceRolled && availableMoves?.dices"
-          class="mb-4 flex justify-center"
-        >
-          <button @click="handleDiceRoll" class="retro-button">
-            Roll Dice
-          </button>
-        </div>
-
-        <div class="flex justify-center gap-4">
-          <div
-            v-for="(die, index) in diceRolled ? displayedDice : []"
-            :key="index"
-            class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
-            :class="{ 'dice-rolling': isRolling }"
-          >
-            <svg viewBox="0 0 60 60">
-              <!-- Dice border -->
-              <rect
-                x="1"
-                y="1"
-                width="58"
-                height="58"
-                rx="8"
-                fill="white"
-                stroke="black"
-                stroke-width="2"
-              />
-
-              <!-- Number as dots inside the dice -->
-              <template v-if="die === 1">
-                <circle cx="30" cy="30" r="5" fill="black" />
-              </template>
-
-              <template v-if="die === 2">
-                <circle cx="20" cy="20" r="5" fill="black" />
-                <circle cx="40" cy="40" r="5" fill="black" />
-              </template>
-
-              <template v-if="die === 3">
-                <circle cx="20" cy="20" r="5" fill="black" />
-                <circle cx="30" cy="30" r="5" fill="black" />
-                <circle cx="40" cy="40" r="5" fill="black" />
-              </template>
-
-              <template v-if="die === 4">
-                <circle cx="20" cy="20" r="5" fill="black" />
-                <circle cx="40" cy="20" r="5" fill="black" />
-                <circle cx="20" cy="40" r="5" fill="black" />
-                <circle cx="40" cy="40" r="5" fill="black" />
-              </template>
-
-              <template v-if="die === 5">
-                <circle cx="20" cy="20" r="5" fill="black" />
-                <circle cx="40" cy="20" r="5" fill="black" />
-                <circle cx="30" cy="30" r="5" fill="black" />
-                <circle cx="20" cy="40" r="5" fill="black" />
-                <circle cx="40" cy="40" r="5" fill="black" />
-              </template>
-
-              <template v-if="die === 6">
-                <circle cx="20" cy="15" r="5" fill="black" />
-                <circle cx="40" cy="15" r="5" fill="black" />
-                <circle cx="20" cy="30" r="5" fill="black" />
-                <circle cx="40" cy="30" r="5" fill="black" />
-                <circle cx="20" cy="45" r="5" fill="black" />
-                <circle cx="40" cy="45" r="5" fill="black" />
-              </template>
-            </svg>
-          </div>
-        </div>
+        <DiceContainer
+          :diceRolled="diceRolled"
+          :displayedDice="displayedDice"
+          :isRolling="isRolling"
+          :canRoll="!diceRolled && !!availableMoves?.dices"
+          @roll="handleDiceRoll"
+        />
 
         <div
           class="captured-checkers-container mt-4 flex flex-col place-items-center"
