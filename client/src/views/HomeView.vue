@@ -100,8 +100,8 @@
               @mouseenter="(e: MouseEvent) => play()"
               @click="playTutorial"
               class="retro-button"
-              >
-               Play Tutorial
+            >
+              Play Tutorial
             </button>
           </template>
 
@@ -420,7 +420,10 @@ const backToGameMode = () => {
   showDifficulty.value = false
 }
 
-const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard', variant=null) => {
+const startGameWithAI = async (
+  difficulty: 'easy' | 'medium' | 'hard',
+  variant = null,
+) => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
   showDifficulty.value = false

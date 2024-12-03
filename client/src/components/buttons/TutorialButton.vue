@@ -7,7 +7,7 @@ const isModalOpen = ref(false)
 
 // Stepper control states
 const currentStep = ref(1)
-const totalSteps = 3
+const totalSteps = 4
 
 // Function to navigate steps
 const goToNextStep = () => {
@@ -40,7 +40,7 @@ onUnmounted(() => {
   <div class="fixed bottom-4 left-4 z-50">
     <!-- Floating Button -->
     <button
-      class="rounded-full retro-button circle bg-primary"
+      class="retro-button circle rounded-full bg-primary"
       @click="isModalOpen = true"
     >
       <i class="fas fa-info"></i>
@@ -49,25 +49,27 @@ onUnmounted(() => {
     <!-- Modal -->
     <div
       v-if="isModalOpen"
-      class="flex fixed inset-0 z-50 justify-center items-center bg-black bg-opacity-50"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
     >
-      <div class="p-6 w-full max-w-lg bg-white rounded-lg retro-box">
-
+      <div
+        class="retro-box relative flex min-h-[50%] w-full max-w-[60%] flex-col rounded-lg bg-white p-6"
+      >
         <!-- Modal Headers -->
-        <div class="flex justify-between items-center mb-4">
+        <div class="mb-4 flex items-center justify-between">
           <h3 class="text-xl font-bold text-gray-700">Tutorial Videos</h3>
           <!-- Close Button -->
           <button class="text-gray-400 hover:text-gray-600" @click="closeModal">
             <i class="fas fa-times fa-lg"></i>
           </button>
         </div>
+
         <!-- Stepper -->
-        <div class="mb-6">
-          <div class="flex justify-between mb-4">
+        <div class="mb-6 flex-grow">
+          <div class="mb-4 flex justify-between">
             <span
               v-for="step in totalSteps"
               :key="step"
-              class="flex justify-center items-center w-8 h-8 rounded-full border-2"
+              class="flex h-8 w-8 items-center justify-center rounded-full border-2"
               :class="{
                 'border-primary bg-primary text-white': currentStep === step,
                 'border-gray-300 bg-gray-200 text-gray-500':
@@ -80,29 +82,47 @@ onUnmounted(() => {
 
           <!-- Step Content -->
           <div v-if="currentStep === 1">
-            <video
-              class="w-full h-48 object-cover rounded-lg"
-              src="/tutorial-1.mp4"
-              controls
-              ></video>
-            <p class="text-gray-600">Step 1: Upload your video files (TODO).</p>
-            <!-- Add your input components here -->
+            <img
+              class="aspect-video w-full rounded-lg object-cover"
+              src="/tutorial-dice.gif"
+              alt="tutorial-dice"
+            />
+            <p class="text-xl">Step 1: Roll the dice!</p>
           </div>
           <div v-else-if="currentStep === 2">
-            <p class="text-gray-600">
-              Step 2: Review and organize videos (TODO).
-            </p>
+            <img
+              class="aspect-video w-full rounded-lg object-cover"
+              src="/tutorial-move.gif"
+              alt="tutorial-move"
+            />
+            <p class="text-xl">Step 2: move the checkers!</p>
           </div>
           <div v-else-if="currentStep === 3">
-            <p class="text-gray-600">Step 3: Confirm and save (TODO).</p>
+            <img
+              class="aspect-video w-full rounded-lg object-cover"
+              src="/tutorial-exit.gif"
+              alt="tutorial-exit"
+            />
+            <p class="text-xl">Step 3: Exiting</p>
+          </div>
+          <div
+            v-else-if="currentStep === 4"
+            class="flex min-h-[400px] w-full flex-col items-center justify-center"
+          >
+            <h1 class="text-center text-2xl font-bold text-gray-700">
+              Tutorial Completed!
+            </h1>
+            <h2 class="mb-5 text-center text-lg font-semibold text-gray-600">
+              Go win your first match!
+            </h2>
           </div>
         </div>
 
         <!-- Step Navigation -->
-        <div class="flex justify-between">
+        <div class="mt-auto flex w-full justify-between">
           <button
-            v-if="currentStep > 1"
-            class="bg-gray-300 retro-button"
+            :disabled="currentStep === 1"
+            class="retro-button bg-gray-300"
             @click="goToPreviousStep"
           >
             I'll go back
@@ -116,18 +136,12 @@ onUnmounted(() => {
           </button>
           <button
             v-if="currentStep === totalSteps"
-            class="bg-green-500 retro-button"
+            class="retro-button bg-green-500"
             @click="closeModal"
           >
             Finish
           </button>
         </div>
-        <button
-          class="absolute top-3 right-3 text-gray-400 hover:text-gray-600"
-          @click="closeModal"
-        >
-          <i class="fas fa-times"></i>
-        </button>
       </div>
     </div>
   </div>
