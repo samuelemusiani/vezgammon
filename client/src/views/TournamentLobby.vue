@@ -250,7 +250,11 @@ const handleMessage = async (message: WSMessage) => {
   }
   else if(message.type === 'game_tournament_ready') {
     await fetchTournament()
-    $toast.success('Tournament is starting!')
+    if(!showBracket.value)
+      $toast.success('Tournament is starting!')
+    else {
+      $toast.success('Get ready for the next round!')
+    }
     showBracket.value = true
     setTimeout(() => {
       router.push('/game')
