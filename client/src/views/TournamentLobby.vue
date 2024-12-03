@@ -35,7 +35,9 @@
             </button>
             <button
               class="retro-button"
-              @click="showTournamentBracket"
+              @click="startTournament"
+              :disabled="!showStartButton"
+              :style="{ textShadow: !showStartButton ? 'none' : '2px 2px 0 rgba(0, 0, 0, 0.2)' }"
             >
               Start Tournament
             </button>
@@ -46,6 +48,13 @@
               @click="exitTournament"
             >
               Exit Tournament
+            </button>
+            <button
+              class="retro-button"
+              disabled
+              :style="{ textShadow: 'none' }"
+            >
+              {{ tournament.users.length === 4 ? 'Tournament full' : 'Waiting for players...' }}
             </button>
           </div>
         </div>
@@ -193,6 +202,11 @@ import router from "@/router";
 import { useWebSocketStore } from '@/stores/websocket'
 import type {Tournament, WSMessage} from "@/utils/types";
 
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+
+const $toast = useToast();
+
 const semifinal1Winner = ref<string | undefined>('TBD')
 const semifinal2Winner = ref<string | undefined>('TBD')
 const semifinal1Looser = ref<string | undefined>('TBD')
@@ -204,15 +218,18 @@ const thirdplace = ref<string | undefined>('')
 const tournament = ref<Tournament | null>(null)
 const myUsername = ref('')
 const showBracket = ref(false)
+const showStartButton = ref(false)
 
 const tournamentId = router.currentRoute.value.params.id
-const owner = ref<boolean>('')
+const owner = ref<boolean>(false)
 const webSocketStore = useWebSocketStore()
 
 const fetchTournament = async () => {
   try {
     const response = await fetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
+    if(tournament.value?.users.length === 4)
+      showStartButton.value = true
   }
   catch (error) {
     console.error('tournament: ' + error)
@@ -234,6 +251,7 @@ onMounted(async () => {
   await fetchTournament()
   await fetchMe()
   owner.value = tournament.value?.owner === myUsername.value
+  showBracket.value = tournament.value?.status === 'in_progress'
   try {
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
@@ -250,11 +268,38 @@ onUnmounted(() => {
 const handleMessage = async (message: WSMessage) => {
   console.log('TOURNAMENTS: Received message:', message)
   if (message.type === 'tournament_cancelled') {
-    alert('Tournament has been cancelled')
+    $toast.error('Tournament has been cancelled')
     await router.push('/')
   }
   else if(message.type === 'tournament_new_user_enrolled') {
     await fetchTournament()
+    $toast.info('Someone joined the tournament :)')
+  }
+  else if(message.type === 'tournament_user_left') {
+    await fetchTournament()
+    $toast.warning('Someone left the tournament :(')
+  }
+  else if(message.type === 'game_tournament_ready') {
+    $toast.success('Tournament is starting!')
+    showBracket.value = true
+    // wait for 3 seconds, then router push to /game
+    setTimeout(() => {
+      router.push('/game')
+    }, 3000)
+  }
+}
+
+function startTournament() {
+  try {
+    fetch(`/api/tournament/${tournamentId}/start`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      }
+    })
+  }
+  catch (error) {
+    console.log(error)
   }
 }
 
@@ -266,6 +311,7 @@ function exitTournament() {
         'Content-Type': 'application/json'
       }
     })
+    $toast.warning('You left this tournament')
     router.push('/')
   }
   catch (error) {
@@ -281,16 +327,10 @@ function deleteTournament() {
         'Content-Type': 'application/json'
       }
     })
-    alert('Tournament has been cancelled')
-    router.push('/')
   }
   catch (error) {
     console.error(error)
   }
-}
-
-function showTournamentBracket() {
-  showBracket.value = true
 }
 
 function progressSemifinal1() {

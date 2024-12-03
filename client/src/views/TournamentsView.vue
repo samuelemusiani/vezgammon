@@ -56,9 +56,13 @@
             <button @mouseenter="play" @click="closeTournamentModal" class="retro-button">
               CLOSE
             </button>
-            <button @mouseenter="play" @click="joinTournament(selectedTournament.id)" class="retro-button">
+            <button @mouseenter="play" v-if="selectedTournament?.users.includes(myUsername)" @click="joinTournament(selectedTournament.id)" class="retro-button">
+              SEE TOURNAMENT
+            </button>
+            <button @mouseenter="play" v-else @click="joinTournament(selectedTournament.id)" class="retro-button">
               JOIN TOURNAMENT
             </button>
+
           </div>
         </div>
       </div>
@@ -73,6 +77,11 @@ import buttonSfx from '@/utils/sounds/button.mp3'
 import router from "@/router";
 import type {Tournament} from "@/utils/types";
 
+import {useToast} from 'vue-toast-notification';
+import 'vue-toast-notification/dist/theme-sugar.css';
+
+const $toast = useToast();
+
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 
 interface SimpleTournament {
@@ -84,6 +93,18 @@ interface SimpleTournament {
 }
 
 const tournaments = ref<SimpleTournament[] | null>(null)
+const myUsername = ref('')
+
+const fetchMe = async () => {
+  try {
+    const response = await fetch('/api/session')
+    const user = await response.json()
+    myUsername.value = user.username
+  }
+  catch (error) {
+    console.error('me: ' + error)
+  }
+}
 
 onMounted(async () => {
   try {
@@ -93,8 +114,8 @@ onMounted(async () => {
   } catch (error) {
     console.error('Error fetching tournaments:', error)
   }
+  await fetchMe()
 })
-
 
 // Selected tournament for modal
 const selectedTournament = ref<Tournament | null>(null)
@@ -117,6 +138,10 @@ const closeTournamentModal = async () => {
 }
 
 const joinTournament = async (tournamentId: number) => {
+  if(selectedTournament.value?.users.includes(myUsername.value)) {
+    await router.push('/tournaments/' + tournamentId)
+    return
+  }
   try {
     const response = await fetch(`/api/tournament/${tournamentId}`, {
       method: 'POST',
@@ -124,6 +149,7 @@ const joinTournament = async (tournamentId: number) => {
     })
     if(response.ok) {
       await router.push('/tournaments/' + tournamentId)
+      $toast.info('You joined a tournament!')
     }
     else {
       console.error('Error joining tournament:', response)
