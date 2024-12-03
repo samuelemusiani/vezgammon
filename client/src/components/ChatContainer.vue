@@ -45,9 +45,7 @@
             <div
               :class="[
                 'max-w-[80%] rounded-lg px-4 py-2 text-white',
-                msg.sender === myUsername
-                  ? 'bg-primary '
-                  : 'bg-secondary',
+                msg.sender === myUsername ? 'bg-primary' : 'bg-secondary',
               ]"
             >
               <div class="mb-1 text-xs opacity-100">
@@ -64,15 +62,16 @@
         class="absolute bottom-0 left-0 flex h-12 w-full border-t-2 border-primary"
       >
         <input
+          ref="messageInput"
           v-model="newMessage"
           type="text"
           placeholder="Type a message..."
-          class="flex-1 bg-base-100 bg-blur px-4"
+          class="bg-blur flex-1 bg-base-100 px-4"
           @keyup.enter="sendMessage"
         />
         <button
           @click="sendMessage"
-          class="w-12 bg-primary text-white hover:bg-primary-700"
+          class="hover:bg-primary-700 w-12 bg-primary text-white"
         >
           <i class="fas fa-paper-plane"></i>
         </button>
@@ -82,7 +81,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import '@fortawesome/fontawesome-free/css/all.min.css'
 
 import { useWebSocketStore } from '@/stores/websocket'
@@ -93,6 +92,7 @@ import { useSound } from '@vueuse/sound'
 const props = defineProps<{
   myUsername: string
   opponentUsername: string
+  gameType: string
 }>()
 
 const { play: playTin } = useSound(tinSfx, { volume: 0.5 })
@@ -103,6 +103,7 @@ const messages = ref<{ sender: string; payload: string }[]>([])
 const newMessage = ref('')
 const unreadMessages = ref(0)
 const messagesContainer = ref<HTMLElement | null>(null)
+const messageInput = ref<HTMLInputElement | null>(null)
 
 const toggleChat = () => {
   isOpen.value = !isOpen.value
@@ -110,6 +111,7 @@ const toggleChat = () => {
     unreadMessages.value = 0
     nextTick(() => {
       scrollToBottom()
+      messageInput.value?.focus()
     })
   }
 }
@@ -123,12 +125,12 @@ const scrollToBottom = () => {
 const sendMessage = () => {
   if (!newMessage.value.trim()) return
 
-  // Invia il messaggio tramite WebSocket
-  webSocketStore.sendMessage({
-    type: 'chat_message',
-    payload: newMessage.value,
-  })
-  // Aggiungi il messaggio localmente
+  if (props.gameType !== 'bot') {
+    webSocketStore.sendMessage({
+      type: 'chat_message',
+      payload: newMessage.value,
+    })
+  }
   messages.value.push({
     sender: props.myUsername,
     payload: newMessage.value,
@@ -140,15 +142,16 @@ const sendMessage = () => {
   })
 }
 
-// Gestione dei messaggi in arrivo
 const handleIncomingMessage = (message: WSMessage) => {
   if (message.type === 'chat_message') {
+    console.log(props.opponentUsername)
     messages.value.push({
       sender: props.opponentUsername,
       payload: message.payload,
     })
     if (!isOpen.value) {
       playTin()
+      console.log(message.payload)
       unreadMessages.value++
     }
     nextTick(() => {
@@ -159,6 +162,10 @@ const handleIncomingMessage = (message: WSMessage) => {
 
 onMounted(() => {
   webSocketStore.addMessageHandler(handleIncomingMessage)
+})
+
+onUnmounted(() => {
+  webSocketStore.removeMessageHandler(handleIncomingMessage)
 })
 
 watch(messages, () => {
@@ -180,7 +187,7 @@ onMounted(() => {
 
 <style scoped>
 .retro-button {
-  @apply btn btn-lg btn-circle btn-primary text-white border-accent border-4;
+  @apply btn btn-circle btn-primary btn-lg border-4 border-accent text-white;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
   box-shadow: 0 2px 0 #8b4513;
@@ -203,6 +210,6 @@ onMounted(() => {
 }
 
 .retro-box {
-  @apply bg-base-100 border-primary border-2 shadow-lg rounded-lg;
+  @apply rounded-lg border-2 border-primary bg-base-100 shadow-lg;
 }
 </style>

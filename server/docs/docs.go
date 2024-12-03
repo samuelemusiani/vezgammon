@@ -15,6 +15,29 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/badge": {
+            "get": {
+                "description": "Get user's badges",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get user's badges",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Badge"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/login": {
             "post": {
                 "description": "Login with a user",
@@ -268,6 +291,61 @@ const docTemplate = `{
                 }
             }
         },
+        "/play/invite": {
+            "get": {
+                "description": "Create a game with a link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Create a game with a link",
+                "responses": {
+                    "201": {
+                        "description": "Link created"
+                    }
+                }
+            }
+        },
+        "/play/invite/{id}": {
+            "get": {
+                "description": "Join a game with a link",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "play"
+                ],
+                "summary": "Join a game with a link",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "Link ID",
+                        "name": "id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Link generated"
+                    },
+                    "400": {
+                        "description": "Already in a game"
+                    },
+                    "404": {
+                        "description": "Link not found"
+                    }
+                }
+            }
+        },
         "/play/last/winner": {
             "get": {
                 "description": "Get last fame status",
@@ -425,6 +503,32 @@ const docTemplate = `{
                 }
             }
         },
+        "/player/{username}": {
+            "get": {
+                "description": "Get users' stats WITHOUT AUTH",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Get users' stats WITHOUT AUTH",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Stats"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Register new user",
@@ -477,6 +581,29 @@ const docTemplate = `{
                         "description": "OK",
                         "schema": {
                             "$ref": "#/definitions/types.User"
+                        }
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
+        "/stats": {
+            "get": {
+                "description": "Get users' stats",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get users' stats",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.Stats"
                         }
                     },
                     "500": {
@@ -821,6 +948,47 @@ const docTemplate = `{
                 }
             }
         },
+        "types.Badge": {
+            "type": "object",
+            "properties": {
+                "bot": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "elo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "pieces": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "played": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "time": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "win": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                }
+            }
+        },
         "types.FutureTurn": {
             "type": "object",
             "properties": {
@@ -1014,6 +1182,44 @@ const docTemplate = `{
                         "diego",
                         "marco"
                     ]
+                }
+            }
+        },
+        "types.Stats": {
+            "type": "object",
+            "properties": {
+                "cpu": {
+                    "type": "integer"
+                },
+                "elo": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "games_played": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
+                "local": {
+                    "type": "integer"
+                },
+                "lost": {
+                    "type": "integer"
+                },
+                "online": {
+                    "type": "integer"
+                },
+                "tournament": {
+                    "type": "integer"
+                },
+                "win": {
+                    "type": "integer"
+                },
+                "winrate": {
+                    "type": "number"
                 }
             }
         },

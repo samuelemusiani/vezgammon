@@ -5,8 +5,12 @@
     >
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl text-primary font-bold">VezGammon</h1>
-        <div class="text-accent font-bold text-xl">The Ultimate Backgammon Experience</div>
+        <h1 class="retro-title mb-8 p-4 text-7xl font-bold text-primary">
+          VezGammon
+        </h1>
+        <div class="text-xl font-bold text-accent">
+          The Ultimate Backgammon Experience
+        </div>
       </div>
 
       <!-- Button Container -->
@@ -14,7 +18,7 @@
         <!-- Left Button (Stats) -->
         <div class="absolute left-8">
           <button
-            @click="(e: MouseEvent) => router.push('/wip')"
+            @click="navigateTo('/stats')"
             @mouseenter="(e: MouseEvent) => play()"
             class="retro-button circle"
             title="Statistics"
@@ -34,7 +38,7 @@
           </button>
           <button
             @mouseenter="(e: MouseEvent) => play()"
-            @click="router.push('/wip')"
+            @click="openRulesModal"
             class="retro-button font-bold"
           >
             RULES
@@ -87,7 +91,7 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="startOnlineGame"
+              @click="showOnlineOptions"
               class="retro-button"
             >
               Play Online
@@ -177,7 +181,119 @@
         </div>
         <div class="modal-action">
           <form method="dialog">
-            <button class="retro-button">Cancel</button>
+            <button @click="handleCancelMatchmaking" class="retro-button">
+              Cancel
+            </button>
+          </form>
+        </div>
+      </div>
+    </dialog>
+
+    <!-- Resume Modal -->
+    <dialog id="resume_game_modal" class="modal">
+      <div class="retro-box modal-box">
+        <h3 class="retro-title mb-4 text-center text-2xl font-bold">
+          Game in Progress
+        </h3>
+        <p class="mb-4 text-center">You have an ongoing game.</p>
+        <div class="flex flex-col gap-4">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="resumeGame"
+            class="retro-button"
+          >
+            Resume Game
+          </button>
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="leaveGame"
+            class="retro-button"
+          >
+            Leave Game
+          </button>
+        </div>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="online_options_modal" class="modal">
+      <div class="retro-box modal-box">
+        <h3 class="retro-title mb-4 text-center text-2xl font-bold">
+          Online Game Options
+        </h3>
+        <div class="flex flex-col gap-4">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="startRandomGame"
+            class="retro-button"
+          >
+            Random Opponent
+          </button>
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="createInviteLink"
+            class="retro-button"
+          >
+            Invite Friend
+          </button>
+        </div>
+
+        <!-- Invite Link -->
+        <div v-if="inviteLink" class="mt-4">
+          <div class="flex items-center gap-2 rounded bg-base-200 p-2">
+            <input
+              type="text"
+              :value="inviteLink"
+              class="w-full bg-transparent p-2"
+              readonly
+            />
+
+            <button
+              @click="copyInviteLink"
+              class="retro-button px-4"
+              :class="{ 'bg-success': linkCopied }"
+            >
+              {{ linkCopied ? 'Copied!' : 'Copy' }}
+            </button>
+          </div>
+        </div>
+
+        <!-- Close button -->
+        <div class="modal-action">
+          <div v-if="inviteLink" class="mr-5 mt-1 flex justify-start gap-2">
+            <TelegramShareButton
+              :url="inviteLink"
+              title="Do you want to play with me? Join me on VezGammon!"
+            />
+
+            <WhatsappShareButton
+              :url="inviteLink"
+              title="Do you want to play with me? Join me on VezGammon!"
+            />
+          </div>
+          <form method="dialog">
+            <button class="retro-button">Close</button>
+          </form>
+        </div>
+      </div>
+
+      <form method="dialog" class="modal-backdrop">
+        <button>close</button>
+      </form>
+    </dialog>
+
+    <dialog id="rules_modal" class="modal">
+      <div
+        class="modal-box max-h-[85vh] max-w-3xl overflow-y-auto border-4 border-primary"
+      >
+        <RulesSection />
+
+        <div class="modal-action">
+          <form method="dialog">
+            <button class="retro-button">Close</button>
           </form>
         </div>
       </div>
@@ -188,6 +304,9 @@
 <script setup lang="ts">
 import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
+import RulesSection from '@/components/RulesSection.vue'
+import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
+import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
@@ -198,10 +317,14 @@ import type { WSMessage } from '@/utils/types'
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
 const modals = ref(0) // 0 for base, 1 for bot difficulty, 2 for tournaments menu, 3 for creating tournament
+const showDifficulty = ref(false)
+const inviteLink = ref('')
+const linkCopied = ref(false)
 
 onMounted(() => {
   webSocketStore.connect()
   webSocketStore.addMessageHandler(handleMatchmaking)
+  checkIfInGame()
 })
 
 onUnmounted(() => {
@@ -216,6 +339,84 @@ const handleMatchmaking = (message: WSMessage) => {
     waitingModal.close()
     router.push('/game')
   }
+}
+
+const showOnlineOptions = () => {
+  const playModal = document.getElementById('play_modal') as HTMLDialogElement
+  playModal.close()
+  const onlineModal = document.getElementById(
+    'online_options_modal',
+  ) as HTMLDialogElement
+  onlineModal.showModal()
+}
+
+const startRandomGame = () => {
+  const modal = document.getElementById(
+    'online_options_modal',
+  ) as HTMLDialogElement
+  modal.close()
+  startOnlineGame()
+}
+
+const createInviteLink = async () => {
+  try {
+    const response = await fetch('/api/play/invite')
+    const data = await response.json()
+    inviteLink.value = `${window.location.origin}/invite/${data.Link}`
+    linkCopied.value = false
+  } catch (error) {
+    console.error('Error creating invite link:', error)
+  }
+}
+
+const copyInviteLink = async () => {
+  try {
+    await navigator.clipboard.writeText(inviteLink.value)
+    linkCopied.value = true
+    setTimeout(() => {
+      linkCopied.value = false
+    }, 2000)
+  } catch (error) {
+    console.error('Error copying to clipboard:', error)
+  }
+}
+
+const checkIfInGame = async () => {
+  const response = await fetch('/api/play')
+  if (response.ok) {
+    const resumeModal = document.getElementById(
+      'resume_game_modal',
+    ) as HTMLDialogElement
+    resumeModal.showModal()
+  }
+}
+
+const resumeGame = () => {
+  const modal = document.getElementById(
+    'resume_game_modal',
+  ) as HTMLDialogElement
+  modal.close()
+  router.push('/game')
+}
+
+const leaveGame = async () => {
+  try {
+    await fetch('/api/play', { method: 'DELETE' })
+    const modal = document.getElementById(
+      'resume_game_modal',
+    ) as HTMLDialogElement
+    modal.close()
+  } catch (error) {
+    console.error('Error leaving game:', error)
+  }
+}
+
+const handleCancelMatchmaking = async () => {
+  await fetch('/api/play/search', { method: 'DELETE' })
+  const waitingModal = document.getElementById(
+    'waiting_modal',
+  ) as HTMLDialogElement
+  waitingModal.close()
 }
 
 const modalTitle = computed(() => {
@@ -298,6 +499,11 @@ const startLocalGame = async () => {
   router.push('/game')
 }
 
+const openRulesModal = () => {
+  const modal = document.getElementById('rules_modal') as HTMLDialogElement
+  modal.showModal()
+}
+
 const tourn_name = ref('')
 
 function create_tourn() {
@@ -342,7 +548,7 @@ function create_tourn() {
 }
 
 .retro-button {
-  @apply btn bg-primary text-white font-bold;
+  @apply btn bg-primary font-bold text-white;
   border: 3px solid #8b4513;
   text-transform: uppercase;
   text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
@@ -367,10 +573,10 @@ function create_tourn() {
 
 @keyframes move-title {
   from {
-    transform: rotate(-4deg);
+    transform: rotate(-2deg);
   }
   to {
-    transform: rotate(4deg);
+    transform: rotate(2deg);
   }
 }
 </style>

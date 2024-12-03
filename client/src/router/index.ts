@@ -7,6 +7,11 @@ import BoardView from '@/views/BoardView.vue'
 import WipView from '@/views/WipView.vue'
 import TournamentsView from '@/views/TournamentsView.vue'
 import TournamentLobbyView from "@/views/TournamentLobby.vue";
+import BoardView from '@/views/BoardView.vue'
+import StatsView from '@/views/StatsView.vue'
+import WipView from '@/views/WipView.vue'
+import PlayerStatsView from '@/views/PlayerStatsView.vue'
+import InviteView from '../views/InviteView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -32,9 +37,19 @@ const router = createRouter({
       component: ProfileView,
     },
     {
+      path: '/stats',
+      name: 'stats',
+      component: StatsView,
+    },
+    {
       path: '/game',
       name: 'game',
       component: BoardView,
+    },
+    {
+      path: '/player/:username',
+      name: 'player',
+      component: PlayerStatsView,
     },
     {
       path: '/tournaments',
@@ -52,6 +67,11 @@ const router = createRouter({
       component: WipView,
     },
     {
+      path: '/invite/:code',
+      name: 'invite',
+      component: InviteView,
+    },
+    {
       path: '/about',
       name: 'about',
       // route level code-splitting
@@ -64,7 +84,8 @@ const router = createRouter({
 
 router.beforeEach(async to => {
   const publicPages = ['/login', '/register']
-  const authRequired = !publicPages.includes(to.path)
+  const authRequired =
+    !publicPages.includes(to.path) && !to.path.startsWith('/player')
 
   // Probably should use the Pinia authStore
   if (authRequired) {

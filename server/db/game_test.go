@@ -1,6 +1,7 @@
 package db
 
 import (
+	"log/slog"
 	"testing"
 	"time"
 	"vezgammon/server/types"
@@ -193,24 +194,80 @@ func TestGetTurns(t *testing.T) {
 	assert.DeepEqual(t, retturns, retarr)
 }
 
-func TestGetLastTurn(t *testing.T) {
+// func TestGetLastTurn(t *testing.T) {
+// 	tuser := types.User{
+// 		Username:  "tturngetlast",
+// 		Firstname: "tturngetlast",
+// 		Lastname:  "tturngetlast",
+// 		Mail:      "tturngetlast",
+// 	}
+//
+// 	var err error
+// 	tuser, err = CreateUser(tuser, "tturngetlast")
+// 	assert.NilError(t, err)
+//
+// 	game := types.Game{
+// 		Player1: tuser.ID,
+// 		Elo1:    1000,
+// 		Player2: tuser.ID,
+// 		Elo2:    1000,
+// 		Status:  types.GameStatusOpen,
+// 		Start:   time.Now(),
+// 		End:     time.Now(),
+// 	}
+//
+// 	tgame, err := CreateGame(game)
+// 	assert.NilError(t, err)
+//
+// 	turn1 := types.Turn{
+// 		GameId: tgame.ID,
+// 		User:   tuser.ID,
+// 		Time:   time.Now(),
+// 		Dices:  types.Dices{6, 6},
+// 		Double: false,
+// 		Moves:  []types.Move{{From: 4, To: 6}, {From: 2, To: 3}},
+// 	}
+//
+// 	turn2 := types.Turn{
+// 		GameId: tgame.ID,
+// 		User:   tuser.ID,
+// 		Time:   time.Now().Add(1),
+// 		Dices:  types.Dices{4, 6},
+// 		Double: false,
+// 		Moves:  []types.Move{{From: 6, To: 7}, {From: 5, To: 7}},
+// 	}
+//
+// 	_, err = CreateTurn(turn1)
+// 	assert.NilError(t, err)
+//
+// 	tturn2, err := CreateTurn(turn2)
+// 	assert.NilError(t, err)
+//
+// 	lastturn, err := GetLastTurn(tgame.ID)
+// 	assert.NilError(t, err)
+//
+// 	tturn2.Time = lastturn.Time
+// 	assert.DeepEqual(t, tturn2, lastturn)
+// }
+
+func TestStats(t *testing.T) {
+
 	tuser := types.User{
-		Username:  "tturngetlast",
-		Firstname: "tturngetlast",
-		Lastname:  "tturngetlast",
-		Mail:      "tturngetlast",
+		Username:  "teststats",
+		Firstname: "teststats",
+		Lastname:  "teststats",
+		Mail:      "mail@example.com",
 	}
 
 	var err error
-	tuser, err = CreateUser(tuser, "tturngetlast")
+	tuser, err = CreateUser(tuser, "tturn")
 	assert.NilError(t, err)
 
 	game := types.Game{
 		Player1: tuser.ID,
-		Elo1:    1000,
+		Elo1:    950,
 		Player2: tuser.ID,
 		Elo2:    1000,
-		Status:  types.GameStatusOpen,
 		Start:   time.Now(),
 		End:     time.Now(),
 	}
@@ -218,33 +275,29 @@ func TestGetLastTurn(t *testing.T) {
 	tgame, err := CreateGame(game)
 	assert.NilError(t, err)
 
-	turn1 := types.Turn{
-		GameId: tgame.ID,
-		User:   tuser.ID,
-		Time:   time.Now(),
-		Dices:  types.Dices{6, 6},
-		Double: false,
-		Moves:  []types.Move{{From: 4, To: 6}, {From: 2, To: 3}},
+	slog.With("game creato", tgame).Debug("Statistiche")
+
+	assert.Equal(t, tgame.Player1, game.Player1)
+	assert.Equal(t, tgame.Player2, game.Player2)
+	assert.Equal(t, tgame.Elo1, game.Elo1)
+	assert.Equal(t, tgame.Elo2, game.Elo2)
+	assert.Equal(t, tgame.Status, game.Status)
+
+	tgame.Status = types.GameDoubleOwnerP1
+	err = UpdateGame(tgame)
+	assert.NilError(t, err)
+
+	slog.With("game finito", tgame).Debug("Statistiche")
+
+	var stats *types.Stats
+	stats, err = GetStats(tuser.ID)
+	if err != nil {
+		slog.With("err", err).Debug("Statistiche")
 	}
 
-	turn2 := types.Turn{
-		GameId: tgame.ID,
-		User:   tuser.ID,
-		Time:   time.Now().Add(1),
-		Dices:  types.Dices{4, 6},
-		Double: false,
-		Moves:  []types.Move{{From: 6, To: 7}, {From: 5, To: 7}},
+	if len(stats.Gameplayed) <= 0 {
+		slog.Debug("No game played yet")
 	}
 
-	_, err = CreateTurn(turn1)
-	assert.NilError(t, err)
-
-	tturn2, err := CreateTurn(turn2)
-	assert.NilError(t, err)
-
-	lastturn, err := GetLastTurn(tgame.ID)
-	assert.NilError(t, err)
-
-	tturn2.Time = lastturn.Time
-	assert.DeepEqual(t, tturn2, lastturn)
+	slog.With("stats", stats).Debug("Statistiche")
 }

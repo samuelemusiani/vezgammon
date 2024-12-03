@@ -29,7 +29,7 @@ export interface GameState {
   elo2: number
   start: string
   end: string
-  status: string
+  status: 'p1' | 'p2' | 'open' | 'winp1' | 'winp2'
   game_type: string
   p1checkers: number[]
   p2checkers: number[]

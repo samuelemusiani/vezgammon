@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	//"time"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
 	"vezgammon/server/types"
@@ -238,6 +239,56 @@ func GetSession(c *gin.Context) {
 	return
 }
 
+// Return the statistics of the current user loggged in
+// @Summary Get users' stats
+// @Schemes
+// @Description Get users' stats
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Stats
+// @Failure 500 "error"
+// @Router /stats [get]
+func GetStats(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	userstats, err := db.GetStats(user_id)
+	if err != nil {
+		slog.With("err", err).Error("User not found")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	c.JSON(http.StatusOK, userstats)
+	return
+}
+
+// Return the statistics of the current user loggged in
+// @Summary Get users' stats WITHOUT AUTH
+// @Schemes
+// @Description Get users' stats WITHOUT AUTH
+// @Tags public
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Stats
+// @Failure 500 "error"
+// @Router /player/{username} [get]
+func GetPlayer(c *gin.Context) {
+	username := c.Param("username")
+	u, err := db.GetUserByUsername(username)
+	if err != nil {
+		if errors.Is(err, db.UserNotFound) {
+			c.JSON(http.StatusNotFound, "User not found")
+			return
+		}
+		slog.With("err", err).Error("Getting user")
+		c.JSON(http.StatusInternalServerError, "")
+		return
+	}
+
+	c.Set("user_id", u.ID)
+	GetStats(c)
+}
+
 /*
 func GetAllUsers(c *gin.Context) {
 	users, err := db.GetUsers()
@@ -250,3 +301,25 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 */
+
+// Return all the badges user aquired
+// @Summary Get user's badges
+// @Schemes
+// @Description Get user's badges
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Badge
+// @Failure 500 "error"
+// @Router /badge [get]
+func GetBadge(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	badge, err := db.GetBadge(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	slog.With("badge", badge).Debug("Badge")
+	c.JSON(http.StatusOK, badge)
+
+}

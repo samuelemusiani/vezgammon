@@ -62,6 +62,33 @@ definitions:
         description: Valid is true if Int64 is not NULL
         type: boolean
     type: object
+  types.Badge:
+    properties:
+      bot:
+        items:
+          type: integer
+        type: array
+      elo:
+        items:
+          type: integer
+        type: array
+      pieces:
+        items:
+          type: integer
+        type: array
+      played:
+        items:
+          type: integer
+        type: array
+      time:
+        items:
+          type: integer
+        type: array
+      win:
+        items:
+          type: integer
+        type: array
+    type: object
   types.FutureTurn:
     properties:
       can_double:
@@ -200,6 +227,31 @@ definitions:
           type: string
         type: array
     type: object
+  types.Stats:
+    properties:
+      cpu:
+        type: integer
+      elo:
+        items:
+          type: integer
+        type: array
+      games_played:
+        items:
+          $ref: '#/definitions/types.ReturnGame'
+        type: array
+      local:
+        type: integer
+      lost:
+        type: integer
+      online:
+        type: integer
+      tournament:
+        type: integer
+      win:
+        type: integer
+      winrate:
+        type: number
+    type: object
   types.TournamentInfo:
     properties:
       creation_date:
@@ -245,6 +297,21 @@ definitions:
 info:
   contact: {}
 paths:
+  /badge:
+    get:
+      consumes:
+      - application/json
+      description: Get user's badges
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Badge'
+        "500":
+          description: error
+      summary: Get user's badges
   /login:
     post:
       consumes:
@@ -411,6 +478,42 @@ paths:
       summary: Accept the double
       tags:
       - play
+  /play/invite:
+    get:
+      consumes:
+      - application/json
+      description: Create a game with a link
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Link created
+      summary: Create a game with a link
+      tags:
+      - play
+  /play/invite/{id}:
+    get:
+      consumes:
+      - application/json
+      description: Join a game with a link
+      parameters:
+      - description: Link ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: Link generated
+        "400":
+          description: Already in a game
+        "404":
+          description: Link not found
+      summary: Join a game with a link
+      tags:
+      - play
   /play/last/winner:
     get:
       consumes:
@@ -514,6 +617,23 @@ paths:
       summary: Start a matchmaking search for a new game
       tags:
       - play
+  /player/{username}:
+    get:
+      consumes:
+      - application/json
+      description: Get users' stats WITHOUT AUTH
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Stats'
+        "500":
+          description: error
+      summary: Get users' stats WITHOUT AUTH
+      tags:
+      - public
   /register:
     post:
       consumes:
@@ -553,6 +673,21 @@ paths:
       summary: Get current auth session
       tags:
       - authentication
+  /stats:
+    get:
+      consumes:
+      - application/json
+      description: Get users' stats
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.Stats'
+        "500":
+          description: error
+      summary: Get users' stats
   /tournament/{tournament_id}:
     delete:
       consumes:

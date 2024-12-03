@@ -27,6 +27,8 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	router.Use(static.Serve("/", static.EmbedFolder(frontend, "dist")))
 	// middleware for backend API
 	protected := router.Group("/api")
+	protected.GET("/player/:username", GetPlayer)
+
 	protected.Use(AuthMiddleware())
 
 	// Gruppo di rotte protette per le API
@@ -34,10 +36,14 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.POST("/login", Login)
 	protected.POST("/logout", Logout)
 	protected.GET("/session", GetSession)
+	protected.GET("/stats", GetStats)
+	protected.GET("/badge", GetBadge)
 
 	playGroup := protected.Group("/play")
 	playGroup.GET("/last/winner", GetLastGameWinner)
 	playGroup.GET("/search", StartPlaySearch)
+	playGroup.GET("/invite", StartPlayInviteSearch)
+	playGroup.GET("/invite/:id", PlayInvite)
 	playGroup.DELETE("/search", StopPlaySearch)
 	playGroup.GET("/local", StartGameLocalcally)
 	playGroup.GET("/", GetCurrentGame)

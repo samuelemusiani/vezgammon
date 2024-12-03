@@ -102,6 +102,13 @@ func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) error {
 	return nil
 }
 
+func StopSearch(uid int64) error {
+	mutex.Lock()
+	defer mutex.Unlock()
+	err := remove(qel{User_id: uid})
+	return err
+}
+
 func SearchGame(uid int64) error {
 	u, err := db.GetUser(uid)
 	if err != nil {

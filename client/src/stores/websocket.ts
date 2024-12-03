@@ -17,7 +17,10 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const connect = () => {
     try {
       if (isConnected.value) return // Already connected
-      socket.value = new WebSocket(`ws://${window.location.host}/api/ws`)
+
+      socket.value = new WebSocket(
+        `${location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/ws`,
+      )
       isConnected.value = true
 
       socket.value.onopen = () => {
@@ -36,8 +39,8 @@ export const useWebSocketStore = defineStore('websocket', () => {
 
       socket.value.onmessage = event => {
         const message = JSON.parse(event.data)
-        messageHandlers.forEach(handler => handler(message))
         console.log('Received message:', message)
+        messageHandlers.forEach(handler => handler(message))
       }
     } catch (error) {
       console.error('Error connecting to WebSocket:', error)
