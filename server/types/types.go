@@ -12,16 +12,22 @@ type User struct {
 	IsBot     bool   `json:"is_bot" example:"false"`
 }
 
+type LeaderboardUser struct {
+	Username string `json:"username" example:"gio"`
+	Elo      int64  `json:"elo" example:"1000"`
+}
+
 type Stats struct {
-	Gameplayed []ReturnGame `json:"games_played"`
-	Won        int64        `json:"win"`
-	Lost       int64        `json:"lost"`
-	Elo        []int64      `json:"elo"`
-	Winrate    float32      `json:"winrate"`
-	Online     int64        `json:"online"`
-	Local      int64        `json:"local"`
-	Cpu        int64        `json:"cpu"`
-	Tournament int64        `json:"tournament"`
+	Gameplayed  []ReturnGame      `json:"games_played"`
+	Won         int64             `json:"win"`
+	Lost        int64             `json:"lost"`
+	Elo         []int64           `json:"elo"`
+	Winrate     float32           `json:"winrate"`
+	Online      int64             `json:"online"`
+	Local       int64             `json:"local"`
+	Cpu         int64             `json:"cpu"`
+	Tournament  int64             `json:"tournament"`
+	Leaderboard []LeaderboardUser `json:"leaderboard"`
 }
 
 type Badge struct {

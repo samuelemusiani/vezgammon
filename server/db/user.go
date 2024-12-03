@@ -358,8 +358,13 @@ func GetStats(user_id int64) (*types.Stats, error) {
 		gameSum := stats.Won + stats.Lost
 		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(gameSum))*100)) / 100
 	}
-	slog.With("stats", stats).Debug("Statistiche")
 
+	stats.Leaderboard, err = getLeaderboard()
+	if err != nil {
+		return nil, err
+	}
+
+	slog.With("stats", stats).Debug("Statistiche")
 	return stats, nil
 }
 
@@ -536,4 +541,35 @@ func calculateHomePieces(game types.ReturnGame, u string) int {
 	}
 
 	return 15 - piecesOnBoard
+}
+
+func getLeaderboard() ([]types.LeaderboardUser, error) {
+	q := `
+	SELECT username, elo 
+	FROM users 
+	WHERE is_bot = FALSE 
+	ORDER BY elo DESC 
+	`
+
+	rows, err := Conn.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var lb []types.LeaderboardUser
+	for rows.Next() {
+		var user types.LeaderboardUser
+		err := rows.Scan(&user.Username, &user.Elo)
+		if err != nil {
+			return nil, err
+		}
+		lb = append(lb, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return lb, nil
 }
