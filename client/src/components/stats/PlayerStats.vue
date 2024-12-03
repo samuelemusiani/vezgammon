@@ -15,13 +15,11 @@
         </div>
 
         <div v-if="sharingEnabled" class="card-actions mt-2 justify-center">
-          <FacebookShareButton
-            :url="gameShareUrl"
-            :title="shareTitle"
-            :description="shareDescription"
-          />
+          <TelegramShareButton :url="gameShareUrl" :title="shareTitle" />
+          <RedditShareButton :url="gameShareUrl" :title="shareTitle" />
           <BackToHomeButton @click="navigateHome" />
           <TwitterShareButton :url="gameShareUrl" :title="shareTitle" />
+          <WhatsappShareButton :url="gameShareUrl" :title="shareTitle" />
         </div>
         <div v-else class="card-actions mt-2 justify-center">
           <BackToHomeButton @click="navigateHome" />
@@ -39,8 +37,10 @@ import EloChart from '@/components/stats/EloChart.vue'
 import GamePerformanceCard from './GamePerformanceCard.vue'
 import RecentGamesCard from './RecentGamesCard.vue'
 import BackToHomeButton from '@/components/buttons/BackHome.vue'
-import FacebookShareButton from '@/components/buttons/FacebookShare.vue'
 import TwitterShareButton from '@/components/buttons/TwitterShare.vue'
+import RedditShareButton from '@/components/buttons/RedditShare.vue'
+import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
+import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
 
 import type { GameState } from '@/utils/game/types'
 import type { User } from '@/utils/types'
@@ -84,10 +84,6 @@ const currentUsername = ref<string | null>(null)
 const gameShareUrl = ref('')
 
 const shareTitle = computed(() => `Check out my Backgammon stats!`)
-const shareDescription = computed(
-  () =>
-    `Win Rate: ${stats.value.winrate}% | Games Played: ${stats.value.games_played.length || 0}`,
-)
 
 async function fetchUserStats() {
   let response

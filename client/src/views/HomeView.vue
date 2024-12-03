@@ -237,27 +237,15 @@
         <!-- Close button -->
         <div class="modal-action">
           <div v-if="inviteLink" class="mr-5 mt-1 flex justify-start gap-2">
-            <ShareNetwork
-              network="telegram"
+            <TelegramShareButton
               :url="inviteLink"
               title="Do you want to play with me? Join me on VezGammon!"
-            >
-              <button class="btn btn-info btn-md text-xl">
-                <i class="fab fa-telegram"></i>
-                Telegram
-              </button>
-            </ShareNetwork>
+            />
 
-            <ShareNetwork
-              network="whatsapp"
+            <WhatsappShareButton
               :url="inviteLink"
               title="Do you want to play with me? Join me on VezGammon!"
-            >
-              <button class="btn btn-md bg-green-400 text-xl">
-                <i class="fab fa-whatsapp"></i>
-                Whatsapp
-              </button>
-            </ShareNetwork>
+            />
           </div>
           <form method="dialog">
             <button class="retro-button">Close</button>
@@ -290,6 +278,8 @@
 import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import RulesSection from '@/components/RulesSection.vue'
+import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
+import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
