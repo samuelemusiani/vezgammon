@@ -121,6 +121,26 @@ func (g *Game) PlayMove(moves []Move) {
 	slog.With("checkers", opponentCheckers).Debug("Checkers")
 }
 
+func (g *Game) ToReturnGame(username1, username2 string) (rg ReturnGame) {
+	return ReturnGame{
+		ID:            g.ID,
+		Player1:       username1,
+		Elo1:          g.Elo1,
+		Player2:       username2,
+		Elo2:          g.Elo2,
+		Start:         g.Start,
+		End:           g.End,
+		Status:        g.Status,
+		P1Checkers:    g.P1Checkers,
+		P2Checkers:    g.P2Checkers,
+		DoubleValue:   g.DoubleValue,
+		DoubleOwner:   g.DoubleOwner,
+		WantToDouble:  g.WantToDouble,
+		CurrentPlayer: g.CurrentPlayer,
+		GameType:      GameTypeOnline,
+	}
+}
+
 const GameTypeLocal = "local"
 const GameTypeBot = "bot"
 const GameTypeOnline = "online"

@@ -563,6 +563,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/replay": {
+            "post": {
+                "description": "Get position of a game based on id and move number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get position of a game",
+                "parameters": [
+                    {
+                        "description": "game id and move number",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.gameReqPos"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "game position",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnGame"
+                        }
+                    }
+                }
+            }
+        },
         "/session": {
             "get": {
                 "description": "Get auth session",
@@ -636,6 +667,19 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "gio"
+                }
+            }
+        },
+        "handler.gameReqPos": {
+            "type": "object",
+            "properties": {
+                "game_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "move": {
+                    "type": "integer",
+                    "example": 1
                 }
             }
         },

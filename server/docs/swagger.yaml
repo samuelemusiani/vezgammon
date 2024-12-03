@@ -17,6 +17,15 @@ definitions:
         example: gio
         type: string
     type: object
+  handler.gameReqPos:
+    properties:
+      game_id:
+        example: 1
+        type: integer
+      move:
+        example: 1
+        type: integer
+    type: object
   handler.loginResponseType:
     properties:
       message:
@@ -576,6 +585,26 @@ paths:
       summary: Register new user
       tags:
       - authentication
+  /replay:
+    post:
+      consumes:
+      - application/json
+      description: Get position of a game based on id and move number
+      parameters:
+      - description: game id and move number
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.gameReqPos'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: game position
+          schema:
+            $ref: '#/definitions/types.ReturnGame'
+      summary: Get position of a game
   /session:
     get:
       consumes:
