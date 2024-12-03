@@ -77,8 +77,13 @@ func GetReplay(c *gin.Context) {
 		}
 	}
 
-	for _, t := range turns {
-		g.PlayMove(t.Moves)
+	if tmp.Move > int64(len(turns)) {
+		c.JSON(http.StatusBadRequest, "Move number out of range")
+		return
+	}
+
+	for i := range tmp.Move {
+		g.PlayMove(turns[i].Moves)
 	}
 
 	u1, err := db.GetUser(g.Player1)
@@ -88,7 +93,7 @@ func GetReplay(c *gin.Context) {
 		return
 	}
 
-	u2, err := db.GetUser(g.Player1)
+	u2, err := db.GetUser(g.Player2)
 	if err != nil {
 		slog.With("err", err).Error("Getting user")
 		c.JSON(http.StatusInternalServerError, err)
