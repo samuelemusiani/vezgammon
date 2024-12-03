@@ -7,7 +7,7 @@
           <p class="text-accent font-semibold">Owner: {{ owner ? 'me' : tournament?.owner }}</p>
           <div class="grid grid-cols-2 grid-rows-2 gap-4 mt-16 mb-16">
           <div
-              v-for="(player, index) in tournament.users" :key="index"
+              v-for="(player, index) in tournament?.users" :key="index"
               class=" p-4 retro-box"
               :class="{
                 'text-primary': player === myUsername,
@@ -70,117 +70,73 @@
           <div class="flex flex-col gap-4 w-1/4">
             <!-- Semi-Final 1 -->
             <div class="flex flex-col items-center space-y-2">
-              <div
+              <div v-for="(box, index) in boxes.slice(0, 2)" :key="index"
                 class="retro-box w-full p-3 text-center font-semibold"
-                :class="{
-            'text-green-500': semifinal1Winner === tournament.users[0],
-            'text-red-500': semifinal1Winner === tournament.users[1]
-          }"
+                   :style="{
+                    color: tournament?.games[0]?.status === 'winp1'
+                    ? (index === 0 ? 'green' : 'red')
+                    : tournament?.games[0]?.status === 'winp2'
+                    ? (index === 1 ? 'green' : 'red')
+                    : ''
+                    }"
               >
-                {{ tournament.users[0] || 'TBD' }}
-              </div>
-              <div
-                class="retro-box w-full p-3 text-center font-semibold"
-                :class="{
-            'text-green-500': semifinal1Winner === tournament.users[1],
-            'text-red-500': semifinal1Winner === tournament.users[0]
-          }"
-              >
-                {{ tournament.users[1] || 'TBD' }}
+                {{ box }}
               </div>
             </div>
 
             <!-- Semi-Final 2 -->
             <div class="flex flex-col items-center space-y-2">
-              <div
+              <div v-for="(box, index) in boxes.slice(2, 4)" :key="index"
                 class="retro-box w-full p-3 text-center font-semibold"
-                :class="{
-            'text-green-500': semifinal2Winner === tournament.users[2],
-            'text-red-500': semifinal2Winner === tournament.users[3]
-          }"
-              >
-                {{ tournament.users[2] || 'TBD' }}
-              </div>
-              <div
-                class="retro-box w-full p-3 text-center font-semibold"
-                :class="{
-            'text-green-500': semifinal2Winner === tournament.users[3],
-            'text-red-500': semifinal2Winner === tournament.users[2]
-          }"
-              >
-                {{ tournament.users[3] || 'TBD' }}
+                   :style="{
+                    color: tournament?.games[1]?.status === 'winp1'
+                    ? (index === 0 ? 'green' : 'red')
+                    : tournament?.games[1]?.status === 'winp2'
+                    ? (index === 1 ? 'green' : 'red')
+                    : ''
+                   }"
+                >
+                {{ box }}
               </div>
             </div>
           </div>
             <div class="flex flex-col items-center space-y-2 w-full gap-2">
             <!-- Final 1 place-->
             <div class="flex flex-row items-center space-x-2 w-full h-1/4 mt-10">
-              <div
+              <div v-for="(box, index) in finals.slice(0, 2)" :key="index"
                 class="retro-box w-full h-full p-3 text-center text-2xl font-bold"
-                :class="{
-            'text-green-500': tournamentWinner === semifinal1Winner,
-            'text-red-500': tournamentWinner === semifinal2Winner
-          }"
+                    :style="{
+                      color: tournament?.games[2]?.status === 'winp1'
+                      ? (index === 0 ? 'green' : 'red')
+                      : tournament?.games[2]?.status === 'winp2'
+                      ? (index === 1 ? 'green' : 'red')
+                      : ''
+                    }"
               >
-                {{ semifinal1Winner || 'TBD' }}
+                {{ box }}
               </div>
-              <div
-                class="retro-box w-full h-full p-3 text-center text-2xl font-bold"
-                :class="{
-            'text-green-500': tournamentWinner === semifinal2Winner,
-            'text-red-500': tournamentWinner === semifinal1Winner
-          }"
-              >
-                {{ semifinal2Winner || 'TBD' }}
-              </div>
+
             </div>
               <!-- Final 3 place-->
               <div class="flex flex-row items-center space-x-2 w-2/3 h-1/4 mt-10">
-                <div
+                <div v-for="(box, index) in finals.slice(2, 4)" :key="index"
                   class="retro-box w-full h-full p-3 text-center text-2xl font-bold"
-                  :class="{
-            'text-green-500': thirdplace === semifinal1Looser,
-            'text-red-500': thirdplace === semifinal2Looser
-          }"
+                      :style="{
+                        color: tournament?.games[3]?.status === 'winp1'
+                        ? (index === 0 ? 'green' : 'red')
+                        : tournament?.games[3]?.status === 'winp2'
+                        ? (index === 1 ? 'green' : 'red')
+                        : ''
+                      }"
                 >
-                  {{ semifinal1Looser || 'TBD' }}
-                </div>
-                <div
-                  class="retro-box w-full h-full p-3 text-center text-2xl font-bold"
-                  :class="{
-            'text-green-500': thirdplace === semifinal2Looser,
-            'text-red-500': thirdplace === semifinal1Looser
-          }"
-                >
-                  {{ semifinal2Looser || 'TBD' }}
+                  {{ box }}
                 </div>
               </div>
             </div>
           </div>
-
-          <!-- Match Progression Buttons (for demonstration) -->
-          <div class="flex space-x-4 mt-6">
-            <button
-              class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              @click="progressSemifinal1"
-            >
-              Semi-Final 1 Winner
-            </button>
-            <button
-              class="px-6 py-3 bg-blue-500 text-white rounded-lg hover:bg-blue-600"
-              @click="progressSemifinal2"
-            >
-              Semi-Final 2 Winner
-            </button>
-            <button
-              class="px-6 py-3 bg-green-500 text-white rounded-lg hover:bg-green-600"
-              @click="crownChampion"
-            >
-              Crown Champion
-            </button>
-          </div>
         </div>
       </div>
+
 
       <div v-else class="flex flex-col items-center gap-6">
         <h1 class="text-3xl font-bold text-primary">Not in Tournament</h1>
@@ -207,18 +163,12 @@ import 'vue-toast-notification/dist/theme-sugar.css';
 
 const $toast = useToast();
 
-const semifinal1Winner = ref<string | undefined>('TBD')
-const semifinal2Winner = ref<string | undefined>('TBD')
-const semifinal1Looser = ref<string | undefined>('TBD')
-const semifinal2Looser = ref<string | undefined>('TBD')
-const tournamentWinner = ref<string | undefined>('')
-const thirdplace = ref<string | undefined>('')
-
-
 const tournament = ref<Tournament | null>(null)
 const myUsername = ref('')
 const showBracket = ref(false)
 const showStartButton = ref(false)
+const boxes = ref<Array<string>>(['Player 1', 'Player 2', 'Player 3', 'Player 4'])
+const finals = ref<Array<string>>(['Finalist 1', 'Finalist 2', 'Consolation 1', 'Consolation 2'])
 
 const tournamentId = router.currentRoute.value.params.id
 const owner = ref<boolean>(false)
@@ -228,8 +178,27 @@ const fetchTournament = async () => {
   try {
     const response = await fetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
-    if(tournament.value?.users.length === 4)
+    if (tournament.value?.users.length === 4)
       showStartButton.value = true
+    if (tournament.value?.status === 'in_progress') {
+      showBracket.value = true
+      if (tournament.value?.games[0]) {
+        boxes.value[0] = tournament.value?.games[0].player1
+        boxes.value[1] = tournament.value?.games[0].player2
+      }
+      if (tournament.value?.games[1]) {
+        boxes.value[2] = tournament.value?.games[1].player1
+        boxes.value[3] = tournament.value?.games[1].player2
+      }
+      if (tournament.value?.games[2]) {
+        finals.value[0] = tournament.value?.games[2].player1
+        finals.value[1] = tournament.value?.games[2].player2
+      }
+      if (tournament.value?.games[3]) {
+        finals.value[2] = tournament.value?.games[3].player1
+        finals.value[3] = tournament.value?.games[3].player2
+      }
+    }
   }
   catch (error) {
     console.error('tournament: ' + error)
@@ -280,9 +249,9 @@ const handleMessage = async (message: WSMessage) => {
     $toast.warning('Someone left the tournament :(')
   }
   else if(message.type === 'game_tournament_ready') {
+    await fetchTournament()
     $toast.success('Tournament is starting!')
     showBracket.value = true
-    // wait for 3 seconds, then router push to /game
     setTimeout(() => {
       router.push('/game')
     }, 3000)
@@ -333,94 +302,4 @@ function deleteTournament() {
   }
 }
 
-function progressSemifinal1() {
-  semifinal1Winner.value = tournament.value?.users[0] === semifinal1Winner.value
-    ? tournament.value?.users[1]
-    : tournament.value?.users[0]
-  semifinal1Looser.value = tournament.value?.users[0] === semifinal1Winner.value
-    ? tournament.value?.users[1]
-    : tournament.value?.users[0]
-}
-
-function progressSemifinal2() {
-  semifinal2Winner.value = tournament.value?.users[2] === semifinal2Winner.value
-    ? tournament.value?.users[3]
-    : tournament.value?.users[2]
-  semifinal2Looser.value = tournament.value?.users[2] === semifinal2Winner.value
-    ? tournament.value?.users[3]
-    : tournament.value?.users[2]
-}
-
-function crownChampion() {
-  if (semifinal1Winner.value && semifinal2Winner.value) {
-    tournamentWinner.value = Math.random() > 0.5
-      ? semifinal1Winner.value
-      : semifinal2Winner.value
-    thirdplace.value = Math.random() > 0.5
-      ? semifinal1Looser.value
-      : semifinal2Looser.value
-  }
-}
 </script>
-
-
-<style scoped>
-/* Inherits retro styles from parent component */
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s;
-}
-
-.retro-title {
-  color: #ffd700;
-  text-shadow:
-    4px 4px 0 #8b4513,
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-  letter-spacing: 3px;
-  animation: move-title 8s ease-in-out infinite alternate;
-  border-bottom: 2px solid #8b4513;
-}
-
-.retro-button {
-  @apply btn bg-primary text-white font-bold;
-  border: 3px solid #8b4513;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-  height: 6vh;
-
-  &.circle {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-  }
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-
-@keyframes move-title {
-  from {
-    transform: rotate(-4deg);
-  }
-  to {
-    transform: rotate(4deg);
-  }
-}
-
-
-</style>
-

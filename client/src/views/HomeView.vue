@@ -5,7 +5,7 @@
     >
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl font-bold text-primary">
+        <h1 class="retro-title mb-8 p-4 text-7xl font-bold">
           VezGammon
         </h1>
         <div class="text-xl font-bold text-accent">
@@ -499,58 +499,3 @@ function create_tourn() {
 
 </script>
 
-<style scoped>
-.retro-title {
-  color: #ffd700;
-  text-shadow:
-    4px 4px 0 #8b4513,
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-  letter-spacing: 3px;
-  animation: move-title 8s ease-in-out infinite alternate;
-  border-bottom: 2px solid #8b4513;
-}
-
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-
-.retro-button {
-  @apply btn bg-primary font-bold text-white;
-  border: 3px solid #8b4513;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-  height: 6vh;
-
-  &.circle {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-  }
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-
-@keyframes move-title {
-  from {
-    transform: rotate(-2deg);
-  }
-  to {
-    transform: rotate(2deg);
-  }
-}
-</style>

@@ -3,7 +3,7 @@
       <div class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100">
       <!-- Page Title -->
       <div class="flex flex-col gap-4 text-center mb-4">
-        <h1 class="retro-title text-primary text-5xl">Tournaments</h1>
+        <h1 class="retro-title text-5xl">Tournaments</h1>
       </div>
 
       <!-- Tournaments List -->
@@ -167,62 +167,6 @@ const dateformatter = new Intl.DateTimeFormat('it-IT', {
 </script>
 
 <style scoped>
-/* Inherits retro styles from parent component */
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s;
-}
-
-.retro-title {
-  color: #ffd700;
-  text-shadow:
-    4px 4px 0 #8b4513,
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-  letter-spacing: 3px;
-  animation: move-title 8s ease-in-out infinite alternate;
-  border-bottom: 2px solid #8b4513;
-}
-
-.retro-button {
-  @apply btn bg-primary text-white font-bold;
-  border: 3px solid #8b4513;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-  height: 6vh;
-
-  &.circle {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-  }
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-
-@keyframes move-title {
-  from {
-    transform: rotate(-4deg);
-  }
-  to {
-    transform: rotate(4deg);
-  }
-}
-
   /* Hide scrollbar for Chrome, Safari and Opera */
   .no-scrollbar::-webkit-scrollbar {
     display: none;
@@ -232,5 +176,4 @@ const dateformatter = new Intl.DateTimeFormat('it-IT', {
     -ms-overflow-style: none;  /* IE and Edge */
     scrollbar-width: none;  /* Firefox */
   }
-
 </style>
