@@ -3,9 +3,9 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"math"
 	"vezgammon/server/db"
 	"vezgammon/server/matchmaking"
-	"math"
 	"vezgammon/server/types"
 	"vezgammon/server/ws"
 )
@@ -92,10 +92,6 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 
 	// start finals and third/fourth place match
 	if len(tournament.Winners) == 2 {
-		err = tournamentMatchCreate(tournament.Winners[0], tournament.Winners[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
-		if err != nil {
-			return err
-		}
 
 		// found third/fourth place users
 		var losers []int64
@@ -105,6 +101,12 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 			}
 		}
 		err = tournamentMatchCreate(losers[0], losers[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
+		if err != nil {
+			return err
+		}
+
+		// start finals last
+		err = tournamentMatchCreate(tournament.Winners[0], tournament.Winners[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
 		if err != nil {
 			return err
 		}
