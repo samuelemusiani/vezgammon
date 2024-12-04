@@ -5,9 +5,7 @@
     >
       <!-- Game Title -->
       <div class="mb-32 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl font-bold">
-          VezGammon
-        </h1>
+        <h1 class="retro-title mb-8 p-4 text-7xl font-bold">VezGammon</h1>
         <div class="text-xl font-bold text-accent">
           The Ultimate Backgammon Experience
         </div>
@@ -99,7 +97,8 @@
             <button
               class="retro-button"
               @mouseenter="(e: MouseEvent) => play()"
-              @click="showTournamentMenu">
+              @click="showTournamentMenu"
+            >
               Tournaments
             </button>
           </template>
@@ -176,8 +175,19 @@
 
           <template v-else-if="modals === 3">
             <div class="flex flex-row justify-between gap-2">
-              <input v-model="tourn_name" type="text" class="input flex-grow border-2 border-primary" placeholder="Tournament name" />
-              <button @mouseenter="play" @click="create_tourn" class="retro-button">New</button>
+              <input
+                v-model="tourn_name"
+                type="text"
+                class="input flex-grow border-2 border-primary"
+                placeholder="Tournament name"
+              />
+              <button
+                @mouseenter="(e: MouseEvent) => play()"
+                @click="create_tourn"
+                class="retro-button"
+              >
+                New
+              </button>
             </div>
             <button
               @mouseenter="(e: MouseEvent) => play()"
@@ -199,7 +209,9 @@
             >
               Back
             </button>
-            <button class="retro-button ml-auto" @click="backToGameMode">Close</button>
+            <button class="retro-button ml-auto" @click="backToGameMode">
+              Close
+            </button>
           </form>
         </div>
       </div>
@@ -324,9 +336,7 @@ const showOnlineOptions = () => {
 }
 
 const startRandomGame = () => {
-  const modal = document.getElementById(
-    'play_modal',
-  ) as HTMLDialogElement
+  const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
   startOnlineGame()
 }
@@ -488,14 +498,12 @@ function create_tourn() {
     },
     body: JSON.stringify({ name: tourn_name.value }),
   })
-    .then((res) => res.json())
-    .then((data) => {
+    .then(res => res.json())
+    .then(data => {
       const id = data.id
       console.log(data)
       router.push('/tournaments/' + id)
     })
-    .catch((err) => console.error(err))
+    .catch(err => console.error(err))
 }
-
 </script>
-

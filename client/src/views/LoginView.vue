@@ -53,7 +53,7 @@ function validate() {
 
 function RIMUOVERE() {
   const usernames = ['omar', 'samu', 'lele', 'lollo', 'fabio', 'diego']
-  usernames.forEach((username) => {
+  usernames.forEach(username => {
     fetch('/api/register', {
       method: 'POST',
       headers: {
@@ -68,15 +68,16 @@ function RIMUOVERE() {
     })
   })
 }
-
-
 </script>
 
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div class="card w-96 border border-8 border-primary bg-base-100 shadow-md">
       <div class="card-body">
-        <button class="btn btn-secondary border-4 border-primary mt-4" @click="RIMUOVERE">
+        <button
+          class="btn btn-secondary mt-4 border-4 border-primary"
+          @click="RIMUOVERE"
+        >
           USER omar, lele, lollo, samu, fabio, diego PASS omaromar
         </button>
         <h2 class="card-title">Login</h2>

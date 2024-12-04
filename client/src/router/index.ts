@@ -4,7 +4,7 @@ import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import TournamentsView from '@/views/TournamentsView.vue'
-import TournamentLobbyView from "@/views/TournamentLobby.vue"
+import TournamentLobbyView from '@/views/TournamentLobby.vue'
 import BoardView from '@/views/BoardView.vue'
 import StatsView from '@/views/StatsView.vue'
 import WipView from '@/views/WipView.vue'

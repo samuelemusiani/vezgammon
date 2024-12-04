@@ -600,10 +600,9 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 }
 
 const handleReturnHome = () => {
-  if(gameState.value?.tournament.Valid) {
+  if (gameState.value?.tournament.Valid) {
     router.push('/tournaments/' + gameState.value?.tournament.Int64)
-  }
-  else {
+  } else {
     router.push('/')
   }
 }
@@ -744,7 +743,9 @@ const exitGame = async () => {
 
       <!-- Board Div -->
       <div class="flex-1">
-        <div class="retro-box h-full rounded-lg p-4 border-8 border-primary bg-base-100 shadow-xl">
+        <div
+          class="retro-box h-full rounded-lg border-8 border-primary bg-base-100 p-4 shadow-xl"
+        >
           <svg
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
@@ -822,7 +823,7 @@ const exitGame = async () => {
 
       <!-- Dice Div -->
       <div
-        class="retro-box flex w-48 flex-col justify-evenly rounded-lg p-2 border-8 border-primary bg-base-100 shadow-xl"
+        class="retro-box flex w-48 flex-col justify-evenly rounded-lg border-8 border-primary bg-base-100 p-2 shadow-xl"
       >
         <!-- Opponent's Captured Checkers -->
         <div
@@ -857,7 +858,7 @@ const exitGame = async () => {
           <div
             v-for="(die, index) in diceRolled ? displayedDice : []"
             :key="index"
-            class="retro-box flex h-12 w-12 items-center justify-center rounded-lg  p-2 shadow-lg sm:h-16 sm:w-16"
+            class="retro-box flex h-12 w-12 items-center justify-center rounded-lg p-2 shadow-lg sm:h-16 sm:w-16"
             :class="{ 'dice-rolling': isRolling }"
           >
             <svg viewBox="0 0 60 60">
@@ -947,18 +948,8 @@ const exitGame = async () => {
           Your opponent has offered a double. Do you accept?
         </p>
         <div class="flex justify-center gap-4">
-          <button
-            @click="acceptDouble"
-            class="retro-button "
-          >
-            Confirm
-          </button>
-          <button
-            @click="declineDouble"
-            class="retro-button"
-          >
-            Cancel
-          </button>
+          <button @click="acceptDouble" class="retro-button">Confirm</button>
+          <button @click="declineDouble" class="retro-button">Cancel</button>
         </div>
       </div>
     </div>
@@ -980,10 +971,7 @@ const exitGame = async () => {
           }}
         </p>
         <div class="flex justify-center">
-          <button
-            @click="handleDoubleWinExit"
-            class="retro-button"
-          >
+          <button @click="handleDoubleWinExit" class="retro-button">
             Return to Menu
           </button>
         </div>

@@ -1,4 +1,4 @@
-import type {GameState} from "@/utils/game/types";
+import type { GameState } from '@/utils/game/types'
 
 export interface User {
   id: number
