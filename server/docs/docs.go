@@ -17,20 +17,17 @@ const docTemplate = `{
     "paths": {
         "/badge": {
             "get": {
-                "description": "Get user's badges",
+                "description": "Change user avatar",
                 "consumes": [
                     "application/json"
                 ],
                 "produces": [
                     "application/json"
                 ],
-                "summary": "Get user's badges",
+                "summary": "Change user avatar image",
                 "responses": {
                     "200": {
-                        "description": "OK",
-                        "schema": {
-                            "$ref": "#/definitions/types.Badge"
-                        }
+                        "description": "OK"
                     },
                     "500": {
                         "description": "error"
@@ -617,6 +614,10 @@ const docTemplate = `{
         "handler.customUser": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "robot"
+                },
                 "firstname": {
                     "type": "string",
                     "example": "giorgio"
@@ -894,6 +895,10 @@ const docTemplate = `{
         "types.User": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "robot"
+                },
                 "elo": {
                     "type": "integer",
                     "example": 1000

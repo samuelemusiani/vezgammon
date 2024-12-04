@@ -10,6 +10,7 @@ type User struct {
 	Mail      string `json:"mail" example:"giorossi@mail.it"`
 	Elo       int64  `json:"elo" example:"1000"`
 	IsBot     bool   `json:"is_bot" example:"false"`
+	Avatar    string `json:"avatar" example:"robot"`
 }
 
 type Stats struct {

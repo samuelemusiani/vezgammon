@@ -79,6 +79,7 @@ func initUser() error {
 		lastname BPCHAR,
 		mail BPCHAR UNIQUE,
     elo INTEGER NOT NULL,
+    avatar BPCHAR NOT NULL,
     is_bot BOOL DEFAULT FALSE
 	)`
 	_, err := Conn.Exec(q)
@@ -208,9 +209,9 @@ func ValidateSessionToken(token string) (int64, error) {
 }
 
 func CreateUser(u types.User, password string) (types.User, error) {
-	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot)
-    VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.IsBot)
+	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, avatar, is_bot)
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.Avatar, u.IsBot)
 
 	var id int64
 	err := res.Scan(&id)
@@ -255,7 +256,7 @@ func GetUserByUsername(username string) (*types.User, error) {
 }
 
 func GetUser(userId int64) (*types.User, error) {
-	q := `SELECT username, firstname, lastname, mail, elo
+	q := `SELECT username, firstname, lastname, mail, elo, avatar
           FROM users
           WHERE id = $1`
 
@@ -266,6 +267,7 @@ func GetUser(userId int64) (*types.User, error) {
 		&tmp.Lastname,
 		&tmp.Mail,
 		&tmp.Elo,
+		&tmp.Avatar,
 	)
 
 	if err != nil {
@@ -536,4 +538,19 @@ func calculateHomePieces(game types.ReturnGame, u string) int {
 	}
 
 	return 15 - piecesOnBoard
+}
+
+func ChangeAvatar(user_id int64, avatar string) error {
+	slog.With("avatar", avatar).Debug("Avatar")
+	q := `
+    UPDATE users
+    SET avatar = $2
+    WHERE id = $1
+    `
+	_, err := Conn.Exec(q, user_id, avatar)
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

@@ -22,6 +22,7 @@ type customUser struct {
 	Firstname string `json:"firstname" example:"giorgio"`
 	Lastname  string `json:"lastname" example:"rossi"`
 	Mail      string `json:"mail" example:"giorossi@mail.it"`
+	Avatar    string `json:"avatar" example:"robot"`
 }
 
 // @Summary Register new user
@@ -65,6 +66,7 @@ func Register(c *gin.Context) {
 		Firstname: tempu.Firstname,
 		Lastname:  tempu.Lastname,
 		Mail:      tempu.Mail,
+		Avatar:    tempu.Avatar,
 	}
 
 	retu, err := db.CreateUser(u, string(hash))
@@ -322,4 +324,45 @@ func GetBadge(c *gin.Context) {
 	slog.With("badge", badge).Debug("Badge")
 	c.JSON(http.StatusOK, badge)
 
+}
+
+type Avatar struct {
+	Avatar string `json:"avatar"`
+}
+
+// @Summary Change user avatar image
+// @Schemes
+// @Description Change user avatar
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500 "error"
+// @Router /badge [get]
+func ChangeAvatar(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	buff, err := io.ReadAll(c.Request.Body)
+	slog.With("buff", buff).Debug("Ohh allora")
+	if err != nil {
+		slog.With("err", err).Error("Reading body")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	var a Avatar
+	err = json.Unmarshal(buff, &a)
+	if err != nil {
+		slog.With("err", err).Debug("Bad request unmarshal request body")
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	slog.With("avatar reading", a).Debug("Avatar")
+	err = db.ChangeAvatar(user_id, a.Avatar)
+	if err != nil {
+		slog.With("err", err).Error("Chaning avatar")
+		c.JSON(http.StatusBadRequest, "Error chaning avatar")
+	}
+
+	c.JSON(http.StatusOK, "Avatar has been changed successfuly")
 }

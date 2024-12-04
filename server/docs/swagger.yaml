@@ -1,6 +1,9 @@
 definitions:
   handler.customUser:
     properties:
+      avatar:
+        example: robot
+        type: string
       firstname:
         example: giorgio
         type: string
@@ -192,6 +195,9 @@ definitions:
     type: object
   types.User:
     properties:
+      avatar:
+        example: robot
+        type: string
       elo:
         example: 1000
         type: integer
@@ -221,17 +227,15 @@ paths:
     get:
       consumes:
       - application/json
-      description: Get user's badges
+      description: Change user avatar
       produces:
       - application/json
       responses:
         "200":
           description: OK
-          schema:
-            $ref: '#/definitions/types.Badge'
         "500":
           description: error
-      summary: Get user's badges
+      summary: Change user avatar image
   /login:
     post:
       consumes:
