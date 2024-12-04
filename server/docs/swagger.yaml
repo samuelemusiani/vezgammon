@@ -1,4 +1,11 @@
 definitions:
+  handler.changePasswordType:
+    properties:
+      new_pass:
+        type: string
+      old_pass:
+        type: string
+    type: object
   handler.createTurnamentRequest:
     properties:
       name:
@@ -318,6 +325,8 @@ paths:
         "500":
           description: error
       summary: Get user's badges
+      tags:
+      - ""
   /login:
     post:
       consumes:
@@ -355,6 +364,28 @@ paths:
         "500":
           description: Logout failed
       summary: Logout
+      tags:
+      - authentication
+  /pass:
+    patch:
+      consumes:
+      - application/json
+      description: Change password given the old and new pass
+      parameters:
+      - description: old and new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.changePasswordType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: error
+      summary: Change password of the user
       tags:
       - authentication
   /play:

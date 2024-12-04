@@ -306,6 +306,7 @@ func GetAllUsers(c *gin.Context) {
 // @Summary Get user's badges
 // @Schemes
 // @Description Get user's badges
+// @Tags
 // @Accept json
 // @Produce json
 // @Success 200 {object} types.Badge
@@ -333,11 +334,13 @@ type changePasswordType struct {
 // @Summary Change password of the user
 // @Schemes
 // @Description Change password given the old and new pass
+// @Tags authentication
 // @Accept json
+// @Param request body changePasswordType true "old and new password"
 // @Produce json
 // @Success 200
 // @Failure 500 "error"
-// @Router /ChangePass [post]
+// @Router /pass [patch]
 func ChangePass(c *gin.Context) {
 	user_id := c.MustGet("user_id").(int64)
 
