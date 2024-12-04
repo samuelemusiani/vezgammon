@@ -23,6 +23,12 @@ definitions:
         example: gio
         type: string
     type: object
+  handler.invite:
+    properties:
+      username:
+        example: username
+        type: string
+    type: object
   handler.loginResponseType:
     properties:
       message:
@@ -778,6 +784,40 @@ paths:
         "404":
           description: tournament not found
       summary: Cancel a tournament
+      tags:
+      - tournament
+  /tournament/{tournament_id}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Invite a user or a bot a tournament, if it is a bot it accepts
+        the invitation automatically, same bot can be invited multiple times
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      - description: Invite object
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/handler.invite'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: invited
+        "400":
+          description: you are not in the owner
+        "404":
+          description: user not found
+        "500":
+          description: internal server error
+      summary: Invite a user or a bot a tournament
       tags:
       - tournament
   /tournament/{tournament_id}/start:
