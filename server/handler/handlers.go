@@ -65,6 +65,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	tournamentGroup.GET("/list", ListTournaments)
 	tournamentGroup.POST("/:tournament_id/start", StartTournament)
 	tournamentGroup.POST("/:tournament_id/cancel", CancelTournament)
+	tournamentGroup.POST("/:tournament_id/invite", InviteTournament)
 
 	protected.GET("/ws", func(c *gin.Context) {
 		slog.Debug("prova")

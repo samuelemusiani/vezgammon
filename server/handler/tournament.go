@@ -126,6 +126,98 @@ func JoinTournament(c *gin.Context) {
 	}
 }
 
+type invite struct {
+	Username string `json:"username" example:"username"`
+}
+
+type inviteList []invite
+
+// @Summary Invite a user or a bot a tournament
+// @Description Invite a user or a bot a tournament, if it is a bot it accepts the invitation automatically, same bot can be invited multiple times
+// @Tags tournament
+// @Accept  json
+// @Produce  json
+// @Param tournament_id path int true "Tournament ID"
+// @Param request body inviteList true "Invite object"
+// @Success 201 "invited"
+// @Failure 404 "user not found"
+// @Failure 400 "user alredy in the tournament"
+// @Failure 400 "you are not in the owner"
+// @Failure 500 "internal server error"
+// @Router /tournament/{tournament_id}/invite [post]
+func InviteTournament(c *gin.Context) {
+	userID := c.MustGet("user_id").(int64)
+	id := c.Param("tournament_id")
+
+	id64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	tournament, err := db.GetTournament(id64)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "tournament not found")
+		return
+	}
+
+	if tournament.Owner != userID {
+		c.JSON(http.StatusBadRequest, "you are not the owner")
+		return
+	}
+
+	if tournament.Status != types.TournamentStatusWaiting {
+		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		return
+	}
+
+	buff, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	var invites inviteList
+	err = json.Unmarshal(buff, &invites)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	for _, inviteuser := range invites {
+		user, err := db.GetUserByUsername(inviteuser.Username)
+		if err != nil {
+			c.JSON(http.StatusNotFound, "user not found")
+			return
+		}
+
+		if !user.IsBot {
+			c.JSON(http.StatusBadRequest, "only bots can be invited")
+			return
+		}
+
+		if len(tournament.Users) >= 4 {
+			c.JSON(http.StatusBadRequest, "tournament is full")
+			return
+		} else {
+			tournament.Users = append(tournament.Users, user.ID)
+		}
+	}
+
+	err = db.UpdateTournament(tournament)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	// send message to all users
+	for _, u := range tournament.Users {
+		if u != userID {
+			ws.TournamentNewUserEnrolled(u)
+		}
+	}
+}
+
 // @Summary Leave a tournament
 // @Description Leave a tournament if the tournament is not started
 // @Tags tournament

@@ -820,6 +820,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/tournament/{tournament_id}/invite": {
+            "post": {
+                "description": "Invite a user or a bot a tournament, if it is a bot it accepts the invitation automatically, same bot can be invited multiple times",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Invite a user or a bot a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Invite object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.invite"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "invited"
+                    },
+                    "400": {
+                        "description": "you are not in the owner"
+                    },
+                    "404": {
+                        "description": "user not found"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
         "/tournament/{tournament_id}/start": {
             "post": {
                 "description": "Start a tournament, only the owner can start it",
@@ -888,6 +938,15 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "gio"
+                }
+            }
+        },
+        "handler.invite": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "example": "username"
                 }
             }
         },
