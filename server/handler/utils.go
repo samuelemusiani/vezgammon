@@ -3,7 +3,10 @@ package handler
 import (
 	"database/sql"
 	"errors"
+	"log/slog"
 	"math"
+	"time"
+	"vezgammon/server/bgweb"
 	"vezgammon/server/db"
 	"vezgammon/server/matchmaking"
 	"vezgammon/server/types"
@@ -59,13 +62,36 @@ func calculateElo(elo1, elo2 int64, winner1 bool) (int64, int64) {
 }
 
 func tournamentMatchCreate(user1, user2 int64, tournament sql.NullInt64) error {
-	err := matchmaking.CreateGame(user1, user2, tournament)
-	if err != nil {
-		return err
-	}
 
-	ws.GameTournamentReady(user1)
-	ws.GameTournamentReady(user2)
+	// if both players are bots
+	if (db.GetBotLevel(user1) != 0) && (db.GetBotLevel(user2) != 0) {
+		err, game := matchmaking.CreateGame(user1, user2, tournament)
+		if err != nil {
+			return err
+		}
+
+		go botVsBotGame(game) // giusto?
+	} else if db.GetBotLevel(user1) != 0 {
+		err, _, _ := createBotUserGame(user2, user1, tournament)
+		if err != nil {
+			return err
+		}
+		ws.GameTournamentReady(user2)
+	} else if db.GetBotLevel(user2) != 0 {
+		err, _, _ := createBotUserGame(user1, user2, tournament)
+		if err != nil {
+			return err
+		}
+		ws.GameTournamentReady(user1)
+	} else {
+		err, _ := matchmaking.CreateGame(user1, user2, tournament)
+		if err != nil {
+			return err
+		}
+
+		ws.GameTournamentReady(user1)
+		ws.GameTournamentReady(user2)
+	}
 
 	return nil
 }
@@ -143,4 +169,240 @@ func tournamentGameEndHandler(tournamentId int64, winnerId int64) error {
 		}
 	}
 	return nil
+}
+
+func botVsBotGame(g *types.Game) error {
+	notabot := errors.New("not a bot")
+	levelinvalid := errors.New("Invalid bot level")
+
+	p1, _ := getCurrentPlayer(g.CurrentPlayer, g.Player1, g.Player2)
+	p2, _ := getOpponentID(g.CurrentPlayer, g.Player1, g.Player2)
+
+	botLevel1 := db.GetBotLevel(p1)
+	var getMovefunc1 func(g *types.Game) ([]types.Move, error)
+
+	botLevel2 := db.GetBotLevel(p2)
+	var getMovefunc2 func(g *types.Game) ([]types.Move, error)
+
+	if botLevel1 > 0 {
+		switch botLevel1 {
+		case 1:
+			getMovefunc1 = bgweb.GetEasyMove
+		case 2:
+			getMovefunc1 = bgweb.GetMediumMove
+		case 3:
+			getMovefunc1 = bgweb.GetBestMove
+		default:
+			return levelinvalid
+		}
+	} else {
+		return notabot
+	}
+
+	if botLevel2 > 0 {
+		switch botLevel2 {
+		case 1:
+			getMovefunc2 = bgweb.GetEasyMove
+		case 2:
+			getMovefunc2 = bgweb.GetMediumMove
+		case 3:
+			getMovefunc2 = bgweb.GetBestMove
+		default:
+			return levelinvalid
+		}
+	} else {
+		return notabot
+	}
+
+	gameEnded := false
+	for !gameEnded {
+		moves, err := getMovefunc1(g)
+		if err != nil {
+			return err
+		}
+
+		g.PlayMove(moves)
+		err = db.UpdateGame(g)
+		if err != nil {
+			return err
+		}
+
+		// save turn
+		turn := types.Turn{
+			GameId: g.ID,
+			User:   p1,
+			Time:   time.Now(),
+			Dices:  g.Dices,
+			Double: false,
+			Moves:  moves,
+		}
+
+		_, err = db.CreateTurn(turn)
+		if err != nil {
+			return err
+		}
+
+		isended, winner := isGameEnded(g)
+		if isended {
+			gameEnded = true
+			err := endGame(g, winner)
+			if err != nil {
+				return err
+			}
+			break
+		}
+
+		moves, err = getMovefunc2(g)
+		if err != nil {
+			return err
+		}
+
+		g.PlayMove(moves)
+		err = db.UpdateGame(g)
+		if err != nil {
+			return err
+		}
+
+		// save turn
+		turn = types.Turn{
+			GameId: g.ID,
+			User:   p2,
+			Time:   time.Now(),
+			Dices:  g.Dices,
+			Double: false,
+			Moves:  moves,
+		}
+
+		_, err = db.CreateTurn(turn)
+		if err != nil {
+			return err
+		}
+
+		isended, winner = isGameEnded(g)
+		if isended {
+			gameEnded = true
+			err := endGame(g, winner)
+			if err != nil {
+				return err
+			}
+			break
+		}
+
+	}
+
+	return nil
+}
+
+// True if the game is ended. Return id of the winner
+func isGameEnded(g *types.Game) (bool, int64) {
+	s := func(a [25]int8) int {
+		sum := 0
+		for i := 0; i < 25; i++ {
+			sum += int(a[i])
+		}
+		return sum
+	}
+
+	if s(g.P1Checkers) == 0 {
+		return true, g.Player1
+	}
+
+	if s(g.P2Checkers) == 0 {
+		return true, g.Player2
+	}
+
+	return false, 0
+}
+
+func endGame(g *types.Game, winnerID int64) error {
+	if winnerID == g.Player1 {
+		g.Status = types.GameStatusWinP1
+	} else {
+		g.Status = types.GameStatusWinP2
+	}
+
+	g.End = time.Now()
+
+	err := db.UpdateGame(g)
+	if err != nil {
+		return err
+	}
+
+	rg := db.GameToReturnGame(g)
+
+	if rg.GameType == types.GameTypeOnline {
+		u1, err := db.GetUser(g.Player1)
+		if err != nil {
+			slog.With("error", err).Error("Getting user in endGame")
+			return err
+		}
+
+		u2, err := db.GetUser(g.Player2)
+		if err != nil {
+			slog.With("error", err).Error("Getting user in endGame")
+			return err
+		}
+
+		elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1)
+
+		err = db.UpdateUserElo(g.Player1, elo1)
+		if err != nil {
+			slog.With("error", err).Error("Updating elo in endGame")
+			return err
+		}
+
+		err = db.UpdateUserElo(g.Player2, elo2)
+		if err != nil {
+			slog.With("error", err).Error("Updating elo in endGame")
+			return err
+		}
+	}
+
+	if g.Tournament.Valid {
+		err = tournamentGameEndHandler(g.Tournament.Int64, winnerID)
+		if err != nil {
+			return err
+		}
+	}
+
+	ws.GameEnd(g.Player1)
+	ws.GameEnd(g.Player2)
+
+	return err
+}
+
+func createBotUserGame(userId, botId int64, tournament sql.NullInt64) (error, *types.Dices, *types.Dices) {
+	var startdicesP1, startdicesP2 types.Dices
+	for {
+		startdicesP1 = types.NewDices()
+		startdicesP2 = types.NewDices()
+
+		if startdicesP1.Sum() != startdicesP2.Sum() {
+			if startdicesP1.Sum() < startdicesP2.Sum() {
+				startdicesP1, startdicesP2 = startdicesP2, startdicesP1
+			}
+			break
+		}
+	}
+
+	// Against a bot the player will always start first
+	var startPlayer = types.GameCurrentPlayerP1
+
+	firstdices := types.NewDices()
+
+	g := types.Game{
+		Player1:       userId,
+		Player2:       botId,
+		Start:         time.Now(),
+		Status:        types.GameStatusOpen,
+		CurrentPlayer: startPlayer,
+		Dices:         firstdices,
+		Tournament:    tournament,
+	}
+
+	slog.With("game", g).Debug("Creating game")
+
+	_, err := db.CreateGame(g)
+
+	return err, &startdicesP1, &startdicesP2
 }

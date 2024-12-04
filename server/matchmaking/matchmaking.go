@@ -39,7 +39,7 @@ func Init() {
 							continue
 						}
 
-						if err := CreateGame(p1.User_id, p2.User_id, sql.NullInt64{Valid: false}); err != nil {
+						if _, err := CreateGame(p1.User_id, p2.User_id, sql.NullInt64{Valid: false}); err != nil {
 							slog.With("err", err, "p1", p1.User_id, "p2", p2.User_id).Error("Creating game")
 							continue
 						}
@@ -63,15 +63,15 @@ func Init() {
 	}()
 }
 
-func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) error {
+func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) (error, *types.Game) {
 	user1, err := db.GetUser(user_id1)
 	if err != nil {
-		return err
+		return err, nil
 	}
 
 	user2, err := db.GetUser(user_id2)
 	if err != nil {
-		return err
+		return err, nil
 	}
 
 	var dices = types.NewDices()
@@ -94,12 +94,12 @@ func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) error {
 
 	game.Tournament = tournament
 
-	_, err = db.CreateGame(game)
+	retgame, err := db.CreateGame(game)
 	if err != nil {
-		return err
+		return err, nil
 	}
 
-	return nil
+	return nil, retgame
 }
 
 func StopSearch(uid int64) error {
