@@ -267,6 +267,7 @@ func GetAllTournamentGames(id int64) ([]types.Game, error) {
 	SELECT id
 	FROM games
 	WHERE tournament=$1
+	ORDER BY id ASC
 	`
 
 	rows, err := Conn.Query(q, id)

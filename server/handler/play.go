@@ -433,6 +433,15 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
+	isEnded, winner := isGameEnded(g)
+	if isEnded {
+		err := endGame(g, winner)
+		if err != nil {
+			slog.With("error", err).Error("Ending game")
+			c.JSON(http.StatusInternalServerError, err)
+		}
+		return
+	}
 	// Check if we are playing against a bot
 
 	botLevel := db.GetBotLevel(g.Player2)
@@ -517,14 +526,6 @@ func PlayMoves(c *gin.Context) {
 			}
 
 			c.JSON(http.StatusCreated, "Moves played; Game ended")
-
-			if g.Tournament.Valid {
-				err = tournamentGameEndHandler(g.Tournament.Int64, winner)
-				if err != nil {
-					c.JSON(http.StatusInternalServerError, err)
-					return
-				}
-			}
 
 			return
 		} else {
@@ -989,6 +990,13 @@ func endGame(g *types.Game, winnerID int64) error {
 		err = db.UpdateUserElo(g.Player2, elo2)
 		if err != nil {
 			slog.With("error", err).Error("Updating elo in endGame")
+			return err
+		}
+	}
+
+	if g.Tournament.Valid {
+		err = tournamentGameEndHandler(g.Tournament.Int64, winnerID)
+		if err != nil {
 			return err
 		}
 	}
