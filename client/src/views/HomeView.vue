@@ -43,7 +43,7 @@
           </button>
           <button
             @mouseenter="(e: MouseEvent) => play()"
-            @click="router.push('/wip')"
+            @click="openSettingsModal"
             class="retro-button"
           >
             SETTINGS
@@ -277,6 +277,8 @@
       </form>
     </dialog>
 
+    <SettingsModal />
+
     <dialog id="rules_modal" class="modal">
       <div
         class="modal-box max-h-[85vh] max-w-3xl overflow-y-auto border-4 border-primary"
@@ -299,19 +301,23 @@ import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import RulesSection from '@/components/RulesSection.vue'
 import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
 import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
+import SettingsModal from '@/components/SettingsModal.vue'
+
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useWebSocketStore } from '@/stores/websocket'
+import { useAudioStore } from '@/stores/audio'
 import type { WSMessage } from '@/utils/types'
 
-const { play } = useSound(buttonSfx, { volume: 0.3 })
+const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
 // 0 for base, 1 for bot difficulty, 2 for online options, 3 for tournaments options,
 const modals = ref(0)
 const inviteLink = ref('')
 const linkCopied = ref(false)
+const audioStore = useAudioStore()
 
 onMounted(() => {
   webSocketStore.connect()
@@ -330,6 +336,12 @@ const handleMatchmaking = (message: WSMessage) => {
     ) as HTMLDialogElement
     waitingModal.close()
     router.push('/game')
+  }
+}
+
+const play = () => {
+  if (audioStore.isAudioEnabled) {
+    playSound()
   }
 }
 
@@ -407,6 +419,11 @@ const handleCancelMatchmaking = async () => {
     'waiting_modal',
   ) as HTMLDialogElement
   waitingModal.close()
+}
+
+const openSettingsModal = () => {
+  const modal = document.getElementById('settings_modal') as HTMLDialogElement
+  modal.showModal()
 }
 
 const modalTitle = computed(() => {
