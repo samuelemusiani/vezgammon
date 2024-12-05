@@ -123,6 +123,15 @@ definitions:
         example: 1
         type: integer
     type: object
+  types.LeaderboardUser:
+    properties:
+      elo:
+        example: 1000
+        type: integer
+      username:
+        example: gio
+        type: string
+    type: object
   types.Move:
     properties:
       from:
@@ -244,6 +253,10 @@ definitions:
       games_played:
         items:
           $ref: '#/definitions/types.ReturnGame'
+        type: array
+      leaderboard:
+        items:
+          $ref: '#/definitions/types.LeaderboardUser'
         type: array
       local:
         type: integer

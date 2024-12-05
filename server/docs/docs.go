@@ -1089,6 +1089,19 @@ const docTemplate = `{
                 }
             }
         },
+        "types.LeaderboardUser": {
+            "type": "object",
+            "properties": {
+                "elo": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
         "types.Move": {
             "type": "object",
             "properties": {
@@ -1260,6 +1273,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
+                "leaderboard": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.LeaderboardUser"
                     }
                 },
                 "local": {
