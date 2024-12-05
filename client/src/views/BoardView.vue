@@ -1,14 +1,9 @@
 <script setup lang="ts">
-import { ref, onMounted, computed, onUnmounted } from 'vue'
+import { onMounted, computed, onUnmounted } from 'vue'
 import router from '@/router'
 
-import type {
-  Checker,
-  GameState,
-  MovesResponse,
-  Move,
-} from '@/utils/game/types'
-import type { User, WSMessage } from '@/utils/types'
+import type { Checker, GameState, Move } from '@/utils/game/types'
+import type { WSMessage } from '@/utils/types'
 import {
   BOARD,
   getTrianglePath,
@@ -24,37 +19,49 @@ import PlayerInfo from '@/components/game/PlayerInfo.vue'
 import DoubleDice from '@/components/game/DoubleDice.vue'
 import DiceContainer from '@/components/game/DiceContainer.vue'
 import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
-import { useSound } from '@vueuse/sound'
-import victorySfx from '@/utils/sounds/victory.mp3'
-import diceSfx from '@/utils/sounds/dice.mp3'
-import lostSfx from '@/utils/sounds/lostgame.mp3'
+import Modal from '@/components/Modal.vue'
 import { useWebSocketStore } from '@/stores/websocket'
+import { useGameState } from '@/composables/useGameState'
+import { useGameMoves } from '@/composables/useGameMoves'
+import { useGameTimer } from '@/composables/useGameTimer'
+import { useGameDouble } from '@/composables/useGameDouble'
+import { useDiceRoll } from '@/composables/useDiceRoll'
+import { useGameEnd } from '@/composables/useGameEnd'
 
 //import tinSfx from '@/utils/sounds/tintin.mp3'
 
-const gameState = ref<GameState | null>(null)
+const {
+  gameState,
+  availableMoves,
+  session,
+  fetchGameState,
+  fetchMoves,
+  fetchSession,
+} = useGameState()
+const { selectedChecker, possibleMoves, movesToSubmit, submitMoves } =
+  useGameMoves()
+const { timeLeft, isMyTurn, startTimer, stopTimer } = useGameTimer()
 
-const selectedChecker = ref<Checker | null>(null)
-const availableMoves = ref<MovesResponse | null>(null)
-const possibleMoves = ref<number[]>([])
-const movesToSubmit = ref<Move[]>([]) // mosse già fatte
-const displayedDice = ref<number[]>([])
-const session = ref<User>()
-const showDoubleModal = ref(false)
-const showResultModal = ref(false)
-const isWinner = ref(false)
-const timeLeft = ref(60)
-const timerInterval = ref<ReturnType<typeof setTimeout> | null>(null)
-const isMyTurn = ref(false)
+const {
+  isRolling,
+  diceRolled,
+  displayedDice,
+  handleDiceRoll,
+  resetDiceState,
+  showDiceFromOpponent,
+} = useDiceRoll()
+const {
+  showResultModal,
+  handleLose,
+  isWinner,
+  isExploding,
+  handleEnd,
+  handleRetire,
+} = useGameEnd()
 
-const isRolling = ref(false)
-const diceRolled = ref(false)
+const { showDoubleModal, handleDouble, acceptDouble, declineDouble } =
+  useGameDouble(handleLose)
 
-const isExploding = ref(false)
-const { play: playVictory } = useSound(victorySfx)
-const { play: playDice } = useSound(diceSfx)
-const { play: playLost } = useSound(lostSfx)
-//const { play: playTin } = useSound(tinSfx)
 const webSocketStore = useWebSocketStore()
 
 onMounted(async () => {
@@ -88,19 +95,10 @@ const handleMessage = async (message: WSMessage) => {
   } else if (message.type === 'double_accepted') {
     await fetchGameState()
   } else if (message.type === 'dice_rolled') {
-    // Mostra i dadi dell'avversario
-    isRolling.value = true
-    diceRolled.value = true
-    playDice()
-
     const diceData = JSON.parse(message.payload)
-
-    setTimeout(() => {
-      isRolling.value = false
-      displayedDice.value = diceData.dices
-    }, 1000)
+    showDiceFromOpponent(diceData.dices)
   } else if (message.type === 'game_end') {
-    await handleEnd()
+    await handleEnd(session.value)
   } else if (message.type === 'move_made') {
     if (!gameState.value) return
 
@@ -129,81 +127,6 @@ const handleMessage = async (message: WSMessage) => {
   }
 }
 
-const fetchSession = async () => {
-  await fetch('/api/session')
-    .then(res => res.json())
-    .then(data => {
-      session.value = data
-    })
-}
-
-const fetchWinner = async () => {
-  try {
-    const res = await fetch('/api/play/last/winner')
-    const winner = await res.json()
-    return winner
-  } catch (err) {
-    console.error('Error fetching winner:', err)
-  }
-}
-
-const handleEnd = async () => {
-  const winner = await fetchWinner()
-  if (winner === session.value?.username) {
-    handleWin()
-  } else {
-    handleLose()
-  }
-}
-
-const handleWin = () => {
-  isWinner.value = true
-  showResultModal.value = true
-  playVictory()
-  isExploding.value = true
-  setTimeout(() => {
-    isExploding.value = false
-  }, 5000)
-}
-
-const handleLose = () => {
-  isWinner.value = false
-  showResultModal.value = true
-  playLost()
-}
-
-const handleDouble = async () => {
-  try {
-    const res = await fetch('/api/play/double', {
-      method: 'POST',
-    })
-    if (res.ok) {
-      await fetchGameState()
-      if (gameState.value?.game_type === 'local') {
-        showDoubleModal.value = true
-      }
-    }
-  } catch (err) {
-    console.error('Error sending double:', err)
-  }
-}
-
-const handleRetire = async () => {
-  try {
-    const res = await fetch('/api/play/', {
-      method: 'DELETE',
-    })
-
-    if (!res.ok) {
-      console.error('Error retiring:', res)
-    }
-
-    handleLose()
-  } catch (err) {
-    console.error('Error exiting game:', err)
-  }
-}
-
 const showDoubleButton = computed(() => {
   if (!gameState.value) return false
   if (gameState.value.double_owner === 'all') return true
@@ -212,34 +135,6 @@ const showDoubleButton = computed(() => {
   }
   return gameState.value.double_owner === whichPlayerAmI.value
 })
-
-const acceptDouble = async () => {
-  try {
-    const res = await fetch('/api/play/double', {
-      method: 'PUT',
-    })
-    if (res.ok) {
-      showDoubleModal.value = false
-      await fetchGameState()
-    }
-  } catch (err) {
-    console.error('Error accepting double:', err)
-  }
-}
-
-const declineDouble = async () => {
-  try {
-    const res = await fetch('/api/play/double', {
-      method: 'DELETE',
-    })
-    if (res.ok) {
-      showDoubleModal.value = false
-      handleLose()
-    }
-  } catch (err) {
-    console.error('Error declining double:', err)
-  }
-}
 
 const handleDoubleWinExit = async () => {
   showResultModal.value = false
@@ -253,101 +148,6 @@ const whichPlayerAmI = computed(() => {
     return 'p2'
   }
 })
-
-const handleDiceRoll = () => {
-  if (diceRolled.value || !availableMoves.value?.dices) return
-
-  isRolling.value = true
-  diceRolled.value = true
-  playDice()
-
-  const generateRandomDice = () => {
-    displayedDice.value = [
-      Math.floor(Math.random() * 6) + 1,
-      Math.floor(Math.random() * 6) + 1,
-    ]
-  }
-
-  // Generate random dice values every 100ms
-  const rollInterval = setInterval(generateRandomDice, 100)
-
-  // Show real dice value after 1s
-  setTimeout(() => {
-    clearInterval(rollInterval)
-    isRolling.value = false
-    displayedDice.value = availableMoves.value!.dices
-
-    if (gameState.value?.game_type === 'online') {
-      webSocketStore.sendMessage({
-        type: 'dice_rolled',
-        payload: JSON.stringify({
-          dices: availableMoves.value!.dices,
-        }),
-      })
-    }
-  }, 1000)
-}
-
-const startTimer = () => {
-  timeLeft.value = 60
-
-  if (timerInterval.value) {
-    clearInterval(timerInterval.value)
-  }
-
-  timerInterval.value = setInterval(() => {
-    timeLeft.value--
-    if (timeLeft.value <= 0) {
-      stopTimer()
-      handleTimeout()
-    }
-  }, 1000)
-}
-
-const stopTimer = () => {
-  if (timerInterval.value) {
-    clearInterval(timerInterval.value)
-    timerInterval.value = null
-  }
-}
-
-const handleTimeout = async () => {
-  clearInterval(timerInterval.value!)
-  await handleRetire()
-}
-
-const fetchGameState = async () => {
-  try {
-    const res = await fetch('/api/play/')
-
-    // If the response is not ok, the game is over
-    if (!res.ok) {
-      await handleEnd()
-      return
-    }
-    const data: GameState = await res.json()
-    gameState.value = data
-
-    console.log(gameState.value)
-  } catch (err) {
-    console.error('Error fetching game state:', err)
-  }
-}
-
-const fetchMoves = async () => {
-  try {
-    const res = await fetch('/api/play/moves')
-    const data: MovesResponse = await res.json()
-    if (!res.ok) return
-    availableMoves.value = data
-    diceRolled.value = false
-    displayedDice.value = []
-    isMyTurn.value = true
-    console.log(availableMoves.value)
-  } catch (err) {
-    console.error('Error fetching moves:', err)
-  }
-}
 
 const isCheckerSelectable = (checker: Checker) => {
   if (!gameState.value || !diceRolled.value) return false
@@ -400,19 +200,14 @@ const handleCheckerClick = (checker: Checker) => {
 
   if (
     availableMoves.value.possible_moves.length === 0 ||
-    availableMoves.value.possible_moves.every(sequence => sequence.length === 0)
+    availableMoves.value.possible_moves.every(
+      (sequence: Move[]) => sequence.length === 0,
+    )
   ) {
     console.log(
       'No possible moves or all sequences are empty, passing the turn',
     )
-    // Se non ci sono mosse possibili o tutte le sequenze sono vuote, passa il turno
-    fetch('/api/play/moves', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(movesToSubmit.value),
-    })
+    submitMoves()
     fetchMoves()
     fetchGameState()
     return
@@ -422,9 +217,9 @@ const handleCheckerClick = (checker: Checker) => {
   possibleMoves.value = [
     ...new Set(
       availableMoves.value.possible_moves
-        .map(seq => seq[0]) // Prendo solo la prima mossa di ogni sequenza
-        .filter(move => move.from === checker.position)
-        .map(move => move.to),
+        .map((seq: Move[]) => seq[0]) // Prendo solo la prima mossa di ogni sequenza
+        .filter((move: Move) => move.from === checker.position)
+        .map((move: Move) => move.to),
     ),
   ]
   console.log('mosse posibili', possibleMoves.value)
@@ -446,13 +241,13 @@ const handleTriangleClick = async (position: number) => {
 
   // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
   availableMoves.value.possible_moves =
-    availableMoves.value.possible_moves.filter(seq => {
+    availableMoves.value.possible_moves.filter((seq: Move[]) => {
       return seq[0].from === currentMove.from && seq[0].to === currentMove.to
     })
 
   // rimuovo dalle sequenze possibili la mossa appena giocata
   availableMoves.value.possible_moves = availableMoves.value.possible_moves.map(
-    seq => {
+    (seq: Move[]) => {
       let removed = false
       return seq.filter(move => {
         if (
@@ -525,17 +320,8 @@ const handleTriangleClick = async (position: number) => {
 
   if (hasUsedBothDices || !hasPossibleMoves) {
     try {
-      const res = await fetch('/api/play/moves', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(movesToSubmit.value),
-      })
-      console.log('stato POST', res.status)
-
-      movesToSubmit.value = []
-      possibleMoves.value = []
+      await submitMoves()
+      resetDiceState()
       if (gameState.value.game_type !== 'online') {
         await fetchGameState()
         await fetchMoves()
@@ -555,7 +341,7 @@ const getCheckers = () => {
   const checkers: Checker[] = []
 
   // Aggiungi pedine del player 1 (bianche)
-  gameState.value.p1checkers.forEach((count, position) => {
+  gameState.value.p1checkers.forEach((count: any, position: any) => {
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'black',
@@ -566,7 +352,7 @@ const getCheckers = () => {
   })
 
   // Aggiungi pedine del player 2 (nere)
-  gameState.value.p2checkers.forEach((count, position) => {
+  gameState.value.p2checkers.forEach((count: any, position: any) => {
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'white',
@@ -597,8 +383,14 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   // Calcola il numero di pedine ancora sulla board
   const remainingCheckers =
     player === 'p1'
-      ? gameState.value.p1checkers.reduce((acc, curr) => acc + curr, 0)
-      : gameState.value.p2checkers.reduce((acc, curr) => acc + curr, 0)
+      ? gameState.value.p1checkers.reduce(
+          (acc: any, curr: any) => acc + curr,
+          0,
+        )
+      : gameState.value.p2checkers.reduce(
+          (acc: any, curr: any) => acc + curr,
+          0,
+        )
 
   // Ritorna la differenza tra le pedine iniziali e quelle rimaste
   return initialCheckers - remainingCheckers
@@ -742,7 +534,7 @@ const exitGame = async () => {
         </div>
       </div>
 
-      <!-- Dice Div -->
+      <!-- Right Container -->
       <div
         class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
       >
@@ -760,7 +552,7 @@ const exitGame = async () => {
           :displayedDice="displayedDice"
           :isRolling="isRolling"
           :canRoll="!diceRolled && !!availableMoves?.dices"
-          @roll="handleDiceRoll"
+          @roll="handleDiceRoll(availableMoves)"
         />
 
         <!-- Captured Checkers -->
@@ -773,64 +565,6 @@ const exitGame = async () => {
       </div>
     </div>
 
-    <!-- Double Confirmation Modal -->
-    <div
-      v-if="showDoubleModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    >
-      <div class="retro-box max-w-md rounded-lg p-6 text-center">
-        <h3 class="mb-4 text-xl font-bold text-amber-900">Confirm Double</h3>
-        <p class="mb-6 text-gray-700">
-          Your opponent has offered a double. Do you accept?
-        </p>
-        <div class="flex justify-center gap-4">
-          <button
-            @click="acceptDouble"
-            class="retro-button bg-green-700 hover:bg-green-800"
-          >
-            Confirm
-          </button>
-          <button
-            @click="declineDouble"
-            class="retro-button bg-red-700 hover:bg-red-800"
-          >
-            Cancel
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <!-- Double Win Modal -->
-    <div
-      v-if="showResultModal"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    >
-      <div class="retro-box max-w-md rounded-lg p-6 text-center">
-        <h3 class="mb-4 text-2xl font-bold text-amber-900">
-          {{ isWinner ? 'Victory!' : 'Defeat!' }}
-        </h3>
-        <p class="mb-6 text-lg text-gray-700">
-          {{
-            isWinner
-              ? 'Congratulations! You won the game!'
-              : 'Game Over! Better luck next time!'
-          }}
-        </p>
-        <div class="flex justify-center">
-          <button
-            @click="handleDoubleWinExit"
-            class="retro-button"
-            :class="
-              isWinner
-                ? 'bg-green-700 hover:bg-green-800'
-                : 'bg-red-700 hover:bg-red-800'
-            "
-          >
-            Return to Menu
-          </button>
-        </div>
-      </div>
-    </div>
     <Chat
       v-if="
         session?.username &&
@@ -844,6 +578,36 @@ const exitGame = async () => {
       :gameType="gameState?.game_type || ''"
       :myUsername="session?.username || ''"
     />
+
+    <!-- Double Confirmation Modal -->
+    <Modal
+      :show="showDoubleModal"
+      title="Confirm Double"
+      confirmText="Confirm"
+      cancelText="Cancel"
+      confirmVariant="success"
+      @confirm="acceptDouble"
+      @cancel="declineDouble"
+    >
+      Your opponent has offered a double. Do you accept?
+    </Modal>
+
+    <!-- Game Result Modal -->
+    <Modal
+      :show="showResultModal"
+      :title="isWinner ? 'Victory!' : 'Defeat!'"
+      :confirmText="'Return to Menu'"
+      :confirmVariant="isWinner ? 'success' : 'danger'"
+      @confirm="handleDoubleWinExit"
+    >
+      <p class="text-lg">
+        {{
+          isWinner
+            ? 'Congratulations! You won the game!'
+            : 'Game Over! Better luck next time!'
+        }}
+      </p>
+    </Modal>
   </div>
 </template>
 
@@ -905,28 +669,6 @@ const exitGame = async () => {
       0 0px 0 #8b4513;
     cursor: url('/tortellino.png'), auto;
   }
-}
-
-@keyframes dice-shake {
-  0% {
-    transform: rotate(0deg);
-  }
-
-  25% {
-    transform: rotate(5deg);
-  }
-
-  75% {
-    transform: rotate(-5deg);
-  }
-
-  100% {
-    transform: rotate(0deg);
-  }
-}
-
-.dice-rolling {
-  animation: dice-shake 0.3s ease-in-out infinite;
 }
 
 .selected {
