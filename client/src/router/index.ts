@@ -42,6 +42,7 @@ const router = createRouter({
     {
       path: '/game',
       name: 'game',
+      props: route => ({ variant: route.query.variant }),
       component: BoardView,
     },
     {
