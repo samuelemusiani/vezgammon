@@ -40,6 +40,12 @@
     box-shadow: 0 2px 0 #8b4513;
     font-size: 1.1rem;
 
+    &.circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+    }
+
     &:hover {
       transform: translateY(2px);
       box-shadow:
