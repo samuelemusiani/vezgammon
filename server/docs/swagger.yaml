@@ -111,18 +111,6 @@ definitions:
           type: array
         type: array
     type: object
-  types.LeaderBoardEntry:
-    properties:
-      lose:
-        example: 1
-        type: integer
-      user:
-        example: Giorgio
-        type: string
-      win:
-        example: 1
-        type: integer
-    type: object
   types.Move:
     properties:
       from:
@@ -211,10 +199,6 @@ definitions:
       id:
         example: 1
         type: integer
-      leader_board:
-        items:
-          $ref: '#/definitions/types.LeaderBoardEntry'
-        type: array
       name:
         example: Tournament name
         type: string

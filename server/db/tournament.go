@@ -1,8 +1,6 @@
 package db
 
 import (
-	"cmp"
-	"slices"
 	"vezgammon/server/types"
 
 	"github.com/lib/pq"
@@ -97,36 +95,6 @@ func winNumber(winners []int64, user int64) int {
 	return count
 }
 
-func calcLeaderBoard(tournament *types.Tournament) (types.LeaderBoard, error) {
-	sortedUsers := slices.Clone(tournament.Users)
-
-	slices.SortFunc(sortedUsers, func(a, b int64) int {
-		return cmp.Compare(winNumber(tournament.Winners, a), winNumber(tournament.Winners, b))
-	})
-
-	var lb types.LeaderBoard
-
-	for _, u := range sortedUsers {
-		user, err := GetUser(u)
-		if err != nil {
-			return nil, err
-		}
-
-		wins := winNumber(tournament.Winners, u)
-		loses := 2 - wins
-
-		lbe := types.LeaderBoardEntry{
-			User: user.Username,
-			Win:  wins,
-			Lose: loses,
-		}
-
-		lb = append(lb, lbe)
-	}
-
-	return lb, nil
-}
-
 func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, error) {
 	var rt types.ReturnTournament
 
@@ -165,12 +133,6 @@ func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, 
 
 	for _, g := range games {
 		rt.Games = append(rt.Games, *GameToReturnGame(&g))
-	}
-
-	// calc leaderboard
-	rt.LeaderBoard, err = calcLeaderBoard(&t)
-	if err != nil {
-		return nil, err
 	}
 
 	return &rt, nil
