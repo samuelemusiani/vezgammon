@@ -1,6 +1,7 @@
 package types
 
 import (
+	"database/sql"
 	"log/slog"
 	"math/rand"
 	"time"
@@ -84,7 +85,8 @@ type Game struct {
 
 	CurrentPlayer string `json:"current_player"`
 
-	Dices Dices `json:"dices"`
+	Dices      Dices         `json:"dices"`
+	Tournament sql.NullInt64 `json:"tournament"`
 }
 
 func (g *Game) PlayMove(moves []Move) {
@@ -147,4 +149,6 @@ type ReturnGame struct {
 	CurrentPlayer string `json:"current_player" example:"p1"`
 
 	GameType string `json:"game_type" example:"online"`
+
+	Tournament sql.NullInt64 `json:"tournament"`
 }

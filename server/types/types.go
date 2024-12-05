@@ -23,3 +23,12 @@ type Stats struct {
 	Cpu        int64        `json:"cpu"`
 	Tournament int64        `json:"tournament"`
 }
+
+type Badge struct {
+	Bot        [3]int `json:"bot"`
+	Homepieces [3]int `json:"pieces"`
+	Wongames   [3]int `json:"win"`
+	Elo        [3]int `json:"elo"`
+	Wontime    [3]int `json:"time"`
+	Gameplayed [3]int `json:"played"`
+}

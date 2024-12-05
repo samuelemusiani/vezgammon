@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"io"
+	"math/rand/v2"
 	"net/http"
 	"strconv"
 	"time"
@@ -390,7 +391,7 @@ func GetBestMove(g *types.Game) ([]types.Move, error) {
 
 func GetEasyMove(g *types.Game) ([]types.Move, error) {
 	conf := EngineConfig{
-		MaxMoves:   5,
+		MaxMoves:   100,
 		ScoreMoves: true,
 	}
 	mv := GametoMoveArgs(g, conf)
@@ -404,7 +405,20 @@ func GetEasyMove(g *types.Game) ([]types.Move, error) {
 		return make([]types.Move, 0), nil
 	}
 
-	move := moves[len(moves)-1] // get second best move
+	var move Move
+	// 75% of the time random
+	// 25% top 5 moves
+	r := rand.IntN(4)
+	if r == 0 {
+		randbest := rand.IntN(5)
+		if randbest >= len(moves) {
+			randbest = len(moves) - 1
+		}
+		move = moves[randbest]
+	} else {
+		randrand := rand.IntN(len(moves))
+		move = moves[randrand]
+	}
 
 	m, err := move.toMoves()
 	if err != nil {
@@ -416,7 +430,7 @@ func GetEasyMove(g *types.Game) ([]types.Move, error) {
 
 func GetMediumMove(g *types.Game) ([]types.Move, error) {
 	conf := EngineConfig{
-		MaxMoves:   5,
+		MaxMoves:   100,
 		ScoreMoves: true,
 	}
 	mv := GametoMoveArgs(g, conf)
@@ -430,7 +444,20 @@ func GetMediumMove(g *types.Game) ([]types.Move, error) {
 		return make([]types.Move, 0), nil
 	}
 
-	move := moves[len(moves)-1] // get second best move
+	var move Move
+	// 50% of the time random
+	// 50% one of top 3 moves
+	r := rand.IntN(2)
+	if r == 0 {
+		randrand := rand.IntN(len(moves))
+		move = moves[randrand]
+	} else {
+		randbest := rand.IntN(3)
+		if randbest >= len(moves) {
+			randbest = len(moves) - 1
+		}
+		move = moves[randbest]
+	}
 
 	m, err := move.toMoves()
 	if err != nil {

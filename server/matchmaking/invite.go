@@ -1,6 +1,7 @@
 package matchmaking
 
 import (
+	"database/sql"
 	"errors"
 	"vezgammon/server/ws"
 
@@ -32,7 +33,7 @@ func JoinLink(link string, user_id int64) error {
 	delete(links, link)
 	delete(users, opp_id)
 
-	err := createGame(user_id, opp_id)
+	err, _ := CreateGame(user_id, opp_id, sql.NullInt64{Valid: false})
 	if err != nil {
 		return err
 	}

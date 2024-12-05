@@ -265,6 +265,14 @@ func SurrendToCurrentGame(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusCreated, "Surrended")
+
+	if g.Tournament.Valid {
+		err = tournamentGameEndHandler(g.Tournament.Int64, opponentID)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+	}
 }
 
 // @Summary Get possible moves for next turn
@@ -428,11 +436,12 @@ func PlayMoves(c *gin.Context) {
 	isEnded, winner := isGameEnded(g)
 	if isEnded {
 		err := endGame(g, winner)
-		slog.With("error", err).Error("Ending game")
-		c.JSON(http.StatusCreated, "Moves played; Game ended")
+		if err != nil {
+			slog.With("error", err).Error("Ending game")
+			c.JSON(http.StatusInternalServerError, err)
+		}
 		return
 	}
-
 	// Check if we are playing against a bot
 
 	botLevel := db.GetBotLevel(g.Player2)
@@ -517,6 +526,7 @@ func PlayMoves(c *gin.Context) {
 			}
 
 			c.JSON(http.StatusCreated, "Moves played; Game ended")
+
 			return
 		} else {
 
@@ -791,36 +801,8 @@ func PlayBot(mod string, c *gin.Context) {
 		return
 	}
 
-	var startdicesP1, startdicesP2 types.Dices
-	for {
-		startdicesP1 = types.NewDices()
-		startdicesP2 = types.NewDices()
+	err, startdicesP1, startdicesP2 := createBotUserGame(userId, botId, sql.NullInt64{Valid: false})
 
-		if startdicesP1.Sum() != startdicesP2.Sum() {
-			if startdicesP1.Sum() < startdicesP2.Sum() {
-				startdicesP1, startdicesP2 = startdicesP2, startdicesP1
-			}
-			break
-		}
-	}
-
-	// Against a bot the player will always start first
-	var startPlayer = types.GameCurrentPlayerP1
-
-	firstdices := types.NewDices()
-
-	g := types.Game{
-		Player1:       userId,
-		Player2:       botId,
-		Start:         time.Now(),
-		Status:        types.GameStatusOpen,
-		CurrentPlayer: startPlayer,
-		Dices:         firstdices,
-	}
-
-	slog.With("game", g).Debug("Creating game")
-
-	_, err = db.CreateGame(g)
 	if err != nil {
 		slog.With("error", err).Error("Creaiting bot game")
 		c.JSON(http.StatusInternalServerError, err)
@@ -834,8 +816,8 @@ func PlayBot(mod string, c *gin.Context) {
 	}
 
 	ng := types.NewGame{
-		DicesP1: startdicesP1,
-		DicesP2: startdicesP2,
+		DicesP1: *startdicesP1,
+		DicesP2: *startdicesP2,
 		Game:    *newgame,
 	}
 
@@ -917,75 +899,4 @@ func acceptDouble(userId int64) error {
 
 	return nil
 
-}
-
-// True if the game is ended. Return id of the winner
-func isGameEnded(g *types.Game) (bool, int64) {
-	s := func(a [25]int8) int {
-		sum := 0
-		for i := 0; i < 25; i++ {
-			sum += int(a[i])
-		}
-		return sum
-	}
-
-	if s(g.P1Checkers) == 0 {
-		return true, g.Player1
-	}
-
-	if s(g.P2Checkers) == 0 {
-		return true, g.Player2
-	}
-
-	return false, 0
-}
-
-func endGame(g *types.Game, winnerID int64) error {
-	if winnerID == g.Player1 {
-		g.Status = types.GameStatusWinP1
-	} else {
-		g.Status = types.GameStatusWinP2
-	}
-
-	g.End = time.Now()
-
-	err := db.UpdateGame(g)
-	if err != nil {
-		return err
-	}
-
-	rg := db.GameToReturnGame(g)
-
-	if rg.GameType == types.GameTypeOnline {
-		u1, err := db.GetUser(g.Player1)
-		if err != nil {
-			slog.With("error", err).Error("Getting user in endGame")
-			return err
-		}
-
-		u2, err := db.GetUser(g.Player2)
-		if err != nil {
-			slog.With("error", err).Error("Getting user in endGame")
-			return err
-		}
-
-		elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1)
-
-		err = db.UpdateUserElo(g.Player1, elo1)
-		if err != nil {
-			slog.With("error", err).Error("Updating elo in endGame")
-			return err
-		}
-
-		err = db.UpdateUserElo(g.Player2, elo2)
-		if err != nil {
-			slog.With("error", err).Error("Updating elo in endGame")
-			return err
-		}
-	}
-
-	ws.GameEnd(g.Player1)
-	ws.GameEnd(g.Player2)
-
-	return err
 }

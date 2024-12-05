@@ -36,7 +36,8 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.POST("/login", Login)
 	protected.POST("/logout", Logout)
 	protected.GET("/session", GetSession)
-	protected.GET("stats", GetStats)
+	protected.GET("/stats", GetStats)
+	protected.GET("/badge", GetBadge)
 
 	playGroup := protected.Group("/play")
 	playGroup.GET("/last/winner", GetLastGameWinner)
@@ -55,6 +56,16 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup.GET("/bot/easy", PlayEasyBot)
 	playGroup.GET("/bot/medium", PlayMediumBot)
 	playGroup.GET("/bot/hard", PlayHardBot)
+
+	tournamentGroup := protected.Group("/tournament")
+	tournamentGroup.POST("/create", CreateTournament)
+	tournamentGroup.POST("/:tournament_id", JoinTournament)
+	tournamentGroup.DELETE("/:tournament_id", LeaveTournament)
+	tournamentGroup.GET("/:tournament_id", GetTournament)
+	tournamentGroup.GET("/list", ListTournaments)
+	tournamentGroup.POST("/:tournament_id/start", StartTournament)
+	tournamentGroup.POST("/:tournament_id/cancel", CancelTournament)
+	tournamentGroup.POST("/:tournament_id/invite", InviteTournament)
 
 	protected.GET("/ws", func(c *gin.Context) {
 		slog.Debug("prova")

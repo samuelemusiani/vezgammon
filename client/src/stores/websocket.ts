@@ -17,7 +17,10 @@ export const useWebSocketStore = defineStore('websocket', () => {
   const connect = () => {
     try {
       if (isConnected.value) return // Already connected
-      socket.value = new WebSocket(`wss://${window.location.host}/api/ws`)
+
+      socket.value = new WebSocket(
+        `${location.protocol === 'https:' ? 'wss' : 'ws'}://${window.location.host}/api/ws`,
+      )
       isConnected.value = true
 
       socket.value.onopen = () => {

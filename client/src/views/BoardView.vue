@@ -52,6 +52,7 @@ const { play: playDice } = useSound(diceSfx)
 const { play: playLost } = useSound(lostSfx)
 //const { play: playTin } = useSound(tinSfx)
 const webSocketStore = useWebSocketStore()
+const isThisATournament = ref(false)
 
 const isTutorial = ref(false)
 
@@ -330,6 +331,7 @@ const fetchGameState = async () => {
     }
     const data: GameState = await res.json()
     gameState.value = data
+    isThisATournament.value = gameState.value?.tournament.Valid
 
     console.log(gameState.value)
   } catch (err) {
@@ -608,7 +610,11 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 }
 
 const handleReturnHome = () => {
-  router.push('/')
+  if (isThisATournament.value) {
+    router.push('/tournaments/' + gameState.value?.tournament.Int64)
+  } else {
+    router.push('/')
+  }
 }
 
 const exitGame = async () => {
@@ -747,7 +753,9 @@ const exitGame = async () => {
 
       <!-- Board Div -->
       <div class="flex-1">
-        <div class="retro-box h-full rounded-lg p-4 shadow-xl">
+        <div
+          class="retro-box h-full rounded-lg border-8 border-primary bg-base-100 p-4 shadow-xl"
+        >
           <svg
             viewBox="0 0 800 600"
             preserveAspectRatio="xMidYMid meet"
@@ -825,7 +833,7 @@ const exitGame = async () => {
 
       <!-- Dice Div -->
       <div
-        class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
+        class="retro-box flex w-48 flex-col justify-evenly rounded-lg border-8 border-primary bg-base-100 p-2 shadow-xl"
       >
         <!-- Opponent's Captured Checkers -->
         <div
@@ -860,7 +868,7 @@ const exitGame = async () => {
           <div
             v-for="(die, index) in diceRolled ? displayedDice : []"
             :key="index"
-            class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
+            class="retro-box flex h-12 w-12 items-center justify-center rounded-lg p-2 shadow-lg sm:h-16 sm:w-16"
             :class="{ 'dice-rolling': isRolling }"
           >
             <svg viewBox="0 0 60 60">
@@ -950,18 +958,8 @@ const exitGame = async () => {
           Your opponent has offered a double. Do you accept?
         </p>
         <div class="flex justify-center gap-4">
-          <button
-            @click="acceptDouble"
-            class="retro-button bg-green-700 hover:bg-green-800"
-          >
-            Confirm
-          </button>
-          <button
-            @click="declineDouble"
-            class="retro-button bg-red-700 hover:bg-red-800"
-          >
-            Cancel
-          </button>
+          <button @click="acceptDouble" class="retro-button">Confirm</button>
+          <button @click="declineDouble" class="retro-button">Cancel</button>
         </div>
       </div>
     </div>
@@ -983,15 +981,7 @@ const exitGame = async () => {
           }}
         </p>
         <div class="flex justify-center">
-          <button
-            @click="handleDoubleWinExit"
-            class="retro-button"
-            :class="
-              isWinner
-                ? 'bg-green-700 hover:bg-green-800'
-                : 'bg-red-700 hover:bg-red-800'
-            "
-          >
+          <button @click="handleDoubleWinExit" class="retro-button">
             Return to Menu
           </button>
         </div>
@@ -1031,47 +1021,6 @@ const exitGame = async () => {
   border: 2px solid yellow;
   border-radius: 0.5rem;
   pointer-events: none;
-}
-
-.retro-background {
-  @apply bg-base-100;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
-}
-
-.retro-box {
-  @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
-}
-
-.retro-button {
-  @apply btn btn-primary rounded-lg border-4 border-primary shadow-md;
-  border: 3px solid #8b4513;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
 }
 
 @keyframes dice-shake {
