@@ -42,8 +42,7 @@ const $emits = defineEmits<{
   (e: 'ws-message', payload: WSMessage): void
   (e: 'fetch-moves'): void
   (e: 'fetch-game-state'): void
-  (e: 'reset-dice-state'): void
-  (e: 'handle-dice-roll'): void
+  (e: 'stop-timer'): void
 }>()
 
 const handleTriangleClick = async (position: number) => {
@@ -146,7 +145,7 @@ const handleTriangleClick = async (position: number) => {
         await $emits('fetch-game-state')
         await $emits('fetch-moves')
       } else {
-        stopTimer()
+        $emits('stopTimer')
         isMyTurn.value = false
       }
     } catch (err) {

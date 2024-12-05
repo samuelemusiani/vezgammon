@@ -204,6 +204,7 @@ function sendWSMessage(message: WSMessage) {
         :availableMoves="availableMoves"
         @fetch-moves="fetchMoves"
         @fetch-game-state="fetchGameState"
+        @stop-timer="stopTimer"
       />
     </div>
 
