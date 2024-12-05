@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+
 	//"time"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
@@ -361,7 +362,8 @@ func ChangePass(c *gin.Context) {
 	err = db.ChangePass(user.Username, s.NewPass, s.OldPass)
 	if err != nil {
 		slog.With("err", err).Debug("Changing password")
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password change failed"})
+		return
 	}
 
 	c.JSON(http.StatusOK, gin.H{"message": "Password has been changed successfuly"})
