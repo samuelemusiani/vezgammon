@@ -2,7 +2,7 @@
 import { onMounted, computed, onUnmounted } from 'vue'
 import router from '@/router'
 
-import type { Checker, Move } from '@/utils/game/types'
+import type { Move } from '@/utils/game/types'
 import type { WSMessage } from '@/utils/types'
 
 import ConfettiExplosion from 'vue-confetti-explosion'
@@ -10,13 +10,10 @@ import Chat from '@/components/ChatContainer.vue'
 import GameTimer from '@/components/game/GameTimer.vue'
 import PlayerInfo from '@/components/game/PlayerInfo.vue'
 import DoubleDice from '@/components/game/DoubleDice.vue'
-import DiceContainer from '@/components/game/DiceContainer.vue'
-import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
 import Board from '@/components/game/Board.vue'
 import Modal from '@/components/Modal.vue'
 import { useWebSocketStore } from '@/stores/websocket'
 import { useGameState } from '@/composables/useGameState'
-import { useGameMoves } from '@/composables/useGameMoves'
 import { useGameTimer } from '@/composables/useGameTimer'
 import { useGameDouble } from '@/composables/useGameDouble'
 import { useDiceRoll } from '@/composables/useDiceRoll'
@@ -32,18 +29,9 @@ const {
   fetchMoves,
   fetchSession,
 } = useGameState()
-const { selectedChecker, possibleMoves, movesToSubmit, submitMoves } =
-  useGameMoves()
 const { timeLeft, isMyTurn, startTimer, stopTimer } = useGameTimer()
 
-const {
-  isRolling,
-  diceRolled,
-  displayedDice,
-  handleDiceRoll,
-  resetDiceState,
-  showDiceFromOpponent,
-} = useDiceRoll()
+const { showDiceFromOpponent } = useDiceRoll()
 const {
   showResultModal,
   handleLose,
@@ -143,28 +131,6 @@ const whichPlayerAmI = computed(() => {
   }
 })
 
-const getOutCheckers = (player: 'p1' | 'p2' | string) => {
-  if (!gameState.value) return 0
-
-  // Calcola il numero totale di pedine iniziali (15)
-  const initialCheckers = 15
-
-  // Calcola il numero di pedine ancora sulla board
-  const remainingCheckers =
-    player === 'p1'
-      ? gameState.value.p1checkers.reduce(
-          (acc: any, curr: any) => acc + curr,
-          0,
-        )
-      : gameState.value.p2checkers.reduce(
-          (acc: any, curr: any) => acc + curr,
-          0,
-        )
-
-  // Ritorna la differenza tra le pedine iniziali e quelle rimaste
-  return initialCheckers - remainingCheckers
-}
-
 const handleReturnHome = () => {
   router.push('/')
 }
@@ -236,41 +202,9 @@ function sendWSMessage(message: WSMessage) {
         v-if="gameState"
         :gameState="gameState"
         :availableMoves="availableMoves"
-        :diceRolled="diceRolled"
-        @reset-dice-state="resetDiceState"
         @fetch-moves="fetchMoves"
         @fetch-game-state="fetchGameState"
       />
-
-      <!-- Right Container -->
-      <div
-        class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
-      >
-        <!-- Captured Checkers -->
-        <CapturedCheckers
-          player="p1"
-          :checkerCount="getOutCheckers('p1')"
-          :isHighlighted="possibleMoves.includes(25)"
-          @click="handleTriangleClick(25)"
-        />
-
-        <!-- Roll Dice Button -->
-        <DiceContainer
-          :diceRolled="diceRolled"
-          :displayedDice="displayedDice"
-          :isRolling="isRolling"
-          :canRoll="!diceRolled && !!availableMoves?.dices"
-          @roll="handleDiceRoll(availableMoves)"
-        />
-
-        <!-- Captured Checkers -->
-        <CapturedCheckers
-          player="p2"
-          :checkerCount="getOutCheckers('p2')"
-          :isHighlighted="possibleMoves.includes(25)"
-          @click="handleTriangleClick(25)"
-        />
-      </div>
     </div>
 
     <Chat
@@ -391,18 +325,5 @@ function sendWSMessage(message: WSMessage) {
   transform: translate(-50%, -50%);
   z-index: 1000;
   pointer-events: none;
-}
-
-.captured-checkers-container {
-  .h-64 {
-    background: #f5c27a;
-    /* Un colore leggermente più chiaro del tabellone */
-  }
-
-  .w-full {
-    transition: all 0.3s ease-out;
-  }
-
-  transition: all 0.3s ease;
 }
 </style>

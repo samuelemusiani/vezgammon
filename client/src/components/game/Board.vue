@@ -7,7 +7,11 @@ import type {
 } from '@/utils/game/types'
 import type { WSMessage } from '@/utils/types'
 
+import DiceContainer from '@/components/game/DiceContainer.vue'
+import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
+
 import { useGameMoves } from '@/composables/useGameMoves'
+import { useDiceRoll } from '@/composables/useDiceRoll'
 
 import {
   BOARD,
@@ -20,17 +24,26 @@ import {
 const $props = defineProps<{
   gameState: GameState
   availableMoves: MovesResponse | null
-  diceRolled: boolean
 }>()
 
 const { selectedChecker, possibleMoves, movesToSubmit, submitMoves } =
   useGameMoves()
+
+const {
+  diceRolled,
+  resetDiceState,
+  showDiceFromOpponent,
+  isRolling,
+  displayedDice,
+  handleDiceRoll,
+} = useDiceRoll()
 
 const $emits = defineEmits<{
   (e: 'ws-message', payload: WSMessage): void
   (e: 'fetch-moves'): void
   (e: 'fetch-game-state'): void
   (e: 'reset-dice-state'): void
+  (e: 'handle-dice-roll'): void
 }>()
 
 const handleTriangleClick = async (position: number) => {
@@ -128,7 +141,7 @@ const handleTriangleClick = async (position: number) => {
   if (hasUsedBothDices || !hasPossibleMoves) {
     try {
       await submitMoves()
-      $emits('reset-dice-state')
+      resetDiceState()
       if ($props.gameState.game_type !== 'online') {
         await $emits('fetch-game-state')
         await $emits('fetch-moves')
@@ -176,8 +189,8 @@ const getCheckers = () => {
 const isCheckerSelectable = (checker: Checker) => {
   console.log('isCheckerSelectable', checker)
   console.log('gameState', $props.gameState)
-  console.log('diceRolled', $props.diceRolled)
-  if (!$props.gameState || !$props.diceRolled) return false
+  console.log('diceRolled', diceRolled.value)
+  if (!$props.gameState || !diceRolled.value) return false
 
   const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
 
@@ -266,85 +279,211 @@ const handleCheckerClick = (checker: Checker) => {
   ]
   console.log('mosse posibili', possibleMoves.value)
 }
+
+const getOutCheckers = (player: 'p1' | 'p2' | string) => {
+  if (!$props.gameState) return 0
+
+  // Calcola il numero totale di pedine iniziali (15)
+  const initialCheckers = 15
+
+  // Calcola il numero di pedine ancora sulla board
+  const remainingCheckers =
+    player === 'p1'
+      ? $props.gameState.p1checkers.reduce(
+          (acc: any, curr: any) => acc + curr,
+          0,
+        )
+      : $props.gameState.p2checkers.reduce(
+          (acc: any, curr: any) => acc + curr,
+          0,
+        )
+
+  // Ritorna la differenza tra le pedine iniziali e quelle rimaste
+  return initialCheckers - remainingCheckers
+}
 </script>
 
 <template>
-  <div class="flex-1">
-    <div class="retro-box h-full rounded-lg p-4 shadow-xl">
-      <svg
-        viewBox="0 0 800 600"
-        preserveAspectRatio="xMidYMid meet"
-        class="h-full w-full"
-      >
-        <!-- Board background -->
-        <rect
-          x="0"
-          y="0"
-          :width="BOARD.width"
-          :height="BOARD.height"
-          class="fill-[#ebcb97]"
-          stroke="brown"
-          stroke-width="2"
-          rx="6"
-        />
-
-        <!-- Center bar -->
-        <rect
-          :x="BOARD.width / 2 - BOARD.centerBarWidth / 2"
-          y="0"
-          :width="BOARD.centerBarWidth"
-          :height="BOARD.height"
-          class="fill-amber-900"
-        />
-
-        <!-- Triangles from 0 (upper right) to 23 (lower right) -->
-        <g>
-          <path
-            v-for="position in 24"
-            :key="`triangle-${position}`"
-            :d="getTrianglePath(position)"
-            :fill="getTriangleColor(position)"
-            stroke="black"
-            stroke-width="1"
-            @click="
-              $props.gameState?.current_player === 'p2'
-                ? handleTriangleClick(position)
-                : handleTriangleClick(25 - position)
-            "
+  <div class="flex flex-1 justify-between gap-6">
+    <div class="flex-1">
+      <div class="retro-box h-full rounded-lg p-4 shadow-xl">
+        <svg
+          viewBox="0 0 800 600"
+          preserveAspectRatio="xMidYMid meet"
+          class="h-full w-full"
+        >
+          <!-- Board background -->
+          <rect
+            x="0"
+            y="0"
+            :width="BOARD.width"
+            :height="BOARD.height"
+            class="fill-[#ebcb97]"
+            stroke="brown"
+            stroke-width="2"
+            rx="6"
           />
-        </g>
 
-        <!-- Possible moves highlights -->
-        <path
-          v-for="(position, index) in possibleMoves"
-          :key="`highlight-${index}`"
-          :d="
-            $props.gameState?.current_player === 'p2'
-              ? getTrianglePath(position)
-              : getTrianglePath(25 - position)
-          "
-          fill="yellow"
-          opacity="1"
-          pointer-events="none"
-        />
+          <!-- Center bar -->
+          <rect
+            :x="BOARD.width / 2 - BOARD.centerBarWidth / 2"
+            y="0"
+            :width="BOARD.centerBarWidth"
+            :height="BOARD.height"
+            class="fill-amber-900"
+          />
 
-        <!-- Checkers -->
-        <circle
-          v-for="(checker, index) in getCheckers()"
-          :key="`checker-${index}`"
-          :cx="getCheckerX(checker)"
-          :cy="getCheckerY(checker, $props.gameState as GameState)"
-          :r="BOARD.checkerRadius"
-          :fill="checker.color"
-          :stroke="checker.color === 'white' ? 'black' : 'blue'"
-          stroke-width="1.4"
-          class="checker-transition"
-          :class="{ selected: isCheckerSelected(checker) }"
-          @click="handleCheckerClick(checker)"
-        />
-      </svg>
+          <!-- Triangles from 0 (upper right) to 23 (lower right) -->
+          <g>
+            <path
+              v-for="position in 24"
+              :key="`triangle-${position}`"
+              :d="getTrianglePath(position)"
+              :fill="getTriangleColor(position)"
+              stroke="black"
+              stroke-width="1"
+              @click="
+                $props.gameState?.current_player === 'p2'
+                  ? handleTriangleClick(position)
+                  : handleTriangleClick(25 - position)
+              "
+            />
+          </g>
+
+          <!-- Possible moves highlights -->
+          <path
+            v-for="(position, index) in possibleMoves"
+            :key="`highlight-${index}`"
+            :d="
+              $props.gameState?.current_player === 'p2'
+                ? getTrianglePath(position)
+                : getTrianglePath(25 - position)
+            "
+            fill="yellow"
+            opacity="1"
+            pointer-events="none"
+          />
+
+          <!-- Checkers -->
+          <circle
+            v-for="(checker, index) in getCheckers()"
+            :key="`checker-${index}`"
+            :cx="getCheckerX(checker)"
+            :cy="getCheckerY(checker, $props.gameState as GameState)"
+            :r="BOARD.checkerRadius"
+            :fill="checker.color"
+            :stroke="checker.color === 'white' ? 'black' : 'blue'"
+            stroke-width="1.4"
+            class="checker-transition"
+            :class="{ selected: isCheckerSelected(checker) }"
+            @click="handleCheckerClick(checker)"
+          />
+        </svg>
+      </div>
+    </div>
+    <!-- Right Container -->
+    <div
+      class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
+    >
+      <!-- Captured Checkers -->
+      <CapturedCheckers
+        player="p1"
+        :checkerCount="getOutCheckers('p1')"
+        :isHighlighted="possibleMoves.includes(25)"
+        @click="handleTriangleClick(25)"
+      />
+
+      <!-- Roll Dice Button -->
+      <DiceContainer
+        :diceRolled="diceRolled"
+        :displayedDice="displayedDice"
+        :isRolling="isRolling"
+        :canRoll="!diceRolled && !!availableMoves?.dices"
+        @roll="handleDiceRoll(availableMoves)"
+      />
+
+      <!-- Captured Checkers -->
+      <CapturedCheckers
+        player="p2"
+        :checkerCount="getOutCheckers('p2')"
+        :isHighlighted="possibleMoves.includes(25)"
+        @click="handleTriangleClick(25)"
+      />
     </div>
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.highlight-container {
+  position: relative;
+  cursor: pointer;
+}
+
+.highlight-container::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 0, 0.3);
+  border: 2px solid yellow;
+  border-radius: 0.5rem;
+  pointer-events: none;
+}
+
+.retro-background {
+  @apply bg-base-100;
+  background-image: repeating-linear-gradient(
+      45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    ),
+    repeating-linear-gradient(
+      -45deg,
+      rgba(139, 69, 19, 0.1) 0px,
+      rgba(139, 69, 19, 0.1) 2px,
+      transparent 2px,
+      transparent 10px
+    );
+  cursor: url('/tortellino.png'), auto;
+  border: 6px solid #d2691e;
+}
+
+.retro-box {
+  @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
+}
+
+.retro-button {
+  @apply btn btn-primary rounded-lg border-4 border-primary shadow-md;
+  border: 3px solid #8b4513;
+  text-transform: uppercase;
+  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
+  box-shadow: 0 2px 0 #8b4513;
+  font-size: 1.1rem;
+
+  &:hover {
+    transform: translateY(2px);
+    box-shadow:
+      inset 0 0 10px rgba(0, 0, 0, 0.2),
+      0 0px 0 #8b4513;
+    cursor: url('/tortellino.png'), auto;
+  }
+}
+
+.selected {
+  stroke: yellow !important;
+  stroke-width: 3 !important;
+}
+
+.confetti-container {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1000;
+  pointer-events: none;
+}
+</style>
