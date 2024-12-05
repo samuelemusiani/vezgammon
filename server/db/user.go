@@ -335,7 +335,7 @@ func GetStats(user_id int64) (*types.Stats, error) {
 			stats.Online++
 		}
 
-		if game.GameType != types.GameTypeLocal { // no sense to count local games in winrate statistics
+		if game.GameType == types.GameTypeOnline { // no sense to count local games in winrate statistics
 			if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
 				stats.Won++
 			} else {
@@ -355,8 +355,7 @@ func GetStats(user_id int64) (*types.Stats, error) {
 		stats.Winrate = 0
 	} else {
 		// no local games
-		gameSum := stats.Won + stats.Lost
-		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(gameSum))*100)) / 100
+		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(len(stats.Gameplayed)))*100)) / 100
 	}
 
 	stats.Leaderboard, err = getLeaderboard()

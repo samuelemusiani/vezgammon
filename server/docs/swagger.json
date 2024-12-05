@@ -1061,6 +1061,7 @@
                 }
             }
         },
+<<<<<<< HEAD
         "types.LeaderBoardEntry": {
             "type": "object",
             "properties": {
@@ -1078,6 +1079,8 @@
                 }
             }
         },
+=======
+>>>>>>> 3deede7 (fix bugs)
         "types.LeaderboardUser": {
             "type": "object",
             "properties": {
