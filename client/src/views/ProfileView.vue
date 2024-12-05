@@ -2,7 +2,6 @@
 import { ref } from 'vue'
 import type { User } from '@/utils/types'
 import router from '@/router'
-import { useTheme } from '@/composables/useTheme'
 import Badges from '@/components/Badges.vue'
 
 const badges = ref()
@@ -41,8 +40,6 @@ async function logout() {
 async function goBack() {
   router.push({ name: 'home' })
 }
-
-const { currentTheme, themeOptions, changeTheme } = useTheme()
 </script>
 
 <template>
@@ -78,25 +75,6 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
           <div class="mt-10 flex items-center justify-center gap-5">
             <button class="btn-seconday btn" @click="goBack">GO BACK</button>
             <button class="btn btn-primary" @click="logout">LOGOUT</button>
-            <div class="">
-              <div class="dropdown dropdown-end">
-                <div tabindex="0" role="button" class="btn m-1">
-                  Theme: {{ currentTheme }}
-                </div>
-                <ul
-                  tabindex="0"
-                  class="menu dropdown-content w-52 rounded-box border-4 border-primary bg-base-100 p-2 shadow"
-                >
-                  <li
-                    v-for="theme in themeOptions"
-                    :key="theme"
-                    @click="changeTheme(theme)"
-                  >
-                    <a>{{ theme }}</a>
-                  </li>
-                </ul>
-              </div>
-            </div>
           </div>
         </div>
 
