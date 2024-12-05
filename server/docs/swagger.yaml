@@ -111,7 +111,6 @@ definitions:
           type: array
         type: array
     type: object
-<<<<<<< HEAD
   types.LeaderBoardEntry:
     properties:
       lose:
@@ -124,8 +123,6 @@ definitions:
         example: 1
         type: integer
     type: object
-=======
->>>>>>> 3deede7 (fix bugs)
   types.LeaderboardUser:
     properties:
       elo:

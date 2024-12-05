@@ -341,15 +341,18 @@ func GetStats(user_id int64) (*types.Stats, error) {
 			} else {
 				stats.Lost++
 			}
-		}
 
-		if game.Player1 == u.Username {
-			stats.Elo = append(stats.Elo, game.Elo1)
-		} else {
-			stats.Elo = append(stats.Elo, game.Elo2)
+			if game.Player1 == u.Username {
+				slog.With("elo", game.Elo1, "game", u.Username, "players", game.Player1, game.Player2).Debug("dio sto elo cazzo 1")
+				stats.Elo = append(stats.Elo, game.Elo1)
+			} else {
+				slog.With("elo", game.Elo2, "game", u.Username).Debug("dio sto elo cazzo 2")
+				stats.Elo = append(stats.Elo, game.Elo2)
+			}
 		}
+		// current elo after last game
+		stats.Elo = append(stats.Elo, u.Elo)
 	}
-	stats.Elo = append(stats.Elo, u.Elo)
 
 	if len(stats.Gameplayed) == 0 {
 		stats.Winrate = 0

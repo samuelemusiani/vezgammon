@@ -1072,7 +1072,6 @@ const docTemplate = `{
                 }
             }
         },
-<<<<<<< HEAD
         "types.LeaderBoardEntry": {
             "type": "object",
             "properties": {
@@ -1090,8 +1089,6 @@ const docTemplate = `{
                 }
             }
         },
-=======
->>>>>>> 3deede7 (fix bugs)
         "types.LeaderboardUser": {
             "type": "object",
             "properties": {
