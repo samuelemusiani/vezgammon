@@ -2,15 +2,8 @@
 import { onMounted, computed, onUnmounted } from 'vue'
 import router from '@/router'
 
-import type { Checker, GameState, Move } from '@/utils/game/types'
+import type { Checker, Move } from '@/utils/game/types'
 import type { WSMessage } from '@/utils/types'
-import {
-  BOARD,
-  getTrianglePath,
-  getTriangleColor,
-  getCheckerX,
-  getCheckerY,
-} from '@/utils/game/game'
 
 import ConfettiExplosion from 'vue-confetti-explosion'
 import Chat from '@/components/ChatContainer.vue'
@@ -19,6 +12,7 @@ import PlayerInfo from '@/components/game/PlayerInfo.vue'
 import DoubleDice from '@/components/game/DoubleDice.vue'
 import DiceContainer from '@/components/game/DiceContainer.vue'
 import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
+import Board from '@/components/game/Board.vue'
 import Modal from '@/components/Modal.vue'
 import { useWebSocketStore } from '@/stores/websocket'
 import { useGameState } from '@/composables/useGameState'
@@ -149,231 +143,6 @@ const whichPlayerAmI = computed(() => {
   }
 })
 
-const isCheckerSelectable = (checker: Checker) => {
-  if (!gameState.value || !diceRolled.value) return false
-
-  const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
-
-  if (checkerPlayer !== gameState.value.current_player) return false
-
-  // Check if the player has any checkers in position 0 (the bar)
-  let barCheckersCount = 0
-  if (checkerPlayer === 'p1') {
-    barCheckersCount = gameState.value.p1checkers[0]
-  } else {
-    barCheckersCount = gameState.value.p2checkers[0]
-  }
-
-  // If the player has checkers on the bar Only the top checker in position 0 is selectable
-  if (barCheckersCount > 0) {
-    return checker.position === 0 && checker.stackIndex === barCheckersCount - 1
-  }
-
-  // Ottieni il numero totale di pedine nella posizione della pedina per questo giocatore
-  let totalCheckersAtPosition = 0
-  if (checkerPlayer === 'p1') {
-    totalCheckersAtPosition = gameState.value.p1checkers[checker.position]
-  } else {
-    totalCheckersAtPosition = gameState.value.p2checkers[checker.position]
-  }
-
-  // Solo la pedina in cima (con stackIndex più alto) è selezionabile
-  if (checker.stackIndex !== totalCheckersAtPosition - 1) return false
-
-  return true
-}
-
-const handleCheckerClick = (checker: Checker) => {
-  if (!availableMoves.value || !isCheckerSelectable(checker)) return
-  console.log(checker)
-  if (
-    selectedChecker.value &&
-    selectedChecker.value.position === checker.position &&
-    selectedChecker.value.stackIndex === checker.stackIndex
-  ) {
-    selectedChecker.value = null
-    possibleMoves.value = []
-    return
-  }
-
-  console.log('mosse possibili', availableMoves.value.possible_moves.length)
-
-  if (
-    availableMoves.value.possible_moves.length === 0 ||
-    availableMoves.value.possible_moves.every(
-      (sequence: Move[]) => sequence.length === 0,
-    )
-  ) {
-    console.log(
-      'No possible moves or all sequences are empty, passing the turn',
-    )
-    submitMoves()
-    fetchMoves()
-    fetchGameState()
-    return
-  }
-
-  selectedChecker.value = checker
-  possibleMoves.value = [
-    ...new Set(
-      availableMoves.value.possible_moves
-        .map((seq: Move[]) => seq[0]) // Prendo solo la prima mossa di ogni sequenza
-        .filter((move: Move) => move.from === checker.position)
-        .map((move: Move) => move.to),
-    ),
-  ]
-  console.log('mosse posibili', possibleMoves.value)
-}
-
-const handleTriangleClick = async (position: number) => {
-  if (
-    !selectedChecker.value ||
-    !possibleMoves.value.includes(position) ||
-    !availableMoves.value ||
-    !gameState.value
-  )
-    return
-
-  const currentMove: Move = {
-    from: selectedChecker.value.position,
-    to: position,
-  }
-
-  // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
-  availableMoves.value.possible_moves =
-    availableMoves.value.possible_moves.filter((seq: Move[]) => {
-      return seq[0].from === currentMove.from && seq[0].to === currentMove.to
-    })
-
-  // rimuovo dalle sequenze possibili la mossa appena giocata
-  availableMoves.value.possible_moves = availableMoves.value.possible_moves.map(
-    (seq: Move[]) => {
-      let removed = false
-      return seq.filter(move => {
-        if (
-          !removed &&
-          move.from === currentMove.from &&
-          move.to === currentMove.to
-        ) {
-          removed = true
-          return false
-        }
-        return true
-      })
-    },
-  )
-  console.log('sequenze possibili', availableMoves.value.possible_moves)
-
-  if (gameState.value.current_player === 'p1') {
-    console.log('moving checker')
-    if (gameState.value.p2checkers[25 - position] === 1) {
-      // Capture the opponent's checker
-      gameState.value.p2checkers[25 - position] = 0
-      gameState.value.p2checkers[0]++
-    }
-  } else {
-    console.log('moving checker')
-    if (gameState.value.p1checkers[25 - position] === 1) {
-      // Capture the opponent's checker
-      gameState.value.p1checkers[25 - position] = 0
-      gameState.value.p1checkers[0]++
-    }
-  }
-
-  // Aggiorna il gameState per mostrare la mossa appena giocata sulla board
-  if (gameState.value.current_player === 'p1') {
-    gameState.value.p1checkers[currentMove.from]--
-    if (currentMove.to !== 25) {
-      // Solo se non è una mossa di uscita
-      gameState.value.p1checkers[currentMove.to]++
-    }
-  } else {
-    gameState.value.p2checkers[currentMove.from]--
-    if (currentMove.to !== 25) {
-      // Solo se non è una mossa di uscita
-      gameState.value.p2checkers[currentMove.to]++
-    }
-  }
-
-  if (gameState.value?.game_type === 'online') {
-    webSocketStore.sendMessage({
-      type: 'move_made',
-      payload: JSON.stringify({
-        move: currentMove,
-      }),
-    })
-  }
-
-  // Aggiungi la mossa a quelle fatte
-  movesToSubmit.value.push(currentMove)
-  console.log('mosse effettuate', movesToSubmit.value)
-
-  // Reset della selezione corrente
-  selectedChecker.value = null
-  possibleMoves.value = []
-
-  const hasPossibleMoves = availableMoves.value.possible_moves?.length > 0
-  let hasUsedBothDices = movesToSubmit.value.length === 2
-  if (availableMoves.value.dices[0] == availableMoves.value.dices[1]) {
-    hasUsedBothDices = movesToSubmit.value.length === 4
-  }
-
-  if (hasUsedBothDices || !hasPossibleMoves) {
-    try {
-      await submitMoves()
-      resetDiceState()
-      if (gameState.value.game_type !== 'online') {
-        await fetchGameState()
-        await fetchMoves()
-      } else {
-        stopTimer()
-        isMyTurn.value = false
-      }
-    } catch (err) {
-      console.error('Error submitting moves:', err)
-    }
-  }
-}
-
-const getCheckers = () => {
-  if (!gameState.value) return []
-
-  const checkers: Checker[] = []
-
-  // Aggiungi pedine del player 1 (bianche)
-  gameState.value.p1checkers.forEach((count: any, position: any) => {
-    for (let i = 0; i < count; i++) {
-      checkers.push({
-        color: 'black',
-        position: position,
-        stackIndex: i,
-      })
-    }
-  })
-
-  // Aggiungi pedine del player 2 (nere)
-  gameState.value.p2checkers.forEach((count: any, position: any) => {
-    for (let i = 0; i < count; i++) {
-      checkers.push({
-        color: 'white',
-        position: position,
-        stackIndex: i,
-      })
-    }
-  })
-
-  return checkers
-}
-
-const isCheckerSelected = (checker: Checker) => {
-  return (
-    selectedChecker.value &&
-    selectedChecker.value.position === checker.position &&
-    selectedChecker.value.stackIndex === checker.stackIndex &&
-    selectedChecker.value.color === checker.color
-  )
-}
-
 const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   if (!gameState.value) return 0
 
@@ -407,6 +176,10 @@ const exitGame = async () => {
   } catch (err) {
     console.error('Error exiting game:', err)
   }
+}
+
+function sendWSMessage(message: WSMessage) {
+  webSocketStore.sendMessage(message)
 }
 </script>
 
@@ -457,82 +230,17 @@ const exitGame = async () => {
       </div>
 
       <!-- Board Div -->
-      <div class="flex-1">
-        <div class="retro-box h-full rounded-lg p-4 shadow-xl">
-          <svg
-            viewBox="0 0 800 600"
-            preserveAspectRatio="xMidYMid meet"
-            class="h-full w-full"
-          >
-            <!-- Board background -->
-            <rect
-              x="0"
-              y="0"
-              :width="BOARD.width"
-              :height="BOARD.height"
-              class="fill-[#ebcb97]"
-              stroke="brown"
-              stroke-width="2"
-              rx="6"
-            />
 
-            <!-- Center bar -->
-            <rect
-              :x="BOARD.width / 2 - BOARD.centerBarWidth / 2"
-              y="0"
-              :width="BOARD.centerBarWidth"
-              :height="BOARD.height"
-              class="fill-amber-900"
-            />
-
-            <!-- Triangles from 0 (upper right) to 23 (lower right) -->
-            <g>
-              <path
-                v-for="position in 24"
-                :key="`triangle-${position}`"
-                :d="getTrianglePath(position)"
-                :fill="getTriangleColor(position)"
-                stroke="black"
-                stroke-width="1"
-                @click="
-                  gameState?.current_player === 'p2'
-                    ? handleTriangleClick(position)
-                    : handleTriangleClick(25 - position)
-                "
-              />
-            </g>
-
-            <!-- Possible moves highlights -->
-            <path
-              v-for="(position, index) in possibleMoves"
-              :key="`highlight-${index}`"
-              :d="
-                gameState?.current_player === 'p2'
-                  ? getTrianglePath(position)
-                  : getTrianglePath(25 - position)
-              "
-              fill="yellow"
-              opacity="1"
-              pointer-events="none"
-            />
-
-            <!-- Checkers -->
-            <circle
-              v-for="(checker, index) in getCheckers()"
-              :key="`checker-${index}`"
-              :cx="getCheckerX(checker)"
-              :cy="getCheckerY(checker, gameState as GameState)"
-              :r="BOARD.checkerRadius"
-              :fill="checker.color"
-              :stroke="checker.color === 'white' ? 'black' : 'blue'"
-              stroke-width="1.4"
-              class="checker-transition"
-              :class="{ selected: isCheckerSelected(checker) }"
-              @click="handleCheckerClick(checker)"
-            />
-          </svg>
-        </div>
-      </div>
+      <Board
+        @ws-message="sendWSMessage"
+        v-if="gameState"
+        :gameState="gameState"
+        :availableMoves="availableMoves"
+        :diceRolled="diceRolled"
+        @reset-dice-state="resetDiceState"
+        @fetch-moves="fetchMoves"
+        @fetch-game-state="fetchGameState"
+      />
 
       <!-- Right Container -->
       <div
