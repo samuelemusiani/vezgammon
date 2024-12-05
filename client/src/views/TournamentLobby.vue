@@ -48,7 +48,7 @@
               Start Tournament
             </button>
           </div>
-          <div v-else>
+          <div v-else class="mt-2 flex justify-center gap-2">
             <button class="retro-button" @click="exitTournament">
               Exit Tournament
             </button>
@@ -149,12 +149,12 @@
               </div>
               <!-- Final 3 place-->
               <div
-                class="mt-10 flex h-1/4 w-2/3 flex-row items-center space-x-2"
+                class="mt-10 flex h-1/4 w-3/4 flex-row items-center space-x-2"
               >
                 <div
                   v-for="(box, index) in finals.slice(2, 4)"
                   :key="index"
-                  class="retro-box h-full w-full p-3 text-center text-2xl font-bold"
+                  class="retro-box h-full w-full p-3.5 text-center font-bold"
                   :style="{
                     color:
                       tournament?.games[3]?.status === 'winp1'
@@ -237,12 +237,12 @@ const fetchTournament = async () => {
         boxes.value[3] = tournament.value?.games[1].player2
       }
       if (tournament.value?.games[2]) {
-        finals.value[0] = tournament.value?.games[2].player1
-        finals.value[1] = tournament.value?.games[2].player2
+        finals.value[0] = tournament.value?.games[3].player1
+        finals.value[1] = tournament.value?.games[3].player2
       }
       if (tournament.value?.games[3]) {
-        finals.value[2] = tournament.value?.games[3].player1
-        finals.value[3] = tournament.value?.games[3].player2
+        finals.value[2] = tournament.value?.games[2].player1
+        finals.value[3] = tournament.value?.games[2].player2
       }
     }
   } catch (error) {

@@ -51,6 +51,7 @@ const { play: playDice } = useSound(diceSfx)
 const { play: playLost } = useSound(lostSfx)
 //const { play: playTin } = useSound(tinSfx)
 const webSocketStore = useWebSocketStore()
+const isThisATournament = ref(false)
 
 onMounted(async () => {
   try {
@@ -322,6 +323,8 @@ const fetchGameState = async () => {
     }
     const data: GameState = await res.json()
     gameState.value = data
+    isThisATournament.value = gameState.value?.tournament.Valid
+
 
     console.log(gameState.value)
   } catch (err) {
@@ -600,7 +603,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 }
 
 const handleReturnHome = () => {
-  if (gameState.value?.tournament.Valid) {
+  if (isThisATournament) {
     router.push('/tournaments/' + gameState.value?.tournament.Int64)
   } else {
     router.push('/')
