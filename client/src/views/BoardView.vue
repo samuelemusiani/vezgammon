@@ -325,7 +325,6 @@ const fetchGameState = async () => {
     gameState.value = data
     isThisATournament.value = gameState.value?.tournament.Valid
 
-
     console.log(gameState.value)
   } catch (err) {
     console.error('Error fetching game state:', err)
