@@ -177,7 +177,6 @@ func LoginUser(username string, password string) (*types.User, error) {
 	if err != nil {
 		return nil, err
 	}
-
 	return &tmp, nil
 }
 
@@ -536,4 +535,28 @@ func calculateHomePieces(game types.ReturnGame, u string) int {
 	}
 
 	return 15 - piecesOnBoard
+}
+
+func ChangePass(username, newPass, oldPass string) error {
+	_, err := LoginUser(username, oldPass)
+	if err != nil {
+		return fmt.Errorf("incorrect old password: %w", err)
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPass), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("error hashing password: %w", err)
+	}
+
+	q := `
+    UPDATE users 
+    SET password = $2 
+    WHERE username = $1
+    `
+	_, err = Conn.Exec(q, username, string(hash))
+	if err != nil {
+		return fmt.Errorf("error updating password: %w", err)
+	}
+
+	return nil
 }

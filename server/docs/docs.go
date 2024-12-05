@@ -24,6 +24,9 @@ const docTemplate = `{
                 "produces": [
                     "application/json"
                 ],
+                "tags": [
+                    ""
+                ],
                 "summary": "Get user's badges",
                 "responses": {
                     "200": {
@@ -94,6 +97,40 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Logout failed"
+                    }
+                }
+            }
+        },
+        "/pass": {
+            "patch": {
+                "description": "Change password given the old and new pass",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Change password of the user",
+                "parameters": [
+                    {
+                        "description": "old and new password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.changePasswordType"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "error"
                     }
                 }
             }
@@ -907,6 +944,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.changePasswordType": {
+            "type": "object",
+            "properties": {
+                "new_pass": {
+                    "type": "string"
+                },
+                "old_pass": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.createTurnamentRequest": {
             "type": "object",
             "properties": {
