@@ -602,7 +602,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 }
 
 const handleReturnHome = () => {
-  if (isThisATournament) {
+  if (isThisATournament.value) {
     router.push('/tournaments/' + gameState.value?.tournament.Int64)
   } else {
     router.push('/')
