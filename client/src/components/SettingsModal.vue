@@ -81,7 +81,14 @@
       </div>
 
       <div class="mt-2 flex items-center justify-between">
-        <span class="text-sm text-error">{{ errorMessage }}</span>
+        <span
+          class="text-sm"
+          :class="{
+            'text-success': resMessage.includes('successfully'),
+            'text-error': !resMessage.includes('successfully'),
+          }"
+          >{{ resMessage }}</span
+        >
         <button
           @click="handleChangePassword"
           class="btn btn-primary btn-sm"
@@ -112,12 +119,11 @@ import { useTheme } from '@/composables/useTheme'
 const audioStore = useAudioStore()
 const { currentTheme, themeOptions, changeTheme } = useTheme()
 
-// Password state
 const currentPassword = ref('')
 const newPassword = ref('')
 const confirmPassword = ref('')
 const showPasswordSection = ref(false)
-const errorMessage = ref('')
+const resMessage = ref('')
 
 const togglePasswordSection = () => {
   showPasswordSection.value = !showPasswordSection.value
@@ -128,50 +134,48 @@ const togglePasswordSection = () => {
   }
 }
 
-// Computed property per validare il form
 const isFormValid = computed(() => {
   return (
-    currentPassword.value.length > 8 &&
-    newPassword.value.length > 8 &&
-    confirmPassword.value.length > 8 &&
-    newPassword.value === confirmPassword.value &&
-    newPassword.value !== currentPassword.value
+    currentPassword.value.length > 7 &&
+    newPassword.value.length > 7 &&
+    confirmPassword.value.length > 7
   )
 })
 
-// Handler per il cambio password
 const handleChangePassword = async () => {
-  if (!isFormValid.value) {
-    if (newPassword.value !== confirmPassword.value) {
-      errorMessage.value = 'New passwords do not match'
-    } else if (newPassword.value === currentPassword.value) {
-      errorMessage.value =
-        'New password must be different from current password'
-    }
+  if (newPassword.value !== confirmPassword.value) {
+    resMessage.value = 'New passwords do not match'
+    return
+  } else if (newPassword.value === currentPassword.value) {
+    resMessage.value = 'New password must be different from current password'
     return
   }
 
   try {
-    errorMessage.value = ''
+    resMessage.value = ''
 
-    // TODO: when backend is ready
-    /*await fetch('/api/change-password', {
-      method: 'POST',
+    const res = await fetch('/api/pass', {
+      method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        currentPassword: currentPassword.value,
-        newPassword: newPassword.value,
+        old_pass: currentPassword.value,
+        new_pass: newPassword.value,
       }),
-      })*/
+    })
 
-    // Reset form
+    if (!res.ok) {
+      const err = await res.json()
+      throw new Error(err.error)
+    }
+
+    resMessage.value = 'Password changed successfully'
     currentPassword.value = ''
     newPassword.value = ''
     confirmPassword.value = ''
-  } catch (error: any) {
-    errorMessage.value = 'Failed to change password'
+  } catch (e: any) {
+    resMessage.value = e.message
   }
 }
 
