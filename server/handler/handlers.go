@@ -58,6 +58,16 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	playGroup.GET("/bot/medium", PlayMediumBot)
 	playGroup.GET("/bot/hard", PlayHardBot)
 
+	tournamentGroup := protected.Group("/tournament")
+	tournamentGroup.POST("/create", CreateTournament)
+	tournamentGroup.POST("/:tournament_id", JoinTournament)
+	tournamentGroup.DELETE("/:tournament_id", LeaveTournament)
+	tournamentGroup.GET("/:tournament_id", GetTournament)
+	tournamentGroup.GET("/list", ListTournaments)
+	tournamentGroup.POST("/:tournament_id/start", StartTournament)
+	tournamentGroup.POST("/:tournament_id/cancel", CancelTournament)
+	tournamentGroup.POST("/:tournament_id/invite", InviteTournament)
+
 	protected.GET("/ws", func(c *gin.Context) {
 		slog.Debug("prova")
 		ws.WSHandler(c.Writer, c.Request, c.MustGet("user_id").(int64))

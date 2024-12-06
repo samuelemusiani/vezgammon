@@ -184,32 +184,3 @@ onMounted(() => {
   document.addEventListener('keydown', handleKeyDown)
 })
 </script>
-
-<style scoped>
-.retro-button {
-  @apply btn btn-circle btn-primary btn-lg border-4 border-accent text-white;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-  height: 6vh;
-
-  &.circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-  }
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-
-.retro-box {
-  @apply rounded-lg border-2 border-primary bg-base-100 shadow-lg;
-}
-</style>

@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onMounted, computed, onUnmounted } from 'vue'
+import { onMounted, computed, onUnmounted, ref } from 'vue'
 import router from '@/router'
 
 import type { Move } from '@/utils/game/types'
@@ -12,6 +12,7 @@ import PlayerInfo from '@/components/game/PlayerInfo.vue'
 import DoubleDice from '@/components/game/DoubleDice.vue'
 import Board from '@/components/game/Board.vue'
 import Modal from '@/components/Modal.vue'
+import TutorialButton from '@/components/buttons/TutorialButton.vue'
 import { useWebSocketStore } from '@/stores/websocket'
 import { useGameState } from '@/composables/useGameState'
 import { useGameTimer } from '@/composables/useGameTimer'
@@ -45,6 +46,14 @@ const { showDoubleModal, handleDouble, acceptDouble, declineDouble } =
   useGameDouble(handleLose)
 
 const webSocketStore = useWebSocketStore()
+const isThisATournament = ref(false)
+
+const isTutorial = ref(false)
+
+// get the variant option from the query
+const query = new URLSearchParams(window.location.search)
+const variant = query.get('variant')
+isTutorial.value = variant === 'tutorial'
 
 onMounted(async () => {
   try {
@@ -201,7 +210,6 @@ function sendWSMessage(message: WSMessage) {
       </div>
 
       <!-- Board Div -->
-
       <Board
         v-if="gameState && availableMoves"
         :gameState="gameState"
@@ -227,7 +235,6 @@ function sendWSMessage(message: WSMessage) {
       :gameType="gameState?.game_type || ''"
       :myUsername="session?.username || ''"
     />
-
     <!-- Double Confirmation Modal -->
     <Modal
       :show="showDoubleModal"
@@ -257,6 +264,7 @@ function sendWSMessage(message: WSMessage) {
         }}
       </p>
     </Modal>
+    <TutorialButton v-if="isTutorial" />
   </div>
 </template>
 
@@ -279,45 +287,26 @@ function sendWSMessage(message: WSMessage) {
   pointer-events: none;
 }
 
-.retro-background {
-  @apply bg-base-100;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
-}
-
-.retro-box {
-  @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
-}
-
-.retro-button {
-  @apply btn btn-primary rounded-lg border-4 border-primary shadow-md;
-  border: 3px solid #8b4513;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
+@keyframes dice-shake {
+  0% {
+    transform: rotate(0deg);
   }
+
+  25% {
+    transform: rotate(5deg);
+  }
+
+  75% {
+    transform: rotate(-5deg);
+  }
+
+  100% {
+    transform: rotate(0deg);
+  }
+}
+
+.dice-rolling {
+  animation: dice-shake 0.3s ease-in-out infinite;
 }
 
 .selected {

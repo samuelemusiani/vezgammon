@@ -119,3 +119,23 @@ func AddDisconnectHandler(user_id int64, f func(int64) error) {
 func SendBotMessage(user_id int64, message string) error {
 	return SendMessage(user_id, Message{Type: "chat_message", Payload: message})
 }
+
+func GameTournamentReady(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "game_tournament_ready"})
+}
+
+func TournamentEnded(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_ended"})
+}
+
+func TournamentCancelled(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_cancelled"})
+}
+
+func TournamentNewUserEnrolled(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_new_user_enrolled"})
+}
+
+func TournamentUserLeft(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_user_left"})
+}

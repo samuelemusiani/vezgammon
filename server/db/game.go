@@ -30,7 +30,8 @@ func initGame() error {
 
     current_player  BPCHAR DEFAULT 'p1',
 
-		dices INTEGER []
+		dices INTEGER [],
+		tournament INTEGER REFERENCES tournaments(id) DEFAULT NULL
 	)
 	`
 	_, err := Conn.Exec(q)
@@ -62,18 +63,19 @@ func CreateGame(g types.Game) (*types.Game, error) {
 	q := `
     INSERT INTO games (
         p1_id, p1elo, p2_id, p2elo,
-        start, endtime, current_player, dices
+        start, endtime, current_player, dices, tournament
     )
     VALUES (
         $1, $2, $3, $4,
-        $5, $6, $7, $8
+        $5, $6, $7, $8, $9
     )
     RETURNING id
     `
+
 	res := Conn.QueryRow(
 		q,
 		g.Player1, g.Elo1, g.Player2, g.Elo2,
-		g.Start, g.End, g.CurrentPlayer, pq.Array(g.Dices),
+		g.Start, g.End, g.CurrentPlayer, pq.Array(g.Dices), g.Tournament,
 	)
 
 	var id int64
@@ -141,7 +143,9 @@ func GetGame(id int64) (*types.Game, error) {
 		&g.DoubleOwner,
 		&g.WantToDouble,
 		&g.CurrentPlayer,
-		&dices)
+		&dices,
+		&g.Tournament,
+	)
 
 	if err != nil {
 		return nil, err
@@ -165,6 +169,32 @@ func GetGame(id int64) (*types.Game, error) {
 	return &g, nil
 }
 
+func GameToReturnGame(g *types.Game) *types.ReturnGame {
+	var rg types.ReturnGame
+	rg.ID = g.ID
+	rg.Elo1 = g.Elo1
+	rg.Elo2 = g.Elo2
+	rg.Start = g.Start
+	rg.End = g.End
+	rg.Status = g.Status
+	rg.P1Checkers = g.P1Checkers
+	rg.P2Checkers = g.P2Checkers
+	rg.DoubleValue = g.DoubleValue
+	rg.DoubleOwner = g.DoubleOwner
+	rg.WantToDouble = g.WantToDouble
+	rg.CurrentPlayer = g.CurrentPlayer
+	rg.Tournament = g.Tournament
+	rg.GameType = getGameType(g.Player1, g.Player2)
+
+	p1, _ := GetUser(g.Player1)
+	p2, _ := GetUser(g.Player2)
+
+	rg.Player1 = p1.Username
+	rg.Player2 = p2.Username
+
+	return &rg
+}
+
 func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	q := `
 	SELECT
@@ -183,7 +213,8 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
         g.double_value,
         g.double_owner,
         g.want_to_double,
-        g.current_player
+        g.current_player,
+        g.tournament
     FROM
     	games g
     JOIN
@@ -222,6 +253,7 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 		&g.DoubleOwner,
 		&g.WantToDouble,
 		&g.CurrentPlayer,
+		&g.Tournament,
 	)
 
 	if err != nil {
@@ -237,15 +269,22 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	}
 
 	// determine game type
-	if p1_id == p2_id {
-		g.GameType = types.GameTypeLocal
-	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
-		g.GameType = types.GameTypeBot
-	} else {
-		g.GameType = types.GameTypeOnline
-	}
+	g.GameType = getGameType(p1_id, p2_id)
 
 	return &g, nil
+}
+
+func getGameType(p1_id, p2_id int64) string {
+	var gameType string
+	if p1_id == p2_id {
+		gameType = types.GameTypeLocal
+	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+		gameType = types.GameTypeBot
+	} else {
+		gameType = types.GameTypeOnline
+	}
+
+	return gameType
 }
 
 func GetLastGameWinner(userID int64) (string, error) {
@@ -287,6 +326,7 @@ func GetLastGameWinner(userID int64) (string, error) {
 		return "", nil
 	}
 }
+
 func CreateTurn(t types.Turn) (*types.Turn, error) {
 	q := `
 	INSERT INTO turns(game_id, user_id, time, dices, double, moves)
@@ -390,10 +430,8 @@ func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
 		if err != nil {
 			return nil, err
 		}
-		slog.With("game", g).Debug("STATS")
 
 		retg = GameToReturnGame(g)
-		slog.With("retg", retg).Debug("STATS")
 
 		gamesPlayed = append(gamesPlayed, *retg)
 	}
@@ -403,42 +441,4 @@ func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
 	}
 
 	return gamesPlayed, nil
-}
-
-func GameToReturnGame(g *types.Game) *types.ReturnGame {
-	var rg types.ReturnGame
-	rg.ID = g.ID
-	rg.Elo1 = g.Elo1
-	rg.Elo2 = g.Elo2
-	rg.Start = g.Start
-	rg.End = g.End
-	rg.Status = g.Status
-	rg.P1Checkers = g.P1Checkers
-	rg.P2Checkers = g.P2Checkers
-	rg.DoubleValue = g.DoubleValue
-	rg.DoubleOwner = g.DoubleOwner
-	rg.WantToDouble = g.WantToDouble
-	rg.CurrentPlayer = g.CurrentPlayer
-	rg.GameType = getGameType(g.Player1, g.Player2)
-
-	p1, _ := GetUser(g.Player1)
-	p2, _ := GetUser(g.Player2)
-
-	rg.Player1 = p1.Username
-	rg.Player2 = p2.Username
-
-	return &rg
-}
-
-func getGameType(p1_id, p2_id int64) string {
-	var gameType string
-	if p1_id == p2_id {
-		gameType = types.GameTypeLocal
-	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
-		gameType = types.GameTypeBot
-	} else {
-		gameType = types.GameTypeOnline
-	}
-
-	return gameType
 }

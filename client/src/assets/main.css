@@ -24,7 +24,12 @@
   }
 
   .retro-box {
-    @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
+    background-color: #ffe5c9;
+    border: 5px solid #8b4513;
+    box-shadow:
+      0 0 0 4px #d2691e,
+      inset 0 0 20px rgba(0, 0, 0, 0.2);
+    transition: transform 0.2s;
   }
 
   .retro-button {
@@ -35,12 +40,40 @@
     box-shadow: 0 2px 0 #8b4513;
     font-size: 1.1rem;
 
+    &.circle {
+      width: 70px;
+      height: 70px;
+      border-radius: 50%;
+    }
+
     &:hover {
       transform: translateY(2px);
       box-shadow:
         inset 0 0 10px rgba(0, 0, 0, 0.2),
         0 0px 0 #8b4513;
       cursor: url('/tortellino.png'), auto;
+    }
+  }
+
+  .retro-title {
+    color: #ffd700;
+    text-shadow:
+      4px 4px 0 #8b4513,
+      -1px -1px 0 #000,
+      1px -1px 0 #000,
+      -1px 1px 0 #000,
+      1px 1px 0 #000;
+    letter-spacing: 3px;
+    animation: move-title 8s ease-in-out infinite alternate;
+    border-bottom: 2px solid #8b4513;
+  }
+
+  @keyframes move-title {
+    from {
+      transform: rotate(-2deg);
+    }
+    to {
+      transform: rotate(2deg);
     }
   }
 }

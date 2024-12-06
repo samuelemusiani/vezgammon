@@ -26,6 +26,7 @@ async function getGame(game_id: number, move: number) {
       errMessage.value = 'Finished game'
       return false
     }
+    errMessage.value = ''
     const data = await res.json()
     gameState.value = data.game
     dices.value = data.dices

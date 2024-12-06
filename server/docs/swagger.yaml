@@ -1,4 +1,10 @@
 definitions:
+  handler.createTurnamentRequest:
+    properties:
+      name:
+        example: Tournament name
+        type: string
+    type: object
   handler.customUser:
     properties:
       firstname:
@@ -25,6 +31,12 @@ definitions:
       move:
         example: 1
         type: integer
+    type: object
+  handler.invite:
+    properties:
+      username:
+        example: username
+        type: string
     type: object
   handler.loginResponseType:
     properties:
@@ -56,6 +68,14 @@ definitions:
       username:
         example: gio
         type: string
+    type: object
+  sql.NullInt64:
+    properties:
+      int64:
+        type: integer
+      valid:
+        description: Valid is true if Int64 is not NULL
+        type: boolean
     type: object
   types.Badge:
     properties:
@@ -99,6 +119,27 @@ definitions:
             $ref: '#/definitions/types.Move'
           type: array
         type: array
+    type: object
+  types.LeaderBoardEntry:
+    properties:
+      lose:
+        example: 1
+        type: integer
+      user:
+        example: Giorgio
+        type: string
+      win:
+        example: 1
+        type: integer
+    type: object
+  types.LeaderboardUser:
+    properties:
+      elo:
+        example: 1000
+        type: integer
+      username:
+        example: gio
+        type: string
     type: object
   types.Move:
     properties:
@@ -170,6 +211,8 @@ definitions:
       status:
         example: open
         type: string
+      tournament:
+        $ref: '#/definitions/sql.NullInt64'
       want_to_double:
         example: false
         type: boolean
@@ -183,6 +226,40 @@ definitions:
       game:
         $ref: '#/definitions/types.ReturnGame'
     type: object
+  types.ReturnTournament:
+    properties:
+      creation_date:
+        example: "2021-09-01T00:00:00Z"
+        type: string
+      games:
+        items:
+          $ref: '#/definitions/types.ReturnGame'
+        type: array
+      id:
+        example: 1
+        type: integer
+      leader_board:
+        items:
+          $ref: '#/definitions/types.LeaderBoardEntry'
+        type: array
+      name:
+        example: Tournament name
+        type: string
+      owner:
+        example: Giorgio
+        type: string
+      status:
+        example: open
+        type: string
+      users:
+        example:
+        - giorgio
+        - diego
+        - marco
+        items:
+          type: string
+        type: array
+    type: object
   types.Stats:
     properties:
       cpu:
@@ -194,6 +271,10 @@ definitions:
       games_played:
         items:
           $ref: '#/definitions/types.ReturnGame'
+        type: array
+      leaderboard:
+        items:
+          $ref: '#/definitions/types.LeaderboardUser'
         type: array
       local:
         type: integer
@@ -207,6 +288,24 @@ definitions:
         type: integer
       winrate:
         type: number
+    type: object
+  types.TournamentInfo:
+    properties:
+      creation_date:
+        example: "2021-09-01T00:00:00Z"
+        type: string
+      id:
+        example: 1
+        type: integer
+      name:
+        example: Tournament name
+        type: string
+      owner:
+        example: Giorgio
+        type: string
+      user_number:
+        example: 3
+        type: integer
     type: object
   types.User:
     properties:
@@ -646,4 +745,198 @@ paths:
         "500":
           description: error
       summary: Get users' stats
+  /tournament/{tournament_id}:
+    delete:
+      consumes:
+      - application/json
+      description: Leave a tournament if the tournament is not started
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: leaved
+        "400":
+          description: you are the owner
+        "404":
+          description: tournament not found
+      summary: Leave a tournament
+      tags:
+      - tournament
+    get:
+      consumes:
+      - application/json
+      description: Get a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "404":
+          description: tournament not found
+      summary: Get a tournament
+      tags:
+      - tournament
+    post:
+      consumes:
+      - application/json
+      description: Join a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "400":
+          description: alredy in a tournament
+        "404":
+          description: tournament not found
+      summary: Join a tournament
+      tags:
+      - tournament
+  /tournament/{tournament_id}/cancel:
+    post:
+      consumes:
+      - application/json
+      description: Cancel a waiting tournament, only the owner can cancel it
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: tournament canceled
+        "400":
+          description: you are not the owner
+        "404":
+          description: tournament not found
+      summary: Cancel a tournament
+      tags:
+      - tournament
+  /tournament/{tournament_id}/invite:
+    post:
+      consumes:
+      - application/json
+      description: Invite a user or a bot a tournament, if it is a bot it accepts
+        the invitation automatically, same bot can be invited multiple times
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      - description: Invite object
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/handler.invite'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: invited
+        "400":
+          description: you are not in the owner
+        "404":
+          description: user not found
+        "500":
+          description: internal server error
+      summary: Invite a user or a bot a tournament
+      tags:
+      - tournament
+  /tournament/{tournament_id}/start:
+    post:
+      consumes:
+      - application/json
+      description: Start a tournament, only the owner can start it
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: tournament started
+        "400":
+          description: you are not the owner
+        "404":
+          description: tournament not found
+      summary: Start a tournament
+      tags:
+      - tournament
+  /tournament/create:
+    post:
+      consumes:
+      - application/json
+      description: Create a new tournament
+      parameters:
+      - description: createTurnamentRequest object
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.createTurnamentRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/types.ReturnTournament'
+        "400":
+          description: bad data, tournament alredy open
+        "500":
+          description: internal server error
+      summary: Create a new tournament
+      tags:
+      - tournament
+  /tournament/list:
+    get:
+      consumes:
+      - application/json
+      description: List all tournaments you can access
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/types.TournamentInfo'
+            type: array
+        "500":
+          description: internal server error
+      summary: List all tournaments
+      tags:
+      - tournament
 swagger: "2.0"

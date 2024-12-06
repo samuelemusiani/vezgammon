@@ -642,9 +642,311 @@ const docTemplate = `{
                     }
                 }
             }
+        },
+        "/tournament/create": {
+            "post": {
+                "description": "Create a new tournament",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Create a new tournament",
+                "parameters": [
+                    {
+                        "description": "createTurnamentRequest object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.createTurnamentRequest"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "Created",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnTournament"
+                        }
+                    },
+                    "400": {
+                        "description": "bad data, tournament alredy open"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/tournament/list": {
+            "get": {
+                "description": "List all tournaments you can access",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "List all tournaments",
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/types.TournamentInfo"
+                            }
+                        }
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/tournament/{tournament_id}": {
+            "get": {
+                "description": "Get a tournament",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Get a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnTournament"
+                        }
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            },
+            "post": {
+                "description": "Join a tournament",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Join a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnTournament"
+                        }
+                    },
+                    "400": {
+                        "description": "alredy in a tournament"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            },
+            "delete": {
+                "description": "Leave a tournament if the tournament is not started",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Leave a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "leaved"
+                    },
+                    "400": {
+                        "description": "you are the owner"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            }
+        },
+        "/tournament/{tournament_id}/cancel": {
+            "post": {
+                "description": "Cancel a waiting tournament, only the owner can cancel it",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Cancel a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "tournament canceled"
+                    },
+                    "400": {
+                        "description": "you are not the owner"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            }
+        },
+        "/tournament/{tournament_id}/invite": {
+            "post": {
+                "description": "Invite a user or a bot a tournament, if it is a bot it accepts the invitation automatically, same bot can be invited multiple times",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Invite a user or a bot a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Invite object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.invite"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "invited"
+                    },
+                    "400": {
+                        "description": "you are not in the owner"
+                    },
+                    "404": {
+                        "description": "user not found"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
+        "/tournament/{tournament_id}/start": {
+            "post": {
+                "description": "Start a tournament, only the owner can start it",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Start a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "tournament started"
+                    },
+                    "400": {
+                        "description": "you are not the owner"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    }
+                }
+            }
         }
     },
     "definitions": {
+        "handler.createTurnamentRequest": {
+            "type": "object",
+            "properties": {
+                "name": {
+                    "type": "string",
+                    "example": "Tournament name"
+                }
+            }
+        },
         "handler.customUser": {
             "type": "object",
             "properties": {
@@ -680,6 +982,15 @@ const docTemplate = `{
                 "move": {
                     "type": "integer",
                     "example": 1
+                }
+            }
+        },
+        "handler.invite": {
+            "type": "object",
+            "properties": {
+                "username": {
+                    "type": "string",
+                    "example": "username"
                 }
             }
         },
@@ -725,6 +1036,18 @@ const docTemplate = `{
                 "username": {
                     "type": "string",
                     "example": "gio"
+                }
+            }
+        },
+        "sql.NullInt64": {
+            "type": "object",
+            "properties": {
+                "int64": {
+                    "type": "integer"
+                },
+                "valid": {
+                    "description": "Valid is true if Int64 is not NULL",
+                    "type": "boolean"
                 }
             }
         },
@@ -790,6 +1113,36 @@ const docTemplate = `{
                             "$ref": "#/definitions/types.Move"
                         }
                     }
+                }
+            }
+        },
+        "types.LeaderBoardEntry": {
+            "type": "object",
+            "properties": {
+                "lose": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "user": {
+                    "type": "string",
+                    "example": "Giorgio"
+                },
+                "win": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
+        "types.LeaderboardUser": {
+            "type": "object",
+            "properties": {
+                "elo": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
                 }
             }
         },
@@ -891,6 +1244,9 @@ const docTemplate = `{
                     "type": "string",
                     "example": "open"
                 },
+                "tournament": {
+                    "$ref": "#/definitions/sql.NullInt64"
+                },
                 "want_to_double": {
                     "type": "boolean",
                     "example": false
@@ -908,6 +1264,54 @@ const docTemplate = `{
                 },
                 "game": {
                     "$ref": "#/definitions/types.ReturnGame"
+                }
+            }
+        },
+        "types.ReturnTournament": {
+            "type": "object",
+            "properties": {
+                "creation_date": {
+                    "type": "string",
+                    "example": "2021-09-01T00:00:00Z"
+                },
+                "games": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "leader_board": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.LeaderBoardEntry"
+                    }
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Tournament name"
+                },
+                "owner": {
+                    "type": "string",
+                    "example": "Giorgio"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "open"
+                },
+                "users": {
+                    "type": "array",
+                    "items": {
+                        "type": "string"
+                    },
+                    "example": [
+                        "giorgio",
+                        "diego",
+                        "marco"
+                    ]
                 }
             }
         },
@@ -929,6 +1333,12 @@ const docTemplate = `{
                         "$ref": "#/definitions/types.ReturnGame"
                     }
                 },
+                "leaderboard": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.LeaderboardUser"
+                    }
+                },
                 "local": {
                     "type": "integer"
                 },
@@ -946,6 +1356,31 @@ const docTemplate = `{
                 },
                 "winrate": {
                     "type": "number"
+                }
+            }
+        },
+        "types.TournamentInfo": {
+            "type": "object",
+            "properties": {
+                "creation_date": {
+                    "type": "string",
+                    "example": "2021-09-01T00:00:00Z"
+                },
+                "id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "name": {
+                    "type": "string",
+                    "example": "Tournament name"
+                },
+                "owner": {
+                    "type": "string",
+                    "example": "Giorgio"
+                },
+                "user_number": {
+                    "type": "integer",
+                    "example": 3
                 }
             }
         },

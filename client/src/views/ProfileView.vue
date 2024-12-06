@@ -107,33 +107,3 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
     </div>
   </div>
 </template>
-
-<style scoped>
-.retro-background {
-  background: #2c1810;
-  background-image: repeating-linear-gradient(
-      45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    ),
-    repeating-linear-gradient(
-      -45deg,
-      rgba(139, 69, 19, 0.1) 0px,
-      rgba(139, 69, 19, 0.1) 2px,
-      transparent 2px,
-      transparent 10px
-    );
-  cursor: url('/tortellino.png'), auto;
-  border: 6px solid #d2691e;
-}
-
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-</style>
