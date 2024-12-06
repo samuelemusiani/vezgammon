@@ -17,7 +17,7 @@
             <tr
               v-for="game in sortedGames"
               :key="game.id"
-              class="hover:bg-base-300/50"
+              class="cursor-pointer hover:bg-base-300/50"
               @click="navigateToGame(game.id)"
             >
               <td class="font-medium">

@@ -82,14 +82,14 @@ func GetReplay(c *gin.Context) {
 		return
 	}
 
-  var dices types.Dices
+	var dices types.Dices
 	for i := range tmp.Move {
 		t := turns[i]
 		if t.Double {
 			continue
 		}
 		g.PlayMove(t.Moves)
-    dices = t.Dices
+		dices = t.Dices
 	}
 
 	u1, err := db.GetUser(g.Player1)
@@ -109,7 +109,7 @@ func GetReplay(c *gin.Context) {
 	rg := g.ToReturnGame(u1.Username, u2.Username)
 
 	c.JSON(http.StatusOK, types.ReturnReplay{
-    Game: rg,
-    Dices: dices,
-  })
+		Game:  rg,
+		Dices: dices,
+	})
 }
