@@ -335,6 +335,7 @@ func CreateTurn(t types.Turn) (*types.Turn, error) {
 	`
 
 	res := Conn.QueryRow(q, t.GameId, t.User, t.Time, pq.Array(t.Dices), t.Double, pq.Array(MovesArrayToArray(t.Moves)))
+	slog.With("dices", t.Dices).Debug("Dices")
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {

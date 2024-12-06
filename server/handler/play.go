@@ -402,10 +402,6 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
-	g.PlayMove(moves)
-
-	err = db.UpdateGame(g)
-
 	// save turn
 	turn := types.Turn{
 		GameId: g.ID,
@@ -419,6 +415,15 @@ func PlayMoves(c *gin.Context) {
 	_, err = db.CreateTurn(turn)
 	if err != nil {
 		slog.With("error", err).Error("Creating turn in /moves [post]")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g.PlayMove(moves)
+
+	err = db.UpdateGame(g)
+	if err != nil {
+		slog.With("error", err).Error("Updating game in /moves [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -457,22 +462,22 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 
-		g.PlayMove(m)
-		err = db.UpdateGame(g)
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
-			return
-		}
-
 		t := types.Turn{
 			GameId: g.ID,
 			User:   g.Player2,
 			Time:   time.Now(),
+			Dices:  g.Dices,
 			Moves:  m,
 		}
 
 		_, err = db.CreateTurn(t)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		g.PlayMove(m)
+		err = db.UpdateGame(g)
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return

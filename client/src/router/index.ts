@@ -10,6 +10,7 @@ import StatsView from '@/views/StatsView.vue'
 import WipView from '@/views/WipView.vue'
 import PlayerStatsView from '@/views/PlayerStatsView.vue'
 import InviteView from '@/views/InviteView.vue'
+import AnalysisView from '@/views/AnalysisView.vue'
 import LeaderBoardView from '@/views/LeaderBoardView.vue'
 
 const router = createRouter({
@@ -75,6 +76,11 @@ const router = createRouter({
       path: '/invite/:code',
       name: 'invite',
       component: InviteView,
+    },
+    {
+      path: '/analysis/:gameId',
+      name: 'analysis',
+      component: AnalysisView,
     },
     {
       path: '/about',

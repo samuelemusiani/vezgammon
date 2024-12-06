@@ -23,6 +23,15 @@ definitions:
         example: gio
         type: string
     type: object
+  handler.gameReqPos:
+    properties:
+      game_id:
+        example: 1
+        type: integer
+      move:
+        example: 1
+        type: integer
+    type: object
   handler.invite:
     properties:
       username:
@@ -207,6 +216,15 @@ definitions:
       want_to_double:
         example: false
         type: boolean
+    type: object
+  types.ReturnReplay:
+    properties:
+      dices:
+        items:
+          type: integer
+        type: array
+      game:
+        $ref: '#/definitions/types.ReturnGame'
     type: object
   types.ReturnTournament:
     properties:
@@ -675,6 +693,26 @@ paths:
       summary: Register new user
       tags:
       - authentication
+  /replay:
+    post:
+      consumes:
+      - application/json
+      description: Get position of a game based on id and move number
+      parameters:
+      - description: game id and move number
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.gameReqPos'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: game position
+          schema:
+            $ref: '#/definitions/types.ReturnReplay'
+      summary: Get position of a game
   /session:
     get:
       consumes:
