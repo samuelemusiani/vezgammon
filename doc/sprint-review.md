@@ -55,3 +55,25 @@ Il team ha accumulato un debito tecnico significativo durante lo sprint. La gest
 La sfida principale di questo sprint è stata l'integrazione del progetto con le API del bot. Il team front-end ha inizialmente implementato una versione semplificata del bot per completare la user story #100, ma questa soluzione temporanea ha richiesto successivamente un significativo refactoring per l'integrazione con il back-end. L'implementazione della soluzione definitiva, sebbene più impegnativa in termini di tempo e risorse, si è resa necessaria verso la fine dello sprint.
 Gli investimenti effettuati durante il primo sprint per la creazione di un'infrastruttura solida si sono rivelati preziosi, accelerando lo sviluppo del progetto grazie a un ambiente stabile e ben configurato. L'implementazione del sistema CI/CD ha automatizzato con successo i processi di deploy e test. Inoltre, la configurazione di un [servizio](status.vezgammon.it) di monitoraggio ha permesso di osservare in tempo reale le statistiche dei container in esecuzione, facilitando la rapida risoluzione di eventuali problemi di accessibilità.
 Si è inoltre evidenziato un accumulo significativo di user stories nel backlog, che difficilmente potranno essere completate entro la conclusione del progetto. Queste sono state pertanto classificate come potenziali sviluppi futuri, nell'eventualità di una continuazione del progetto.
+
+
+## Sprint 3
+
+### Completato
+- #25: come utente, voglio tener traccia dei miei progressi nel gioco
+- #99: come giocatore, voglio poter giocare una partita online
+- #34: come studente, voglio essere in grado di analizzare le partite giocate
+- #28: come giocatore, voglio poter scegliere vari temi grafici e ambientazioni
+- #33: come giocatore, voglio ricevere dei badge digitali come ricompense
+- #37: come giocatore, socievole voglio poter comunicare con i miei avversari con chat o chiamata
+- #38: come studente, voglio poter accedere a risorse di addestramento
+- #39: come influencer, voglio essere in grado di condividere i miei progressi sui social media
+
+### Debito Tecnico
+
+Fine della gestione dei tornei: adattamento alla nuova board. Problemi con la ui nella pagina di statistiche. Integrazione delle notifiche.
+
+### Problematiche riscontrate
+
+Sistemato il codice della board (componente vue da 1KLoc) in piu' componenti. Inizialmente causa di molto del debito tecnico accumulato, risolto tramite un pesante refactor.
+Forse una troppa sovreastima del carico di lavoro effettuabile, nonostante cio' il grafico taiga e' rimasto ben strutturato.
