@@ -1,36 +1,44 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import type { User } from '@/utils/types'
 import router from '@/router'
 import Badges from '@/components/Badges.vue'
 
 const badges = ref()
 
-fetch('/api/badge')
-  .then(response => response.json())
-  .then(data => {
+const fetchBadges = async () => {
+  try {
+    const res = await fetch('/api/badge')
+    const data = await res.json()
     badges.value = data
-  })
-  .catch(e => {
-    console.error('Error fetching badges:', e)
-  })
+  } catch (e: any) {
+    console.error('Error fetching badges:', e.message)
+  }
+}
 
 const session = ref<User | undefined>()
 const error = ref<string>('')
 
-fetch('/api/session')
-  .then(response => {
-    if (!response.ok) {
-      throw new Error('During profile fetch: ' + response.statusText)
-    }
-    return response.json()
-  })
-  .then(data => {
-    session.value = data
-  })
-  .catch(e => {
-    console.error(e)
-  })
+const fetchSession = async () => {
+  fetch('/api/session')
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('During profile fetch: ' + response.statusText)
+      }
+      return response.json()
+    })
+    .then(data => {
+      session.value = data
+    })
+    .catch(e => {
+      console.error(e)
+    })
+}
+
+onMounted(() => {
+  fetchSession()
+  fetchBadges()
+})
 
 async function logout() {
   await fetch('/api/logout', { method: 'POST' })
@@ -53,19 +61,30 @@ async function goBack() {
         <div class="divider divider-neutral"></div>
 
         <div v-if="session" class="flex flex-col gap-4">
-          <div>
-            <span> Username: </span>
-            <span class="text-lg font-bold"> {{ session.username }} </span>
-          </div>
-          <div>
-            <span> Mail: </span>
-            <span class="text-lg font-bold">{{ session.mail }}</span>
-          </div>
-          <div>
-            <span> Fullname: </span>
-            <span class="text-lg font-bold">
-              {{ session.firstname }} {{ session.lastname }}
-            </span>
+          <div class="m-8 flex flex-row items-center justify-between">
+            <div class="flex flex-col">
+              <div>
+                <span> Username: </span>
+                <span class="text-lg font-bold"> {{ session.username }} </span>
+              </div>
+              <div>
+                <span> Mail: </span>
+                <span class="text-lg font-bold">{{ session.mail }}</span>
+              </div>
+              <div>
+                <span> Fullname: </span>
+                <span class="text-lg font-bold">
+                  {{ session.firstname }} {{ session.lastname }}
+                </span>
+              </div>
+            </div>
+            <div>
+              <img
+                class="h-32 w-32 rounded-full border-4 border-primary"
+                :src="session.avatar"
+                alt="User avatar"
+              />
+            </div>
           </div>
 
           <div class="divider divider-neutral">Your Badges</div>
