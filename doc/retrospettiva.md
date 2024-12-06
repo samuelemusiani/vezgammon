@@ -63,13 +63,13 @@ Valutazioni: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
 | ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |
-| Scrum Master     | 😃       | 😃         | 😃        | 😃      |  😃          | 😃     |
-| Product Owner    | 😃       | 😃         | 😃        | 😐      |  😃          | 😃     |
-| Development Team | 😐       | 😃         | 😐        | 😐      |  😃          | 😐     |
-| Product Backlog  | 😃       | 😃         | 😃        | 😐      |  😐          | 😐     |
-| Sprint Planning  | 😐       | 😡         | 😐        | 😃      |  😐          | 😐     |
-| Sprint Goal      | 😐       | 😐         | 😐        | 😐      |  😐          | 😐     |
-| Self Menagement  | 😃       | 😃         | 😃        | 😃      |  😃          | 😐     |
+| Scrum Master     | 😃       | 😃         | 😃        | 😃      |  😃        | 😃     |
+| Product Owner    | 😃       | 😃         | 😃        | 😐      |  😃        | 😃     |
+| Development Team | 😐       | 😃         | 😐        | 😐      |  😃        | 😐     |
+| Product Backlog  | 😃       | 😃         | 😃        | 😐      |  😐        | 😐     |
+| Sprint Planning  | 😐       | 😡         | 😐        | 😃      |  😐        | 😐     |
+| Sprint Goal      | 😐       | 😐         | 😐        | 😐      |  😐        | 😐     |
+| Self Menagement  | 😃       | 😃         | 😃        | 😃      |  😃        | 😐     |
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
@@ -117,14 +117,17 @@ Valutazioni: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
 | ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |
-| Scrum Master     | 😃       | 
-| Product Owner    | 😃       |
-| Development Team | 😃       | 
-| Product Backlog  | 😃       | 
-| Sprint Planning  | 😃       | 
-| Sprint Goal      | 😃       | 
-| Self Menagement  | 😃       | 
+| Scrum Master     | 😃       |                                               | 😃     |
+| Product Owner    | 😃       |                                               | 😃     |                                             
+| Development Team | 😃       |                                               | 😃     | 
+| Product Backlog  | 😃       |                                               | 😃     | 
+| Sprint Planning  | 😃       |                                               | 😃     | 
+| Sprint Goal      | 😃       |                                               | 😃     | 
+| Self Menagement  | 😃       |                                               | 😃     | 
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
 Ottimo sprint, in assoluto il migliore. Nonostante un primo momento di inssicurezza generale sul superamento delle task, ci siamo trovato a meta' settimna con tutte le us quasi completate: e' risultato necessario un daily scrum on steroids per decidere ulteriori us da terminare. Alla fine sono molto soddisfatto del risultato ottenuto, il tutto grazie a un codice ben organizzato in componenti.
+
+#### Developer - Omar Ayache
+Sprint eccezionale, con obiettivi quasi completamente raggiunti. Diversi meeting scrum dinamici hanno permesso di ridefinire ulteriori attività. Il team ha dimostrato una significativa crescita, padroneggiando con competenza gli strumenti e comprendendo la loro complessità di utilizzo. L'organizzazione del codice in componenti ben strutturate ha contribuito al successo complessivo.

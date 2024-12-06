@@ -75,5 +75,5 @@ Fine della gestione dei tornei: adattamento alla nuova board. Problemi con la ui
 
 ### Problematiche riscontrate
 
-Sistemato il codice della board (componente vue da 1KLoc) in piu' componenti. Inizialmente causa di molto del debito tecnico accumulato, risolto tramite un pesante refactor.
+Sistemato il codice della board (componente vue da 1KLoc) in più componenti. Inizialmente causa di molto del debito tecnico accumulato, risolto tramite un pesante refactor.
 Forse una troppa sovreastima del carico di lavoro effettuabile, nonostante cio' il grafico taiga e' rimasto ben strutturato.
