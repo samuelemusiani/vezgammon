@@ -429,10 +429,8 @@ func GetAllGameFromUser(userId int64) ([]types.ReturnGame, error) {
 		if err != nil {
 			return nil, err
 		}
-		slog.With("game", g).Debug("STATS")
 
 		retg = GameToReturnGame(g)
-		slog.With("retg", retg).Debug("STATS")
 
 		gamesPlayed = append(gamesPlayed, *retg)
 	}

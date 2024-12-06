@@ -10,6 +10,7 @@ import StatsView from '@/views/StatsView.vue'
 import WipView from '@/views/WipView.vue'
 import PlayerStatsView from '@/views/PlayerStatsView.vue'
 import InviteView from '@/views/InviteView.vue'
+import LeaderBoardView from '@/views/LeaderBoardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -59,6 +60,11 @@ const router = createRouter({
       path: '/tournaments/:id',
       name: 'tournament_lobby',
       component: TournamentLobbyView,
+    },
+    {
+      path: '/leaderboard',
+      name: 'leaderboard',
+      component: LeaderBoardView,
     },
     {
       path: '/wip',
