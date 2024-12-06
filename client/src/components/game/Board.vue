@@ -24,6 +24,7 @@ import {
 const $props = defineProps<{
   gameState: GameState
   availableMoves: MovesResponse | null
+  isMyTurn: boolean | null
 }>()
 
 const { selectedChecker, possibleMoves, movesToSubmit, submitMoves } =
@@ -142,10 +143,10 @@ const handleTriangleClick = async (position: number) => {
       await submitMoves()
       resetDiceState()
       if ($props.gameState.game_type !== 'online') {
-        await $emits('fetch-game-state')
-        await $emits('fetch-moves')
+        $emits('fetch-game-state')
+        $emits('fetch-moves')
       } else {
-        $emits('stopTimer')
+        $emits('stop-timer')
         isMyTurn.value = false
       }
     } catch (err) {

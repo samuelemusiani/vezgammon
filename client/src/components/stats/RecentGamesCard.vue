@@ -18,6 +18,7 @@
               v-for="game in sortedGames"
               :key="game.id"
               class="hover:bg-base-300/50"
+              @click="navigateToGame(game.id)"
             >
               <td class="font-medium">
                 {{ game.player1 }}
@@ -39,8 +40,10 @@
 </template>
 
 <script setup lang="ts">
-import { computed, defineProps } from 'vue'
+import { computed } from 'vue'
 import type { GameState } from '@/utils/game/types'
+import { useRouter } from 'vue-router'
+let router = useRouter()
 
 const props = defineProps<{
   games: GameState[]
@@ -70,5 +73,11 @@ const getResultText = (game: GameState) => {
     return game.player2 === props.currentUser ? 'Win' : 'Lost'
   }
   return game.status
+}
+
+const navigateToGame = (gameId: number) => {
+  console.log('here')
+  console.log(gameId)
+  router.push(`/analysis/${gameId}`)
 }
 </script>

@@ -198,10 +198,11 @@ function sendWSMessage(message: WSMessage) {
       <!-- Board Div -->
 
       <Board
-        @ws-message="sendWSMessage"
         v-if="gameState"
         :gameState="gameState"
         :availableMoves="availableMoves"
+        :isMyTurn="isMyTurn"
+        @ws-message="sendWSMessage"
         @fetch-moves="fetchMoves"
         @fetch-game-state="fetchGameState"
         @stop-timer="stopTimer"
