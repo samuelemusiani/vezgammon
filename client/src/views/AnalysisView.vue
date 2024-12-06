@@ -11,6 +11,7 @@ const currentMove = ref(0)
 const errMessage = ref('')
 
 const gameState = ref<GameState | null>(null)
+const dices = ref<number[]>([])
 
 async function getGame(game_id: number, move: number) {
   try {
@@ -25,7 +26,10 @@ async function getGame(game_id: number, move: number) {
       errMessage.value = 'Finished game'
       return false
     }
-    gameState.value = await res.json()
+    const data = await res.json()
+    gameState.value = data.game
+    dices.value = data.dices
+
     return true
   } catch (error) {
     console.error('Error accepting invite:', error)
@@ -122,7 +126,12 @@ onMounted(async () => {
         </div>
       </div>
 
-      <Board v-if="gameState" :gameState="gameState" :availableMoves="null" />
+      <Board
+        v-if="gameState"
+        :gameState="gameState"
+        :availableMoves="null"
+        :dicesReplay="dices"
+      />
     </div>
   </div>
 </template>

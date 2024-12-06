@@ -25,7 +25,8 @@ import {
 const $props = defineProps<{
   gameState: GameState
   availableMoves: MovesResponse | null
-  isMyTurn: boolean | null
+  isMyTurn?: boolean | null
+  dicesReplay?: number[]
 }>()
 
 const availableMoves = ref($props.availableMoves)
@@ -245,7 +246,7 @@ const isCheckerSelected = (checker: Checker) => {
   )
 }
 
-const handleCheckerClick = (checker: Checker) => {
+const handleCheckerClick = async (checker: Checker) => {
   console.log('handleCheckerClick', checker)
   console.log('available-moves', availableMoves.value)
   console.log('isCheckerSelectable', isCheckerSelectable(checker))
@@ -272,7 +273,7 @@ const handleCheckerClick = (checker: Checker) => {
     console.log(
       'No possible moves or all sequences are empty, passing the turn',
     )
-    submitMoves()
+    await submitMoves()
     $emits('fetch-moves')
     $emits('fetch-game-state')
     return
@@ -409,6 +410,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
         :displayedDice="displayedDice"
         :isRolling="isRolling"
         :canRoll="true"
+        :dicesReplay="dicesReplay"
         @roll="handleDiceRoll(availableMoves)"
       />
 

@@ -588,7 +588,7 @@ const docTemplate = `{
                     "201": {
                         "description": "game position",
                         "schema": {
-                            "$ref": "#/definitions/types.ReturnGame"
+                            "$ref": "#/definitions/types.ReturnReplay"
                         }
                     }
                 }
@@ -894,6 +894,20 @@ const docTemplate = `{
                 "want_to_double": {
                     "type": "boolean",
                     "example": false
+                }
+            }
+        },
+        "types.ReturnReplay": {
+            "type": "object",
+            "properties": {
+                "dices": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "game": {
+                    "$ref": "#/definitions/types.ReturnGame"
                 }
             }
         },

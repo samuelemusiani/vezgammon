@@ -170,6 +170,6 @@ type ReturnGame struct {
 }
 
 type ReturnReplay struct {
-  Game ReturnGame `json:"game"`
-  Dices []Dices `json:"dices"`
+	Game  ReturnGame `json:"game"`
+	Dices Dices      `json:"dices"`
 }
