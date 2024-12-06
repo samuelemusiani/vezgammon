@@ -61,12 +61,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
+    avatar := "https://api.dicebear.com/6.x/avataaars/svg?seed=" + tempu.Username // default avatar from username
+
 	u := types.User{
 		Username:  tempu.Username,
 		Firstname: tempu.Firstname,
 		Lastname:  tempu.Lastname,
 		Mail:      tempu.Mail,
-		Avatar:    tempu.Avatar,
+		Avatar:    avatar,
 	}
 
 	retu, err := db.CreateUser(u, string(hash))
