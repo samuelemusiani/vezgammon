@@ -168,3 +168,8 @@ type ReturnGame struct {
 
 	GameType string `json:"game_type" example:"online"`
 }
+
+type ReturnReplay struct {
+  Game ReturnGame `json:"game"`
+  Dices []Dices `json:"dices"`
+}

@@ -26,7 +26,7 @@ var defaultCheckers = [25]int8{
 // @Accept json
 // @Param request body gameReqPos true "game id and move number"
 // @Produce json
-// @Success 201 {object} types.ReturnGame "game position"
+// @Success 201 {object} types.ReturnReplay "game position"
 // @Router /replay [post]
 func GetReplay(c *gin.Context) {
 
@@ -82,12 +82,14 @@ func GetReplay(c *gin.Context) {
 		return
 	}
 
+  var dices types.Dices
 	for i := range tmp.Move {
 		t := turns[i]
 		if t.Double {
 			continue
 		}
 		g.PlayMove(t.Moves)
+    dices = t.Dices
 	}
 
 	u1, err := db.GetUser(g.Player1)
@@ -106,5 +108,8 @@ func GetReplay(c *gin.Context) {
 
 	rg := g.ToReturnGame(u1.Username, u2.Username)
 
-	c.JSON(http.StatusOK, rg)
+	c.JSON(http.StatusOK, types.ReturnReplay{
+    Game: rg,
+    Dices: dices,
+  })
 }
