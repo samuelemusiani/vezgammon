@@ -454,19 +454,22 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		//game won counter
 		if user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2 {
 			gw++
+
+			//shortest game
+			timeDiff := game.End.Sub(game.Start)
+
+			if timeDiff <= 3*time.Minute {
+				badge.Wontime[0] = 1
+				badge.Wontime[1] = 2
+				badge.Wontime[2] = 3
+			} else if timeDiff <= 5*time.Minute {
+				badge.Wontime[0] = 1
+				badge.Wontime[1] = 2
+			} else if timeDiff <= 10*time.Minute {
+				badge.Wontime[0] = 1
+			}
+
 		}
-
-		//shortest game
-		timeDiff := game.End.Sub(game.Start)
-
-		if timeDiff <= 10*time.Minute {
-			badge.Wontime[0] = 1
-		} else if timeDiff <= 5*time.Minute {
-			badge.Wontime[1] = 2
-		} else if timeDiff <= 3*time.Minute {
-			badge.Wontime[2] = 3
-		}
-
 	}
 
 	//homepieces
