@@ -7,6 +7,9 @@ import PlayerInfo from '@/components/game/PlayerInfo.vue'
 const route = useRoute()
 
 const gameId = Number(route.params.gameId)
+const currentMove = ref(0)
+const errMessage = ref('')
+
 const gameState = ref<GameState | null>(null)
 
 async function getGame(game_id: number, move: number) {
@@ -18,15 +21,36 @@ async function getGame(game_id: number, move: number) {
       },
       body: JSON.stringify({ game_id, move }),
     })
-
+    if (!res.ok) {
+      errMessage.value = 'Finished game'
+      return false
+    }
     gameState.value = await res.json()
+    return true
   } catch (error) {
     console.error('Error accepting invite:', error)
+    return false
+  }
+}
+
+async function nextMove() {
+  if (gameState.value) {
+    if (await getGame(gameId, currentMove.value + 1)) {
+      currentMove.value++
+    }
+  }
+}
+
+async function previousMove() {
+  if (gameState.value && currentMove.value > 0) {
+    if (await getGame(gameId, currentMove.value - 1)) {
+      currentMove.value--
+    }
   }
 }
 
 onMounted(async () => {
-  await getGame(gameId, 3)
+  await getGame(gameId, 0)
   console.log(gameState.value)
 })
 </script>
@@ -44,6 +68,51 @@ onMounted(async () => {
             :isCurrentTurn="gameState?.current_player === 'p1'"
             :isOpponent="true"
           />
+
+          <!-- Pulsanti -->
+          <div class="flex flex-col items-center justify-center">
+            <div class="my-4 flex justify-center gap-4">
+              <button
+                @click="previousMove"
+                class="retro-button"
+                :disabled="currentMove === 0"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M15 19l-7-7 7-7"
+                  />
+                </svg>
+              </button>
+              <span class="flex items-center font-bold">{{ currentMove }}</span>
+
+              <button @click="nextMove" class="retro-button">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  class="h-6 w-6"
+                  fill="none"
+                  viewBox="0 0 24 24"
+                  stroke="currentColor"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M9 5l7 7-7 7"
+                  />
+                </svg>
+              </button>
+            </div>
+            <span class="flex items-center font-bold">{{ errMessage }}</span>
+          </div>
 
           <PlayerInfo
             :username="gameState?.player1 || ''"

@@ -12,6 +12,7 @@ import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
 
 import { useGameMoves } from '@/composables/useGameMoves'
 import { useDiceRoll } from '@/composables/useDiceRoll'
+import { ref, watch } from 'vue'
 
 import {
   BOARD,
@@ -27,17 +28,28 @@ const $props = defineProps<{
   isMyTurn: boolean | null
 }>()
 
+const availableMoves = ref($props.availableMoves)
+const gameState = ref($props.gameState)
+
+watch(
+  () => $props.availableMoves,
+  () => {
+    availableMoves.value = $props.availableMoves
+  },
+)
+
+watch(
+  () => $props.gameState,
+  () => {
+    gameState.value = $props.gameState
+  },
+)
+
 const { selectedChecker, possibleMoves, movesToSubmit, submitMoves } =
   useGameMoves()
 
-const {
-  diceRolled,
-  resetDiceState,
-  showDiceFromOpponent,
-  isRolling,
-  displayedDice,
-  handleDiceRoll,
-} = useDiceRoll()
+const { diceRolled, resetDiceState, isRolling, displayedDice, handleDiceRoll } =
+  useDiceRoll()
 
 const $emits = defineEmits<{
   (e: 'ws-message', payload: WSMessage): void
@@ -50,8 +62,8 @@ const handleTriangleClick = async (position: number) => {
   if (
     !selectedChecker.value ||
     !possibleMoves.value.includes(position) ||
-    !$props.availableMoves ||
-    !$props.gameState
+    !availableMoves.value ||
+    !gameState.value
   )
     return
 
@@ -61,14 +73,14 @@ const handleTriangleClick = async (position: number) => {
   }
 
   // Filtra le sequenze di mosse possibili solo quelle che contengono la mossa appena giocata
-  $props.availableMoves.possible_moves =
-    $props.availableMoves.possible_moves.filter((seq: Move[]) => {
+  availableMoves.value.possible_moves =
+    availableMoves.value.possible_moves.filter((seq: Move[]) => {
       return seq[0].from === currentMove.from && seq[0].to === currentMove.to
     })
 
   // rimuovo dalle sequenze possibili la mossa appena giocata
-  $props.availableMoves.possible_moves =
-    $props.availableMoves.possible_moves.map((seq: Move[]) => {
+  availableMoves.value.possible_moves = availableMoves.value.possible_moves.map(
+    (seq: Move[]) => {
       let removed = false
       return seq.filter(move => {
         if (
@@ -81,41 +93,42 @@ const handleTriangleClick = async (position: number) => {
         }
         return true
       })
-    })
-  console.log('sequenze possibili', $props.availableMoves.possible_moves)
+    },
+  )
+  console.log('sequenze possibili', availableMoves.value.possible_moves)
 
-  if ($props.gameState.current_player === 'p1') {
+  if (gameState.value.current_player === 'p1') {
     console.log('moving checker')
-    if ($props.gameState.p2checkers[25 - position] === 1) {
+    if (gameState.value.p2checkers[25 - position] === 1) {
       // Capture the opponent's checker
-      $props.gameState.p2checkers[25 - position] = 0
-      $props.gameState.p2checkers[0]++
+      gameState.value.p2checkers[25 - position] = 0
+      gameState.value.p2checkers[0]++
     }
   } else {
     console.log('moving checker')
-    if ($props.gameState.p1checkers[25 - position] === 1) {
+    if (gameState.value.p1checkers[25 - position] === 1) {
       // Capture the opponent's checker
-      $props.gameState.p1checkers[25 - position] = 0
-      $props.gameState.p1checkers[0]++
+      gameState.value.p1checkers[25 - position] = 0
+      gameState.value.p1checkers[0]++
     }
   }
 
-  // Aggiorna il $props.gameState per mostrare la mossa appena giocata sulla board
-  if ($props.gameState.current_player === 'p1') {
-    $props.gameState.p1checkers[currentMove.from]--
+  // Aggiorna il gameState.value per mostrare la mossa appena giocata sulla board
+  if (gameState.value.current_player === 'p1') {
+    gameState.value.p1checkers[currentMove.from]--
     if (currentMove.to !== 25) {
       // Solo se non è una mossa di uscita
-      $props.gameState.p1checkers[currentMove.to]++
+      gameState.value.p1checkers[currentMove.to]++
     }
   } else {
-    $props.gameState.p2checkers[currentMove.from]--
+    gameState.value.p2checkers[currentMove.from]--
     if (currentMove.to !== 25) {
       // Solo se non è una mossa di uscita
-      $props.gameState.p2checkers[currentMove.to]++
+      gameState.value.p2checkers[currentMove.to]++
     }
   }
 
-  if ($props.gameState.game_type === 'online') {
+  if (gameState.value.game_type === 'online') {
     $emits('ws-message', {
       type: 'move_made',
       payload: JSON.stringify({
@@ -132,9 +145,9 @@ const handleTriangleClick = async (position: number) => {
   selectedChecker.value = null
   possibleMoves.value = []
 
-  const hasPossibleMoves = $props.availableMoves.possible_moves?.length > 0
+  const hasPossibleMoves = availableMoves.value.possible_moves?.length > 0
   let hasUsedBothDices = movesToSubmit.value.length === 2
-  if ($props.availableMoves.dices[0] == $props.availableMoves.dices[1]) {
+  if (availableMoves.value.dices[0] == availableMoves.value.dices[1]) {
     hasUsedBothDices = movesToSubmit.value.length === 4
   }
 
@@ -142,12 +155,11 @@ const handleTriangleClick = async (position: number) => {
     try {
       await submitMoves()
       resetDiceState()
-      if ($props.gameState.game_type !== 'online') {
+      if (gameState.value.game_type !== 'online') {
         $emits('fetch-game-state')
         $emits('fetch-moves')
       } else {
         $emits('stop-timer')
-        isMyTurn.value = false
       }
     } catch (err) {
       console.error('Error submitting moves:', err)
@@ -156,13 +168,12 @@ const handleTriangleClick = async (position: number) => {
 }
 
 const getCheckers = () => {
-  console.log('Getting checkers', $props.gameState)
-  if (!$props.gameState) return []
+  console.log('Getting checkers', gameState.value)
+  if (!gameState.value) return []
 
   const checkers: Checker[] = []
 
-  // Aggiungi pedine del player 1 (bianche)
-  $props.gameState.p1checkers.forEach((count: any, position: any) => {
+  gameState.value.p1checkers.forEach((count: any, position: any) => {
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'black',
@@ -172,8 +183,7 @@ const getCheckers = () => {
     }
   })
 
-  // Aggiungi pedine del player 2 (nere)
-  $props.gameState.p2checkers.forEach((count: any, position: any) => {
+  gameState.value.p2checkers.forEach((count: any, position: any) => {
     for (let i = 0; i < count; i++) {
       checkers.push({
         color: 'white',
@@ -188,23 +198,23 @@ const getCheckers = () => {
 
 const isCheckerSelectable = (checker: Checker) => {
   console.log('isCheckerSelectable', checker)
-  console.log('gameState', $props.gameState)
+  console.log('gameState', gameState.value)
   console.log('diceRolled', diceRolled.value)
-  if (!$props.gameState || !diceRolled.value) return false
+  if (!gameState.value || !diceRolled.value) return false
 
   const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
 
   console.log('here 1')
-  console.log($props.gameState.current_player)
-  if (checkerPlayer !== $props.gameState.current_player) return false
+  console.log(gameState.value.current_player)
+  if (checkerPlayer !== gameState.value.current_player) return false
   console.log('here 2')
 
   // Check if the player has any checkers in position 0 (the bar)
   let barCheckersCount = 0
   if (checkerPlayer === 'p1') {
-    barCheckersCount = $props.gameState.p1checkers[0]
+    barCheckersCount = gameState.value.p1checkers[0]
   } else {
-    barCheckersCount = $props.gameState.p2checkers[0]
+    barCheckersCount = gameState.value.p2checkers[0]
   }
 
   // If the player has checkers on the bar Only the top checker in position 0 is selectable
@@ -215,9 +225,9 @@ const isCheckerSelectable = (checker: Checker) => {
   // Ottieni il numero totale di pedine nella posizione della pedina per questo giocatore
   let totalCheckersAtPosition = 0
   if (checkerPlayer === 'p1') {
-    totalCheckersAtPosition = $props.gameState.p1checkers[checker.position]
+    totalCheckersAtPosition = gameState.value.p1checkers[checker.position]
   } else {
-    totalCheckersAtPosition = $props.gameState.p2checkers[checker.position]
+    totalCheckersAtPosition = gameState.value.p2checkers[checker.position]
   }
 
   // Solo la pedina in cima (con stackIndex più alto) è selezionabile
@@ -237,9 +247,9 @@ const isCheckerSelected = (checker: Checker) => {
 
 const handleCheckerClick = (checker: Checker) => {
   console.log('handleCheckerClick', checker)
-  console.log('available-moves', $props.availableMoves)
+  console.log('available-moves', availableMoves.value)
   console.log('isCheckerSelectable', isCheckerSelectable(checker))
-  if (!$props.availableMoves || !isCheckerSelectable(checker)) return
+  if (!availableMoves.value || !isCheckerSelectable(checker)) return
   console.log(checker)
   if (
     selectedChecker.value &&
@@ -251,11 +261,11 @@ const handleCheckerClick = (checker: Checker) => {
     return
   }
 
-  console.log('mosse possibili', $props.availableMoves.possible_moves.length)
+  console.log('mosse possibili', availableMoves.value.possible_moves.length)
 
   if (
-    $props.availableMoves.possible_moves.length === 0 ||
-    $props.availableMoves.possible_moves.every(
+    availableMoves.value.possible_moves.length === 0 ||
+    availableMoves.value.possible_moves.every(
       (sequence: Move[]) => sequence.length === 0,
     )
   ) {
@@ -271,7 +281,7 @@ const handleCheckerClick = (checker: Checker) => {
   selectedChecker.value = checker
   possibleMoves.value = [
     ...new Set(
-      $props.availableMoves.possible_moves
+      availableMoves.value.possible_moves
         .map((seq: Move[]) => seq[0]) // Prendo solo la prima mossa di ogni sequenza
         .filter((move: Move) => move.from === checker.position)
         .map((move: Move) => move.to),
@@ -281,7 +291,7 @@ const handleCheckerClick = (checker: Checker) => {
 }
 
 const getOutCheckers = (player: 'p1' | 'p2' | string) => {
-  if (!$props.gameState) return 0
+  if (!gameState.value) return 0
 
   // Calcola il numero totale di pedine iniziali (15)
   const initialCheckers = 15
@@ -289,11 +299,11 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
   // Calcola il numero di pedine ancora sulla board
   const remainingCheckers =
     player === 'p1'
-      ? $props.gameState.p1checkers.reduce(
+      ? gameState.value.p1checkers.reduce(
           (acc: any, curr: any) => acc + curr,
           0,
         )
-      : $props.gameState.p2checkers.reduce(
+      : gameState.value.p2checkers.reduce(
           (acc: any, curr: any) => acc + curr,
           0,
         )
@@ -343,7 +353,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
               stroke="black"
               stroke-width="1"
               @click="
-                $props.gameState?.current_player === 'p2'
+                gameState?.current_player === 'p2'
                   ? handleTriangleClick(position)
                   : handleTriangleClick(25 - position)
               "
@@ -355,7 +365,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
             v-for="(position, index) in possibleMoves"
             :key="`highlight-${index}`"
             :d="
-              $props.gameState?.current_player === 'p2'
+              gameState?.current_player === 'p2'
                 ? getTrianglePath(position)
                 : getTrianglePath(25 - position)
             "
@@ -369,7 +379,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
             v-for="(checker, index) in getCheckers()"
             :key="`checker-${index}`"
             :cx="getCheckerX(checker)"
-            :cy="getCheckerY(checker, $props.gameState as GameState)"
+            :cy="getCheckerY(checker, gameState as GameState)"
             :r="BOARD.checkerRadius"
             :fill="checker.color"
             :stroke="checker.color === 'white' ? 'black' : 'blue'"
@@ -398,7 +408,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
         :diceRolled="diceRolled"
         :displayedDice="displayedDice"
         :isRolling="isRolling"
-        :canRoll="!diceRolled && !!availableMoves?.dices"
+        :canRoll="true"
         @roll="handleDiceRoll(availableMoves)"
       />
 

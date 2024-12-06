@@ -132,7 +132,7 @@ const whichPlayerAmI = computed(() => {
 })
 
 const handleReturnHome = () => {
-  router.push('/')
+  router.push({ name: 'home' })
 }
 
 const exitGame = async () => {
@@ -142,6 +142,11 @@ const exitGame = async () => {
   } catch (err) {
     console.error('Error exiting game:', err)
   }
+}
+
+const handleStopTimer = () => {
+  isMyTurn.value = false
+  stopTimer()
 }
 
 function sendWSMessage(message: WSMessage) {
@@ -198,14 +203,14 @@ function sendWSMessage(message: WSMessage) {
       <!-- Board Div -->
 
       <Board
-        v-if="gameState"
+        v-if="gameState && availableMoves"
         :gameState="gameState"
         :availableMoves="availableMoves"
         :isMyTurn="isMyTurn"
         @ws-message="sendWSMessage"
         @fetch-moves="fetchMoves"
         @fetch-game-state="fetchGameState"
-        @stop-timer="stopTimer"
+        @stop-timer="handleStopTimer"
       />
     </div>
 
