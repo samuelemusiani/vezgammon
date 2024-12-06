@@ -240,28 +240,18 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 
-	var status string
 	var opponentID int64
 	if g.Player1 == userId { // Player 1 surrended, player 2 wins
-		status = types.GameStatusWinP2
 		opponentID = g.Player2
 	} else {
-		status = types.GameStatusWinP1
 		opponentID = g.Player1
 	}
 
-	g.Status = status
-	err = db.UpdateGame(g)
+	err = endGame(g, opponentID)
 	if err != nil {
-		slog.With("error", err).Error("Updating game in /play [delete]")
+		slog.With("error", err).Error("Error ending game properly")
 		c.JSON(http.StatusInternalServerError, err)
 		return
-	}
-
-	// Send notification to the other player that the game is over
-	err = ws.GameEnd(opponentID)
-	if err != nil {
-		slog.With("error", err).Error("Sending message to player")
 	}
 
 	c.JSON(http.StatusCreated, "Surrended")
