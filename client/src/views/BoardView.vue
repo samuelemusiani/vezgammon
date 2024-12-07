@@ -211,7 +211,7 @@ function sendWSMessage(message: WSMessage) {
 
       <!-- Board Div -->
       <Board
-        v-if="gameState && availableMoves"
+        v-if="gameState"
         :gameState="gameState"
         :availableMoves="availableMoves"
         :isMyTurn="isMyTurn"
