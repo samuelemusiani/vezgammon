@@ -353,15 +353,16 @@ func GetStats(user_id int64) (*types.Stats, error) {
 				stats.Elo = append(stats.Elo, game.Elo2)
 			}
 		}
-		// current elo after last game
-		stats.Elo = append(stats.Elo, u.Elo)
 	}
 
-	if len(stats.Gameplayed) == 0 {
+	// current elo after last game
+	stats.Elo = append(stats.Elo, u.Elo)
+
+	if stats.Online == 0 {
 		stats.Winrate = 0
 	} else {
-		// no local games
-		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(len(stats.Gameplayed)))*100)) / 100
+		// online games only
+		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(stats.Online))*100)) / 100
 	}
 
 	stats.Leaderboard, err = getLeaderboard()

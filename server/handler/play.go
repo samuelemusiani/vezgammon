@@ -548,8 +548,12 @@ func PlayMoves(c *gin.Context) {
 			c.JSON(http.StatusInternalServerError, err)
 			return
 		}
-		slog.With("opponentID", opponentID).Debug("Turn made")
-		ws.TurnMade(opponentID)
+
+		// We do not need to send a message if we are playing local
+		if g.Player1 != g.Player2 {
+			slog.With("opponentID", opponentID).Debug("Turn made")
+			ws.TurnMade(opponentID)
+		}
 	}
 
 	c.JSON(http.StatusCreated, "Moves played")

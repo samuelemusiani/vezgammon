@@ -11,7 +11,6 @@ import DiceContainer from '@/components/game/DiceContainer.vue'
 import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
 
 import { useGameMoves } from '@/composables/useGameMoves'
-import { useDiceRoll } from '@/composables/useDiceRoll'
 import { ref, watch } from 'vue'
 
 import {
@@ -25,8 +24,16 @@ import {
 const $props = defineProps<{
   gameState: GameState
   availableMoves: MovesResponse | null
-  isMyTurn?: boolean | null
+  isMyTurn?: boolean
   dicesReplay?: number[]
+  diceRolled: boolean
+  isRolling: boolean
+  displayedDice: number[]
+  resetDiceState: () => void
+  handleDiceRoll: (
+    availableMoves: MovesResponse | null,
+    online: boolean,
+  ) => void
 }>()
 
 const availableMoves = ref($props.availableMoves)
@@ -48,9 +55,6 @@ watch(
 
 const { selectedChecker, possibleMoves, movesToSubmit, submitMoves } =
   useGameMoves()
-
-const { diceRolled, resetDiceState, isRolling, displayedDice, handleDiceRoll } =
-  useDiceRoll()
 
 const $emits = defineEmits<{
   (e: 'ws-message', payload: WSMessage): void
@@ -155,7 +159,7 @@ const handleTriangleClick = async (position: number) => {
   if (hasUsedBothDices || !hasPossibleMoves) {
     try {
       await submitMoves()
-      resetDiceState()
+      $props.resetDiceState()
       if (gameState.value.game_type !== 'online') {
         $emits('fetch-game-state')
         $emits('fetch-moves')
@@ -169,7 +173,6 @@ const handleTriangleClick = async (position: number) => {
 }
 
 const getCheckers = () => {
-  console.log('Getting checkers', gameState.value)
   if (!gameState.value) return []
 
   const checkers: Checker[] = []
@@ -200,8 +203,8 @@ const getCheckers = () => {
 const isCheckerSelectable = (checker: Checker) => {
   console.log('isCheckerSelectable', checker)
   console.log('gameState', gameState.value)
-  console.log('diceRolled', diceRolled.value)
-  if (!gameState.value || !diceRolled.value) return false
+  console.log('diceRolled', $props.diceRolled)
+  if (!gameState.value || !$props.diceRolled) return false
 
   const checkerPlayer = checker.color === 'black' ? 'p1' : 'p2'
 
@@ -409,9 +412,9 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
         :diceRolled="diceRolled"
         :displayedDice="displayedDice"
         :isRolling="isRolling"
-        :canRoll="true"
+        :canRoll="isMyTurn as boolean"
         :dicesReplay="dicesReplay"
-        @roll="handleDiceRoll(availableMoves)"
+        @roll="handleDiceRoll(availableMoves, gameState.game_type === 'online')"
       />
 
       <!-- Captured Checkers -->

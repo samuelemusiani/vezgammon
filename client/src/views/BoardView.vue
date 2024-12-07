@@ -26,13 +26,21 @@ const {
   gameState,
   availableMoves,
   session,
+  isMyTurn,
   fetchGameState,
   fetchMoves,
   fetchSession,
 } = useGameState()
-const { timeLeft, isMyTurn, startTimer, stopTimer } = useGameTimer()
+const { timeLeft, startTimer, stopTimer } = useGameTimer()
 
-const { showDiceFromOpponent } = useDiceRoll()
+const {
+  diceRolled,
+  resetDiceState,
+  isRolling,
+  displayedDice,
+  handleDiceRoll,
+  showDiceFromOpponent,
+} = useDiceRoll()
 const {
   showResultModal,
   handleLose,
@@ -62,6 +70,7 @@ onMounted(async () => {
     await fetchSession()
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
+
     if (isMyTurn.value && gameState.value?.game_type === 'online') {
       startTimer()
     }
@@ -79,7 +88,8 @@ const handleMessage = async (message: WSMessage) => {
   if (message.type === 'turn_made') {
     await fetchGameState()
     await fetchMoves()
-    startTimer()
+    resetDiceState()
+    if (gameState.value?.game_type === 'online') startTimer()
     isMyTurn.value = true
   } else if (message.type === 'want_to_double') {
     showDoubleModal.value = true
@@ -87,7 +97,8 @@ const handleMessage = async (message: WSMessage) => {
     await fetchGameState()
   } else if (message.type === 'dice_rolled') {
     const diceData = JSON.parse(message.payload)
-    showDiceFromOpponent(diceData.dices)
+    console.log('Dice rolled:', diceData)
+    showDiceFromOpponent(diceData)
   } else if (message.type === 'game_end') {
     await handleEnd(session.value)
   } else if (message.type === 'move_made') {
@@ -158,6 +169,12 @@ const handleStopTimer = () => {
   stopTimer()
 }
 
+const handleAcceptDouble = async () => {
+  showDoubleModal.value = false
+  await acceptDouble()
+  await fetchGameState()
+}
+
 function sendWSMessage(message: WSMessage) {
   webSocketStore.sendMessage(message)
 }
@@ -189,14 +206,17 @@ function sendWSMessage(message: WSMessage) {
           <!-- Double Dice Here -->
           <DoubleDice
             :doubleValue="gameState?.double_value || 1"
-            :showDoubleButton="showDoubleButton"
+            :showDoubleButton="showDoubleButton && isMyTurn"
             @double="handleDouble"
           />
           <!-- Game Timer -->
           <div
             class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
           >
-            <GameTimer :timeLeft="timeLeft" :isMyTurn="isMyTurn" />
+            <GameTimer
+              :timeLeft="timeLeft"
+              :isMyTurn="isMyTurn && gameState?.game_type === 'online'"
+            />
             <button class="retro-button" @click="exitGame">Exit Game</button>
           </div>
 
@@ -211,10 +231,15 @@ function sendWSMessage(message: WSMessage) {
 
       <!-- Board Div -->
       <Board
-        v-if="gameState && availableMoves"
+        v-if="gameState"
         :gameState="gameState"
         :availableMoves="availableMoves"
         :isMyTurn="isMyTurn"
+        :diceRolled="diceRolled"
+        :resetDiceState="resetDiceState"
+        :isRolling="isRolling"
+        :displayedDice="displayedDice"
+        :handleDiceRoll="handleDiceRoll"
         @ws-message="sendWSMessage"
         @fetch-moves="fetchMoves"
         @fetch-game-state="fetchGameState"
@@ -242,7 +267,7 @@ function sendWSMessage(message: WSMessage) {
       confirmText="Confirm"
       cancelText="Cancel"
       confirmVariant="success"
-      @confirm="acceptDouble"
+      @confirm="handleAcceptDouble"
       @cancel="declineDouble"
     >
       Your opponent has offered a double. Do you accept?

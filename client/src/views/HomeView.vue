@@ -108,13 +108,6 @@
             >
               Play Tutorial
             </button>
-            <button
-              @mouseenter="(e: MouseEvent) => play()"
-              @click="showTournamentMenu"
-              class="retro-button"
-            >
-              Tournaments
-            </button>
           </template>
 
           <template v-else-if="modals === 1">

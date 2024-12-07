@@ -1,6 +1,6 @@
 package types
 
-const DefaultElo = 1000
+const DefaultElo = 800
 
 type User struct {
 	ID        int64  `json:"id" example:"1"`
