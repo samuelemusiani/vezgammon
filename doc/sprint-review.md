@@ -55,3 +55,28 @@ Il team ha accumulato un debito tecnico significativo durante lo sprint. La gest
 La sfida principale di questo sprint è stata l'integrazione del progetto con le API del bot. Il team front-end ha inizialmente implementato una versione semplificata del bot per completare la user story #100, ma questa soluzione temporanea ha richiesto successivamente un significativo refactoring per l'integrazione con il back-end. L'implementazione della soluzione definitiva, sebbene più impegnativa in termini di tempo e risorse, si è resa necessaria verso la fine dello sprint.
 Gli investimenti effettuati durante il primo sprint per la creazione di un'infrastruttura solida si sono rivelati preziosi, accelerando lo sviluppo del progetto grazie a un ambiente stabile e ben configurato. L'implementazione del sistema CI/CD ha automatizzato con successo i processi di deploy e test. Inoltre, la configurazione di un [servizio](status.vezgammon.it) di monitoraggio ha permesso di osservare in tempo reale le statistiche dei container in esecuzione, facilitando la rapida risoluzione di eventuali problemi di accessibilità.
 Si è inoltre evidenziato un accumulo significativo di user stories nel backlog, che difficilmente potranno essere completate entro la conclusione del progetto. Queste sono state pertanto classificate come potenziali sviluppi futuri, nell'eventualità di una continuazione del progetto.
+
+
+## Sprint 3
+
+### Completato
+- #25: come utente, voglio tener traccia dei miei progressi nel gioco
+- #99: come giocatore, voglio poter giocare una partita online
+- #34: come studente, voglio essere in grado di analizzare le partite giocate
+- #28: come giocatore, voglio poter scegliere vari temi grafici e ambientazioni
+- #33: come giocatore, voglio ricevere dei badge digitali come ricompense
+- #37: come giocatore, socievole voglio poter comunicare con i miei avversari con chat o chiamata
+- #38: come studente, voglio poter accedere a risorse di addestramento
+- #39: come influencer, voglio essere in grado di condividere i miei progressi sui social media
+
+### Debito Tecnico
+
+Nulla
+
+### Problematiche riscontrate
+
+Durante questo sprint è stato effettuato un importante refactor della board, che inizialmente contava oltre 1.000 linee di codice. La suddivisione in più componenti ha permesso di eliminare una delle principali cause del debito tecnico accumulato, migliorando significativamente la leggibilità e la manutenibilità del codice.
+
+Nonostante una lieve sovrastima del carico di lavoro che si pensava di poter completare, il grafico di Taiga è rimasto coerente e ben strutturato, dimostrando un'adeguata pianificazione complessiva. Tutto ciò che era stato pianificato è stato comunque completato con successo, grazie a un team ben coordinato e a una comunicazione costante e produttiva.
+
+Di comune accordo, il team ha deciso di aggiungere un ultimo sprint. Questo sarà dedicato al completamento delle poche feature ancora presenti nel backlog, nonché a un lavoro intenso di refactor e test. L’obiettivo è garantire che il prodotto finale sia solido, ottimizzato e pronto per l’uso con standard qualitativi elevati.

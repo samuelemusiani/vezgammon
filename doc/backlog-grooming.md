@@ -32,3 +32,20 @@
 
 
 ## Sprint 3
+![backlog-graph](./imgs/s3-backlog-burndown.png)
+![backlog-snapshot-1](./imgs/s3-backlog-snapshot-1.png)
+![backlog-snapshot-2](./imgs/s3-backlog-snapshot-2.png)
+![backlog-snapshot-3](./imgs/s3-backlog-snapshot-3.png)
+
+#### Completato
+- progressi e statistiche
+- partita online
+- analizzare le partite giocate
+- temi alternativi
+- badge digitali
+- chat partita
+- risorse di addestramento (breve tutorial)
+- condivisione dei progressi sui sociaò
+
+#### Debito tecnico
+Nulla
