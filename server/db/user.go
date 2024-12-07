@@ -131,7 +131,7 @@ func GetUsers() ([]types.User, error) {
 	for rows.Next() {
 		var tmp types.User
 		var pass string
-		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo, &tmp.IsBot)
+		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo, &tmp.Avatar, &tmp.IsBot)
 		if err != nil {
 			return nil, err
 		}
