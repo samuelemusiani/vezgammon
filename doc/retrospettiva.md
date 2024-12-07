@@ -117,13 +117,13 @@ Valutazioni: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
 | ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |
-| Scrum Master     | 😃       |            |  😃       |         |            | 😃     |
-| Product Owner    | 😃       |            |  😃       |         |            | 😃     |                                             
-| Development Team | 😃       |            |  😃       |         |            | 😃     | 
-| Product Backlog  | 😃       |            |  😃       |         |            | 😃     | 
-| Sprint Planning  | 😃       |            |  😃       |         |            | 😃     | 
-| Sprint Goal      | 😃       |            |  😃       |         |            | 😃     | 
-| Self Menagement  | 😃       |            |  😃       |         |            | 😃     | 
+| Scrum Master     | 😃       |            |  😃       |         |  😃          | 😃     |
+| Product Owner    | 😃       |            |  😃       |         |  😃          | 😃     |
+| Development Team | 😃       |            |  😃       |         |  😃          | 😃     |
+| Product Backlog  | 😃       |            |  😃       |         |  😃          | 😃     |
+| Sprint Planning  | 😃       |            |  😃       |         |  😃          | 😃     |
+| Sprint Goal      | 😃       |            |  😃       |         |  😃          | 😃     |
+| Self Menagement  | 😃       |            |  😃       |         |  😐          | 😃     |
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
@@ -134,3 +134,9 @@ Sprint eccezionale, con obiettivi quasi completamente raggiunti. Diversi meeting
 
 #### Developer - Samuele Musiani
 Sprint decisamente positivo sotto molteplici aspetti. Il team di sviluppo ha dimostrato un'ottima cooperazione che ha portato al completamento di quasi tutte le US con un anticipo notevole rispetto alle tempistiche preventivate. Il team ha inoltre dimostrato una completa padronanza degli strumenti utilizzati, potendo quindi focalizzare le proprie risorse principalmente sulle attività di implementazione, ottimizzando così l'efficienza dell'intero processo di sviluppo. Questo sprint testimonia la maturità del team e pone solide basi per il proseguimento del progetto.
+
+#### Developer - Emanuele Argonni
+Sicuramente il migliore sprint fino ad ora, siamo riusciti a completare quasi tutte le task assegnate, nonostante avessimo un importante debito derivato dagli sprint precedenti.
+Il team dei developer ha lavorato bene e si è dimostrato molto collaborativo. Il lavoro di squadra è stato fondamentale per il raggiungimento degli obiettivi.
+Il pair programming è stato molto utile per l'integrazione backend-frontend e per risolvere i problemi che si sono presentati durante lo sprint.
+Terminate le task assegnate, ci siamo dedicati al refactor del codice per migliorare la chiarezza e la manutenibilità del codice.
