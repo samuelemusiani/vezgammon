@@ -15,6 +15,26 @@ const docTemplate = `{
     "host": "{{.Host}}",
     "basePath": "{{.BasePath}}",
     "paths": {
+        "/avatar": {
+            "patch": {
+                "description": "Change user avatar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Change user avatar image",
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/badge": {
             "get": {
                 "description": "Get user's badges",
@@ -23,6 +43,9 @@ const docTemplate = `{
                 ],
                 "produces": [
                     "application/json"
+                ],
+                "tags": [
+                    ""
                 ],
                 "summary": "Get user's badges",
                 "responses": {
@@ -94,6 +117,40 @@ const docTemplate = `{
                     },
                     "500": {
                         "description": "Logout failed"
+                    }
+                }
+            }
+        },
+        "/pass": {
+            "patch": {
+                "description": "Change password given the old and new pass",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "authentication"
+                ],
+                "summary": "Change password of the user",
+                "parameters": [
+                    {
+                        "description": "old and new password",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.changePasswordType"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK"
+                    },
+                    "500": {
+                        "description": "error"
                     }
                 }
             }
@@ -529,6 +586,44 @@ const docTemplate = `{
                 }
             }
         },
+        "/player/{username}/avatar": {
+            "get": {
+                "description": "Return the player avatar",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "public"
+                ],
+                "summary": "Return the player avatar",
+                "parameters": [
+                    {
+                        "type": "string",
+                        "description": "username string",
+                        "name": "username",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "404": {
+                        "description": "User not found"
+                    },
+                    "500": {
+                        "description": "error"
+                    }
+                }
+            }
+        },
         "/register": {
             "post": {
                 "description": "Register new user",
@@ -938,6 +1033,17 @@ const docTemplate = `{
         }
     },
     "definitions": {
+        "handler.changePasswordType": {
+            "type": "object",
+            "properties": {
+                "new_pass": {
+                    "type": "string"
+                },
+                "old_pass": {
+                    "type": "string"
+                }
+            }
+        },
         "handler.createTurnamentRequest": {
             "type": "object",
             "properties": {
@@ -950,6 +1056,10 @@ const docTemplate = `{
         "handler.customUser": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "robot"
+                },
                 "firstname": {
                     "type": "string",
                     "example": "giorgio"
@@ -1387,6 +1497,10 @@ const docTemplate = `{
         "types.User": {
             "type": "object",
             "properties": {
+                "avatar": {
+                    "type": "string",
+                    "example": "robot"
+                },
                 "elo": {
                     "type": "integer",
                     "example": 1000

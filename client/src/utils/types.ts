@@ -8,6 +8,7 @@ export interface User {
   mail: string
   is_bot: boolean
   elo: number
+  avatar: string
 }
 
 export interface WSMessage {

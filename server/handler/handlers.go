@@ -28,6 +28,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	// middleware for backend API
 	protected := router.Group("/api")
 	protected.GET("/player/:username", GetPlayer)
+	protected.GET("/player/:username/avatar", GetPlayerAvatar)
 
 	protected.Use(AuthMiddleware())
 
@@ -39,6 +40,8 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.GET("/stats", GetStats)
 	protected.GET("/badge", GetBadge)
 	protected.POST("/replay", GetReplay)
+	protected.PATCH("/avatar", ChangeAvatar)
+	protected.PATCH("/pass", ChangePass)
 
 	playGroup := protected.Group("/play")
 	playGroup.GET("/last/winner", GetLastGameWinner)

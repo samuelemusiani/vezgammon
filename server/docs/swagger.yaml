@@ -1,4 +1,11 @@
 definitions:
+  handler.changePasswordType:
+    properties:
+      new_pass:
+        type: string
+      old_pass:
+        type: string
+    type: object
   handler.createTurnamentRequest:
     properties:
       name:
@@ -7,6 +14,9 @@ definitions:
     type: object
   handler.customUser:
     properties:
+      avatar:
+        example: robot
+        type: string
       firstname:
         example: giorgio
         type: string
@@ -309,6 +319,9 @@ definitions:
     type: object
   types.User:
     properties:
+      avatar:
+        example: robot
+        type: string
       elo:
         example: 1000
         type: integer
@@ -334,6 +347,19 @@ definitions:
 info:
   contact: {}
 paths:
+  /avatar:
+    patch:
+      consumes:
+      - application/json
+      description: Change user avatar
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: error
+      summary: Change user avatar image
   /badge:
     get:
       consumes:
@@ -349,6 +375,8 @@ paths:
         "500":
           description: error
       summary: Get user's badges
+      tags:
+      - ""
   /login:
     post:
       consumes:
@@ -386,6 +414,28 @@ paths:
         "500":
           description: Logout failed
       summary: Logout
+      tags:
+      - authentication
+  /pass:
+    patch:
+      consumes:
+      - application/json
+      description: Change password given the old and new pass
+      parameters:
+      - description: old and new password
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/handler.changePasswordType'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+        "500":
+          description: error
+      summary: Change password of the user
       tags:
       - authentication
   /play:
@@ -669,6 +719,31 @@ paths:
         "500":
           description: error
       summary: Get users' stats WITHOUT AUTH
+      tags:
+      - public
+  /player/{username}/avatar:
+    get:
+      consumes:
+      - application/json
+      description: Return the player avatar
+      parameters:
+      - description: username string
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: User not found
+        "500":
+          description: error
+      summary: Return the player avatar
       tags:
       - public
   /register:
