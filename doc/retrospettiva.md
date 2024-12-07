@@ -115,15 +115,15 @@ Dall'analisi delle opinioni raccolte emerge un miglioramento generale delle pres
 ## Sprint 3
 Valutazioni: 😃 😐 😡
 
-| Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
-| ---------------- | -------- | ---------- | --------- | ------- | ---------- | ------ |
-| Scrum Master     | 😃       |            |  😃       |         |  😃          | 😃     |
-| Product Owner    | 😃       |            |  😃       |         |  😃          | 😃     |
-| Development Team | 😃       |            |  😃       |         |  😃          | 😃     |
-| Product Backlog  | 😃       |            |  😃       |         |  😃          | 😃     |
-| Sprint Planning  | 😃       |            |  😃       |         |  😃          | 😃     |
-| Sprint Goal      | 😃       |            |  😃       |         |  😃          | 😃     |
-| Self Menagement  | 😃       |            |  😃       |         |  😐          | 😃     |
+| Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D   | Emanuele D | Omar D |
+| ---------------- | -------- | ---------- | --------- | --------- | ---------- | ------ |
+| Scrum Master     | 😃       |            |  😃        | 😃         |  😃          | 😃     |
+| Product Owner    | 😃       |            |  😃        | 😃         |  😃          | 😃     |
+| Development Team | 😃       |            |  😃        | 😃         |  😃          | 😃     |
+| Product Backlog  | 😃       |            |  😃        | 😃         |  😃          | 😃     |
+| Sprint Planning  | 😃       |            |  😃        | 😃         |  😃          | 😃     |
+| Sprint Goal      | 😃       |            |  😃        | 😃         |  😃          | 😃     |
+| Self Menagement  | 😃       |            |  😃        | 😃         |  😐          | 😃     |
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
