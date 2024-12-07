@@ -231,7 +231,7 @@ func Logout(sessionToken string) error {
 }
 
 func GetUserByUsername(username string) (*types.User, error) {
-	q := `SELECT id, username, firstname, lastname, mail, elo
+	q := `SELECT id, username, firstname, lastname, mail, elo, avatar
           FROM users
           WHERE username = $1`
 
@@ -243,6 +243,7 @@ func GetUserByUsername(username string) (*types.User, error) {
 		&tmp.Lastname,
 		&tmp.Mail,
 		&tmp.Elo,
+		&tmp.Avatar,
 	)
 
 	if err != nil {
