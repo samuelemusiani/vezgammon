@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+
 	//"time"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
@@ -22,6 +23,7 @@ type customUser struct {
 	Firstname string `json:"firstname" example:"giorgio"`
 	Lastname  string `json:"lastname" example:"rossi"`
 	Mail      string `json:"mail" example:"giorossi@mail.it"`
+	Avatar    string `json:"avatar" example:"robot"`
 }
 
 // @Summary Register new user
@@ -60,11 +62,14 @@ func Register(c *gin.Context) {
 		return
 	}
 
+	avatar := "https://api.dicebear.com/6.x/avataaars/svg?seed=" + tempu.Username // default avatar from username
+
 	u := types.User{
 		Username:  tempu.Username,
 		Firstname: tempu.Firstname,
 		Lastname:  tempu.Lastname,
 		Mail:      tempu.Mail,
+		Avatar:    avatar,
 	}
 
 	retu, err := db.CreateUser(u, string(hash))
@@ -289,6 +294,32 @@ func GetPlayer(c *gin.Context) {
 	GetStats(c)
 }
 
+// @Summary Return the player avatar
+// @Description Return the player avatar
+// @Tags public
+// @Accept json
+// @Produce json
+// @Param username path string true "username string"
+// @Success 200  string https://api.dicebear.com/9.x/adventurer/svg?seed=Maria
+// @Failure 404  "User not found"
+// @Failure 500 "error"
+// @Router /player/{username}/avatar [get]
+func GetPlayerAvatar(c *gin.Context) {
+	username := c.Param("username")
+
+	u, err := db.GetUserByUsername(username)
+	if err != nil {
+		if err == db.UserNotFound {
+			c.JSON(http.StatusNotFound, "User not found")
+			return
+		}
+		c.JSON(http.StatusInternalServerError, "")
+		return
+	}
+
+	c.JSON(http.StatusOK, u.Avatar)
+}
+
 /*
 func GetAllUsers(c *gin.Context) {
 	users, err := db.GetUsers()
@@ -301,3 +332,111 @@ func GetAllUsers(c *gin.Context) {
 	c.JSON(http.StatusOK, users)
 }
 */
+
+// Return all the badges user acquired
+// @Summary Get user's badges
+// @Schemes
+// @Description Get user's badges
+// @Tags
+// @Accept json
+// @Produce json
+// @Success 200 {object} types.Badge
+// @Failure 500 "error"
+// @Router /badge [get]
+func GetBadge(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	badge, err := db.GetBadge(user_id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+	}
+
+	slog.With("badge", badge).Debug("Badge")
+	c.JSON(http.StatusOK, badge)
+
+}
+
+type Avatar struct {
+	Avatar string `json:"avatar"`
+}
+
+// @Summary Change user avatar image
+// @Schemes
+// @Description Change user avatar
+// @Accept json
+// @Produce json
+// @Success 200
+// @Failure 500 "error"
+// @Router /avatar [patch]
+func ChangeAvatar(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	buff, err := io.ReadAll(c.Request.Body)
+	slog.With("buff", buff).Debug("Ohh allora")
+	if err != nil {
+		slog.With("err", err).Error("Reading body")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	var a Avatar
+	err = json.Unmarshal(buff, &a)
+	if err != nil {
+		slog.With("err", err).Debug("Bad request unmarshal request body")
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	slog.With("avatar reading", a).Debug("Avatar")
+	err = db.ChangeAvatar(user_id, a.Avatar)
+	if err != nil {
+		slog.With("err", err).Error("Chaning avatar")
+		c.JSON(http.StatusBadRequest, "Error chaning avatar")
+	}
+
+	c.JSON(http.StatusOK, "Avatar has been changed successfuly")
+}
+
+type changePasswordType struct {
+	NewPass string `json:"new_pass"`
+	OldPass string `json:"old_pass"`
+}
+
+// Change password
+// @Summary Change password of the user
+// @Schemes
+// @Description Change password given the old and new pass
+// @Tags authentication
+// @Accept json
+// @Param request body changePasswordType true "old and new password"
+// @Produce json
+// @Success 200
+// @Failure 500 "error"
+// @Router /pass [patch]
+func ChangePass(c *gin.Context) {
+	user_id := c.MustGet("user_id").(int64)
+
+	user, err := db.GetUser(user_id)
+	if err != nil {
+		slog.With("err", err).Error("Bad request")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	var s changePasswordType
+	if err := c.BindJSON(&s); err != nil {
+		slog.With("err", err).Error("Bad request unmarshal")
+		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		return
+	}
+
+	err = db.ChangePass(user.Username, s.NewPass, s.OldPass)
+	if err != nil {
+		slog.With("err", err).Debug("Changing password")
+		c.JSON(http.StatusInternalServerError, gin.H{"error": "Password change failed"})
+		return
+	}
+
+	c.JSON(http.StatusOK, gin.H{"message": "Password has been changed successfuly"})
+	return
+}

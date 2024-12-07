@@ -1,6 +1,7 @@
 package types
 
 import (
+	"database/sql"
 	"log/slog"
 	"math/rand"
 	"time"
@@ -84,7 +85,8 @@ type Game struct {
 
 	CurrentPlayer string `json:"current_player"`
 
-	Dices Dices `json:"dices"`
+	Dices      Dices         `json:"dices"`
+	Tournament sql.NullInt64 `json:"tournament"`
 }
 
 func (g *Game) PlayMove(moves []Move) {
@@ -121,6 +123,26 @@ func (g *Game) PlayMove(moves []Move) {
 	slog.With("checkers", opponentCheckers).Debug("Checkers")
 }
 
+func (g *Game) ToReturnGame(username1, username2 string) (rg ReturnGame) {
+	return ReturnGame{
+		ID:            g.ID,
+		Player1:       username1,
+		Elo1:          g.Elo1,
+		Player2:       username2,
+		Elo2:          g.Elo2,
+		Start:         g.Start,
+		End:           g.End,
+		Status:        g.Status,
+		P1Checkers:    g.P1Checkers,
+		P2Checkers:    g.P2Checkers,
+		DoubleValue:   g.DoubleValue,
+		DoubleOwner:   g.DoubleOwner,
+		WantToDouble:  g.WantToDouble,
+		CurrentPlayer: g.CurrentPlayer,
+		GameType:      GameTypeOnline,
+	}
+}
+
 const GameTypeLocal = "local"
 const GameTypeBot = "bot"
 const GameTypeOnline = "online"
@@ -147,4 +169,11 @@ type ReturnGame struct {
 	CurrentPlayer string `json:"current_player" example:"p1"`
 
 	GameType string `json:"game_type" example:"online"`
+
+	Tournament sql.NullInt64 `json:"tournament"`
+}
+
+type ReturnReplay struct {
+	Game  ReturnGame `json:"game"`
+	Dices Dices      `json:"dices"`
 }

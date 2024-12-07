@@ -15,13 +15,11 @@
         </div>
 
         <div v-if="sharingEnabled" class="card-actions mt-2 justify-center">
-          <FacebookShareButton
-            :url="gameShareUrl"
-            :title="shareTitle"
-            :description="shareDescription"
-          />
+          <TelegramShareButton :url="gameShareUrl" :title="shareTitle" />
+          <RedditShareButton :url="gameShareUrl" :title="shareTitle" />
           <BackToHomeButton @click="navigateHome" />
           <TwitterShareButton :url="gameShareUrl" :title="shareTitle" />
+          <WhatsappShareButton :url="gameShareUrl" :title="shareTitle" />
         </div>
         <div v-else class="card-actions mt-2 justify-center">
           <BackToHomeButton @click="navigateHome" />
@@ -32,30 +30,20 @@
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted, computed, defineProps } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import router from '@/router'
 
 import EloChart from '@/components/stats/EloChart.vue'
 import GamePerformanceCard from './GamePerformanceCard.vue'
 import RecentGamesCard from './RecentGamesCard.vue'
 import BackToHomeButton from '@/components/buttons/BackHome.vue'
-import FacebookShareButton from '@/components/buttons/FacebookShare.vue'
 import TwitterShareButton from '@/components/buttons/TwitterShare.vue'
+import RedditShareButton from '@/components/buttons/RedditShare.vue'
+import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
+import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
 
-import type { GameState } from '@/utils/game/types'
+import type { GameStats } from '@/utils/types'
 import type { User } from '@/utils/types'
-
-interface GameStats {
-  games_played: GameState[]
-  win: number
-  lost: number
-  winrate: number
-  elo: number[]
-  cpu: number
-  local: number
-  online: number
-  tournament: number
-}
 
 const stats = ref<GameStats>({
   games_played: [],
@@ -67,6 +55,7 @@ const stats = ref<GameStats>({
   local: 0,
   online: 0,
   tournament: 0,
+  leaderboard: [],
 })
 
 const props = withDefaults(
@@ -84,10 +73,6 @@ const currentUsername = ref<string | null>(null)
 const gameShareUrl = ref('')
 
 const shareTitle = computed(() => `Check out my Backgammon stats!`)
-const shareDescription = computed(
-  () =>
-    `Win Rate: ${stats.value.winrate}% | Games Played: ${stats.value.games_played.length || 0}`,
-)
 
 async function fetchUserStats() {
   let response

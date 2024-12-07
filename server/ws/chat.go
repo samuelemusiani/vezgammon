@@ -18,10 +18,11 @@ func chat(conn *websocket.Conn, user_id int64) {
 
 			if websocket.IsCloseError(err, websocket.CloseGoingAway) {
 				slog.Debug("Normal closure")
-				f, ok := disconnect[user_id]
+				value, ok := disconnect.Load(user_id)
 				if !ok {
 					break
 				}
+				f := value.(func(int64) error)
 				slog.Debug("Removing player from matchmaking queue")
 
 				err := f(user_id)

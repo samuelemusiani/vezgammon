@@ -3,12 +3,15 @@ import HomeView from '@/views/HomeView.vue'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ProfileView from '@/views/ProfileView.vue'
-
+import TournamentsView from '@/views/TournamentsView.vue'
+import TournamentLobbyView from '@/views/TournamentLobby.vue'
 import BoardView from '@/views/BoardView.vue'
 import StatsView from '@/views/StatsView.vue'
 import WipView from '@/views/WipView.vue'
 import PlayerStatsView from '@/views/PlayerStatsView.vue'
-import InviteView from '../views/InviteView.vue'
+import InviteView from '@/views/InviteView.vue'
+import AnalysisView from '@/views/AnalysisView.vue'
+import LeaderBoardView from '@/views/LeaderBoardView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -41,12 +44,28 @@ const router = createRouter({
     {
       path: '/game',
       name: 'game',
+      props: route => ({ variant: route.query.variant }),
       component: BoardView,
     },
     {
       path: '/player/:username',
       name: 'player',
       component: PlayerStatsView,
+    },
+    {
+      path: '/tournaments',
+      name: 'tournaments',
+      component: TournamentsView,
+    },
+    {
+      path: '/tournaments/:id',
+      name: 'tournament_lobby',
+      component: TournamentLobbyView,
+    },
+    {
+      path: '/leaderboard',
+      name: 'leaderboard',
+      component: LeaderBoardView,
     },
     {
       path: '/wip',
@@ -57,6 +76,11 @@ const router = createRouter({
       path: '/invite/:code',
       name: 'invite',
       component: InviteView,
+    },
+    {
+      path: '/analysis/:gameId',
+      name: 'analysis',
+      component: AnalysisView,
     },
     {
       path: '/about',

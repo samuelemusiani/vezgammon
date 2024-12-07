@@ -16,6 +16,11 @@ export interface Checker {
 
 export type Board = Checker[]
 
+export interface TournamentInfo {
+  Int64: number
+  Valid: boolean
+}
+
 export interface GameState {
   id: number
   player1: string
@@ -32,6 +37,7 @@ export interface GameState {
   double_owner: string
   want_to_double: boolean
   current_player: string
+  tournament: TournamentInfo
 }
 
 export interface APIResponse {

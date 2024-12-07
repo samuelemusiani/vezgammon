@@ -79,6 +79,7 @@ func initUser() error {
 		lastname BPCHAR,
 		mail BPCHAR UNIQUE,
     elo INTEGER NOT NULL,
+    avatar BPCHAR NOT NULL,
     is_bot BOOL DEFAULT FALSE
 	)`
 	_, err := Conn.Exec(q)
@@ -130,7 +131,7 @@ func GetUsers() ([]types.User, error) {
 	for rows.Next() {
 		var tmp types.User
 		var pass string
-		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo, &tmp.IsBot)
+		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo, &tmp.Avatar, &tmp.IsBot)
 		if err != nil {
 			return nil, err
 		}
@@ -208,9 +209,9 @@ func ValidateSessionToken(token string) (int64, error) {
 }
 
 func CreateUser(u types.User, password string) (types.User, error) {
-	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, is_bot)
-    VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING id`
-	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.IsBot)
+	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, avatar, is_bot)
+    VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
+	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.Avatar, u.IsBot)
 
 	var id int64
 	err := res.Scan(&id)
@@ -230,7 +231,7 @@ func Logout(sessionToken string) error {
 }
 
 func GetUserByUsername(username string) (*types.User, error) {
-	q := `SELECT id, username, firstname, lastname, mail, elo
+	q := `SELECT id, username, firstname, lastname, mail, elo, avatar
           FROM users
           WHERE username = $1`
 
@@ -242,6 +243,7 @@ func GetUserByUsername(username string) (*types.User, error) {
 		&tmp.Lastname,
 		&tmp.Mail,
 		&tmp.Elo,
+		&tmp.Avatar,
 	)
 
 	if err != nil {
@@ -255,7 +257,7 @@ func GetUserByUsername(username string) (*types.User, error) {
 }
 
 func GetUser(userId int64) (*types.User, error) {
-	q := `SELECT username, firstname, lastname, mail, elo
+	q := `SELECT username, firstname, lastname, mail, elo, avatar
           FROM users
           WHERE id = $1`
 
@@ -266,6 +268,7 @@ func GetUser(userId int64) (*types.User, error) {
 		&tmp.Lastname,
 		&tmp.Mail,
 		&tmp.Elo,
+		&tmp.Avatar,
 	)
 
 	if err != nil {
@@ -335,31 +338,39 @@ func GetStats(user_id int64) (*types.Stats, error) {
 			stats.Online++
 		}
 
-		if game.GameType != types.GameTypeLocal { // no sense to count local games in winrate statistics
+		if game.GameType == types.GameTypeOnline { // no sense to count local games in winrate statistics
 			if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
 				stats.Won++
 			} else {
 				stats.Lost++
 			}
-		}
 
-		if game.Player1 == u.Username {
-			stats.Elo = append(stats.Elo, game.Elo1)
-		} else {
-			stats.Elo = append(stats.Elo, game.Elo2)
+			if game.Player1 == u.Username {
+				slog.With("elo", game.Elo1, "game", u.Username, "players", game.Player1, game.Player2).Debug("dio sto elo cazzo 1")
+				stats.Elo = append(stats.Elo, game.Elo1)
+			} else {
+				slog.With("elo", game.Elo2, "game", u.Username).Debug("dio sto elo cazzo 2")
+				stats.Elo = append(stats.Elo, game.Elo2)
+			}
 		}
 	}
+
+	// current elo after last game
 	stats.Elo = append(stats.Elo, u.Elo)
 
-	if len(stats.Gameplayed) == 0 {
+	if stats.Online == 0 {
 		stats.Winrate = 0
 	} else {
-		// no local games
-		gameSum := stats.Won + stats.Lost
-		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(gameSum))*100)) / 100
+		// online games only
+		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(stats.Online))*100)) / 100
 	}
-	slog.With("stats", stats).Debug("Statistiche")
 
+	stats.Leaderboard, err = getLeaderboard()
+	if err != nil {
+		return nil, err
+	}
+
+	slog.With("stats", stats).Debug("Statistiche")
 	return stats, nil
 }
 
@@ -367,4 +378,246 @@ func UpdateUserElo(user_id int64, elo int64) error {
 	q := `UPDATE users SET elo = $1 WHERE id = $2`
 	_, err := Conn.Exec(q, elo, user_id)
 	return err
+}
+
+func GetBadge(user_id int64) (*types.Badge, error) {
+	user, err := GetUser(user_id)
+	if err != nil {
+		slog.With("err", err).Debug("Badge")
+		return nil, err
+	}
+
+	var (
+		badge types.Badge
+
+		gp []types.ReturnGame
+
+		gw         int
+		gameEnded  int
+		homepieces int
+	)
+
+	gp, err = GetAllGameFromUser(user_id)
+	slog.With("gp", gp).Debug("Badge games")
+
+	for _, game := range gp {
+		// skip ongoing games
+		if game.Status == types.GameStatusOpen {
+			continue
+		}
+
+		//skip local games
+		if game.GameType == types.GameTypeLocal {
+			continue
+		}
+
+		//bot difficulty
+		if game.GameType == types.GameTypeBot {
+			// if lost against bot skip game
+			if !(user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2) {
+				continue
+			}
+			slog.With("game type", game.GameType).Debug("capiamo?")
+			p1, e1 := GetUserByUsername(game.Player1)
+			if e1 != nil {
+				return nil, err
+			}
+			slog.With("p1", p1).Debug("Badge")
+
+			p2, e2 := GetUserByUsername(game.Player2)
+			if e2 != nil {
+				return nil, err
+			}
+			slog.With("p2", p2).Debug("Badge")
+
+			// One return 0 the other is 1/2/3 depends on difficulty
+			sum := GetBotLevel(p1.ID) + GetBotLevel(p2.ID)
+			switch sum {
+			case 1:
+				badge.Bot[0] = sum
+			case 2:
+				badge.Bot[1] = sum
+			case 3:
+				badge.Bot[2] = sum
+			default:
+				slog.Debug("2 Humans or 2 Bots")
+				err := errors.New("2 Humans or 2 Bots")
+				return nil, err
+			}
+			slog.With("bot", badge.Bot, "sum", sum).Debug("Badge")
+			continue
+		}
+
+		//only online games
+		gameEnded++
+
+		//homepieces
+		homepieces += calculateHomePieces(game, user.Username)
+		slog.With("home pieces", homepieces).Debug("Badge")
+
+		//game won counter
+		if user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2 {
+			gw++
+
+			//shortest game
+			timeDiff := game.End.Sub(game.Start)
+
+			if timeDiff <= 3*time.Minute {
+				badge.Wontime[0] = 1
+				badge.Wontime[1] = 2
+				badge.Wontime[2] = 3
+			} else if timeDiff <= 5*time.Minute {
+				badge.Wontime[0] = 1
+				badge.Wontime[1] = 2
+			} else if timeDiff <= 10*time.Minute {
+				badge.Wontime[0] = 1
+			}
+
+		}
+	}
+
+	//homepieces
+	if homepieces >= 50 {
+		if homepieces <= 100 {
+			badge.Homepieces[0] = 1
+		} else if homepieces < 200 {
+			badge.Homepieces[0] = 1
+			badge.Homepieces[1] = 2
+		} else {
+			badge.Homepieces[0] = 1
+			badge.Homepieces[1] = 2
+			badge.Homepieces[2] = 3
+		}
+	}
+
+	//game played
+	if gameEnded > 0 {
+		if gameEnded <= 10 {
+			badge.Gameplayed[0] = 1
+		} else if gameEnded <= 100 {
+			badge.Gameplayed[0] = 1
+			badge.Gameplayed[1] = 2
+		} else {
+			badge.Gameplayed[0] = 1
+			badge.Gameplayed[1] = 2
+			badge.Gameplayed[2] = 3
+		}
+	}
+
+	// game won
+	if gw > 0 {
+		if gw <= 10 {
+			badge.Wongames[0] = 1
+		} else if gw <= 50 {
+			badge.Wongames[0] = 1
+			badge.Wongames[1] = 2
+		} else {
+			badge.Wongames[0] = 1
+			badge.Wongames[1] = 2
+			badge.Wongames[2] = 3
+		}
+	}
+
+	//elo
+	if user.Elo > 1000 {
+		if user.Elo < 1200 {
+			badge.Elo[0] = 1
+		} else if user.Elo < 1400 {
+			badge.Elo[0] = 1
+			badge.Elo[1] = 2
+		} else {
+			badge.Elo[0] = 1
+			badge.Elo[1] = 2
+			badge.Elo[2] = 3
+		}
+	}
+
+	slog.With("badge", badge).Debug("BADGE")
+	return &badge, nil
+}
+
+func calculateHomePieces(game types.ReturnGame, u string) int {
+	var piecesOnBoard int
+
+	if u == game.Player1 {
+		for _, t := range game.P1Checkers {
+			piecesOnBoard += int(t)
+		}
+	} else {
+		for _, t := range game.P2Checkers {
+			piecesOnBoard += int(t)
+		}
+	}
+
+	return 15 - piecesOnBoard
+}
+
+func getLeaderboard() ([]types.LeaderboardUser, error) {
+	q := `
+	SELECT username, elo
+	FROM users
+	WHERE is_bot = FALSE
+	ORDER BY elo DESC
+	`
+
+	rows, err := Conn.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var lb []types.LeaderboardUser
+	for rows.Next() {
+		var user types.LeaderboardUser
+		err := rows.Scan(&user.Username, &user.Elo)
+		if err != nil {
+			return nil, err
+		}
+		lb = append(lb, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return lb, nil
+}
+
+func ChangeAvatar(user_id int64, avatar string) error {
+	slog.With("avatar", avatar).Debug("Avatar")
+	q := `
+    UPDATE users
+    SET avatar = $2
+    WHERE id = $1
+    `
+	_, err := Conn.Exec(q, user_id, avatar)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func ChangePass(username, newPass, oldPass string) error {
+	_, err := LoginUser(username, oldPass)
+	if err != nil {
+		return fmt.Errorf("incorrect old password: %w", err)
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(newPass), bcrypt.DefaultCost)
+	if err != nil {
+		return fmt.Errorf("error hashing password: %w", err)
+	}
+
+	q := `
+    UPDATE users
+    SET password = $2
+    WHERE username = $1
+    `
+	_, err = Conn.Exec(q, username, string(hash))
+	if err != nil {
+		return fmt.Errorf("error updating password: %w", err)
+	}
+
+	return nil
 }

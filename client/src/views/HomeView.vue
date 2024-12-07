@@ -4,10 +4,8 @@
       class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
     >
       <!-- Game Title -->
-      <div class="mb-32 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl font-bold text-primary">
-          VezGammon
-        </h1>
+      <div class="mb-16 text-center">
+        <h1 class="retro-title mb-8 p-4 text-7xl font-bold">VezGammon</h1>
         <div class="text-xl font-bold text-accent">
           The Ultimate Backgammon Experience
         </div>
@@ -37,6 +35,13 @@
             PLAY
           </button>
           <button
+            class="retro-button"
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="router.push('/leaderboard')"
+          >
+            LEADERBOARD
+          </button>
+          <button
             @mouseenter="(e: MouseEvent) => play()"
             @click="openRulesModal"
             class="retro-button font-bold"
@@ -45,7 +50,7 @@
           </button>
           <button
             @mouseenter="(e: MouseEvent) => play()"
-            @click="router.push('/wip')"
+            @click="openSettingsModal"
             class="retro-button"
           >
             SETTINGS
@@ -74,7 +79,7 @@
         </h3>
         <!-- Options -->
         <div class="flex flex-col gap-4">
-          <template v-if="!showDifficulty">
+          <template v-if="modals === 0">
             <button
               @mouseenter="(e: MouseEvent) => play()"
               @click="startLocalGame"
@@ -91,14 +96,21 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              @click="showOnlineOptions"
+              @click="showOnlineMenu"
               class="retro-button"
             >
               Play Online
             </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="playTutorial"
+              class="retro-button"
+            >
+              Play Tutorial
+            </button>
           </template>
 
-          <template v-else>
+          <template v-else-if="modals === 1">
             <button
               @mouseenter="(e: MouseEvent) => play()"
               @click="startGameWithAI('easy')"
@@ -121,19 +133,92 @@
               Hard
             </button>
           </template>
+
+          <template v-else-if="modals === 2">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startRandomGame"
+              class="retro-button"
+            >
+              Random Opponent
+            </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="createInviteLink"
+              class="retro-button"
+            >
+              Invite Friend
+            </button>
+            <div v-if="inviteLink" class="mt-4">
+              <div class="flex items-center gap-2 rounded bg-base-200 p-2">
+                <input
+                  type="text"
+                  :value="inviteLink"
+                  class="w-full bg-transparent p-2"
+                  readonly
+                />
+
+                <button
+                  @click="copyInviteLink"
+                  class="retro-button px-4"
+                  :class="{ 'bg-success': linkCopied }"
+                >
+                  {{ linkCopied ? 'Copied!' : 'Copy' }}
+                </button>
+              </div>
+            </div>
+            <div v-if="inviteLink" class="flex justify-center gap-2">
+              <TelegramShareButton
+                :url="inviteLink"
+                title="Do you want to play with me? Join me on VezGammon!"
+              />
+
+              <WhatsappShareButton
+                :url="inviteLink"
+                title="Do you want to play with me? Join me on VezGammon!"
+              />
+            </div>
+          </template>
+
+          <template v-else-if="modals === 3">
+            <div class="flex flex-row justify-between gap-2">
+              <input
+                v-model="tourn_name"
+                type="text"
+                class="input flex-grow border-2 border-primary"
+                placeholder="Tournament name"
+              />
+              <button
+                @mouseenter="(e: MouseEvent) => play()"
+                @click="create_tourn"
+                class="retro-button"
+              >
+                New
+              </button>
+            </div>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="router.push('/tournaments')"
+              class="retro-button"
+            >
+              Join
+            </button>
+          </template>
         </div>
 
         <!-- Close button -->
         <div class="modal-action w-full">
           <form method="dialog" class="flex w-full justify-between">
             <button
-              v-if="showDifficulty"
+              v-if="modals !== 0"
               @click="backToGameMode"
               class="retro-button"
             >
               Back
             </button>
-            <button class="retro-button ml-auto">Close</button>
+            <button class="retro-button ml-auto" @click="backToGameMode">
+              Close
+            </button>
           </form>
         </div>
       </div>
@@ -192,83 +277,7 @@
       </form>
     </dialog>
 
-    <dialog id="online_options_modal" class="modal">
-      <div class="retro-box modal-box">
-        <h3 class="retro-title mb-4 text-center text-2xl font-bold">
-          Online Game Options
-        </h3>
-        <div class="flex flex-col gap-4">
-          <button
-            @mouseenter="(e: MouseEvent) => play()"
-            @click="startRandomGame"
-            class="retro-button"
-          >
-            Random Opponent
-          </button>
-          <button
-            @mouseenter="(e: MouseEvent) => play()"
-            @click="createInviteLink"
-            class="retro-button"
-          >
-            Invite Friend
-          </button>
-        </div>
-
-        <!-- Invite Link -->
-        <div v-if="inviteLink" class="mt-4">
-          <div class="flex items-center gap-2 rounded bg-base-200 p-2">
-            <input
-              type="text"
-              :value="inviteLink"
-              class="w-full bg-transparent p-2"
-              readonly
-            />
-
-            <button
-              @click="copyInviteLink"
-              class="retro-button px-4"
-              :class="{ 'bg-success': linkCopied }"
-            >
-              {{ linkCopied ? 'Copied!' : 'Copy' }}
-            </button>
-          </div>
-        </div>
-
-        <!-- Close button -->
-        <div class="modal-action">
-          <div v-if="inviteLink" class="mr-5 mt-1 flex justify-start gap-2">
-            <ShareNetwork
-              network="telegram"
-              :url="inviteLink"
-              title="Do you want to play with me? Join me on VezGammon!"
-            >
-              <button class="btn btn-info btn-md text-xl">
-                <i class="fab fa-telegram"></i>
-                Telegram
-              </button>
-            </ShareNetwork>
-
-            <ShareNetwork
-              network="whatsapp"
-              :url="inviteLink"
-              title="Do you want to play with me? Join me on VezGammon!"
-            >
-              <button class="btn btn-md bg-green-400 text-xl">
-                <i class="fab fa-whatsapp"></i>
-                Whatsapp
-              </button>
-            </ShareNetwork>
-          </div>
-          <form method="dialog">
-            <button class="retro-button">Close</button>
-          </form>
-        </div>
-      </div>
-
-      <form method="dialog" class="modal-backdrop">
-        <button>close</button>
-      </form>
-    </dialog>
+    <SettingsModal />
 
     <dialog id="rules_modal" class="modal">
       <div
@@ -290,18 +299,25 @@
 import MedalIcon from '@/utils/icons/MedalIcon.vue'
 import ProfileIcon from '@/utils/icons/ProfileIcon.vue'
 import RulesSection from '@/components/RulesSection.vue'
+import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
+import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
+import SettingsModal from '@/components/SettingsModal.vue'
+
 import router from '@/router'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useWebSocketStore } from '@/stores/websocket'
+import { useAudioStore } from '@/stores/audio'
 import type { WSMessage } from '@/utils/types'
 
-const { play } = useSound(buttonSfx, { volume: 0.3 })
+const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
-const showDifficulty = ref(false)
+// 0 for base, 1 for bot difficulty, 2 for online options, 3 for tournaments options,
+const modals = ref(0)
 const inviteLink = ref('')
 const linkCopied = ref(false)
+const audioStore = useAudioStore()
 
 onMounted(() => {
   webSocketStore.connect()
@@ -323,6 +339,12 @@ const handleMatchmaking = (message: WSMessage) => {
   }
 }
 
+const play = () => {
+  if (audioStore.isAudioEnabled) {
+    playSound()
+  }
+}
+
 const showOnlineOptions = () => {
   const playModal = document.getElementById('play_modal') as HTMLDialogElement
   playModal.close()
@@ -333,9 +355,7 @@ const showOnlineOptions = () => {
 }
 
 const startRandomGame = () => {
-  const modal = document.getElementById(
-    'online_options_modal',
-  ) as HTMLDialogElement
+  const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
   startOnlineGame()
 }
@@ -401,26 +421,53 @@ const handleCancelMatchmaking = async () => {
   waitingModal.close()
 }
 
+const openSettingsModal = () => {
+  const modal = document.getElementById('settings_modal') as HTMLDialogElement
+  modal.showModal()
+}
+
 const modalTitle = computed(() => {
-  return showDifficulty.value ? 'Choose Difficulty' : 'Select Game Mode'
+  switch (modals.value) {
+    case 0:
+      return 'Select Game Mode'
+    case 1:
+      return 'Select AI Difficulty'
+    case 2:
+      return 'Play Online'
+    case 3:
+      return 'Tournaments'
+  }
 })
 
 const showAIDifficulty = () => {
-  showDifficulty.value = true
+  modals.value = 1
+}
+
+const showOnlineMenu = () => {
+  modals.value = 2
+}
+
+const showTournamentMenu = () => {
+  modals.value = 3
 }
 
 const backToGameMode = () => {
-  showDifficulty.value = false
+  modals.value = 0
+  inviteLink.value = ''
 }
 
-const startGameWithAI = async (difficulty: 'easy' | 'medium' | 'hard') => {
+const startGameWithAI = async (
+  difficulty: 'easy' | 'medium' | 'hard',
+  variant: null | string = null,
+) => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
-  showDifficulty.value = false
+  modals.value = 0
 
   try {
     await fetch(`/api/play/bot/${difficulty}`)
-    router.push('/game')
+    const destination = variant ? `/game?variant=${variant}` : '/game'
+    router.push(destination)
   } catch (error) {
     console.error('Error starting game with AI:', error)
   }
@@ -456,6 +503,13 @@ const openPlayModal = () => {
   modal.showModal()
 }
 
+const playTutorial = () => {
+  const modal = document.getElementById('play_modal') as HTMLDialogElement
+  modal.close()
+  // launch a easy game with bot and show tutorial variant
+  startGameWithAI('easy', 'tutorial')
+}
+
 const startLocalGame = async () => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
@@ -468,60 +522,23 @@ const openRulesModal = () => {
   const modal = document.getElementById('rules_modal') as HTMLDialogElement
   modal.showModal()
 }
+
+const tourn_name = ref('')
+
+function create_tourn() {
+  fetch('/api/tournament/create', {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: JSON.stringify({ name: tourn_name.value }),
+  })
+    .then(res => res.json())
+    .then(data => {
+      const id = data.id
+      console.log(data)
+      router.push('/tournaments/' + id)
+    })
+    .catch(err => console.error(err))
+}
 </script>
-
-<style scoped>
-.retro-title {
-  color: #ffd700;
-  text-shadow:
-    4px 4px 0 #8b4513,
-    -1px -1px 0 #000,
-    1px -1px 0 #000,
-    -1px 1px 0 #000,
-    1px 1px 0 #000;
-  letter-spacing: 3px;
-  animation: move-title 8s ease-in-out infinite alternate;
-  border-bottom: 2px solid #8b4513;
-}
-
-.retro-box {
-  background-color: #ffe5c9;
-  border: 5px solid #8b4513;
-  box-shadow:
-    0 0 0 4px #d2691e,
-    inset 0 0 20px rgba(0, 0, 0, 0.2);
-}
-
-.retro-button {
-  @apply btn bg-primary font-bold text-white;
-  border: 3px solid #8b4513;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-  height: 6vh;
-
-  &.circle {
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-  }
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-
-@keyframes move-title {
-  from {
-    transform: rotate(-2deg);
-  }
-  to {
-    transform: rotate(2deg);
-  }
-}
-</style>

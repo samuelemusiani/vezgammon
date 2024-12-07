@@ -5,6 +5,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+	"sync"
 
 	"github.com/gorilla/websocket"
 )
@@ -22,9 +23,12 @@ var ErrConnNotFound = errors.New("Connection not found")
 var ErrConnNotActive = errors.New("Connetion not active")
 var ErrConnNotFoundForUser = errors.New("Connetion not found for user")
 
-var clients = make(map[*websocket.Conn]bool)
-var users = make(map[int64]*websocket.Conn)
-var disconnect = make(map[int64]func(int64) error)
+// var clients = make(map[*websocket.Conn]bool)
+// var users = make(map[int64]*websocket.Conn)
+// var disconnect = make(map[int64]func(int64) error)
+var clients sync.Map
+var users sync.Map
+var disconnect sync.Map
 
 func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 	slog.Info("Starting WebSocket connection", "user_id", user_id)
@@ -39,29 +43,31 @@ func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 	go chat(conn, user_id)
 
 	// Add client connection to clients connention array
-	clients[conn] = true
-	users[user_id] = conn
+	clients.Store(conn, true)
+	users.Store(user_id, conn)
 	SendMessage(user_id, Message{Type: "connection_esatablished"})
 	slog.Debug("test")
 }
 
 // Send messsage to user
 func SendMessage(user_id int64, message Message) error {
-	conn, ok := users[user_id]
+	value, ok := users.Load(user_id)
 	if !ok {
 		slog.Debug("SendMessage error: connection not found for user",
 			"user_id", user_id,
 			"error", ErrConnNotFoundForUser)
 		return ErrConnNotFoundForUser
 	}
+	conn := value.(*websocket.Conn)
 
-	active, ok := clients[conn]
+	value, ok = clients.Load(conn)
 	if !ok {
 		slog.Debug("SendMessage error: connection not found in clients map",
 			"user_id", user_id,
 			"error", ErrConnNotFound)
 		return ErrConnNotFound
 	}
+	active := value.(bool)
 
 	if !active {
 		slog.Debug("SendMessage error: inactive connection",
@@ -113,9 +119,29 @@ func GameEnd(user_id int64) error {
 }
 
 func AddDisconnectHandler(user_id int64, f func(int64) error) {
-	disconnect[user_id] = f
+	disconnect.Store(user_id, f)
 }
 
 func SendBotMessage(user_id int64, message string) error {
 	return SendMessage(user_id, Message{Type: "chat_message", Payload: message})
+}
+
+func GameTournamentReady(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "game_tournament_ready"})
+}
+
+func TournamentEnded(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_ended"})
+}
+
+func TournamentCancelled(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_cancelled"})
+}
+
+func TournamentNewUserEnrolled(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_new_user_enrolled"})
+}
+
+func TournamentUserLeft(user_id int64) error {
+	return SendMessage(user_id, Message{Type: "tournament_user_left"})
 }
