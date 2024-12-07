@@ -366,7 +366,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 
           <!-- Possible moves highlights -->
           <path
-            v-for="(position, index) in possibleMoves"
+            v-for="(position, index) in possibleMoves.filter(e => e != 25)"
             :key="`highlight-${index}`"
             :d="
               gameState?.current_player === 'p2'
