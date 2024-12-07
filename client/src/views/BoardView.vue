@@ -160,6 +160,12 @@ const handleStopTimer = () => {
   stopTimer()
 }
 
+const handleAcceptDouble = async () => {
+  showDoubleModal.value = false
+  await acceptDouble()
+  await fetchGameState()
+}
+
 function sendWSMessage(message: WSMessage) {
   webSocketStore.sendMessage(message)
 }
@@ -191,7 +197,7 @@ function sendWSMessage(message: WSMessage) {
           <!-- Double Dice Here -->
           <DoubleDice
             :doubleValue="gameState?.double_value || 1"
-            :showDoubleButton="showDoubleButton"
+            :showDoubleButton="showDoubleButton && isMyTurn"
             @double="handleDouble"
           />
           <!-- Game Timer -->
@@ -247,7 +253,7 @@ function sendWSMessage(message: WSMessage) {
       confirmText="Confirm"
       cancelText="Cancel"
       confirmVariant="success"
-      @confirm="acceptDouble"
+      @confirm="handleAcceptDouble"
       @cancel="declineDouble"
     >
       Your opponent has offered a double. Do you accept?
