@@ -42,20 +42,8 @@ import RedditShareButton from '@/components/buttons/RedditShare.vue'
 import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
 import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
 
-import type { GameState } from '@/utils/game/types'
+import type { GameStats } from '@/utils/types'
 import type { User } from '@/utils/types'
-
-interface GameStats {
-  games_played: GameState[]
-  win: number
-  lost: number
-  winrate: number
-  elo: number[]
-  cpu: number
-  local: number
-  online: number
-  tournament: number
-}
 
 const stats = ref<GameStats>({
   games_played: [],
@@ -67,6 +55,7 @@ const stats = ref<GameStats>({
   local: 0,
   online: 0,
   tournament: 0,
+  leaderboard: [],
 })
 
 const props = withDefaults(

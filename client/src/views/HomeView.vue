@@ -4,7 +4,7 @@
       class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
     >
       <!-- Game Title -->
-      <div class="mb-32 text-center">
+      <div class="mb-16 text-center">
         <h1 class="retro-title mb-8 p-4 text-7xl font-bold">VezGammon</h1>
         <div class="text-xl font-bold text-accent">
           The Ultimate Backgammon Experience
@@ -33,6 +33,13 @@
             class="retro-button"
           >
             PLAY
+          </button>
+          <button
+            class="retro-button"
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="router.push('/leaderboard')"
+          >
+            LEADERBOARD
           </button>
           <button
             @mouseenter="(e: MouseEvent) => play()"

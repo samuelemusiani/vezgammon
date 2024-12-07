@@ -240,28 +240,18 @@ func SurrendToCurrentGame(c *gin.Context) {
 		return
 	}
 
-	var status string
 	var opponentID int64
 	if g.Player1 == userId { // Player 1 surrended, player 2 wins
-		status = types.GameStatusWinP2
 		opponentID = g.Player2
 	} else {
-		status = types.GameStatusWinP1
 		opponentID = g.Player1
 	}
 
-	g.Status = status
-	err = db.UpdateGame(g)
+	err = endGame(g, opponentID)
 	if err != nil {
-		slog.With("error", err).Error("Updating game in /play [delete]")
+		slog.With("error", err).Error("Error ending game properly")
 		c.JSON(http.StatusInternalServerError, err)
 		return
-	}
-
-	// Send notification to the other player that the game is over
-	err = ws.GameEnd(opponentID)
-	if err != nil {
-		slog.With("error", err).Error("Sending message to player")
 	}
 
 	c.JSON(http.StatusCreated, "Surrended")
@@ -412,10 +402,6 @@ func PlayMoves(c *gin.Context) {
 		return
 	}
 
-	g.PlayMove(moves)
-
-	err = db.UpdateGame(g)
-
 	// save turn
 	turn := types.Turn{
 		GameId: g.ID,
@@ -429,6 +415,15 @@ func PlayMoves(c *gin.Context) {
 	_, err = db.CreateTurn(turn)
 	if err != nil {
 		slog.With("error", err).Error("Creating turn in /moves [post]")
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	g.PlayMove(moves)
+
+	err = db.UpdateGame(g)
+	if err != nil {
+		slog.With("error", err).Error("Updating game in /moves [post]")
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -467,22 +462,22 @@ func PlayMoves(c *gin.Context) {
 			return
 		}
 
-		g.PlayMove(m)
-		err = db.UpdateGame(g)
-
-		if err != nil {
-			c.JSON(http.StatusInternalServerError, err)
-			return
-		}
-
 		t := types.Turn{
 			GameId: g.ID,
 			User:   g.Player2,
 			Time:   time.Now(),
+			Dices:  g.Dices,
 			Moves:  m,
 		}
 
 		_, err = db.CreateTurn(t)
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, err)
+			return
+		}
+		g.PlayMove(m)
+		err = db.UpdateGame(g)
+
 		if err != nil {
 			c.JSON(http.StatusInternalServerError, err)
 			return

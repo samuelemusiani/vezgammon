@@ -32,3 +32,21 @@ export interface Tournament {
   users: string[]
   creation_date: string
 }
+
+export interface LeaderBoardUser {
+  username: string
+  elo: number
+}
+
+export interface GameStats {
+  games_played: GameState[]
+  win: number
+  lost: number
+  winrate: number
+  elo: number[]
+  cpu: number
+  local: number
+  online: number
+  tournament: number
+  leaderboard: LeaderBoardUser[]
+}

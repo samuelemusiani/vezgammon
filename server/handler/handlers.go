@@ -39,6 +39,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	protected.GET("/session", GetSession)
 	protected.GET("/stats", GetStats)
 	protected.GET("/badge", GetBadge)
+	protected.POST("/replay", GetReplay)
 	protected.PATCH("/avatar", ChangeAvatar)
 	protected.PATCH("/pass", ChangePass)
 

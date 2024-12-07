@@ -1,6 +1,10 @@
 pipeline {
   agent any
 
+  options {
+    disableConcurrentBuilds()
+  }
+
   tools {
     go '1.23.2'
     nodejs '23.1.0'

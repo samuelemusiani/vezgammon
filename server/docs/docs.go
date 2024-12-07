@@ -658,6 +658,37 @@ const docTemplate = `{
                 }
             }
         },
+        "/replay": {
+            "post": {
+                "description": "Get position of a game based on id and move number",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "summary": "Get position of a game",
+                "parameters": [
+                    {
+                        "description": "game id and move number",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "$ref": "#/definitions/handler.gameReqPos"
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "game position",
+                        "schema": {
+                            "$ref": "#/definitions/types.ReturnReplay"
+                        }
+                    }
+                }
+            }
+        },
         "/session": {
             "get": {
                 "description": "Get auth session",
@@ -1051,6 +1082,19 @@ const docTemplate = `{
                 }
             }
         },
+        "handler.gameReqPos": {
+            "type": "object",
+            "properties": {
+                "game_id": {
+                    "type": "integer",
+                    "example": 1
+                },
+                "move": {
+                    "type": "integer",
+                    "example": 1
+                }
+            }
+        },
         "handler.invite": {
             "type": "object",
             "properties": {
@@ -1199,6 +1243,19 @@ const docTemplate = `{
                 }
             }
         },
+        "types.LeaderboardUser": {
+            "type": "object",
+            "properties": {
+                "elo": {
+                    "type": "integer",
+                    "example": 1000
+                },
+                "username": {
+                    "type": "string",
+                    "example": "gio"
+                }
+            }
+        },
         "types.Move": {
             "type": "object",
             "properties": {
@@ -1306,6 +1363,20 @@ const docTemplate = `{
                 }
             }
         },
+        "types.ReturnReplay": {
+            "type": "object",
+            "properties": {
+                "dices": {
+                    "type": "array",
+                    "items": {
+                        "type": "integer"
+                    }
+                },
+                "game": {
+                    "$ref": "#/definitions/types.ReturnGame"
+                }
+            }
+        },
         "types.ReturnTournament": {
             "type": "object",
             "properties": {
@@ -1370,6 +1441,12 @@ const docTemplate = `{
                     "type": "array",
                     "items": {
                         "$ref": "#/definitions/types.ReturnGame"
+                    }
+                },
+                "leaderboard": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/types.LeaderboardUser"
                     }
                 },
                 "local": {

@@ -338,31 +338,38 @@ func GetStats(user_id int64) (*types.Stats, error) {
 			stats.Online++
 		}
 
-		if game.GameType != types.GameTypeLocal { // no sense to count local games in winrate statistics
+		if game.GameType == types.GameTypeOnline { // no sense to count local games in winrate statistics
 			if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
 				stats.Won++
 			} else {
 				stats.Lost++
 			}
-		}
 
-		if game.Player1 == u.Username {
-			stats.Elo = append(stats.Elo, game.Elo1)
-		} else {
-			stats.Elo = append(stats.Elo, game.Elo2)
+			if game.Player1 == u.Username {
+				slog.With("elo", game.Elo1, "game", u.Username, "players", game.Player1, game.Player2).Debug("dio sto elo cazzo 1")
+				stats.Elo = append(stats.Elo, game.Elo1)
+			} else {
+				slog.With("elo", game.Elo2, "game", u.Username).Debug("dio sto elo cazzo 2")
+				stats.Elo = append(stats.Elo, game.Elo2)
+			}
 		}
+		// current elo after last game
+		stats.Elo = append(stats.Elo, u.Elo)
 	}
-	stats.Elo = append(stats.Elo, u.Elo)
 
 	if len(stats.Gameplayed) == 0 {
 		stats.Winrate = 0
 	} else {
 		// no local games
-		gameSum := stats.Won + stats.Lost
-		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(gameSum))*100)) / 100
+		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(len(stats.Gameplayed)))*100)) / 100
 	}
-	slog.With("stats", stats).Debug("Statistiche")
 
+	stats.Leaderboard, err = getLeaderboard()
+	if err != nil {
+		return nil, err
+	}
+
+	slog.With("stats", stats).Debug("Statistiche")
 	return stats, nil
 }
 
@@ -450,19 +457,22 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		//game won counter
 		if user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2 {
 			gw++
+
+			//shortest game
+			timeDiff := game.End.Sub(game.Start)
+
+			if timeDiff <= 3*time.Minute {
+				badge.Wontime[0] = 1
+				badge.Wontime[1] = 2
+				badge.Wontime[2] = 3
+			} else if timeDiff <= 5*time.Minute {
+				badge.Wontime[0] = 1
+				badge.Wontime[1] = 2
+			} else if timeDiff <= 10*time.Minute {
+				badge.Wontime[0] = 1
+			}
+
 		}
-
-		//shortest game
-		timeDiff := game.End.Sub(game.Start)
-
-		if timeDiff <= 10*time.Minute {
-			badge.Wontime[0] = 1
-		} else if timeDiff <= 5*time.Minute {
-			badge.Wontime[1] = 2
-		} else if timeDiff <= 3*time.Minute {
-			badge.Wontime[2] = 3
-		}
-
 	}
 
 	//homepieces
@@ -539,6 +549,37 @@ func calculateHomePieces(game types.ReturnGame, u string) int {
 	}
 
 	return 15 - piecesOnBoard
+}
+
+func getLeaderboard() ([]types.LeaderboardUser, error) {
+	q := `
+	SELECT username, elo
+	FROM users
+	WHERE is_bot = FALSE
+	ORDER BY elo DESC
+	`
+
+	rows, err := Conn.Query(q)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var lb []types.LeaderboardUser
+	for rows.Next() {
+		var user types.LeaderboardUser
+		err := rows.Scan(&user.Username, &user.Elo)
+		if err != nil {
+			return nil, err
+		}
+		lb = append(lb, user)
+	}
+
+	if err = rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return lb, nil
 }
 
 func ChangeAvatar(user_id int64, avatar string) error {
