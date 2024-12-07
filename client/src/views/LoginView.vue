@@ -75,7 +75,7 @@ function RIMUOVERE() {
     <div class="card w-96 border border-8 border-primary bg-base-100 shadow-md">
       <div class="card-body">
         <button
-          class="btn btn-secondary mt-4 border-4 border-primary"
+          class="btn btn-secondary mt-4 hidden border-4 border-primary"
           @click="RIMUOVERE"
         >
           USER omar, lele, lollo, samu, fabio, diego PASS omaromar
