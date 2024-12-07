@@ -298,6 +298,7 @@ func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64)
 				Mail:      mail,
 				Elo:       elo,
 				IsBot:     true,
+				Avatar:    "https://api.dicebear.com/6.x/avataaars/svg?seed=" + username,
 			}, "1234")
 
 			if err != nil {
