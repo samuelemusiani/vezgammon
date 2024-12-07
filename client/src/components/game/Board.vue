@@ -26,9 +26,9 @@ const $props = defineProps<{
   availableMoves: MovesResponse | null
   isMyTurn?: boolean
   dicesReplay?: number[]
-  diceRolled: boolean
-  isRolling: boolean
-  displayedDice: number[]
+  diceRolled?: boolean
+  isRolling?: boolean
+  displayedDice?: number[]
   resetDiceState: () => void
   handleDiceRoll: (
     availableMoves: MovesResponse | null,
@@ -409,9 +409,9 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 
       <!-- Roll Dice Button -->
       <DiceContainer
-        :diceRolled="diceRolled"
-        :displayedDice="displayedDice"
-        :isRolling="isRolling"
+        :diceRolled="diceRolled || false"
+        :displayedDice="displayedDice || [0, 0]"
+        :isRolling="isRolling || false"
         :canRoll="isMyTurn as boolean"
         :dicesReplay="dicesReplay"
         @roll="handleDiceRoll(availableMoves, gameState.game_type === 'online')"

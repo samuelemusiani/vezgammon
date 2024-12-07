@@ -148,6 +148,8 @@ onMounted(async () => {
         :gameState="gameState"
         :availableMoves="null"
         :dicesReplay="dices"
+        :resetDiceState="() => {}"
+        :handleDiceRoll="() => {}"
       />
     </div>
   </div>
