@@ -79,7 +79,7 @@ const handleMessage = async (message: WSMessage) => {
   if (message.type === 'turn_made') {
     await fetchGameState()
     await fetchMoves()
-    startTimer()
+    if (gameState.value?.game_type === 'online') startTimer()
     isMyTurn.value = true
   } else if (message.type === 'want_to_double') {
     showDoubleModal.value = true
@@ -196,7 +196,10 @@ function sendWSMessage(message: WSMessage) {
           <div
             class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
           >
-            <GameTimer :timeLeft="timeLeft" :isMyTurn="isMyTurn" />
+            <GameTimer
+              :timeLeft="timeLeft"
+              :isMyTurn="isMyTurn && gameState?.game_type === 'online'"
+            />
             <button class="retro-button" @click="exitGame">Exit Game</button>
           </div>
 

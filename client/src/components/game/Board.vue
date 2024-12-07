@@ -169,7 +169,6 @@ const handleTriangleClick = async (position: number) => {
 }
 
 const getCheckers = () => {
-  console.log('Getting checkers', gameState.value)
   if (!gameState.value) return []
 
   const checkers: Checker[] = []
