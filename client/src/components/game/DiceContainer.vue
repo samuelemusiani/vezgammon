@@ -41,12 +41,5 @@ defineEmits<{
         :isRolling="isRolling"
       />
     </div>
-    <div class="text-xs text-gray-500">
-      Dice values: {{ currentDice }}
-      <br />
-      Rolled: {{ diceRolled }}
-      <br />
-      Rolling: {{ isRolling }}
-    </div>
   </div>
 </template>
