@@ -11,7 +11,20 @@ const currentMove = ref(0)
 const errMessage = ref('')
 
 const gameState = ref<GameState | null>(null)
+const avatars = ref<string[]>([])
 const dices = ref<number[]>([])
+
+async function getAvatars() {
+  try {
+    const res1 = await fetch(`/api/player/${gameState.value?.player1}/avatar`)
+    const p1 = await res1.json()
+    const res2 = await fetch(`/api/player/${gameState.value?.player2}/avatar`)
+    const p2 = await res2.json()
+    avatars.value = [p1, p2]
+  } catch (err) {
+    console.error('Error fetching avatars:', err)
+  }
+}
 
 async function getGame(game_id: number, move: number) {
   try {
@@ -56,6 +69,7 @@ async function previousMove() {
 
 onMounted(async () => {
   await getGame(gameId, 0)
+  await getAvatars()
   console.log(gameState.value)
 })
 </script>
@@ -72,6 +86,7 @@ onMounted(async () => {
             :elo="gameState?.elo2 || 0"
             :isCurrentTurn="gameState?.current_player === 'p1'"
             :isOpponent="true"
+            :avatar="avatars[1]"
           />
 
           <!-- Pulsanti -->
@@ -123,6 +138,7 @@ onMounted(async () => {
             :username="gameState?.player1 || ''"
             :elo="gameState?.elo1 || 0"
             :isCurrentTurn="gameState?.current_player === 'p2'"
+            :avatar="avatars[0]"
           />
         </div>
       </div>

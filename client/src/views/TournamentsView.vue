@@ -63,7 +63,7 @@
                 class="h-16 w-16 overflow-hidden rounded-full border-2 border-primary bg-gray-200 hover:scale-[1.02]"
               >
                 <img
-                  :src="`https://api.dicebear.com/6.x/avataaars/svg?seed=${user}`"
+                  :src="avatars[index]"
                   alt="Opponent avatar"
                   class="h-full w-full object-cover"
                 />
@@ -150,11 +150,19 @@ onMounted(async () => {
 
 // Selected tournament for modal
 const selectedTournament = ref<Tournament | null>(null)
+const avatars = ref<string[]>([])
 
 // Open modal with selected tournament
 const openTournamentModal = async (tournament: SimpleTournament) => {
   const data = await fetch(`/api/tournament/${tournament.id}`)
   selectedTournament.value = await data.json()
+  if (selectedTournament.value?.users) {
+    for (const user of selectedTournament.value.users) {
+      const res = await fetch(`/api/player/${user}/avatar`)
+      const avatar = await res.json()
+      avatars.value.push(avatar)
+    }
+  }
   const el = document.getElementById('select_tournament') as HTMLDialogElement
   el.showModal()
 }

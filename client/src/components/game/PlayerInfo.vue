@@ -4,6 +4,7 @@ interface PlayerInfoProps {
   elo: number
   isCurrentTurn: boolean
   isOpponent?: boolean
+  avatar: string
 }
 
 defineProps<PlayerInfoProps>()
@@ -14,7 +15,7 @@ defineProps<PlayerInfoProps>()
     <div class="relative mb-2">
       <div class="h-16 w-16 overflow-hidden rounded-full bg-gray-200">
         <img
-          :src="`https://api.dicebear.com/6.x/avataaars/svg?seed=${isOpponent ? 'opponent' : 'player'}`"
+          :src="avatar"
           :alt="`${isOpponent ? 'Opponent' : 'Player'} avatar`"
           class="h-full w-full object-cover"
         />

@@ -7,6 +7,7 @@ export function useGameState() {
   const isMyTurn = ref(false)
   const availableMoves = ref<MovesResponse | null>(null)
   const session = ref<User>()
+  const avatars = ref<string[]>([])
 
   const fetchGameState = async () => {
     try {
@@ -57,13 +58,27 @@ export function useGameState() {
     }
   }
 
+  const fetchAvatars = async () => {
+    try {
+      const res1 = await fetch(`/api/player/${gameState.value?.player1}/avatar`)
+      const p1 = await res1.json()
+      const res2 = await fetch(`/api/player/${gameState.value?.player2}/avatar`)
+      const p2 = await res2.json()
+      avatars.value = [p1, p2]
+    } catch (err) {
+      console.error('Error fetching avatars:', err)
+    }
+  }
+
   return {
     gameState,
     availableMoves,
     session,
     isMyTurn,
+    avatars,
     fetchGameState,
     fetchMoves,
     fetchSession,
+    fetchAvatars,
   }
 }

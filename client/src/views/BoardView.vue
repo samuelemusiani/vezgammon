@@ -27,9 +27,11 @@ const {
   availableMoves,
   session,
   isMyTurn,
+  avatars,
   fetchGameState,
   fetchMoves,
   fetchSession,
+  fetchAvatars,
 } = useGameState()
 const { timeLeft, startTimer, stopTimer } = useGameTimer()
 
@@ -54,7 +56,6 @@ const { showDoubleModal, handleDouble, acceptDouble, declineDouble } =
   useGameDouble(handleLose)
 
 const webSocketStore = useWebSocketStore()
-const isThisATournament = ref(false)
 
 const isTutorial = ref(false)
 
@@ -68,6 +69,7 @@ onMounted(async () => {
     await fetchGameState()
     await fetchMoves()
     await fetchSession()
+    await fetchAvatars()
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
 
@@ -201,6 +203,7 @@ function sendWSMessage(message: WSMessage) {
             :elo="gameState?.elo2 || 0"
             :isCurrentTurn="gameState?.current_player === 'p1'"
             :isOpponent="true"
+            :avatar="avatars[1]"
           />
 
           <!-- Double Dice Here -->
@@ -225,6 +228,7 @@ function sendWSMessage(message: WSMessage) {
             :username="gameState?.player1 || ''"
             :elo="gameState?.elo1 || 0"
             :isCurrentTurn="gameState?.current_player === 'p2'"
+            :avatar="avatars[0]"
           />
         </div>
       </div>
