@@ -10,13 +10,13 @@ Questo documento raccoglie le richieste che sono state fatte all'AI durante lo s
 - postgresql returns error `syntax error at or near \"FROM\""` for the following query: “...”, find the error
 
 ## User stories
-- Riformula meglio questa user story (...), deve essere sufficientemente dettagliata per gli sviluppatori ma non troppo tecnica per il cliente
-- Molte user stories del mio progetto di backgammon online sono rivolte all'utente, crea altri soggetti che "ereditano" da utente ma sono più specifici (es. giocatore, studente, ecc)
-- Quanti punti dovrebbe valere secondo questa user story del mio progetto di backgammon online (...)? Suddividi il punteggio tra frontend, backend, UX e design
-- Questa user story è troppo impegnativa (...), scomponila in 3/4 user stories più piccole e gestibili
+- reformulate this user story (...) better, it must be detailed enough for developers but not too technical for the client
+- many user stories in my online backgammon project are user-oriented, create other subjects that "inherit" from the user but are more specific (e.g., player, student, etc.)
+- how many points should this user story from my online backgammon project be worth (...)? Divide the score between frontend, backend, UX and design
+- this user story is too challenging (...), break it down into 3/4 smaller and more manageable user stories
 
 ## Documentazione
-- Come posso rendere questa retrospettiva più oggettiva e basata su dati?
-- Come posso rendere questa documentazione più concisa mantenendo tutte le informazioni essenziali?
-- Riformula questa frase (...), rendila più chiara e diretta
-- Come posso migliorare il titolo di questo paragrafo (...) per riflettere meglio il contenuto?
+- how can I make this retrospective more objective and data-based?
+- how can I make this documentation more concise while maintaining all essential information?
+- reformulate this phrase (...), make it clearer and more direct
+- how can I improve the title of this paragraph (...) to better reflect the content?

@@ -71,9 +71,12 @@ Si è inoltre evidenziato un accumulo significativo di user stories nel backlog,
 
 ### Debito Tecnico
 
-Fine della gestione dei tornei: adattamento alla nuova board. Problemi con la ui nella pagina di statistiche. Integrazione delle notifiche.
+Nulla
 
 ### Problematiche riscontrate
 
-Sistemato il codice della board (componente vue da 1KLoc) in più componenti. Inizialmente causa di molto del debito tecnico accumulato, risolto tramite un pesante refactor.
-Forse una troppa sovreastima del carico di lavoro effettuabile, nonostante cio' il grafico taiga e' rimasto ben strutturato.
+Durante questo sprint è stato effettuato un importante refactor della board, che inizialmente contava oltre 1.000 linee di codice. La suddivisione in più componenti ha permesso di eliminare una delle principali cause del debito tecnico accumulato, migliorando significativamente la leggibilità e la manutenibilità del codice.
+
+Nonostante una lieve sovrastima del carico di lavoro che si pensava di poter completare, il grafico di Taiga è rimasto coerente e ben strutturato, dimostrando un'adeguata pianificazione complessiva. Tutto ciò che era stato pianificato è stato comunque completato con successo, grazie a un team ben coordinato e a una comunicazione costante e produttiva.
+
+Di comune accordo, il team ha deciso di aggiungere un ultimo sprint. Questo sarà dedicato al completamento delle poche feature ancora presenti nel backlog, nonché a un lavoro intenso di refactor e test. L’obiettivo è garantire che il prodotto finale sia solido, ottimizzato e pronto per l’uso con standard qualitativi elevati.
