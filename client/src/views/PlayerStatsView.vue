@@ -7,5 +7,5 @@ const route = useRoute()
 const username = route.params.username as string
 </script>
 <template>
-  <PlayerStats :sharing-enabled="false" :username="username" />
+  <PlayerStats :general-stats="true" :username="username" />
 </template>
