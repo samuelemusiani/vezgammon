@@ -1,9 +1,10 @@
 import { ref } from 'vue'
+import { useGameEnd } from './useGameEnd'
 
 export function useGameTimer() {
   const timeLeft = ref(60)
   const timerInterval = ref<ReturnType<typeof setTimeout> | null>(null)
-  const isMyTurn = ref(false)
+  const { handleRetire } = useGameEnd()
 
   const startTimer = () => {
     timeLeft.value = 60
@@ -14,6 +15,7 @@ export function useGameTimer() {
       timeLeft.value--
       if (timeLeft.value <= 0) {
         stopTimer()
+        handleRetire()
       }
     }, 1000)
   }
@@ -27,7 +29,6 @@ export function useGameTimer() {
 
   return {
     timeLeft,
-    isMyTurn,
     startTimer,
     stopTimer,
   }

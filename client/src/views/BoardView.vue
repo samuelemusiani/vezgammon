@@ -26,11 +26,12 @@ const {
   gameState,
   availableMoves,
   session,
+  isMyTurn,
   fetchGameState,
   fetchMoves,
   fetchSession,
 } = useGameState()
-const { timeLeft, isMyTurn, startTimer, stopTimer } = useGameTimer()
+const { timeLeft, startTimer, stopTimer } = useGameTimer()
 
 const { showDiceFromOpponent } = useDiceRoll()
 const {
@@ -62,6 +63,7 @@ onMounted(async () => {
     await fetchSession()
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
+
     if (isMyTurn.value && gameState.value?.game_type === 'online') {
       startTimer()
     }

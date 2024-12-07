@@ -25,7 +25,7 @@ import {
 const $props = defineProps<{
   gameState: GameState
   availableMoves: MovesResponse | null
-  isMyTurn?: boolean | null
+  isMyTurn?: boolean
   dicesReplay?: number[]
 }>()
 
@@ -408,7 +408,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
         :diceRolled="diceRolled"
         :displayedDice="displayedDice"
         :isRolling="isRolling"
-        :canRoll="true"
+        :canRoll="isMyTurn as boolean"
         :dicesReplay="dicesReplay"
         @roll="handleDiceRoll(availableMoves)"
       />
