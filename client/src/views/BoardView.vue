@@ -33,7 +33,14 @@ const {
 } = useGameState()
 const { timeLeft, startTimer, stopTimer } = useGameTimer()
 
-const { showDiceFromOpponent } = useDiceRoll()
+const {
+  diceRolled,
+  resetDiceState,
+  isRolling,
+  displayedDice,
+  handleDiceRoll,
+  showDiceFromOpponent,
+} = useDiceRoll()
 const {
   showResultModal,
   handleLose,
@@ -81,6 +88,7 @@ const handleMessage = async (message: WSMessage) => {
   if (message.type === 'turn_made') {
     await fetchGameState()
     await fetchMoves()
+    resetDiceState()
     if (gameState.value?.game_type === 'online') startTimer()
     isMyTurn.value = true
   } else if (message.type === 'want_to_double') {
@@ -89,7 +97,8 @@ const handleMessage = async (message: WSMessage) => {
     await fetchGameState()
   } else if (message.type === 'dice_rolled') {
     const diceData = JSON.parse(message.payload)
-    showDiceFromOpponent(diceData.dices)
+    console.log('Dice rolled:', diceData)
+    showDiceFromOpponent(diceData)
   } else if (message.type === 'game_end') {
     await handleEnd(session.value)
   } else if (message.type === 'move_made') {
@@ -226,6 +235,11 @@ function sendWSMessage(message: WSMessage) {
         :gameState="gameState"
         :availableMoves="availableMoves"
         :isMyTurn="isMyTurn"
+        :diceRolled="diceRolled"
+        :resetDiceState="resetDiceState"
+        :isRolling="isRolling"
+        :displayedDice="displayedDice"
+        :handleDiceRoll="handleDiceRoll"
         @ws-message="sendWSMessage"
         @fetch-moves="fetchMoves"
         @fetch-game-state="fetchGameState"

@@ -2,11 +2,13 @@ import { ref } from 'vue'
 import { useSound } from '@vueuse/sound'
 import diceSfx from '@/utils/sounds/dice.mp3'
 import type { MovesResponse } from '@/utils/game/types'
+import { useWebSocketStore } from '@/stores/websocket'
 
 export function useDiceRoll() {
   const isRolling = ref(false)
   const diceRolled = ref(false)
   const displayedDice = ref<number[]>([])
+  const webSocketStore = useWebSocketStore()
   const { play: playDice } = useSound(diceSfx)
 
   const resetDiceState = () => {
@@ -17,6 +19,7 @@ export function useDiceRoll() {
 
   const handleDiceRoll = (
     availableMoves: MovesResponse | null,
+    online: boolean,
     onRollComplete?: () => void,
   ) => {
     if (diceRolled.value || !availableMoves?.dices) return
@@ -39,6 +42,12 @@ export function useDiceRoll() {
       if (onRollComplete) {
         onRollComplete()
       }
+      if (online) {
+        webSocketStore.sendMessage({
+          type: 'dice_rolled',
+          payload: JSON.stringify(availableMoves.dices),
+        })
+      }
     }, 1000)
   }
 
@@ -58,6 +67,7 @@ export function useDiceRoll() {
       clearInterval(rollInterval)
       isRolling.value = false
       displayedDice.value = dices
+      console.log('displayedDice', displayedDice.value, diceRolled.value)
     }, 1000)
   }
 
