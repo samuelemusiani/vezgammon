@@ -690,6 +690,31 @@ paths:
       summary: Get users' stats WITHOUT AUTH
       tags:
       - public
+  /player/{username}/avatar:
+    get:
+      consumes:
+      - application/json
+      description: Return the player avatar
+      parameters:
+      - description: username string
+        in: path
+        name: username
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            type: string
+        "404":
+          description: User not found
+        "500":
+          description: error
+      summary: Return the player avatar
+      tags:
+      - public
   /register:
     post:
       consumes:

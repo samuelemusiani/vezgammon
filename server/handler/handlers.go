@@ -28,6 +28,7 @@ func InitHandlers(conf *config.Config) (*gin.Engine, error) {
 	// middleware for backend API
 	protected := router.Group("/api")
 	protected.GET("/player/:username", GetPlayer)
+	protected.GET("/player/:username/avatar", GetPlayerAvatar)
 
 	protected.Use(AuthMiddleware())
 

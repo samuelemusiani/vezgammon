@@ -7,6 +7,7 @@ import (
 	"log"
 	"log/slog"
 	"net/http"
+
 	//"time"
 	"vezgammon/server/config"
 	"vezgammon/server/db"
@@ -61,7 +62,7 @@ func Register(c *gin.Context) {
 		return
 	}
 
-    avatar := "https://api.dicebear.com/6.x/avataaars/svg?seed=" + tempu.Username // default avatar from username
+	avatar := "https://api.dicebear.com/6.x/avataaars/svg?seed=" + tempu.Username // default avatar from username
 
 	u := types.User{
 		Username:  tempu.Username,
@@ -291,6 +292,32 @@ func GetPlayer(c *gin.Context) {
 
 	c.Set("user_id", u.ID)
 	GetStats(c)
+}
+
+// @Summary Return the player avatar
+// @Description Return the player avatar
+// @Tags public
+// @Accept json
+// @Produce json
+// @Param username path string true "username string"
+// @Success 200  string https://api.dicebear.com/9.x/adventurer/svg?seed=Maria
+// @Failure 404  "User not found"
+// @Failure 500 "error"
+// @Router /player/{username}/avatar [get]
+func GetPlayerAvatar(c *gin.Context) {
+	username := c.Param("username")
+
+	u, err := db.GetUserByUsername(username)
+	if err != nil {
+		if err == db.UserNotFound {
+			c.JSON(http.StatusNotFound, "User not found")
+			return
+		}
+		c.JSON(http.StatusInternalServerError, "")
+		return
+	}
+
+	c.JSON(http.StatusOK, u.Avatar)
 }
 
 /*
