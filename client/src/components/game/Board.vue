@@ -277,6 +277,7 @@ const handleCheckerClick = async (checker: Checker) => {
       'No possible moves or all sequences are empty, passing the turn',
     )
     await submitMoves()
+    $props.resetDiceState()
     $emits('fetch-moves')
     $emits('fetch-game-state')
     return
