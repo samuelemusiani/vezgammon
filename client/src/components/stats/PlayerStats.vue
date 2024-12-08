@@ -7,6 +7,7 @@
           <RecentGamesCard
             :games="stats.games_played"
             :currentUser="currentUsername as string"
+            :can-analyze="!generalStats"
           />
         </div>
 
@@ -14,7 +15,7 @@
           <EloChart :elo="stats.elo" />
         </div>
 
-        <div v-if="sharingEnabled" class="card-actions mt-2 justify-center">
+        <div v-if="!generalStats" class="card-actions mt-2 justify-center">
           <TelegramShareButton :url="gameShareUrl" :title="shareTitle" />
           <RedditShareButton :url="gameShareUrl" :title="shareTitle" />
           <BackToHomeButton @click="navigateHome" />
@@ -60,11 +61,11 @@ const stats = ref<GameStats>({
 
 const props = withDefaults(
   defineProps<{
-    sharingEnabled?: boolean
+    generalStats?: boolean
     username?: string | null
   }>(),
   {
-    sharingEnabled: true,
+    generalStats: false,
     username: null,
   },
 )

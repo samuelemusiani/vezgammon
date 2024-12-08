@@ -18,7 +18,7 @@
               v-for="game in sortedGames"
               :key="game.id"
               class="cursor-pointer hover:bg-base-300/50"
-              @click="navigateToGame(game.id)"
+              @click="canAnalyze ? navigateToGame(game.id) : {}"
             >
               <td class="font-medium">
                 {{ game.player1 }}
@@ -48,6 +48,7 @@ let router = useRouter()
 const props = defineProps<{
   games: GameState[]
   currentUser: string
+  canAnalyze: boolean
 }>()
 
 const sortedGames = computed(() => {
