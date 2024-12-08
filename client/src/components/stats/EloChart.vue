@@ -29,7 +29,7 @@ const props = defineProps<{
 }>()
 
 const chartData = computed(() => ({
-  labels: props.elo.map((_, index) => `${index + 1}`),
+  labels: props.elo.map((_, index) => `${index}`),
   datasets: [
     {
       label: 'Elo Rating',
