@@ -288,6 +288,17 @@ func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64)
 
 	slog.With("err", err).Debug("Getting bot user")
 
+	var avatar string
+	switch username {
+	case "Enzo":
+		avatar = "Andrea"
+	case "Giovanni":
+		avatar = "Luis"
+
+	default:
+		avatar = username
+	}
+
 	if err != nil {
 		if errors.Is(err, UserNotFound) {
 			// Insert the bot
@@ -298,7 +309,7 @@ func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64)
 				Mail:      mail,
 				Elo:       elo,
 				IsBot:     true,
-				Avatar:    "https://api.dicebear.com/6.x/avataaars/svg?seed=" + username,
+				Avatar:    "https://api.dicebear.com/6.x/avataaars/svg?seed=" + avatar,
 			}, "1234")
 
 			if err != nil {
