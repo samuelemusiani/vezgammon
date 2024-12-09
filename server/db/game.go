@@ -31,7 +31,7 @@ func initGame() error {
     current_player  BPCHAR DEFAULT 'p1',
 
 		dices INTEGER [],
-		tournament INTEGER REFERENCES tournaments(id) DEFAULT NULL
+		tournament INTEGER REFERENCES tournaments(id) ON DELETE SET NULL DEFAULT NULL
 	)
 	`
 	_, err := Conn.Exec(q)

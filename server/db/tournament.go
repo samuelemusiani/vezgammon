@@ -83,18 +83,6 @@ func UpdateTournament(t *types.Tournament) error {
 	return nil
 }
 
-func winNumber(winners []int64, user int64) int {
-	var count int
-
-	for _, w := range winners {
-		if w == user {
-			count++
-		}
-	}
-
-	return count
-}
-
 func TournamentToReturnTournament(t types.Tournament) (*types.ReturnTournament, error) {
 	var rt types.ReturnTournament
 
