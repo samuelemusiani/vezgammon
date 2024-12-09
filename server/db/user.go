@@ -69,7 +69,7 @@ func GetBotLevel(id int64) int {
 	return 0
 }
 
-func initUser() error {
+func InitUser() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY,
