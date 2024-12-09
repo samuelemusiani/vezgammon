@@ -21,7 +21,7 @@
           title="Win Rate"
           :value="`${stats.winrate}%`"
           valueClass="text-accent"
-          description="↗︎ Trending Up"
+          :description="getTrendDescription"
         />
       </div>
 
@@ -62,8 +62,9 @@
 
 <script setup lang="ts">
 import StatItem from './StatItem.vue'
+import { computed } from 'vue'
 
-defineProps<{
+const props = defineProps<{
   stats: {
     win: number
     lost: number
@@ -72,6 +73,17 @@ defineProps<{
     local: number
     online: number
     tournament: number
+    elo: number[]
   }
 }>()
+
+const getTrendDescription = computed(() => {
+  const elo = props.stats.elo
+  if (elo.length < 2) return ''
+
+  const lastElo = elo[elo.length - 1]
+  const previousElo = elo[elo.length - 2]
+
+  return lastElo > previousElo ? '↗︎ Trending Up' : '↘︎ Trending Down'
+})
 </script>
