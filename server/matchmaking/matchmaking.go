@@ -4,6 +4,7 @@ import (
 	//"errors"
 	"database/sql"
 	"log/slog"
+	"math"
 	"sync"
 	"time"
 	"vezgammon/server/types"
@@ -26,11 +27,16 @@ var ws WS
 func Init(databse DB, websocket WS) {
 	db = databse
 	ws = websocket
-	go worker()
+	go worker(false)
 }
 
-func worker() {
-	for {
+func worker(finite bool) {
+	var l int = 1
+	for l > 0 {
+		if finite {
+			l--
+		}
+
 		if length() < 2 {
 			time.Sleep(2 * time.Second)
 			continue
@@ -146,5 +152,5 @@ func checkIfValidOpponent(elo1, elo2 int64) bool {
 	if diff < 0 {
 		diff = -diff
 	}
-	return (elo1 - elo2) < 200
+	return math.Abs(float64(elo1-elo2)) < 200
 }

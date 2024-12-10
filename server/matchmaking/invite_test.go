@@ -2,33 +2,9 @@ package matchmaking
 
 import (
 	"testing"
-	"vezgammon/server/types"
 
 	"gotest.tools/v3/assert"
 )
-
-type MockDB struct{}
-
-func (m *MockDB) GetUser(id int64) (*types.User, error) {
-	switch id {
-	case 1:
-		return &types.User{ID: 1, Username: "User1"}, nil
-	case 2:
-		return &types.User{ID: 2, Username: "User2"}, nil
-	default:
-		panic("Invalid user id on DB MOCK")
-	}
-}
-
-func (m *MockDB) CreateGame(g types.Game) (*types.Game, error) {
-	return nil, nil
-}
-
-type MockWS struct{}
-
-func (m *MockWS) SendGameFound(int64) error {
-	return nil
-}
 
 func TestGenerateLink(t *testing.T) {
 	link, err := GenerateLink(1)
@@ -45,9 +21,7 @@ func TestGenerateLink(t *testing.T) {
 }
 
 func TestJoinLink(t *testing.T) {
-	db = &MockDB{}
-	ws = &MockWS{}
-
+	initMock()
 	link, err := GenerateLink(1)
 	assert.NilError(t, err)
 
