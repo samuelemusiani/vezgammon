@@ -79,7 +79,9 @@ func worker(finite bool) {
 			}
 		}
 		mutex.Unlock()
-		time.Sleep(5 * time.Second)
+		if !finite {
+			time.Sleep(5 * time.Second)
+		}
 	}
 }
 
