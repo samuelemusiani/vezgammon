@@ -11,6 +11,7 @@ import (
 
 func TestEmptyQueue(t *testing.T) {
 	assert.Equal(t, isEmpty(), true)
+	assert.Equal(t, length(), 0)
 }
 
 func TestPushPop(t *testing.T) {

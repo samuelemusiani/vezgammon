@@ -6,72 +6,86 @@ import (
 	"log/slog"
 	"sync"
 	"time"
-	"vezgammon/server/db"
 	"vezgammon/server/types"
-	"vezgammon/server/ws"
 )
 
 var mutex sync.Mutex
 
-func Init() {
-	go func() {
-		for {
-			if length() < 2 {
-				time.Sleep(2 * time.Second)
-				continue
-			}
-
-			mutex.Lock()
-			for i := range length() - 1 {
-				p1 := queue[(start+i)%qlen]
-				for j := range length() - i {
-					p2 := queue[(start+i+j+1)%qlen]
-					if checkIfValidOpponent(p1.Elo, p2.Elo) {
-						err := remove(p1)
-						if err != nil {
-							slog.With("err", err, "p1", p1).Error("Removing user1 from queue")
-							continue
-						}
-
-						err = remove(p2)
-						if err != nil {
-							slog.With("err", err, "p2", p2).Error("Removing user2 from queue")
-							continue
-						}
-
-						if err, _ := CreateGame(p1.User_id, p2.User_id, sql.NullInt64{Valid: false}); err != nil {
-							slog.With("err", err, "p1", p1.User_id, "p2", p2.User_id).Error("Creating game")
-							continue
-						}
-
-						err = ws.SendGameFound(p1.User_id)
-						if err != nil {
-							slog.With("err", err).Error("Sending message to player")
-						}
-
-						err = ws.SendGameFound(p2.User_id)
-						if err != nil {
-							slog.With("err", err).Error("Sending message to player")
-						}
-						continue
-					}
-				}
-			}
-			mutex.Unlock()
-			time.Sleep(5 * time.Second)
-		}
-	}()
+type DB interface {
+	GetUser(int64) (*types.User, error)
+	CreateGame(types.Game) (*types.Game, error)
 }
 
-func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) (error, *types.Game) {
+type WS interface {
+	SendGameFound(int64) error
+}
+
+var db DB
+var ws WS
+
+func Init(databse DB, websocket WS) {
+	db = databse
+	ws = websocket
+	go worker()
+}
+
+func worker() {
+	for {
+		if length() < 2 {
+			time.Sleep(2 * time.Second)
+			continue
+		}
+
+		mutex.Lock()
+		for i := range length() - 1 {
+			p1 := queue[(start+i)%qlen]
+			for j := range length() - i {
+				p2 := queue[(start+i+j+1)%qlen]
+				if checkIfValidOpponent(p1.Elo, p2.Elo) {
+					err := remove(p1)
+					if err != nil {
+						slog.With("err", err, "p1", p1).Error("Removing user1 from queue")
+						continue
+					}
+
+					err = remove(p2)
+					if err != nil {
+						slog.With("err", err, "p2", p2).Error("Removing user2 from queue")
+						continue
+					}
+
+					if _, err := CreateGame(p1.User_id, p2.User_id, sql.NullInt64{Valid: false}); err != nil {
+						slog.With("err", err, "p1", p1.User_id, "p2", p2.User_id).Error("Creating game")
+						continue
+					}
+
+					err = ws.SendGameFound(p1.User_id)
+					if err != nil {
+						slog.With("err", err).Error("Sending message to player")
+					}
+
+					err = ws.SendGameFound(p2.User_id)
+					if err != nil {
+						slog.With("err", err).Error("Sending message to player")
+					}
+					continue
+				}
+			}
+		}
+		mutex.Unlock()
+		time.Sleep(5 * time.Second)
+	}
+}
+
+func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) (*types.Game, error) {
 	user1, err := db.GetUser(user_id1)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	user2, err := db.GetUser(user_id2)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
 	var dices = types.NewDices()
@@ -96,10 +110,10 @@ func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) (error, *typ
 
 	retgame, err := db.CreateGame(game)
 	if err != nil {
-		return err, nil
+		return nil, err
 	}
 
-	return nil, retgame
+	return retgame, nil
 }
 
 func StopSearch(uid int64) error {

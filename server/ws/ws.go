@@ -30,6 +30,12 @@ var clients sync.Map
 var users sync.Map
 var disconnect sync.Map
 
+type Websocket struct{}
+
+func GetWebsocket() Websocket {
+	return Websocket{}
+}
+
 func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 	slog.Info("Starting WebSocket connection", "user_id", user_id)
 	slog.Debug("Request headers", "headers", r.Header)
@@ -144,4 +150,8 @@ func TournamentNewUserEnrolled(user_id int64) error {
 
 func TournamentUserLeft(user_id int64) error {
 	return SendMessage(user_id, Message{Type: "tournament_user_left"})
+}
+
+func (ws Websocket) SendGameFound(user_id int64) error {
+	return SendGameFound(user_id)
 }
