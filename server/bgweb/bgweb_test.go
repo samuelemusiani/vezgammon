@@ -247,6 +247,13 @@ func TestMoveArrayToMoveArrayArray(t *testing.T) {
 	assert.DeepEqual(t, MoveArrayToMoveArrayArray(movesarray), typemovesarray)
 }
 
+var basegame = types.Game{
+	P1Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+	P2Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+	CurrentPlayer: types.GameCurrentPlayerP1,
+	Dices:         types.Dices{3, 1},
+}
+
 func TestGetLegalMoves(t *testing.T) {
 	typemovesarray := [][]types.Move{
 		{{From: 24, To: 21}, {From: 24, To: 23}},
@@ -283,14 +290,49 @@ func TestGetLegalMoves(t *testing.T) {
 		{{From: 13, To: 10}, {From: 10, To: 9}},
 	}
 
-	game := types.Game{
-		P1Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-		P2Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
-		CurrentPlayer: types.GameCurrentPlayerP1,
-		Dices:         types.Dices{3, 1},
-	}
-
-	legalmoves, err := GetLegalMoves(&game)
+	legalmoves, err := GetLegalMoves(&basegame)
 	assert.NilError(t, err)
 	assert.DeepEqual(t, legalmoves, typemovesarray)
+}
+
+func TestNormalizeTurn(t *testing.T) {
+	game := types.Game{
+		ID:      1,
+		Player2: 123,
+	}
+
+	var turn types.Turn
+
+	retturn := normalizeTurn(&turn, &game)
+	assert.Equal(t, retturn.GameId, game.ID)
+	assert.Equal(t, retturn.User, game.Player2)
+}
+
+func TestGetBestMove(t *testing.T) {
+	move := []types.Move{
+		{
+			From: 8,
+			To:   5,
+		},
+		{
+			From: 6,
+			To:   5,
+		},
+	}
+
+	bestmove, err := GetBestMove(&basegame)
+	assert.NilError(t, err)
+	assert.DeepEqual(t, bestmove, move)
+}
+
+func TestGetEasyMove(t *testing.T) {
+	moves, err := GetEasyMove(&basegame)
+	assert.NilError(t, err)
+	assert.Equal(t, len(moves), 2)
+}
+
+func TestGetMediumMove(t *testing.T) {
+	moves, err := GetMediumMove(&basegame)
+	assert.NilError(t, err)
+	assert.Equal(t, len(moves), 2)
 }
