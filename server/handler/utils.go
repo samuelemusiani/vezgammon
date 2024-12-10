@@ -65,7 +65,7 @@ func tournamentMatchCreate(user1, user2 int64, tournament sql.NullInt64) error {
 
 	// if both players are bots
 	if (db.GetBotLevel(user1) != 0) && (db.GetBotLevel(user2) != 0) {
-		err, game := matchmaking.CreateGame(user1, user2, tournament)
+		game, err := matchmaking.CreateGame(user1, user2, tournament)
 		if err != nil {
 			return err
 		}
@@ -84,7 +84,7 @@ func tournamentMatchCreate(user1, user2 int64, tournament sql.NullInt64) error {
 		}
 		ws.GameTournamentReady(user1)
 	} else {
-		err, _ := matchmaking.CreateGame(user1, user2, tournament)
+		_, err := matchmaking.CreateGame(user1, user2, tournament)
 		if err != nil {
 			return err
 		}
