@@ -57,7 +57,7 @@ pipeline {
         script {
           scannerHome = tool 'SonarScanner';
         }
-        withSonarQubeEnv('vezgammon') {
+        withSonarQubeEnv('vezgammon-dev') {
           sh "${scannerHome}/bin/sonar-scanner"
         }
       }
