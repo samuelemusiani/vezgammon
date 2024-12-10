@@ -132,17 +132,17 @@ func GetUsers() ([]types.User, error) {
 		var tmp types.User
 		var pass string
 		err = rows.Scan(
-            &tmp.ID,
-            &tmp.Username,
-            &pass,
-            &tmp.Firstname,
-            &tmp.Lastname,
-            &tmp.Mail,
-            &tmp.Elo,
-            &tmp.Avatar,
-            &tmp.IsBot,
-        )
-        if err != nil {
+			&tmp.ID,
+			&tmp.Username,
+			&pass,
+			&tmp.Firstname,
+			&tmp.Lastname,
+			&tmp.Mail,
+			&tmp.Elo,
+			&tmp.Avatar,
+			&tmp.IsBot,
+		)
+		if err != nil {
 			return nil, err
 		}
 
@@ -359,12 +359,12 @@ func GetStats(userID int64) (*types.Stats, error) {
 		} else if game.GameType == types.GameTypeOnline {
 			stats.Online++
 		} else {
-            slog.With("game type", game.GameType).Error("Unknown game type")
-        }
+			slog.With("game type", game.GameType).Error("Unknown game type")
+		}
 
 		if game.GameType == types.GameTypeOnline { // no sense to count local games in winrate statistics
-		    isPlayer1Winner := game.Status == types.GameStatusWinP1 && game.Player1 == u.Username
-            isPlayer2Winner := game.Status == types.GameStatusWinP2 && game.Player2 == u.Username
+			isPlayer1Winner := game.Status == types.GameStatusWinP1 && game.Player1 == u.Username
+			isPlayer2Winner := game.Status == types.GameStatusWinP2 && game.Player2 == u.Username
 
 			if isPlayer1Winner || isPlayer2Winner {
 				stats.Won++
@@ -488,7 +488,7 @@ func GetBadge(userID int64) (*types.Badge, error) {
 		isPlayer1Winner := game.Status == types.GameStatusWinP1 && game.Player1 == user.Username
 		isPlayer2Winner := game.Status == types.GameStatusWinP2 && game.Player2 == user.Username
 		if isPlayer1Winner || isPlayer2Winner {
-		    gw++
+			gw++
 
 			//shortest game
 			timeDiff := game.End.Sub(game.Start)
@@ -503,8 +503,8 @@ func GetBadge(userID int64) (*types.Badge, error) {
 			} else if timeDiff <= 10*time.Minute {
 				badge.Wontime[0] = 1
 			} else {
-                continue
-            }
+				continue
+			}
 		}
 	}
 

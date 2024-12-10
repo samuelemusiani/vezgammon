@@ -7,11 +7,11 @@ const TournamentStatusInProgress = "in_progress"
 const TournamentStatusEnded = "ended"
 
 type Tournament struct {
-	ID           int64     `json:"id" example:"1"`
-	Name         string    `json:"name" example:"Tournament name"`
-	Owner        int64     `json:"owner" example:"1"`
-	Status       string    `json:"status" example:"open"`
-	Users        []int64   `json:"users" example:"1,2,3"`
+	ID     int64   `json:"id" example:"1"`
+	Name   string  `json:"name" example:"Tournament name"`
+	Owner  int64   `json:"owner" example:"1"`
+	Status string  `json:"status" example:"open"`
+	Users  []int64 `json:"users" example:"1,2,3"`
 	// last winner at the end, used to calculate the next round and the leader board
 	Winners      []int64   `json:"winners" example:"1,2,3"`
 	CreationDate time.Time `json:"creation_date" example:"2021-09-01T00:00:00Z"`

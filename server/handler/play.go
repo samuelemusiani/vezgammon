@@ -601,14 +601,14 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
-    invalidDoubleOwner := g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner != g.CurrentPlayer
-    maxDoubleValueReached := g.DoubleValue == 64
-    invalidDoubleForCurrentPlayer := g.DoubleOwner == types.GameDoubleOwnerAll && currentPlayerID != userId
+	invalidDoubleOwner := g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner != g.CurrentPlayer
+	maxDoubleValueReached := g.DoubleValue == 64
+	invalidDoubleForCurrentPlayer := g.DoubleOwner == types.GameDoubleOwnerAll && currentPlayerID != userId
 
-    if invalidDoubleOwner || maxDoubleValueReached || invalidDoubleForCurrentPlayer {
-        c.JSON(http.StatusBadRequest, ErrDoubleNotPossible.Error())
-        return
-    }
+	if invalidDoubleOwner || maxDoubleValueReached || invalidDoubleForCurrentPlayer {
+		c.JSON(http.StatusBadRequest, ErrDoubleNotPossible.Error())
+		return
+	}
 
 	g.WantToDouble = true
 	g.DoubleOwner = invertPlayer(g.CurrentPlayer)
