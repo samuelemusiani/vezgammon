@@ -43,8 +43,7 @@ import RedditShareButton from '@/components/buttons/RedditShare.vue'
 import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
 import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
 
-import type { GameStats } from '@/utils/types'
-import type { User } from '@/utils/types'
+import type { GameStats, User } from '@/utils/types'
 
 const stats = ref<GameStats>({
   games_played: [],

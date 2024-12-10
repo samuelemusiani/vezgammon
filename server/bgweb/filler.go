@@ -90,7 +90,9 @@ func countMan(pos int64, m []types.Move) int8 {
 			count--
 		} else if m[i].To == pos {
 			count++
-		}
+		} else {
+            continue
+        }
 	}
 
 	return count

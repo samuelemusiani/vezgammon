@@ -85,10 +85,11 @@ function RIMUOVERE() {
           <!-- Form di Login -->
           <form @submit.prevent="login">
             <div class="form-control">
-              <label class="label">
+              <label class="label" for="username">
                 <span class="label-text">Username or Email</span>
               </label>
               <input
+                id="username"
                 type="text"
                 placeholder="Enter Username"
                 v-model="username"
@@ -97,17 +98,21 @@ function RIMUOVERE() {
             </div>
 
             <div class="form-control mt-4">
-              <label class="label">
+              <label class="label" for="password">
                 <span class="label-text">Password</span>
               </label>
               <input
+                id="password"
                 type="password"
                 placeholder="Enter Password"
                 v-model="passwd"
                 class="input input-bordered w-full bg-base-200 focus:ring-primary"
               />
-              <label class="label">
-                <a href="#" class="link-hover link label-text-alt"
+              <label class="label" for="forgot-password">
+                <a
+                  href="#"
+                  class="link-hover link label-text-alt"
+                  id="forgot-password"
                   >Forgot password?</a
                 >
               </label>

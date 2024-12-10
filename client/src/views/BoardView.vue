@@ -86,48 +86,70 @@ onUnmounted(() => {
   webSocketStore.removeMessageHandler(handleMessage)
 })
 
+const handleTurnMade = async () => {
+  await fetchGameState()
+  await fetchMoves()
+  resetDiceState()
+  if (gameState.value?.game_type === 'online') startTimer()
+  isMyTurn.value = true
+}
+
+const handleDiceRolled = (payload: string) => {
+  const diceData = JSON.parse(payload)
+  console.log('Dice rolled:', diceData)
+  showDiceFromOpponent(diceData)
+}
+
+const updateCheckerPositionForPlayer1 = (move: Move) => {
+  if (gameState.value?.p1checkers[25 - move.to] === 1) {
+    gameState.value.p1checkers[25 - move.to] = 0
+    gameState.value.p1checkers[0]++
+  }
+  gameState.value!.p2checkers[move.from]--
+  if (move.to !== 25) {
+    gameState.value!.p2checkers[move.to]++
+  }
+}
+
+const updateCheckerPositionForPlayer2 = (move: Move) => {
+  if (gameState.value?.p2checkers[25 - move.to] === 1) {
+    gameState.value.p2checkers[25 - move.to] = 0
+    gameState.value.p2checkers[0]++
+  }
+  gameState.value!.p1checkers[move.from]--
+  if (move.to !== 25) {
+    gameState.value!.p1checkers[move.to]++
+  }
+}
+
+const handleMoveMade = (moveData: { move: Move }) => {
+  if (!gameState.value) return
+
+  const move = moveData.move
+  if (whichPlayerAmI.value === 'p1') updateCheckerPositionForPlayer1(move)
+  else updateCheckerPositionForPlayer2(move)
+}
+
 const handleMessage = async (message: WSMessage) => {
-  if (message.type === 'turn_made') {
-    await fetchGameState()
-    await fetchMoves()
-    resetDiceState()
-    if (gameState.value?.game_type === 'online') startTimer()
-    isMyTurn.value = true
-  } else if (message.type === 'want_to_double') {
-    showDoubleModal.value = true
-  } else if (message.type === 'double_accepted') {
-    await fetchGameState()
-  } else if (message.type === 'dice_rolled') {
-    const diceData = JSON.parse(message.payload)
-    console.log('Dice rolled:', diceData)
-    showDiceFromOpponent(diceData)
-  } else if (message.type === 'game_end') {
-    await handleEnd(session.value)
-  } else if (message.type === 'move_made') {
-    if (!gameState.value) return
-
-    const moveData = JSON.parse(message.payload)
-    const move = moveData.move as Move
-
-    if (whichPlayerAmI.value === 'p1') {
-      if (gameState.value.p1checkers[25 - move.to] === 1) {
-        gameState.value.p1checkers[25 - move.to] = 0
-        gameState.value.p1checkers[0]++
-      }
-      gameState.value.p2checkers[move.from]--
-      if (move.to !== 25) {
-        gameState.value.p2checkers[move.to]++
-      }
-    } else {
-      if (gameState.value.p2checkers[25 - move.to] === 1) {
-        gameState.value.p2checkers[25 - move.to] = 0
-        gameState.value.p2checkers[0]++
-      }
-      gameState.value.p1checkers[move.from]--
-      if (move.to !== 25) {
-        gameState.value.p1checkers[move.to]++
-      }
-    }
+  switch (message.type) {
+    case 'turn_made':
+      await handleTurnMade()
+      break
+    case 'want_to_double':
+      showDoubleModal.value = true
+      break
+    case 'double_accepted':
+      await fetchGameState()
+      break
+    case 'dice_rolled':
+      handleDiceRolled(message.payload)
+      break
+    case 'game_end':
+      await handleEnd(session.value)
+      break
+    case 'move_made':
+      handleMoveMade(JSON.parse(message.payload))
+      break
   }
 }
 

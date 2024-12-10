@@ -85,13 +85,13 @@ func worker(finite bool) {
 	}
 }
 
-func CreateGame(user_id1, user_id2 int64, tournament sql.NullInt64) (*types.Game, error) {
-	user1, err := db.GetUser(user_id1)
+func CreateGame(userID1, userID2 int64, tournament sql.NullInt64) (*types.Game, error) {
+	user1, err := db.GetUser(userID1)
 	if err != nil {
 		return nil, err
 	}
 
-	user2, err := db.GetUser(user_id2)
+	user2, err := db.GetUser(userID2)
 	if err != nil {
 		return nil, err
 	}

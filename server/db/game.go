@@ -274,11 +274,11 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	return &g, nil
 }
 
-func getGameType(p1_id, p2_id int64) string {
+func getGameType(p1ID, p2ID int64) string {
 	var gameType string
-	if p1_id == p2_id {
+	if p1ID == p2ID {
 		gameType = types.GameTypeLocal
-	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+	} else if GetBotLevel(p1ID) != 0 || GetBotLevel(p2ID) != 0 {
 		gameType = types.GameTypeBot
 	} else {
 		gameType = types.GameTypeOnline

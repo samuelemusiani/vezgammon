@@ -21,7 +21,7 @@ func Init(database Database) {
 	db = database
 }
 
-func chat(conn *websocket.Conn, user_id int64) {
+func chat(conn *websocket.Conn, userID int64) {
 	defer conn.Close()
 	var m Message
 	for {
@@ -33,20 +33,20 @@ func chat(conn *websocket.Conn, user_id int64) {
 			if websocket.IsCloseError(err, websocket.CloseGoingAway) ||
 				websocket.IsCloseError(err, websocket.CloseNormalClosure) {
 				slog.Debug("Normal closure")
-				value, ok := disconnect.Load(user_id)
+				value, ok := disconnect.Load(userID)
 				if !ok {
 					break
 				}
 				f := value.(func(int64) error)
 				slog.Debug("Removing player from matchmaking queue")
 
-				err := f(user_id)
+				err := f(userID)
 				slog.With("err", err).Error("Removing player from matchmaking queue")
 			}
 			break
 		}
 
-		err = chatRespondeToMessage(user_id, m)
+		err = chatRespondeToMessage(userID, m)
 		if err != nil {
 			slog.With("err", err).Error("Error responding to message")
 			break
@@ -54,10 +54,10 @@ func chat(conn *websocket.Conn, user_id int64) {
 	}
 }
 
-func chatRespondeToMessage(user_id int64, m Message) error {
+func chatRespondeToMessage(userID int64, m Message) error {
 	slog.With("message", m).Debug("Received message")
 
-	rg, err := db.GetCurrentGame(user_id)
+	rg, err := db.GetCurrentGame(userID)
 	if err != nil {
 		slog.With("err", err).Error("Error getting current game in chat")
 		return nil
@@ -70,7 +70,7 @@ func chatRespondeToMessage(user_id int64, m Message) error {
 	}
 
 	var oppoonentId int64
-	if g.Player1 == user_id {
+	if g.Player1 == userID {
 		oppoonentId = g.Player2
 	} else {
 		oppoonentId = g.Player1

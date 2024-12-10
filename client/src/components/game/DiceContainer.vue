@@ -19,9 +19,7 @@ watchEffect(() => {
   currentDice.value = props.dicesReplay || props.displayedDice
 })
 
-defineEmits<{
-  (e: 'roll'): void
-}>()
+defineEmits<(e: 'roll') => void>()
 </script>
 
 <template>
