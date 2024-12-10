@@ -6,7 +6,7 @@
       <h3 class="card-title text-2xl text-primary">Performance Overview</h3>
 
       <!-- First Row: Local, CPU, and Tournament Games -->
-      <div class="grid grid-cols-3 gap-4 mb-4">
+      <div class="mb-4 grid grid-cols-3 gap-4">
         <StatItem
           title="Local Games"
           :value="stats.local"
