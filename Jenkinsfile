@@ -47,6 +47,21 @@ pipeline {
         }
       }
     }
+    stage('DEV SonarQube Analysis') {
+      when {
+        branch 'develop'
+      }
+      steps {
+        sh 'sed -i 's/vezgammon/dev/g' sonar-project.properties'
+        sh 'sed -i 's/Vezgammon/Dev/g' sonar-project.properties'
+        script {
+          scannerHome = tool 'SonarScanner';
+        }
+        withSonarQubeEnv('vezgammon') {
+          sh "${scannerHome}/bin/sonar-scanner"
+        }
+      }
+    }
     stage('Deploy on dev') {
       when {
         branch 'develop'
