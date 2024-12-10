@@ -103,3 +103,11 @@ func (e Database) CreateGame(g types.Game) (*types.Game, error) {
 func (e Database) GetUser(id int64) (*types.User, error) {
 	return GetUser(id)
 }
+
+func (e Database) GetCurrentGame(userId int64) (*types.ReturnGame, error) {
+	return GetCurrentGame(userId)
+}
+
+func (e Database) GetGame(id int64) (*types.Game, error) {
+	return GetGame(id)
+}

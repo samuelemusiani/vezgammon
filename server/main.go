@@ -36,6 +36,7 @@ func main() {
 
 	bgweb.Init(conf)
 
+	ws.Init(database)
 	websocket := ws.GetWebsocket()
 
 	matchmaking.Init(database, websocket)
