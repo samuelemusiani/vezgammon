@@ -222,7 +222,8 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
     JOIN
     	users u2 ON g.p2_id = u2.id
     WHERE
-    	g.status = 'open' AND (g.p1_id = $1 OR g.p2_id = $1)
+        g.status = 'open' AND (g.p1_id = $1 OR g.p2_id = $1)
+    ORDER BY g.start DESC
     LIMIT 1
 	`
 
