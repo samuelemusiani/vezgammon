@@ -1,10 +1,5 @@
 import { ref } from 'vue'
-import type {
-  Move,
-  Checker,
-  GameState,
-  MovesResponse,
-} from '@/utils/game/types'
+import type { Move, Checker } from '@/utils/game/types'
 
 export function useGameMoves() {
   const selectedChecker = ref<Checker | null>(null)

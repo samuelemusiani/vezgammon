@@ -8,6 +8,15 @@ import (
 	"gotest.tools/v3/assert"
 )
 
+func getTestGame() types.Game {
+	g := types.Game{}
+	g.P1Checkers = [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+	g.P2Checkers = [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+	g.Dices = [2]int{3, 1}
+
+	return g
+}
+
 func TestGetmoves(t *testing.T) {
 
 	url = "localhost:3030/api/v1/"

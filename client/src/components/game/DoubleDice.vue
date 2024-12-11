@@ -6,9 +6,7 @@ interface DoubleDiceProps {
 
 defineProps<DoubleDiceProps>()
 
-defineEmits<{
-  (e: 'double'): void
-}>()
+defineEmits<(e: 'double') => void>()
 </script>
 
 <template>

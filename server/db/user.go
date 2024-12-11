@@ -69,7 +69,7 @@ func GetBotLevel(id int64) int {
 	return 0
 }
 
-func initUser() error {
+func InitUser() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY,
@@ -131,7 +131,17 @@ func GetUsers() ([]types.User, error) {
 	for rows.Next() {
 		var tmp types.User
 		var pass string
-		err = rows.Scan(&tmp.ID, &tmp.Username, &pass, &tmp.Firstname, &tmp.Lastname, &tmp.Mail, &tmp.Elo, &tmp.Avatar, &tmp.IsBot)
+		err = rows.Scan(
+			&tmp.ID,
+			&tmp.Username,
+			&pass,
+			&tmp.Firstname,
+			&tmp.Lastname,
+			&tmp.Mail,
+			&tmp.Elo,
+			&tmp.Avatar,
+			&tmp.IsBot,
+		)
 		if err != nil {
 			return nil, err
 		}
@@ -231,7 +241,7 @@ func Logout(sessionToken string) error {
 }
 
 func GetUserByUsername(username string) (*types.User, error) {
-	q := `SELECT id, username, firstname, lastname, mail, elo, avatar
+	q := `SELECT id, username, firstname, lastname, mail, elo, avatar, is_bot
           FROM users
           WHERE username = $1`
 
@@ -244,6 +254,7 @@ func GetUserByUsername(username string) (*types.User, error) {
 		&tmp.Mail,
 		&tmp.Elo,
 		&tmp.Avatar,
+		&tmp.IsBot,
 	)
 
 	if err != nil {
@@ -324,17 +335,17 @@ func insertBotIfNotExists(username, firstname, lastname, mail string, elo int64)
 	return nil
 }
 
-func GetStats(user_id int64) (*types.Stats, error) {
+func GetStats(userID int64) (*types.Stats, error) {
 	stats := new(types.Stats)
 
-	//partite dal db con current state won lost del player(user_id)
-	u, err := GetUser(user_id)
+	//partite dal db con current state won lost del player(userID)
+	u, err := GetUser(userID)
 	if err != nil {
 		return nil, err
 	}
 
 	var gp []types.ReturnGame
-	gp, err = GetAllGameFromUser(user_id)
+	gp, err = GetAllGameFromUser(userID)
 	if err != nil {
 		return nil, err
 	}
@@ -348,10 +359,15 @@ func GetStats(user_id int64) (*types.Stats, error) {
 			stats.Local++
 		} else if game.GameType == types.GameTypeOnline {
 			stats.Online++
+		} else {
+			slog.With("game type", game.GameType).Error("Unknown game type")
 		}
 
 		if game.GameType == types.GameTypeOnline { // no sense to count local games in winrate statistics
-			if (game.Status == types.GameStatusWinP1 && game.Player1 == u.Username) || (game.Status == types.GameStatusWinP2 && game.Player2 == u.Username) {
+			isPlayer1Winner := game.Status == types.GameStatusWinP1 && game.Player1 == u.Username
+			isPlayer2Winner := game.Status == types.GameStatusWinP2 && game.Player2 == u.Username
+
+			if isPlayer1Winner || isPlayer2Winner {
 				stats.Won++
 			} else {
 				stats.Lost++
@@ -386,14 +402,14 @@ func GetStats(user_id int64) (*types.Stats, error) {
 	return stats, nil
 }
 
-func UpdateUserElo(user_id int64, elo int64) error {
+func UpdateUserElo(userID int64, elo int64) error {
 	q := `UPDATE users SET elo = $1 WHERE id = $2`
-	_, err := Conn.Exec(q, elo, user_id)
+	_, err := Conn.Exec(q, elo, userID)
 	return err
 }
 
-func GetBadge(user_id int64) (*types.Badge, error) {
-	user, err := GetUser(user_id)
+func GetBadge(userID int64) (*types.Badge, error) {
+	user, err := GetUser(userID)
 	if err != nil {
 		slog.With("err", err).Debug("Badge")
 		return nil, err
@@ -409,7 +425,7 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		homepieces int
 	)
 
-	gp, err = GetAllGameFromUser(user_id)
+	gp, err = GetAllGameFromUser(userID)
 	slog.With("gp", gp).Debug("Badge games")
 
 	for _, game := range gp {
@@ -426,7 +442,9 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		//bot difficulty
 		if game.GameType == types.GameTypeBot {
 			// if lost against bot skip game
-			if !(user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2) {
+			isPlayer1Winner := game.Status == types.GameStatusWinP1 && game.Player1 == user.Username
+			isPlayer2Winner := game.Status == types.GameStatusWinP2 && game.Player2 == user.Username
+			if !(isPlayer1Winner || isPlayer2Winner) {
 				continue
 			}
 			slog.With("game type", game.GameType).Debug("capiamo?")
@@ -468,7 +486,9 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 		slog.With("home pieces", homepieces).Debug("Badge")
 
 		//game won counter
-		if user.Username == game.Player1 && game.Status == types.GameStatusWinP1 || user.Username == game.Player2 && game.Status == types.GameStatusWinP2 {
+		isPlayer1Winner := game.Status == types.GameStatusWinP1 && game.Player1 == user.Username
+		isPlayer2Winner := game.Status == types.GameStatusWinP2 && game.Player2 == user.Username
+		if isPlayer1Winner || isPlayer2Winner {
 			gw++
 
 			//shortest game
@@ -483,8 +503,9 @@ func GetBadge(user_id int64) (*types.Badge, error) {
 				badge.Wontime[1] = 2
 			} else if timeDiff <= 10*time.Minute {
 				badge.Wontime[0] = 1
+			} else {
+				continue
 			}
-
 		}
 	}
 
@@ -595,14 +616,14 @@ func getLeaderboard() ([]types.LeaderboardUser, error) {
 	return lb, nil
 }
 
-func ChangeAvatar(user_id int64, avatar string) error {
+func ChangeAvatar(userID int64, avatar string) error {
 	slog.With("avatar", avatar).Debug("Avatar")
 	q := `
     UPDATE users
     SET avatar = $2
     WHERE id = $1
     `
-	_, err := Conn.Exec(q, user_id, avatar)
+	_, err := Conn.Exec(q, userID, avatar)
 	if err != nil {
 		return err
 	}

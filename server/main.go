@@ -9,6 +9,7 @@ import (
 	"vezgammon/server/db"
 	"vezgammon/server/handler"
 	"vezgammon/server/matchmaking"
+	"vezgammon/server/ws"
 )
 
 func main() {
@@ -26,14 +27,19 @@ func main() {
 
 	conf := config.Get()
 
-	err = db.Init(conf)
+	database := db.GetDatabase()
+
+	err = database.Init(conf)
 	if err != nil {
 		log.Fatal(err)
 	}
 
 	bgweb.Init(conf)
 
-	matchmaking.Init()
+	ws.Init(database)
+	websocket := ws.GetWebsocket()
+
+	matchmaking.Init(database, websocket)
 
 	router, err := handler.InitHandlers(conf)
 	if err != nil {

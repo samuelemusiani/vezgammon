@@ -8,11 +8,18 @@ import (
 	"strings"
 	"time"
 	"vezgammon/server/config"
+	"vezgammon/server/types"
 
 	_ "github.com/lib/pq"
 )
 
 var Conn *sql.DB
+
+type Database struct{}
+
+func GetDatabase() Database {
+	return Database{}
+}
 
 func Init(conf *config.Config) error {
 	var user, password, address string
@@ -57,7 +64,7 @@ func Init(conf *config.Config) error {
 	}
 
 	// database initialization
-	err = initUser()
+	err = InitUser()
 	if err != nil {
 		slog.With("err", err).Debug("init users")
 		return err
@@ -82,5 +89,25 @@ func Init(conf *config.Config) error {
 		return err
 	}
 
-	return err
+	return nil
+}
+
+func (e Database) Init(conf *config.Config) error {
+	return Init(conf)
+}
+
+func (e Database) CreateGame(g types.Game) (*types.Game, error) {
+	return CreateGame(g)
+}
+
+func (e Database) GetUser(id int64) (*types.User, error) {
+	return GetUser(id)
+}
+
+func (e Database) GetCurrentGame(userId int64) (*types.ReturnGame, error) {
+	return GetCurrentGame(userId)
+}
+
+func (e Database) GetGame(id int64) (*types.Game, error) {
+	return GetGame(id)
 }

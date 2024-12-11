@@ -9,6 +9,7 @@ import (
 )
 
 var tournament types.Tournament
+var returnTournament types.ReturnTournament
 var u1, u2 types.User
 
 func TestCreateTournament(t *testing.T) {
@@ -27,18 +28,19 @@ func TestCreateTournament(t *testing.T) {
 	}
 
 	password := "fgdfdfb"
+	var err error
 
-	retuser1, err := CreateUser(u1, password)
+	u1, err = CreateUser(u1, password)
 	assert.NilError(t, err)
 
-	retuser2, err := CreateUser(u2, password)
+	u2, err = CreateUser(u2, password)
 	assert.NilError(t, err)
 
 	tournament = types.Tournament{
 		Name:   "Tournament1",
-		Owner:  retuser1.ID,
-		Status: types.TournamentStatusInProgress,
-		Users:  []int64{retuser1.ID, retuser2.ID},
+		Owner:  u1.ID,
+		Status: types.TournamentStatusWaiting,
+		Users:  []int64{u1.ID, u2.ID},
 	}
 
 	rettour, err := CreateTournament(tournament)
@@ -85,10 +87,34 @@ func TestGetAllTournamentGames(t *testing.T) {
 }
 
 func TestTournamentToReturnTournament(t *testing.T) {
-	rett, err := TournamentToReturnTournament(tournament)
+
+	rt, err := TournamentToReturnTournament(tournament)
 	assert.NilError(t, err)
 
-	assert.Equal(t, rett.Owner, u1.Username)
-	assert.Equal(t, rett.Users[0], u1.Username)
-	assert.Equal(t, rett.Users[1], u2.Username)
+	returnTournament = *rt
+
+	assert.Equal(t, returnTournament.Owner, u1.Username)
+	assert.Equal(t, returnTournament.Users[0], u1.Username)
+	assert.Equal(t, returnTournament.Users[1], u2.Username)
+	assert.Equal(t, returnTournament.Status, types.TournamentStatusEnded)
+	assert.Equal(t, len(returnTournament.Games), 1)
+}
+
+func TestReturnTournamentToTournament(t *testing.T) {
+	tour, err := ReturnTournamentToTournament(returnTournament)
+	assert.NilError(t, err)
+
+	assert.Equal(t, tour.ID, tournament.ID)
+	assert.Equal(t, tour.Name, tournament.Name)
+	assert.Equal(t, tour.Status, tournament.Status)
+	assert.DeepEqual(t, tour.Users, tournament.Users)
+}
+
+func TestDeleteTournament(t *testing.T) {
+
+	err := DeleteTournament(tournament.ID)
+	assert.NilError(t, err)
+
+	_, err = GetTournament(tournament.ID)
+	assert.Error(t, err, sql.ErrNoRows.Error())
 }

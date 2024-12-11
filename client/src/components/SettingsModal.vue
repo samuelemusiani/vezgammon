@@ -16,10 +16,11 @@
       </div>
 
       <div class="form-control">
-        <label class="label">
+        <label class="label" for="theme-selector">
           <span class="label-text">Theme</span>
         </label>
         <select
+          id="theme-selector"
           class="select select-bordered w-full bg-base-100"
           :value="currentTheme"
           @change="e => changeTheme((e.target as HTMLSelectElement).value)"
@@ -43,10 +44,11 @@
 
         <div v-if="showPasswordSection" class="mt-4 space-y-2">
           <div>
-            <label class="label">
+            <label class="label" for="current-password">
               <span class="label-text">Current Password</span>
             </label>
             <input
+              id="current-password"
               type="password"
               v-model="currentPassword"
               class="input input-bordered w-full"
@@ -55,10 +57,11 @@
           </div>
 
           <div>
-            <label class="label">
+            <label class="label" for="new-password">
               <span class="label-text">New Password</span>
             </label>
             <input
+              id="new-password"
               type="password"
               v-model="newPassword"
               class="input input-bordered w-full"
@@ -67,10 +70,11 @@
           </div>
 
           <div>
-            <label class="label">
+            <label class="label" for="new-password-confirm">
               <span class="label-text">Confirm New Password</span>
             </label>
             <input
+              id="new-password-confirm"
               type="password"
               v-model="confirmPassword"
               class="input input-bordered w-full"
@@ -109,9 +113,10 @@
 
         <div v-if="showAvatarSection" class="mt-4 space-y-2">
           <div>
-            <label class="label">
+            <label class="label" for="current-avatar">
               <span class="label-text">Current Avatar</span>
               <input
+                id="current-avatar"
                 type="text"
                 readonly
                 class="input input-bordered w-full"
@@ -123,9 +128,10 @@
                 alt="Current avatar"
               />
             </label>
-            <label class="label">
+            <label class="label" for="new-avatar">
               <span class="label-text">New Avatar</span>
               <input
+                id="new-avatar"
                 type="text"
                 class="input input-bordered w-full"
                 v-model="newAvatar"
