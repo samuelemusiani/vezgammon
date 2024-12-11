@@ -69,7 +69,7 @@ func GetBotLevel(id int64) int {
 	return 0
 }
 
-func initUser() error {
+func InitUser() error {
 	q := `
 	CREATE TABLE IF NOT EXISTS users(
 		id SERIAL PRIMARY KEY,
@@ -241,7 +241,7 @@ func Logout(sessionToken string) error {
 }
 
 func GetUserByUsername(username string) (*types.User, error) {
-	q := `SELECT id, username, firstname, lastname, mail, elo, avatar
+	q := `SELECT id, username, firstname, lastname, mail, elo, avatar, is_bot
           FROM users
           WHERE username = $1`
 
@@ -254,6 +254,7 @@ func GetUserByUsername(username string) (*types.User, error) {
 		&tmp.Mail,
 		&tmp.Elo,
 		&tmp.Avatar,
+		&tmp.IsBot,
 	)
 
 	if err != nil {

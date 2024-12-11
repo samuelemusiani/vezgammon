@@ -12,18 +12,10 @@ type Tournament struct {
 	Owner  int64   `json:"owner" example:"1"`
 	Status string  `json:"status" example:"open"`
 	Users  []int64 `json:"users" example:"1,2,3"`
-	// last winner at the end, used to calculate the next round and the leader board
-	Winners      []int64   `json:"winners" example:"1,2,3"`
+	// last winner at the end, used to calculate the next round and the leader board, position of users
+	Winners      []int64   `json:"winners" example:"0,1,2,3"`
 	CreationDate time.Time `json:"creation_date" example:"2021-09-01T00:00:00Z"`
 }
-
-type LeaderBoardEntry struct {
-	User string `json:"user" example:"Giorgio"`
-	Win  int    `json:"win" example:"1"`
-	Lose int    `json:"lose" example:"1"`
-}
-
-type LeaderBoard []LeaderBoardEntry
 
 type ReturnTournament struct {
 	ID     int64    `json:"id" example:"1"`
@@ -32,9 +24,8 @@ type ReturnTournament struct {
 	Status string   `json:"status" example:"open"`
 	Users  []string `json:"users" example:"giorgio,diego,marco"`
 
-	LeaderBoard  []LeaderBoardEntry `json:"leader_board"`
-	Games        []ReturnGame       `json:"games"`
-	CreationDate time.Time          `json:"creation_date" example:"2021-09-01T00:00:00Z"`
+	Games        []ReturnGame `json:"games"`
+	CreationDate time.Time    `json:"creation_date" example:"2021-09-01T00:00:00Z"`
 }
 
 type TournamentInfo struct {

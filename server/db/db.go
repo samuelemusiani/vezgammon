@@ -64,7 +64,7 @@ func Init(conf *config.Config) error {
 	}
 
 	// database initialization
-	err = initUser()
+	err = InitUser()
 	if err != nil {
 		slog.With("err", err).Debug("init users")
 		return err

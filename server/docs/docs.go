@@ -1226,23 +1226,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.LeaderBoardEntry": {
-            "type": "object",
-            "properties": {
-                "lose": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "user": {
-                    "type": "string",
-                    "example": "Giorgio"
-                },
-                "win": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
         "types.LeaderboardUser": {
             "type": "object",
             "properties": {
@@ -1393,12 +1376,6 @@ const docTemplate = `{
                 "id": {
                     "type": "integer",
                     "example": 1
-                },
-                "leader_board": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/types.LeaderBoardEntry"
-                    }
                 },
                 "name": {
                     "type": "string",

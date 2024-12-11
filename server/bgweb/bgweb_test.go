@@ -3,9 +3,19 @@ package bgweb
 import (
 	"encoding/json"
 	"testing"
+	"vezgammon/server/types"
 
 	"gotest.tools/v3/assert"
 )
+
+func getTestGame() types.Game {
+	g := types.Game{}
+	g.P1Checkers = [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+	g.P2Checkers = [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2}
+	g.Dices = [2]int{3, 1}
+
+	return g
+}
 
 func TestGetmoves(t *testing.T) {
 
@@ -141,4 +151,28 @@ func TestGetmoves(t *testing.T) {
 	assert.NilError(t, err)
 
 	assert.DeepEqual(t, rp, respmoves)
+}
+
+func TestGetLegalMoves(t *testing.T) {
+	g := getTestGame()
+	_, err := GetLegalMoves(&g)
+	assert.NilError(t, err)
+}
+
+func TestGetEasyMove(t *testing.T) {
+	g := getTestGame()
+	_, err := GetEasyMove(&g)
+	assert.NilError(t, err)
+}
+
+func TestGetMediumMove(t *testing.T) {
+	g := getTestGame()
+	_, err := GetMediumMove(&g)
+	assert.NilError(t, err)
+}
+
+func TestGetBestMove(t *testing.T) {
+	g := getTestGame()
+	_, err := GetBestMove(&g)
+	assert.NilError(t, err)
 }

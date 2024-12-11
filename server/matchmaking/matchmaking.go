@@ -91,6 +91,10 @@ func CreateGame(userID1, userID2 int64, tournament sql.NullInt64) (*types.Game, 
 		return nil, err
 	}
 
+	if user1 == nil {
+		panic("User1 is nil")
+	}
+
 	user2, err := db.GetUser(userID2)
 	if err != nil {
 		return nil, err
