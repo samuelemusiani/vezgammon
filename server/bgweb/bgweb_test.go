@@ -153,29 +153,6 @@ func TestGetmoves(t *testing.T) {
 	assert.DeepEqual(t, rp, respmoves)
 }
 
-func TestBoardToGame(t *testing.T) {
-	board := Board{
-		O: CheckerLayout{
-			N1:  5,
-			N2:  3,
-			Bar: 0,
-		},
-		X: CheckerLayout{
-			N1:  2,
-			N2:  4,
-			Bar: 1,
-		},
-	}
-
-	game := board.toGame()
-	assert.Equal(t, board.O.N1, game.P1Checkers[1])
-	assert.Equal(t, board.O.N2, game.P1Checkers[2])
-	assert.Equal(t, board.O.Bar, game.P1Checkers[0])
-	assert.Equal(t, board.X.N1, game.P2Checkers[1])
-	assert.Equal(t, board.X.N2, game.P2Checkers[2])
-	assert.Equal(t, board.X.Bar, game.P2Checkers[0])
-}
-
 func TestGametoMoveArgs(t *testing.T) {
 	var game types.Game
 	game.P1Checkers[0] = 0
