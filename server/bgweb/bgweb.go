@@ -105,64 +105,6 @@ type Probability struct {
 	WinG   float32 `json:"winG"`
 }
 
-func (b *Board) toGame() *types.Game {
-	var g types.Game
-
-	g.P1Checkers[0] = b.O.Bar
-	g.P1Checkers[1] = b.O.N1
-	g.P1Checkers[2] = b.O.N2
-	g.P1Checkers[3] = b.O.N3
-	g.P1Checkers[4] = b.O.N4
-	g.P1Checkers[5] = b.O.N5
-	g.P1Checkers[6] = b.O.N6
-	g.P1Checkers[7] = b.O.N7
-	g.P1Checkers[8] = b.O.N8
-	g.P1Checkers[9] = b.O.N9
-	g.P1Checkers[10] = b.O.N10
-	g.P1Checkers[11] = b.O.N11
-	g.P1Checkers[12] = b.O.N12
-	g.P1Checkers[13] = b.O.N13
-	g.P1Checkers[14] = b.O.N14
-	g.P1Checkers[15] = b.O.N15
-	g.P1Checkers[16] = b.O.N16
-	g.P1Checkers[17] = b.O.N17
-	g.P1Checkers[18] = b.O.N18
-	g.P1Checkers[19] = b.O.N19
-	g.P1Checkers[20] = b.O.N20
-	g.P1Checkers[21] = b.O.N21
-	g.P1Checkers[22] = b.O.N22
-	g.P1Checkers[23] = b.O.N23
-	g.P1Checkers[24] = b.O.N24
-
-	g.P2Checkers[0] = b.X.Bar
-	g.P2Checkers[1] = b.X.N1
-	g.P2Checkers[2] = b.X.N2
-	g.P2Checkers[3] = b.X.N3
-	g.P2Checkers[4] = b.X.N4
-	g.P2Checkers[5] = b.X.N5
-	g.P2Checkers[6] = b.X.N6
-	g.P2Checkers[7] = b.X.N7
-	g.P2Checkers[8] = b.X.N8
-	g.P2Checkers[9] = b.X.N9
-	g.P2Checkers[10] = b.X.N10
-	g.P2Checkers[11] = b.X.N11
-	g.P2Checkers[12] = b.X.N12
-	g.P2Checkers[13] = b.X.N13
-	g.P2Checkers[14] = b.X.N14
-	g.P2Checkers[15] = b.X.N15
-	g.P2Checkers[16] = b.X.N16
-	g.P2Checkers[17] = b.X.N17
-	g.P2Checkers[18] = b.X.N18
-	g.P2Checkers[19] = b.X.N19
-	g.P2Checkers[20] = b.X.N20
-	g.P2Checkers[21] = b.X.N21
-	g.P2Checkers[22] = b.X.N22
-	g.P2Checkers[23] = b.X.N23
-	g.P2Checkers[24] = b.X.N24
-
-	return &g
-}
-
 func GametoMoveArgs(g *types.Game, engineConfig EngineConfig) *MoveArgs {
 	var moveargs MoveArgs
 
