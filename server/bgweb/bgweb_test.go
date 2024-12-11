@@ -153,26 +153,172 @@ func TestGetmoves(t *testing.T) {
 	assert.DeepEqual(t, rp, respmoves)
 }
 
+func TestGametoMoveArgs(t *testing.T) {
+	var game types.Game
+	game.P1Checkers[0] = 0
+	game.P1Checkers[1] = 5
+	game.P2Checkers[1] = 3
+
+	game.CurrentPlayer = types.GameCurrentPlayerP1
+	game.Dices = types.Dices{3, 1}
+
+	engineconfig := EngineConfig{
+		MaxMoves:   3,
+		ScoreMoves: true,
+	}
+
+	moveargs := GametoMoveArgs(&game, engineconfig)
+
+	assert.Equal(t, moveargs.Player, "o")
+	assert.DeepEqual(t, moveargs.Dice, [2]int{3, 1})
+	assert.Equal(t, moveargs.MaxMoves, engineconfig.MaxMoves)
+	assert.Equal(t, moveargs.ScoreMoves, engineconfig.ScoreMoves)
+	assert.Equal(t, moveargs.Cubeful, true)
+
+	assert.Equal(t, moveargs.Board.O.N1, game.P1Checkers[1])
+	assert.Equal(t, moveargs.Board.X.N1, game.P2Checkers[1])
+}
+
+func TestMoveArrayToMoveArrayArray(t *testing.T) {
+	movesarray := []Move{
+		{
+			Play: []CheckerPlay{
+				{
+					From: "8",
+					To:   "5",
+				},
+				{
+					From: "6",
+					To:   "5",
+				},
+			},
+		},
+		{
+			Play: []CheckerPlay{
+				{
+					From: "13",
+					To:   "10",
+				},
+				{
+					From: "24",
+					To:   "23",
+				},
+			},
+		},
+	}
+
+	typemovesarray := [][]types.Move{
+		{
+			{
+				From: 8,
+				To:   5,
+			},
+			{
+				From: 6,
+				To:   5,
+			},
+		},
+		{
+			{
+				From: 13,
+				To:   10,
+			},
+			{
+				From: 24,
+				To:   23,
+			},
+		},
+	}
+
+	assert.DeepEqual(t, MoveArrayToMoveArrayArray(movesarray), typemovesarray)
+}
+
+var basegame = types.Game{
+	P1Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+	P2Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+	CurrentPlayer: types.GameCurrentPlayerP1,
+	Dices:         types.Dices{3, 1},
+}
+
 func TestGetLegalMoves(t *testing.T) {
-	g := getTestGame()
-	_, err := GetLegalMoves(&g)
+	typemovesarray := [][]types.Move{
+		{{From: 24, To: 21}, {From: 24, To: 23}},
+		{{From: 24, To: 21}, {From: 21, To: 20}},
+		{{From: 24, To: 21}, {From: 8, To: 7}},
+		{{From: 24, To: 21}, {From: 6, To: 5}},
+		{{From: 13, To: 10}, {From: 24, To: 23}},
+		{{From: 13, To: 10}, {From: 10, To: 9}},
+		{{From: 13, To: 10}, {From: 8, To: 7}},
+		{{From: 13, To: 10}, {From: 6, To: 5}},
+		{{From: 8, To: 5}, {From: 24, To: 23}},
+		{{From: 8, To: 5}, {From: 8, To: 7}},
+		{{From: 8, To: 5}, {From: 6, To: 5}},
+		{{From: 8, To: 5}, {From: 5, To: 4}},
+		{{From: 6, To: 3}, {From: 24, To: 23}},
+		{{From: 6, To: 3}, {From: 8, To: 7}},
+		{{From: 6, To: 3}, {From: 6, To: 5}},
+		{{From: 6, To: 3}, {From: 3, To: 2}},
+		{{From: 24, To: 23}, {From: 24, To: 21}},
+		{{From: 24, To: 23}, {From: 23, To: 20}},
+		{{From: 24, To: 23}, {From: 13, To: 10}},
+		{{From: 24, To: 23}, {From: 8, To: 5}},
+		{{From: 24, To: 23}, {From: 6, To: 3}},
+		{{From: 8, To: 7}, {From: 24, To: 21}},
+		{{From: 8, To: 7}, {From: 13, To: 10}},
+		{{From: 8, To: 7}, {From: 8, To: 5}},
+		{{From: 8, To: 7}, {From: 7, To: 4}},
+		{{From: 8, To: 7}, {From: 6, To: 3}},
+		{{From: 6, To: 5}, {From: 24, To: 21}},
+		{{From: 6, To: 5}, {From: 13, To: 10}},
+		{{From: 6, To: 5}, {From: 8, To: 5}},
+		{{From: 6, To: 5}, {From: 6, To: 3}},
+		{{From: 6, To: 5}, {From: 5, To: 2}},
+		{{From: 13, To: 10}, {From: 10, To: 9}},
+	}
+
+	legalmoves, err := GetLegalMoves(&basegame)
 	assert.NilError(t, err)
+	assert.DeepEqual(t, legalmoves, typemovesarray)
 }
 
-func TestGetEasyMove(t *testing.T) {
-	g := getTestGame()
-	_, err := GetEasyMove(&g)
-	assert.NilError(t, err)
-}
+func TestNormalizeTurn(t *testing.T) {
+	game := types.Game{
+		ID:      1,
+		Player2: 123,
+	}
 
-func TestGetMediumMove(t *testing.T) {
-	g := getTestGame()
-	_, err := GetMediumMove(&g)
-	assert.NilError(t, err)
+	var turn types.Turn
+
+	retturn := normalizeTurn(&turn, &game)
+	assert.Equal(t, retturn.GameId, game.ID)
+	assert.Equal(t, retturn.User, game.Player2)
 }
 
 func TestGetBestMove(t *testing.T) {
-	g := getTestGame()
-	_, err := GetBestMove(&g)
+	move := []types.Move{
+		{
+			From: 8,
+			To:   5,
+		},
+		{
+			From: 6,
+			To:   5,
+		},
+	}
+
+	bestmove, err := GetBestMove(&basegame)
 	assert.NilError(t, err)
+	assert.DeepEqual(t, bestmove, move)
+}
+
+func TestGetEasyMove(t *testing.T) {
+	moves, err := GetEasyMove(&basegame)
+	assert.NilError(t, err)
+	assert.Equal(t, len(moves), 2)
+}
+
+func TestGetMediumMove(t *testing.T) {
+	moves, err := GetMediumMove(&basegame)
+	assert.NilError(t, err)
+	assert.Equal(t, len(moves), 2)
 }
