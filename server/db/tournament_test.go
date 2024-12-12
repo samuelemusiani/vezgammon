@@ -110,7 +110,7 @@ func TestReturnTournamentToTournament(t *testing.T) {
 	assert.DeepEqual(t, tour.Users, tournament.Users)
 }
 
-func TestDeleteTournament(t *testing.T) {
+func TestDeleteTournamentT(t *testing.T) {
 
 	err := DeleteTournament(tournament.ID)
 	assert.NilError(t, err)
