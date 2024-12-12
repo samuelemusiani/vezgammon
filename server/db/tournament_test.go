@@ -118,3 +118,84 @@ func TestDeleteTournament(t *testing.T) {
 	_, err = GetTournament(tournament.ID)
 	assert.Error(t, err, sql.ErrNoRows.Error())
 }
+
+func TestReturnTournamentToTournamentT(t *testing.T) {
+	u := types.User{
+		Username:  "ttA",
+		Firstname: "ttA",
+		Lastname:  "ttA",
+		Mail:      "ttA@ttA.it",
+	}
+
+	password := "2354wdfs"
+
+	retuser, err := CreateUser(u, password)
+	assert.NilError(t, err)
+
+	rt := types.ReturnTournament{
+		ID:     1,
+		Name:   "Tournament1",
+		Owner:  retuser.Username,
+		Users:  []string{retuser.Username},
+		Status: types.TournamentStatusWaiting,
+	}
+
+	tournament, err := ReturnTournamentToTournament(rt)
+	assert.NilError(t, err)
+	assert.Equal(t, tournament.ID, rt.ID)
+	assert.Equal(t, tournament.Name, rt.Name)
+	assert.Equal(t, tournament.Status, rt.Status)
+	assert.Equal(t, tournament.Users[0], retuser.ID)
+	assert.Equal(t, tournament.Owner, retuser.ID)
+}
+
+func TestDeleteTournament(t *testing.T) {
+	u := types.User{
+		Username:  "ttB",
+		Firstname: "ttB",
+		Lastname:  "ttB",
+		Mail:      "ttB@ttB.it",
+	}
+
+	password := "2354wdfs"
+
+	retuser, err := CreateUser(u, password)
+	assert.NilError(t, err)
+	tournament = types.Tournament{
+		Name:   "Tournament1",
+		Owner:  retuser.ID,
+		Status: types.TournamentStatusInProgress,
+		Users:  []int64{retuser.ID},
+	}
+	rt, err := CreateTournament(tournament)
+	assert.NilError(t, err)
+
+	err = DeleteTournament(rt.ID)
+	assert.NilError(t, err)
+}
+
+func TestGetTournamentList(t *testing.T) {
+	u := types.User{
+		Username:  "ttC",
+		Firstname: "ttC",
+		Lastname:  "ttC",
+		Mail:      "ttC@ttC.it",
+	}
+
+	password := "2354wdfs"
+
+	retuser, err := CreateUser(u, password)
+	assert.NilError(t, err)
+	tournament = types.Tournament{
+		Name:   "Tournament1",
+		Owner:  retuser.ID,
+		Status: types.TournamentStatusInProgress,
+		Users:  []int64{retuser.ID},
+	}
+	_, err = CreateTournament(tournament)
+	assert.NilError(t, err)
+
+	tlist, err := GetTournamentList()
+	assert.NilError(t, err)
+	assert.Assert(t, len(*tlist) > 0)
+}
