@@ -139,13 +139,16 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 				losers = append(losers, int64(index))
 			}
 		}
-		err = tournamentMatchCreate(getTournamentIndexUser(tournament, losers[0]), getTournamentIndexUser(tournament, losers[1]), sql.NullInt64{Valid: true, Int64: tournament.ID})
+		err = tournamentMatchCreate(getTournamentIndexUser(tournament, losers[0]),
+			getTournamentIndexUser(tournament, losers[1]), sql.NullInt64{Valid: true, Int64: tournament.ID})
 		if err != nil {
 			return err
 		}
 
 		// start finals last
-		err = tournamentMatchCreate(getTournamentIndexUser(tournament, tournament.Winners[0]), getTournamentIndexUser(tournament, tournament.Winners[1]), sql.NullInt64{Valid: true, Int64: tournament.ID})
+		err = tournamentMatchCreate(getTournamentIndexUser(tournament, tournament.Winners[0]),
+			getTournamentIndexUser(tournament, tournament.Winners[1]),
+			sql.NullInt64{Valid: true, Int64: tournament.ID})
 		if err != nil {
 			return err
 		}
