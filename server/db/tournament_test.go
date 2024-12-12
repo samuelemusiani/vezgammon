@@ -93,7 +93,7 @@ func TestTournamentToReturnTournament(t *testing.T) {
 	assert.Equal(t, rett.Users[1], u2.Username)
 }
 
-func TestReturnTournamentToTournament(t *testing.T) {
+func TestReturnTournamentToTournamentT(t *testing.T) {
 	u := types.User{
 		Username:  "ttA",
 		Firstname: "ttA",
