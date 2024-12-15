@@ -1,20 +1,26 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
+      class="flex h-[94%] w-[80%] flex-col items-center justify-center overflow-y-auto rounded-md border-8 border-primary bg-base-100"
     >
       <!-- Game Title -->
-      <div class="mb-16 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl font-bold">VezGammon</h1>
-        <div class="text-xl font-bold text-accent">
+      <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+        <h1
+          class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+        >
+          VezGammon
+        </h1>
+        <div class="font-bold text-accent md:text-lg lg:text-xl">
           The Ultimate Backgammon Experience
         </div>
       </div>
 
       <!-- Button Container -->
-      <div class="relative flex w-full max-w-4xl items-center justify-center">
+      <div
+        class="relative flex w-full flex-col items-center justify-center gap-6 md:flex-row lg:max-w-4xl lg:gap-32"
+      >
         <!-- Left Button (Stats) -->
-        <div class="absolute left-8">
+        <div class="">
           <button
             @click="navigateTo('/stats')"
             @mouseenter="(e: MouseEvent) => play()"
@@ -26,7 +32,9 @@
         </div>
 
         <!-- Central Buttons -->
-        <div class="flex w-full max-w-sm flex-col gap-6">
+        <div
+          class="order-first grid w-full max-w-40 grid-cols-1 gap-6 md:order-none md:max-w-sm md:grid-cols-2 lg:grid-cols-1"
+        >
           <button
             @click="(e: MouseEvent) => openPlayModal()"
             @mouseenter="(e: MouseEvent) => play()"
@@ -58,7 +66,7 @@
         </div>
 
         <!-- Right Button (Profile) -->
-        <div class="absolute right-8">
+        <div class="">
           <button
             @mouseenter="(e: MouseEvent) => play()"
             @click="navigateTo('/profile')"
