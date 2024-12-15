@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full items-center justify-center overflow-auto">
-    <div class="card w-4/5 overflow-auto bg-base-100 shadow-xl">
+    <div class="card h-[94%] w-4/5 overflow-y-auto bg-base-100 shadow-xl">
       <div class="card-body w-full">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <GamePerformanceCard :stats="stats" />
