@@ -52,38 +52,34 @@ async function goBack() {
 
 <template>
   <div class="flex h-full items-center justify-center">
-    <div
-      class="card w-3/4 rounded-xl border-8 border-primary bg-base-100 shadow-xl"
-    >
+    <div class="card h-[94%] w-3/4 overflow-y-auto rounded-xl border-8 border-primary bg-base-100 shadow-xl">
       <div class="card-body">
-        <h2 class="text-center text-2xl font-bold">Profile</h2>
+        <h2 class="text-center text-xl font-bold md:text-3xl xl:text-4xl">
+          Profile
+        </h2>
 
         <div class="divider divider-neutral"></div>
 
         <div v-if="session" class="flex flex-col gap-4">
-          <div class="m-8 flex flex-row items-center justify-between">
-            <div class="flex flex-col">
+          <div class="m-4 flex flex-col items-center justify-between gap-4 md:flex-row">
+            <div class="flex w-full flex-col gap-4 md:text-xl xl:flex-row xl:justify-evenly">
               <div>
                 <span> Username: </span>
-                <span class="text-lg font-bold"> {{ session.username }} </span>
+                <span class="font-bold"> {{ session.username }} </span>
               </div>
               <div>
                 <span> Mail: </span>
-                <span class="text-lg font-bold">{{ session.mail }}</span>
+                <span class="font-bold">{{ session.mail }}</span>
               </div>
               <div>
                 <span> Fullname: </span>
-                <span class="text-lg font-bold">
+                <span class="font-bold">
                   {{ session.firstname }} {{ session.lastname }}
                 </span>
               </div>
             </div>
             <div>
-              <img
-                class="h-32 w-32 rounded-full border-4 border-primary"
-                :src="session.avatar"
-                alt="User avatar"
-              />
+              <img class="h-32 w-32 rounded-full border-4 border-primary" :src="session.avatar" alt="User avatar" />
             </div>
           </div>
 
