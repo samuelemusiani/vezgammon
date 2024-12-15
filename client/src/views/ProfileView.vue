@@ -52,7 +52,9 @@ async function goBack() {
 
 <template>
   <div class="flex h-full items-center justify-center">
-    <div class="card h-[94%] w-3/4 overflow-y-auto rounded-xl border-8 border-primary bg-base-100 shadow-xl">
+    <div
+      class="card h-[94%] w-3/4 overflow-y-auto rounded-xl border-8 border-primary bg-base-100 shadow-xl"
+    >
       <div class="card-body">
         <h2 class="text-center text-xl font-bold md:text-3xl xl:text-4xl">
           Profile
@@ -61,8 +63,12 @@ async function goBack() {
         <div class="divider divider-neutral"></div>
 
         <div v-if="session" class="flex flex-col gap-4">
-          <div class="m-4 flex flex-col items-center justify-between gap-4 md:flex-row">
-            <div class="flex w-full flex-col gap-4 md:text-xl xl:flex-row xl:justify-evenly">
+          <div
+            class="m-4 flex flex-col items-center justify-between gap-4 md:flex-row"
+          >
+            <div
+              class="flex w-full flex-col gap-4 md:text-xl xl:flex-row xl:justify-evenly"
+            >
               <div>
                 <span> Username: </span>
                 <span class="font-bold"> {{ session.username }} </span>
@@ -79,7 +85,11 @@ async function goBack() {
               </div>
             </div>
             <div>
-              <img class="h-32 w-32 rounded-full border-4 border-primary" :src="session.avatar" alt="User avatar" />
+              <img
+                class="h-32 w-32 rounded-full border-4 border-primary"
+                :src="session.avatar"
+                alt="User avatar"
+              />
             </div>
           </div>
 
@@ -87,7 +97,7 @@ async function goBack() {
 
           <Badges :badges="badges" />
 
-          <div class="mt-10 flex items-center justify-center gap-5">
+          <div class="mt-8 flex items-center justify-center gap-5">
             <button class="btn-seconday btn" @click="goBack">GO BACK</button>
             <button class="btn btn-primary" @click="logout">LOGOUT</button>
           </div>
