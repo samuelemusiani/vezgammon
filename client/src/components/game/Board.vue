@@ -323,9 +323,9 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 </script>
 
 <template>
-  <div class="flex flex-1 justify-between gap-6">
+  <div class="flex flex-1 justify-between gap-2 lg:gap-6">
     <div class="flex-1">
-      <div class="retro-box h-full rounded-lg p-4 shadow-xl">
+      <div class="retro-box h-full w-full rounded-lg p-2 shadow-xl">
         <svg
           viewBox="0 0 800 600"
           preserveAspectRatio="xMidYMid meet"
@@ -402,7 +402,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
     </div>
     <!-- Right Container -->
     <div
-      class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
+      class="retro-box flex w-1/6 max-w-48 flex-col justify-evenly overflow-y-auto rounded-lg bg-white p-2 shadow-xl"
     >
       <!-- Captured Checkers -->
       <CapturedCheckers
@@ -473,7 +473,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 }
 
 .retro-box {
-  @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
+  @apply rounded-lg border-4 border-primary bg-base-100 shadow-md lg:border-8;
 }
 
 .retro-button {

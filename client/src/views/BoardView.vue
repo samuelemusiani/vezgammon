@@ -205,7 +205,9 @@ function sendWSMessage(message: WSMessage) {
 </script>
 
 <template>
-  <div class="flex h-full w-full flex-col items-center justify-center p-4">
+  <div
+    class="flex h-full w-full flex-col items-center justify-center p-1 lg:p-4"
+  >
     <div class="fixed top-[25%]">
       <ConfettiExplosion
         v-if="isExploding"
@@ -213,12 +215,13 @@ function sendWSMessage(message: WSMessage) {
         :particleCount="300"
       />
     </div>
-    <div class="flex h-full w-full gap-6">
+    <div class="flex h-full w-full gap-2 lg:gap-6">
       <!-- Opponent and Player Info -->
-      <div class="flex">
-        <div
-          class="flex w-48 flex-col justify-evenly rounded-lg border-8 border-primary bg-base-100 p-4 shadow-xl"
-        >
+
+      <div
+        class="flex w-1/6 max-w-48 flex-col justify-evenly overflow-y-auto rounded-lg border-4 border-primary bg-base-100 p-4 shadow-xl md:p-2 lg:border-8"
+      >
+        <div class="">
           <!-- Opponent Info -->
           <PlayerInfo
             :username="gameState?.player2 || ''"
@@ -236,7 +239,7 @@ function sendWSMessage(message: WSMessage) {
           />
           <!-- Game Timer -->
           <div
-            class="my-8 flex flex-col items-center gap-3 border-y border-gray-200 py-4"
+            class="my-8 flex scale-[0.85] flex-col items-center gap-3 border-y border-gray-200 py-4 md:scale-100"
           >
             <GameTimer
               :timeLeft="timeLeft"
