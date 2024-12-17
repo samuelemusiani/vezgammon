@@ -54,14 +54,14 @@ func calculateElo(elo1, elo2 int64, winner1 bool, double uint64) (int64, int64) 
 
 	ea := w1 - 1/(1+pow)
 
-	var double_fixed uint64 = double
+	var doubleFixed uint64 = double
 	if double > 1 {
-		double_fixed = uint64(math.Log2(float64(double)))
+		doubleFixed = uint64(math.Log2(float64(double)))
 	}
 
 	K := 32
-	elo1 += int64(double_fixed) * int64(float64(K)*ea)
-	elo2 -= int64(double_fixed) * int64(float64(K)*ea)
+	elo1 += int64(doubleFixed) * int64(float64(K)*ea)
+	elo2 -= int64(doubleFixed) * int64(float64(K)*ea)
 
 	return elo1, elo2
 }
