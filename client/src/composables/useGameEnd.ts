@@ -23,28 +23,35 @@ export function useGameEnd() {
     }
   }
 
-  const handleWin = () => {
+  const handleWin = (playSound: boolean) => {
     isWinner.value = true
     showResultModal.value = true
-    playVictory()
+    if (playSound) {
+      playVictory()
+    }
     isExploding.value = true
     setTimeout(() => {
       isExploding.value = false
     }, 5000)
   }
 
-  const handleLose = () => {
+  const handleLose = (playSound: boolean, showResModal: boolean) => {
     isWinner.value = false
-    showResultModal.value = true
-    playLost()
+    showResultModal.value = showResModal
+    if (playSound) {
+      playLost()
+    }
   }
 
-  const handleEnd = async (currentUser: User | undefined) => {
+  const handleEnd = async (
+    currentUser: User | undefined,
+    localGame: boolean,
+  ) => {
     const winner = await fetchWinner()
     if (winner === currentUser?.username) {
-      handleWin()
+      handleWin(!localGame)
     } else {
-      handleLose()
+      handleLose(!localGame, true)
     }
   }
 
@@ -58,7 +65,9 @@ export function useGameEnd() {
         console.error('Error retiring:', res)
       }
 
-      handleLose()
+      // We do not need to play a sound here, as the server will send game_end
+      // ws message and the sound will play
+      handleLose(false, false)
     } catch (err) {
       console.error('Error exiting game:', err)
     }

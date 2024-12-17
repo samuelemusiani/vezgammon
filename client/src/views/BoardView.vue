@@ -53,7 +53,7 @@ const {
 } = useGameEnd()
 
 const { showDoubleModal, handleDouble, acceptDouble, declineDouble } =
-  useGameDouble(handleLose)
+  useGameDouble(() => handleLose(gameState.value?.game_type == 'local', true))
 
 const webSocketStore = useWebSocketStore()
 
@@ -145,7 +145,7 @@ const handleMessage = async (message: WSMessage) => {
       handleDiceRolled(message.payload)
       break
     case 'game_end':
-      await handleEnd(session.value)
+      await handleEnd(session.value, gameState.value?.game_type == 'local')
       break
     case 'move_made':
       handleMoveMade(JSON.parse(message.payload))
