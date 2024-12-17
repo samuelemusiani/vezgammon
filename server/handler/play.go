@@ -531,7 +531,7 @@ func PlayMoves(c *gin.Context) {
 				"Muovo il mio pedone...",
 			}
 
-			send := rand.Intn(3)
+			send := rand.Intn(6)
 			if send == 0 {
 				m := messages[rand.Intn(len(messages))]
 				err = ws.SendBotMessage(userId, m)
