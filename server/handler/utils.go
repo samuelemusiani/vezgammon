@@ -43,7 +43,7 @@ func invertPlayer(currentPlayer string) string {
 	}
 }
 
-func calculateElo(elo1, elo2 int64, winner1 bool) (int64, int64) {
+func calculateElo(elo1, elo2 int64, winner1 bool, double uint64) (int64, int64) {
 	diff := float64((elo2 - elo1) / 400)
 	pow := math.Pow(10, diff)
 
@@ -54,9 +54,14 @@ func calculateElo(elo1, elo2 int64, winner1 bool) (int64, int64) {
 
 	ea := w1 - 1/(1+pow)
 
+	var double_fixed uint64 = double
+	if double > 1 {
+		double_fixed = uint64(math.Log2(float64(double)))
+	}
+
 	K := 32
-	elo1 += int64(float64(K) * ea)
-	elo2 -= int64(float64(K) * ea)
+	elo1 += int64(double_fixed) * int64(float64(K)*ea)
+	elo2 -= int64(double_fixed) * int64(float64(K)*ea)
 
 	return elo1, elo2
 }
@@ -359,7 +364,7 @@ func endGame(g *types.Game, winnerID int64) error {
 			return err
 		}
 
-		elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1)
+		elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1, g.DoubleValue)
 
 		err = db.UpdateUserElo(g.Player1, elo1)
 		if err != nil {
