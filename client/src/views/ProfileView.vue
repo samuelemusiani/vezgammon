@@ -1,10 +1,10 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import type { User } from '@/utils/types'
+import type { User, Badge } from '@/utils/types'
 import router from '@/router'
 import Badges from '@/components/Badges.vue'
 
-const badges = ref()
+const badges = ref<Badge | null>()
 
 const fetchBadges = async () => {
   try {

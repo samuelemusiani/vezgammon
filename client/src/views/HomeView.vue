@@ -317,20 +317,30 @@ import buttonSfx from '@/utils/sounds/button.mp3'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useWebSocketStore } from '@/stores/websocket'
 import { useAudioStore } from '@/stores/audio'
+import { useBadgesStore } from '@/stores/badges'
 import type { WSMessage } from '@/utils/types'
+import { useToast } from 'vue-toast-notification'
 
 const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
+const badgesStore = useBadgesStore()
 // 0 for base, 1 for bot difficulty, 2 for online options, 3 for tournaments options,
 const modals = ref(0)
 const inviteLink = ref('')
 const linkCopied = ref(false)
 const audioStore = useAudioStore()
 
+const $toast = useToast()
+
 onMounted(() => {
   webSocketStore.connect()
   webSocketStore.addMessageHandler(handleMatchmaking)
   checkIfInGame()
+  badgesStore.fetchBadges().then(() => {
+    if (badgesStore.haveBagesChanged()) {
+      $toast.success('New badges unlocked!')
+    }
+  })
 })
 
 onUnmounted(() => {
