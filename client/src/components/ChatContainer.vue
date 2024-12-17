@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed bottom-4 right-4 z-50">
+  <div class="fixed bottom-4 right-4 z-50 scale-[0.75] lg:scale-100">
     <!-- Chat Button -->
     <button
       @click="toggleChat"
