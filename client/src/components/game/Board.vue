@@ -150,13 +150,17 @@ const handleTriangleClick = async (position: number) => {
   selectedChecker.value = null
   possibleMoves.value = []
 
-  const hasPossibleMoves = availableMoves.value.possible_moves?.length > 0
+  const hasNoPossibleMoves =
+    availableMoves.value.possible_moves?.length == 0 ||
+    availableMoves.value.possible_moves.every(
+      (sequence: Move[]) => sequence.length === 0,
+    )
   let hasUsedBothDices = movesToSubmit.value.length === 2
   if (availableMoves.value.dices[0] == availableMoves.value.dices[1]) {
     hasUsedBothDices = movesToSubmit.value.length === 4
   }
 
-  if (hasUsedBothDices || !hasPossibleMoves) {
+  if (hasUsedBothDices || hasNoPossibleMoves) {
     try {
       await submitMoves()
       $props.resetDiceState()
