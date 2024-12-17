@@ -402,33 +402,39 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
     </div>
     <!-- Right Container -->
     <div
-      class="retro-box flex w-1/6 max-w-48 flex-col justify-evenly overflow-y-auto rounded-lg bg-white p-2 shadow-xl"
+      class="retro-box flex w-1/6 max-w-48 justify-center overflow-y-auto rounded-lg bg-white shadow-xl"
     >
-      <!-- Captured Checkers -->
-      <CapturedCheckers
-        player="p1"
-        :checkerCount="getOutCheckers('p1')"
-        :isHighlighted="possibleMoves.includes(25)"
-        @click="handleTriangleClick(25)"
-      />
+      <div
+        class="flex scale-[0.55] flex-col justify-center md:scale-[0.57] lg:scale-[0.80] xl:scale-100"
+      >
+        <!-- Captured Checkers -->
+        <CapturedCheckers
+          player="p1"
+          :checkerCount="getOutCheckers('p1')"
+          :isHighlighted="possibleMoves.includes(25)"
+          @click="handleTriangleClick(25)"
+        />
 
-      <!-- Roll Dice Button -->
-      <DiceContainer
-        :diceRolled="diceRolled || false"
-        :displayedDice="displayedDice || [0, 0]"
-        :isRolling="isRolling || false"
-        :canRoll="isMyTurn as boolean"
-        :dicesReplay="dicesReplay"
-        @roll="handleDiceRoll(availableMoves, gameState.game_type === 'online')"
-      />
+        <!-- Roll Dice Button -->
+        <DiceContainer
+          :diceRolled="diceRolled || false"
+          :displayedDice="displayedDice || [0, 0]"
+          :isRolling="isRolling || false"
+          :canRoll="isMyTurn as boolean"
+          :dicesReplay="dicesReplay"
+          @roll="
+            handleDiceRoll(availableMoves, gameState.game_type === 'online')
+          "
+        />
 
-      <!-- Captured Checkers -->
-      <CapturedCheckers
-        player="p2"
-        :checkerCount="getOutCheckers('p2')"
-        :isHighlighted="possibleMoves.includes(25)"
-        @click="handleTriangleClick(25)"
-      />
+        <!-- Captured Checkers -->
+        <CapturedCheckers
+          player="p2"
+          :checkerCount="getOutCheckers('p2')"
+          :isHighlighted="possibleMoves.includes(25)"
+          @click="handleTriangleClick(25)"
+        />
+      </div>
     </div>
   </div>
 </template>

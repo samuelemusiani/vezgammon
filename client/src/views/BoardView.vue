@@ -219,9 +219,11 @@ function sendWSMessage(message: WSMessage) {
       <!-- Opponent and Player Info -->
 
       <div
-        class="flex w-1/6 max-w-48 flex-col justify-evenly overflow-y-auto rounded-lg border-4 border-primary bg-base-100 p-4 shadow-xl md:p-2 lg:border-8"
+        class="flex w-1/6 max-w-48 flex-col justify-center overflow-y-auto rounded-lg border-4 border-primary bg-base-100 shadow-xl lg:border-8"
       >
-        <div class="">
+        <div
+          class="flex scale-[0.60] flex-col justify-evenly md:scale-[0.70] lg:scale-[0.80] xl:scale-100"
+        >
           <!-- Opponent Info -->
           <PlayerInfo
             :username="gameState?.player2 || ''"

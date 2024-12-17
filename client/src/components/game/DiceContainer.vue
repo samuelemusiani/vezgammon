@@ -26,7 +26,7 @@ defineEmits<(e: 'roll') => void>()
   <div>
     <div
       v-show="canRoll && !dicesReplay && !diceRolled"
-      class="mb-4 flex justify-center"
+      class="flex justify-center"
     >
       <button @click="$emit('roll')" class="retro-button">Roll Dice</button>
     </div>
