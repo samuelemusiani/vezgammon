@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log/slog"
 	"math"
+	"slices"
 	"strings"
 	"time"
 	"vezgammon/server/types"
@@ -351,7 +352,6 @@ func GetStats(userID int64) (*types.Stats, error) {
 	}
 
 	stats.Gameplayed = gp
-	stats.Tournament = 0 // not implemented yet
 	for _, game := range gp {
 		if game.GameType == types.GameTypeBot {
 			stats.Cpu++
@@ -374,10 +374,8 @@ func GetStats(userID int64) (*types.Stats, error) {
 			}
 
 			if game.Player1 == u.Username {
-				slog.With("elo", game.Elo1, "game", u.Username, "players", game.Player1, game.Player2).Debug("dio sto elo cazzo 1")
 				stats.Elo = append(stats.Elo, game.Elo1)
 			} else {
-				slog.With("elo", game.Elo2, "game", u.Username).Debug("dio sto elo cazzo 2")
 				stats.Elo = append(stats.Elo, game.Elo2)
 			}
 		}
@@ -392,6 +390,9 @@ func GetStats(userID int64) (*types.Stats, error) {
 		// online games only
 		stats.Winrate = float32(math.Floor(float64(100*float32(stats.Won)/float32(stats.Online))*100)) / 100
 	}
+
+	// tournament stats
+	stats.Tournament = getTournamentStats(gp)
 
 	stats.Leaderboard, err = getLeaderboard()
 	if err != nil {
@@ -653,4 +654,18 @@ func ChangePass(username, newPass, oldPass string) error {
 	}
 
 	return nil
+}
+
+func getTournamentStats(gp []types.ReturnGame) int64 {
+	var tournamentIDs []int64
+
+	for _, game := range gp {
+		if game.Tournament.Valid {
+			if slices.Contains(tournamentIDs, game.Tournament.Int64) {
+				tournamentIDs = append(tournamentIDs, game.Tournament.Int64)
+			}
+		}
+	}
+
+	return int64(len(tournamentIDs))
 }
