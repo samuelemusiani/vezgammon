@@ -95,7 +95,7 @@ async function goBack() {
 
           <div class="divider divider-neutral">Your Badges</div>
 
-          <Badges :badges="badges" />
+          <Badges v-if="badges" :badges="badges" />
 
           <div class="mt-8 flex items-center justify-center gap-5">
             <button class="btn-seconday btn" @click="goBack">GO BACK</button>

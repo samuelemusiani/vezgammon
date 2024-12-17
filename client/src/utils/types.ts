@@ -52,10 +52,10 @@ export interface GameStats {
 }
 
 export interface Badge {
-  Bot: number[]
-  Homepieces: number[]
-  Wongames: number[]
-  Elo: number[]
-  Wontime: number[]
-  Gameplayed: number[]
+  bot: number[]
+  elo: number[]
+  pieces: number[]
+  played: number[]
+  time: number[]
+  win: number[]
 }

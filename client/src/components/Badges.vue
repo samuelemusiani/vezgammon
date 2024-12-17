@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Badge } from '@/utils/types'
 
 type BadgeCategory = 'bot' | 'elo' | 'pieces' | 'played' | 'time' | 'win'
 
-interface Badges {
-  bot: number[]
-  elo: number[]
-  pieces: number[]
-  played: number[]
-  time: number[]
-  win: number[]
-}
-
 const props = defineProps<{
-  badges: Badges | undefined
+  badges: Badge | undefined
 }>()
 
 const hoveredBadge = ref<{ category: BadgeCategory; level: number } | null>(

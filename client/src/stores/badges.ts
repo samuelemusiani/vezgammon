@@ -4,12 +4,12 @@ import { defineStore } from 'pinia'
 
 export const useBadgesStore = defineStore('badges', () => {
   const badges = ref<Badge>({
-    Bot: [],
-    Homepieces: [],
-    Wongames: [],
-    Elo: [],
-    Wontime: [],
-    Gameplayed: [],
+    bot: [],
+    elo: [],
+    pieces: [],
+    played: [],
+    time: [],
+    win: [],
   })
 
   const firstTime = ref(true)
