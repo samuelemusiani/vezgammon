@@ -6,6 +6,7 @@ import type {
   MovesResponse,
 } from '@/utils/game/types'
 import type { WSMessage } from '@/utils/types'
+import Modal from '@/components/Modal.vue'
 
 import DiceContainer from '@/components/game/DiceContainer.vue'
 import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
@@ -38,6 +39,7 @@ const $props = defineProps<{
 
 const availableMoves = ref($props.availableMoves)
 const gameState = ref($props.gameState)
+const showNoMovesModal = ref(false)
 
 watch(
   () => $props.availableMoves,
@@ -162,6 +164,10 @@ const handleTriangleClick = async (position: number) => {
 
   if (hasUsedBothDices || hasNoPossibleMoves) {
     try {
+      if (!hasUsedBothDices) {
+        showNoMovesModal.value = true
+        return
+      }
       await submitMoves()
       $props.resetDiceState()
       if (gameState.value.game_type !== 'online') {
@@ -280,10 +286,7 @@ const handleCheckerClick = async (checker: Checker) => {
     console.log(
       'No possible moves or all sequences are empty, passing the turn',
     )
-    await submitMoves()
-    $props.resetDiceState()
-    $emits('fetch-moves')
-    $emits('fetch-game-state')
+    showNoMovesModal.value = true
     return
   }
 
@@ -297,6 +300,18 @@ const handleCheckerClick = async (checker: Checker) => {
     ),
   ]
   console.log('mosse posibili', possibleMoves.value)
+}
+
+const handleNoMovesConfirm = async () => {
+  showNoMovesModal.value = false
+  await submitMoves()
+  $props.resetDiceState()
+  if (gameState.value.game_type !== 'online') {
+    $emits('fetch-game-state')
+    $emits('fetch-moves')
+  } else {
+    $emits('stop-timer')
+  }
 }
 
 const getOutCheckers = (player: 'p1' | 'p2' | string) => {
@@ -436,6 +451,15 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
         />
       </div>
     </div>
+    <Modal
+      :show="showNoMovesModal"
+      title="No Moves Available"
+      confirm-text="OK"
+      confirm-variant="primary"
+      @confirm="handleNoMovesConfirm"
+    >
+      <p>No possible moves left. Your turn is over.</p>
+    </Modal>
   </div>
 </template>
 
