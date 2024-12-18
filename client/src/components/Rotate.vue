@@ -12,7 +12,7 @@
         </div>
       </div>
       <h2 class="mb-2 text-xl font-bold text-gray-800 dark:text-white">
-        Please Rotate Your Device
+        Increase the window size or rotate your device
       </h2>
       <p class="text-gray-600 dark:text-gray-300">
         For the best experience, please use landscape mode

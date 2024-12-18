@@ -116,6 +116,13 @@
             >
               Play Tutorial
             </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="showTournamentMenu"
+              class="retro-button"
+            >
+              Tournaments
+            </button>
           </template>
 
           <template v-else-if="modals === 1">
@@ -361,15 +368,6 @@ const play = () => {
   if (audioStore.isAudioEnabled) {
     playSound()
   }
-}
-
-const showOnlineOptions = () => {
-  const playModal = document.getElementById('play_modal') as HTMLDialogElement
-  playModal.close()
-  const onlineModal = document.getElementById(
-    'online_options_modal',
-  ) as HTMLDialogElement
-  onlineModal.showModal()
 }
 
 const startRandomGame = () => {
