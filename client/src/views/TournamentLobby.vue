@@ -1,14 +1,26 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
+      class="flex h-[94%] w-[80%] flex-col items-center justify-center overflow-y-auto rounded-md border-8 border-primary bg-base-100"
     >
+      <button
+        @click="router.push('/')"
+        class="retro-button absolute left-[12%] top-[10%] p-2"
+      >
+        Back
+      </button>
       <div v-if="tournament" class="text-center">
         <div v-if="!showBracket">
-          <h1 class="retro-title mb-6 text-5xl font-bold">Tournament Lobby</h1>
-          <p class="font-semibold text-accent">
-            Owner: {{ owner ? 'me' : tournament?.owner }}
-          </p>
+          <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+            <h1
+              class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+            >
+              Tournament Lobby
+            </h1>
+            <div class="font-bold text-accent md:text-lg lg:text-xl">
+              Owner: {{ owner ? 'me' : tournament?.owner }}
+            </div>
+          </div>
           <div class="mb-16 mt-16 grid grid-cols-2 grid-rows-2 gap-4">
             <div
               v-for="(player, index) in tournament?.users"
@@ -68,12 +80,16 @@
 
         <!-- Tournament Bracket -->
         <div v-else class="flex h-full w-full flex-col space-y-4">
-          <h2 class="retro-title mb-4 text-5xl font-bold">
-            Tournament Bracket
-          </h2>
-          <p class="font-semibold text-accent">
-            Owner: {{ owner ? 'me' : tournament?.owner }}
-          </p>
+          <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+            <h1
+              class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+            >
+              Tournament Brackets
+            </h1>
+            <div class="font-bold text-accent md:text-lg lg:text-xl">
+              Owner: {{ owner ? 'me' : tournament?.owner }}
+            </div>
+          </div>
           <div class="flex flex-row justify-between gap-8">
             <div class="flex w-1/4 flex-col gap-4">
               <!-- Semi-Final 1 -->
@@ -225,7 +241,7 @@ const fetchTournament = async () => {
   try {
     const response = await fetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
-    if (tournament.value?.users.length === 4) showStartButton.value = true
+    showStartButton.value = tournament.value?.users.length === 4
     if (tournament.value?.status === 'in_progress') {
       showBracket.value = true
       if (tournament.value?.games[0]) {
@@ -264,12 +280,17 @@ onMounted(async () => {
   await fetchTournament()
   await fetchMe()
   owner.value = tournament.value?.owner === myUsername.value
-  showBracket.value = tournament.value?.status === 'in_progress'
+  showBracket.value = tournament.value?.status !== 'in_progress'
   try {
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
   } catch (error) {
     console.error('websocket: ' + error)
+  }
+  const response = await fetch('/api/play')
+  if (response.ok) {
+    $toast.success('Get ready for the next round!')
+    await router.push('/game')
   }
 })
 

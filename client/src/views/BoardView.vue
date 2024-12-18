@@ -176,7 +176,11 @@ const whichPlayerAmI = computed(() => {
 })
 
 const handleReturnHome = () => {
-  router.push({ name: 'home' })
+  if (gameState.value?.tournament.Valid) {
+    router.push(`/tournaments/${gameState.value.tournament.Int64}`)
+  } else {
+    router.push({ name: 'home' })
+  }
 }
 
 const exitGame = async () => {

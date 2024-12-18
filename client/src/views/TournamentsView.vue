@@ -1,15 +1,26 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
+      class="flex h-[94%] w-[80%] flex-col items-center justify-center overflow-y-auto rounded-md border-8 border-primary bg-base-100"
     >
+      <button
+        @click="router.push('/')"
+        class="retro-button absolute left-[12%] top-[10%] p-2"
+      >
+        Back
+      </button>
       <!-- Page Title -->
-      <div class="mb-4 flex flex-col gap-4 text-center">
-        <h1 class="retro-title text-5xl">Tournaments</h1>
+      <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+        <h1
+          class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+        >
+          Tournaments
+        </h1>
       </div>
 
       <!-- Tournaments List -->
       <div
+        v-if="tournaments"
         class="no-scrollbar max-h-[calc(100vh-300px)] w-full max-w-4xl space-y-6 overflow-y-auto p-8"
       >
         <div
@@ -34,6 +45,9 @@
             </div>
           </div>
         </div>
+      </div>
+      <div v-else class="text-center text-2xl font-bold text-accent">
+        No tournaments found
       </div>
     </div>
     <dialog id="select_tournament" class="modal">
