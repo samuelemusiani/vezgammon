@@ -1,4 +1,7 @@
 <script setup lang="ts">
+import { useTheme } from '@/composables/useTheme'
+
+useTheme()
 import { RouterView } from 'vue-router'
 import Rotate from '@/components/Rotate.vue'
 </script>
