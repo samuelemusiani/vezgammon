@@ -1465,6 +1465,10 @@ const docTemplate = `{
                     "type": "string",
                     "example": "Giorgio"
                 },
+                "status": {
+                    "type": "string",
+                    "example": "open"
+                },
                 "user_number": {
                     "type": "integer",
                     "example": 3

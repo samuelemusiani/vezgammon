@@ -178,7 +178,7 @@ func GetTournament(id int64) (*types.Tournament, error) {
 
 func GetTournamentList() (*types.TournamentList, error) {
 	q := `
-	SELECT id, name, owner, users, creation_date
+	SELECT id, name, owner, users, creation_date, status
 	FROM tournaments
 	`
 
@@ -193,7 +193,7 @@ func GetTournamentList() (*types.TournamentList, error) {
 		var entry types.TournamentInfo
 		var ownerid int64
 		var users []int64
-		err := rows.Scan(&entry.ID, &entry.Name, &ownerid, pq.Array(&users), &entry.CreationDate)
+		err := rows.Scan(&entry.ID, &entry.Name, &ownerid, pq.Array(&users), &entry.CreationDate, &entry.Status)
 		if err != nil {
 			return nil, err
 		}
