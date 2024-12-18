@@ -34,6 +34,7 @@ type TournamentInfo struct {
 	Owner        string    `json:"owner" example:"Giorgio"`
 	UserNumber   int       `json:"user_number" example:"3"`
 	CreationDate time.Time `json:"creation_date" example:"2021-09-01T00:00:00Z"`
+	Status       string    `json:"status" example:"open"`
 }
 
 type TournamentList []TournamentInfo

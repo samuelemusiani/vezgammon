@@ -297,6 +297,9 @@ definitions:
       owner:
         example: Giorgio
         type: string
+      status:
+        example: open
+        type: string
       user_number:
         example: 3
         type: integer
