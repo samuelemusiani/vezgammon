@@ -1,8 +1,6 @@
 <script setup lang="ts">
 import { RouterView } from 'vue-router'
-import { useTheme } from '@/composables/useTheme'
-
-const { currentTheme, themeOptions, changeTheme } = useTheme()
+import Rotate from '@/components/Rotate.vue'
 </script>
 
 <template>
@@ -10,5 +8,6 @@ const { currentTheme, themeOptions, changeTheme } = useTheme()
     class="h-screen w-screen border-8 border-primary bg-neutral bg-retro-pattern"
   >
     <RouterView />
+    <Rotate />
   </div>
 </template>
