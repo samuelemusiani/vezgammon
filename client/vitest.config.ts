@@ -15,7 +15,7 @@ export default mergeConfig(
       reporters: ['json', 'verbose', 'vitest-sonar-reporter'],
       outputFile: {
         'vitest-sonar-reporter': 'coverage/sonar-report.xml',
-      }
+      },
     },
   }),
 )
