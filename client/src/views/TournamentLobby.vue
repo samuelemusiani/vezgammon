@@ -4,23 +4,23 @@
       class="flex h-[94%] w-[80%] flex-col items-center justify-center overflow-y-auto rounded-md border-8 border-primary bg-base-100"
     >
       <button
-        @click="router.push('/')"
+        @click="router.push('/tournaments')"
         class="retro-button absolute left-[12%] top-[10%] p-2"
       >
         Back
       </button>
       <div v-if="tournament" class="text-center">
-        <div v-if="!showBracket">
-          <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
-            <h1
-              class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
-            >
-              Tournament Lobby
-            </h1>
-            <div class="font-bold text-accent md:text-lg lg:text-xl">
-              Owner: {{ owner ? 'me' : tournament?.owner }}
-            </div>
+        <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+          <h1
+            class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+          >
+            Tournament {{ showBracket? 'Brackets' : 'Lobby' }}
+          </h1>
+          <div class="font-bold text-accent md:text-lg lg:text-xl">
+            Owner: {{ tournament?.owner == myUsername ? 'me' : tournament?.owner }}
           </div>
+        </div>
+        <div v-if="!showBracket">
           <div class="mb-16 mt-16 grid grid-cols-2 grid-rows-2 gap-4">
             <div
               v-for="(player, index) in tournament?.users"
@@ -28,6 +28,7 @@
               class="retro-box p-4"
               :class="{
                 'text-primary': player === myUsername,
+                'italic' : ['Enzo', 'Caterina', 'Giovanni'].includes(player),
                 'text-black': player !== myUsername,
               }"
             >
@@ -43,10 +44,39 @@
             </div>
           </div>
 
-          <div v-if="owner" class="mt-2 flex justify-center gap-2">
+          <div v-if="tournament?.owner == myUsername" class="mt-2 flex justify-center gap-2">
             <button class="retro-button" @click="deleteTournament">
               Delete Tournament
             </button>
+            <div class="relative">
+              <button
+                class="retro-button"
+                :disabled="showStartButton"
+                :style="{
+                  textShadow: showStartButton ? 'none' : '2px 2px 0 rgba(0, 0, 0, 0.2)',
+                }"
+                @click="botDropDown = !botDropDown"
+              >
+                Add Bot
+              </button>
+
+              <div
+                v-if="botDropDown"
+                class="absolute top-full mb-2 w-full rounded-lg"
+              >
+                <ul class="py-1.5 flex flex-col gap-1">
+                  <li
+                    v-for="bot in ['easy', 'medium', 'hard']"
+                    :key="bot"
+                    class="retro-button w-full"
+                    @click="addBot(bot)"
+                  >
+                    {{ bot }}
+                  </li>
+                </ul>
+              </div>
+
+            </div>
             <button
               class="retro-button"
               @click="startTournament"
@@ -79,17 +109,7 @@
         </div>
 
         <!-- Tournament Bracket -->
-        <div v-else class="flex h-full w-full flex-col space-y-4">
-          <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
-            <h1
-              class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
-            >
-              Tournament Brackets
-            </h1>
-            <div class="font-bold text-accent md:text-lg lg:text-xl">
-              Owner: {{ owner ? 'me' : tournament?.owner }}
-            </div>
-          </div>
+        <div v-else>
           <div class="flex flex-row justify-between gap-8">
             <div class="flex w-1/4 flex-col gap-4">
               <!-- Semi-Final 1 -->
@@ -99,17 +119,17 @@
                   :key="index"
                   class="retro-box w-full p-3 text-center font-semibold"
                   :style="{
-                    color:
-                      tournament?.games[0]?.status === 'winp1'
-                        ? index === 0
+                  color:
+                    tournament?.games[0]?.status === 'winp1'
+                      ? index === 0
+                        ? 'green'
+                        : 'red'
+                      : tournament?.games[0]?.status === 'winp2'
+                        ? index === 1
                           ? 'green'
                           : 'red'
-                        : tournament?.games[0]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                        : '',
+                }"
                 >
                   {{ box }}
                 </div>
@@ -122,17 +142,17 @@
                   :key="index"
                   class="retro-box w-full p-3 text-center font-semibold"
                   :style="{
-                    color:
-                      tournament?.games[1]?.status === 'winp1'
-                        ? index === 0
+                  color:
+                    tournament?.games[1]?.status === 'winp1'
+                      ? index === 0
+                        ? 'green'
+                        : 'red'
+                      : tournament?.games[1]?.status === 'winp2'
+                        ? index === 1
                           ? 'green'
                           : 'red'
-                        : tournament?.games[1]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                        : '',
+                }"
                 >
                   {{ box }}
                 </div>
@@ -148,17 +168,17 @@
                   :key="index"
                   class="retro-box h-full w-full p-3 text-center text-2xl font-bold"
                   :style="{
-                    color:
-                      tournament?.games[2]?.status === 'winp1'
-                        ? index === 0
+                  color:
+                    tournament?.games[3]?.status === 'winp1'
+                      ? index === 0
+                        ? 'green'
+                        : 'red'
+                      : tournament?.games[3]?.status === 'winp2'
+                        ? index === 1
                           ? 'green'
                           : 'red'
-                        : tournament?.games[2]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                        : '',
+                }"
                 >
                   {{ box }}
                 </div>
@@ -172,17 +192,17 @@
                   :key="index"
                   class="retro-box h-full w-full p-3.5 text-center font-bold"
                   :style="{
-                    color:
-                      tournament?.games[3]?.status === 'winp1'
-                        ? index === 0
+                  color:
+                    tournament?.games[2]?.status === 'winp1'
+                      ? index === 0
+                        ? 'green'
+                        : 'red'
+                      : tournament?.games[2]?.status === 'winp2'
+                        ? index === 1
                           ? 'green'
                           : 'red'
-                        : tournament?.games[3]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                        : '',
+                }"
                 >
                   {{ box }}
                 </div>
@@ -193,9 +213,9 @@
       </div>
 
       <div v-else class="flex flex-col items-center gap-6">
-        <h1 class="text-3xl font-bold text-primary">Not in Tournament</h1>
+        <h1 class="text-3xl font-bold text-primary">Tournament does not exists</h1>
         <button
-          class="rounded-lg bg-blue-500 px-6 py-3 text-white transition-colors duration-300 hover:bg-blue-600"
+          class="retro-button"
           @click="router.push('/')"
         >
           Return to Home
@@ -212,12 +232,12 @@ import { useWebSocketStore } from '@/stores/websocket'
 import type { Tournament, WSMessage } from '@/utils/types'
 
 import { useToast } from 'vue-toast-notification'
-import 'vue-toast-notification/dist/theme-sugar.css'
 
 const $toast = useToast()
 
 const tournament = ref<Tournament | null>(null)
 const myUsername = ref('')
+const botDropDown = ref(false)
 const showBracket = ref(false)
 const showStartButton = ref(false)
 const boxes = ref<Array<string>>([
@@ -234,7 +254,6 @@ const finals = ref<Array<string>>([
 ])
 
 const tournamentId = router.currentRoute.value.params.id
-const owner = ref<boolean>(false)
 const webSocketStore = useWebSocketStore()
 
 const fetchTournament = async () => {
@@ -242,7 +261,7 @@ const fetchTournament = async () => {
     const response = await fetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
     showStartButton.value = tournament.value?.users.length === 4
-    if (tournament.value?.status === 'in_progress') {
+    if (tournament.value?.status === 'in_progress' || tournament.value?.status === 'ended') {
       showBracket.value = true
       if (tournament.value?.games[0]) {
         boxes.value[0] = tournament.value?.games[0].player1
@@ -279,8 +298,7 @@ const fetchMe = async () => {
 onMounted(async () => {
   await fetchTournament()
   await fetchMe()
-  owner.value = tournament.value?.owner === myUsername.value
-  showBracket.value = tournament.value?.status !== 'in_progress'
+  showBracket.value = tournament.value?.status === 'in_progress' || tournament.value?.status === 'ended'
   try {
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
@@ -290,7 +308,9 @@ onMounted(async () => {
   const response = await fetch('/api/play')
   if (response.ok) {
     $toast.success('Get ready for the next round!')
-    await router.push('/game')
+    setTimeout(() => {
+      router.push('/game')
+    }, 3000)
   }
 })
 
@@ -299,16 +319,21 @@ onUnmounted(() => {
 })
 
 const handleMessage = async (message: WSMessage) => {
-  console.log('TOURNAMENTS: Received message:', message)
   if (message.type === 'tournament_cancelled') {
     $toast.error('Tournament has been cancelled')
     await router.push('/')
   } else if (message.type === 'tournament_new_user_enrolled') {
     await fetchTournament()
     $toast.info('Someone joined the tournament :)')
+  } else if (message.type === 'tournament_new_bot_enrolled') {
+    await fetchTournament()
+    $toast.info('A bot has been added to the tournament')
   } else if (message.type === 'tournament_user_left') {
     await fetchTournament()
     $toast.warning('Someone left the tournament :(')
+  } else if (message.type == 'tournament_bot_left') {
+    await fetchTournament()
+    $toast.warning('A bot has been removed from the tournament')
   } else if (message.type === 'game_tournament_ready') {
     await fetchTournament()
     if (!showBracket.value) $toast.success('Tournament is starting!')
@@ -358,6 +383,22 @@ function deleteTournament() {
         'Content-Type': 'application/json',
       },
     })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function addBot(difficulty: string) {
+  const username = difficulty.toLowerCase() == 'easy' ? 'Enzo' : difficulty == 'medium' ? 'Caterina' : 'Giovanni'
+  try {
+    fetch(`/api/tournament/${tournamentId}/invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{username}]),
+    })
+    botDropDown.value = false
   } catch (error) {
     console.error(error)
   }

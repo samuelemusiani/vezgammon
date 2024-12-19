@@ -212,9 +212,8 @@ func InviteTournament(c *gin.Context) {
 
 	// send message to all users
 	for _, u := range tournament.Users {
-		if u != userID {
-			ws.TournamentNewUserEnrolled(u)
-		}
+		// if u != userID {}
+    	ws.TournamentNewBotEnrolled(u)
 	}
 }
 

@@ -148,8 +148,16 @@ func TournamentNewUserEnrolled(userID int64) error {
 	return SendMessage(userID, Message{Type: "tournament_new_user_enrolled"})
 }
 
+func TournamentNewBotEnrolled(userID int64) error {
+    return SendMessage(userID, Message{Type: "tournament_new_bot_enrolled"})
+}
+
 func TournamentUserLeft(userID int64) error {
 	return SendMessage(userID, Message{Type: "tournament_user_left"})
+}
+
+func TournamentBotLeft (userID int64) error {
+    return SendMessage(userID, Message{Type: "tournament_bot_left"})
 }
 
 func (ws Websocket) SendGameFound(userID int64) error {
