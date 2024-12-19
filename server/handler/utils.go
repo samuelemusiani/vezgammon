@@ -44,7 +44,7 @@ func invertPlayer(currentPlayer string) string {
 }
 
 func calculateElo(elo1, elo2 int64, winner1 bool, double uint64) (int64, int64) {
-	diff := float64((elo2 - elo1) / 400)
+	diff := float64(elo2-elo1) / 400
 	pow := math.Pow(10, diff)
 
 	var w1 float64 = 0
@@ -54,10 +54,7 @@ func calculateElo(elo1, elo2 int64, winner1 bool, double uint64) (int64, int64) 
 
 	ea := w1 - 1/(1+pow)
 
-	var doubleFixed uint64 = double
-	if double > 1 {
-		doubleFixed = uint64(math.Log2(float64(double)))
-	}
+	var doubleFixed uint64 = uint64(math.Log2(float64(double)) + 1)
 
 	K := 32
 	elo1 += int64(doubleFixed) * int64(float64(K)*ea)
