@@ -1,10 +1,13 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="flex h-[94%] w-[80%] flex-col items-center md:justify-center overflow-y-auto rounded-md border-8 border-primary bg-base-100">
+      class="flex h-[94%] w-[80%] flex-col items-center overflow-y-auto rounded-md border-8 border-primary bg-base-100 md:justify-center"
+    >
       <!-- Game Title -->
       <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
-        <h1 class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl">
+        <h1
+          class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+        >
           VezGammon
         </h1>
         <div class="font-bold text-accent md:text-lg lg:text-xl">
@@ -13,36 +16,63 @@
       </div>
 
       <!-- Button Container -->
-      <div class="relative flex w-full flex-col items-center justify-center gap-6 md:flex-row lg:max-w-4xl lg:gap-32">
+      <div
+        class="relative flex w-full flex-col items-center justify-center gap-6 md:flex-row lg:max-w-4xl lg:gap-32"
+      >
         <!-- Left Button (Stats) -->
         <div class="">
-          <button @click="navigateTo('/stats')" @mouseenter="(e: MouseEvent) => play()" class="retro-button circle"
-            title="Statistics">
+          <button
+            @click="navigateTo('/stats')"
+            @mouseenter="(e: MouseEvent) => play()"
+            class="retro-button circle"
+            title="Statistics"
+          >
             <MedalIcon />
           </button>
         </div>
 
         <!-- Central Buttons -->
-        <div class="order-first grid w-full gap-6 md:order-none max-w-sm grid-cols-2 lg:grid-cols-1">
-          <button @click="(e: MouseEvent) => openPlayModal()" @mouseenter="(e: MouseEvent) => play()"
-            class="retro-button">
+        <div
+          class="order-first grid w-full max-w-sm grid-cols-2 gap-6 md:order-none lg:grid-cols-1"
+        >
+          <button
+            @click="(e: MouseEvent) => openPlayModal()"
+            @mouseenter="(e: MouseEvent) => play()"
+            class="retro-button"
+          >
             PLAY
           </button>
-          <button class="retro-button" @mouseenter="(e: MouseEvent) => play()" @click="router.push('/leaderboard')">
+          <button
+            class="retro-button"
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="router.push('/leaderboard')"
+          >
             LEADERBOARD
           </button>
-          <button @mouseenter="(e: MouseEvent) => play()" @click="openRulesModal" class="retro-button font-bold">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="openRulesModal"
+            class="retro-button font-bold"
+          >
             RULES
           </button>
-          <button @mouseenter="(e: MouseEvent) => play()" @click="openSettingsModal" class="retro-button">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="openSettingsModal"
+            class="retro-button"
+          >
             SETTINGS
           </button>
         </div>
 
         <!-- Right Button (Profile) -->
         <div class="">
-          <button @mouseenter="(e: MouseEvent) => play()" @click="navigateTo('/profile')" class="retro-button circle"
-            title="Profile">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="navigateTo('/profile')"
+            class="retro-button circle"
+            title="Profile"
+          >
             <ProfileIcon />
           </button>
         </div>
@@ -58,64 +88,127 @@
         <!-- Options -->
         <div class="flex flex-col gap-4">
           <template v-if="modals === 0">
-            <button @mouseenter="(e: MouseEvent) => play()" @click="startLocalGame" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startLocalGame"
+              class="retro-button"
+            >
               Local Game (2 Players)
             </button>
-            <button @mouseenter="(e: MouseEvent) => play()" @click="showAIDifficulty" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="showAIDifficulty"
+              class="retro-button"
+            >
               Play vs AI
             </button>
-            <button @mouseenter="(e: MouseEvent) => play()" @click="showOnlineMenu" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="showOnlineMenu"
+              class="retro-button"
+            >
               Play Online
             </button>
-            <button @mouseenter="(e: MouseEvent) => play()" @click="playTutorial" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="playTutorial"
+              class="retro-button"
+            >
               Play Tutorial
             </button>
           </template>
 
           <template v-else-if="modals === 1">
-            <button @mouseenter="(e: MouseEvent) => play()" @click="startGameWithAI('easy')" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGameWithAI('easy')"
+              class="retro-button"
+            >
               Easy
             </button>
-            <button @mouseenter="(e: MouseEvent) => play()" @click="startGameWithAI('medium')" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGameWithAI('medium')"
+              class="retro-button"
+            >
               Medium
             </button>
-            <button @mouseenter="(e: MouseEvent) => play()" @click="startGameWithAI('hard')" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startGameWithAI('hard')"
+              class="retro-button"
+            >
               Hard
             </button>
           </template>
 
           <template v-else-if="modals === 2">
-            <button @mouseenter="(e: MouseEvent) => play()" @click="startRandomGame" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="startRandomGame"
+              class="retro-button"
+            >
               Random Opponent
             </button>
-            <button @mouseenter="(e: MouseEvent) => play()" @click="createInviteLink" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="createInviteLink"
+              class="retro-button"
+            >
               Invite Friend
             </button>
             <div v-if="inviteLink" class="mt-4">
               <div class="flex items-center gap-2 rounded bg-base-200 p-2">
-                <input type="text" :value="inviteLink" class="w-full bg-transparent p-2" readonly />
+                <input
+                  type="text"
+                  :value="inviteLink"
+                  class="w-full bg-transparent p-2"
+                  readonly
+                />
 
-                <button @click="copyInviteLink" class="retro-button px-4" :class="{ 'bg-success': linkCopied }">
+                <button
+                  @click="copyInviteLink"
+                  class="retro-button px-4"
+                  :class="{ 'bg-success': linkCopied }"
+                >
                   {{ linkCopied ? 'Copied!' : 'Copy' }}
                 </button>
               </div>
             </div>
             <div v-if="inviteLink" class="flex justify-center gap-2">
-              <TelegramShareButton :url="inviteLink" title="Do you want to play with me? Join me on VezGammon!" />
+              <TelegramShareButton
+                :url="inviteLink"
+                title="Do you want to play with me? Join me on VezGammon!"
+              />
 
-              <WhatsappShareButton :url="inviteLink" title="Do you want to play with me? Join me on VezGammon!" />
+              <WhatsappShareButton
+                :url="inviteLink"
+                title="Do you want to play with me? Join me on VezGammon!"
+              />
             </div>
           </template>
 
           <template v-else-if="modals === 3">
             <div class="flex flex-row justify-between gap-2">
-              <input v-model="tourn_name" type="text" class="input flex-grow border-2 border-primary"
-                placeholder="Tournament name" />
-              <button @mouseenter="(e: MouseEvent) => play()" @click="create_tourn" class="retro-button">
+              <input
+                v-model="tourn_name"
+                type="text"
+                class="input flex-grow border-2 border-primary"
+                placeholder="Tournament name"
+              />
+              <button
+                @mouseenter="(e: MouseEvent) => play()"
+                @click="create_tourn"
+                class="retro-button"
+              >
                 New
               </button>
             </div>
-            <button @mouseenter="(e: MouseEvent) => play()" @click="router.push('/tournaments')" class="retro-button">
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="router.push('/tournaments')"
+              class="retro-button"
+            >
               Join
             </button>
           </template>
@@ -124,7 +217,11 @@
         <!-- Close button -->
         <div class="modal-action w-full">
           <form method="dialog" class="flex w-full justify-between">
-            <button v-if="modals !== 0" @click="backToGameMode" class="retro-button">
+            <button
+              v-if="modals !== 0"
+              @click="backToGameMode"
+              class="retro-button"
+            >
               Back
             </button>
             <button class="retro-button ml-auto" @click="backToGameMode">
@@ -166,10 +263,18 @@
         </h3>
         <p class="mb-4 text-center">You have an ongoing game.</p>
         <div class="flex flex-col gap-4">
-          <button @mouseenter="(e: MouseEvent) => play()" @click="resumeGame" class="retro-button">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="resumeGame"
+            class="retro-button"
+          >
             Resume Game
           </button>
-          <button @mouseenter="(e: MouseEvent) => play()" @click="leaveGame" class="retro-button">
+          <button
+            @mouseenter="(e: MouseEvent) => play()"
+            @click="leaveGame"
+            class="retro-button"
+          >
             Leave Game
           </button>
         </div>
@@ -183,7 +288,9 @@
     <SettingsModal />
 
     <dialog id="rules_modal" class="modal">
-      <div class="modal-box max-h-[85vh] max-w-3xl overflow-y-auto border-4 border-primary">
+      <div
+        class="modal-box max-h-[85vh] max-w-3xl overflow-y-auto border-4 border-primary"
+      >
         <RulesSection />
 
         <div class="modal-action">
