@@ -194,6 +194,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import router from '@/router'
 import { useWebSocketStore } from '@/stores/websocket'
 import type { Tournament, WSMessage } from '@/utils/types'
+import { vfetch } from '@/utils/fetch'
 
 import { useToast } from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
@@ -223,7 +224,7 @@ const webSocketStore = useWebSocketStore()
 
 const fetchTournament = async () => {
   try {
-    const response = await fetch(`/api/tournament/${tournamentId}`)
+    const response = await vfetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
     if (tournament.value?.users.length === 4) showStartButton.value = true
     if (tournament.value?.status === 'in_progress') {
@@ -252,7 +253,7 @@ const fetchTournament = async () => {
 
 const fetchMe = async () => {
   try {
-    const response = await fetch('/api/session')
+    const response = await vfetch('/api/session')
     const user = await response.json()
     myUsername.value = user.username
   } catch (error) {
@@ -303,7 +304,7 @@ const handleMessage = async (message: WSMessage) => {
 
 function startTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}/start`, {
+    vfetch(`/api/tournament/${tournamentId}/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -316,7 +317,7 @@ function startTournament() {
 
 function exitTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}`, {
+    vfetch(`/api/tournament/${tournamentId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -331,7 +332,7 @@ function exitTournament() {
 
 function deleteTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}/cancel`, {
+    vfetch(`/api/tournament/${tournamentId}/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

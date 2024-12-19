@@ -1,6 +1,7 @@
 import { ref } from 'vue'
 import type { GameState, MovesResponse } from '@/utils/game/types'
 import type { User } from '@/utils/types'
+import { vfetch } from '@/utils/fetch'
 
 export function useGameState() {
   const gameState = ref<GameState | null>(null)
@@ -14,7 +15,7 @@ export function useGameState() {
       if (!session.value) {
         await fetchSession()
       }
-      const res = await fetch('/api/play/')
+      const res = await vfetch('/api/play/')
       if (!res.ok) {
         return false
       }
@@ -35,7 +36,7 @@ export function useGameState() {
 
   const fetchMoves = async () => {
     try {
-      const res = await fetch('/api/play/moves')
+      const res = await vfetch('/api/play/moves')
       if (!res.ok) return false
       const data: MovesResponse = await res.json()
       console.log('Available moves:', data)
@@ -49,7 +50,7 @@ export function useGameState() {
 
   const fetchSession = async () => {
     try {
-      const res = await fetch('/api/session')
+      const res = await vfetch('/api/session')
       const data = await res.json()
       console.log('Session:', data)
       session.value = data
@@ -60,9 +61,13 @@ export function useGameState() {
 
   const fetchAvatars = async () => {
     try {
-      const res1 = await fetch(`/api/player/${gameState.value?.player1}/avatar`)
+      const res1 = await vfetch(
+        `/api/player/${gameState.value?.player1}/avatar`,
+      )
       const p1 = await res1.json()
-      const res2 = await fetch(`/api/player/${gameState.value?.player2}/avatar`)
+      const res2 = await vfetch(
+        `/api/player/${gameState.value?.player2}/avatar`,
+      )
       const p2 = await res2.json()
       avatars.value = [p1, p2]
     } catch (err) {

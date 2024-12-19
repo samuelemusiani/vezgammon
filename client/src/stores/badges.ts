@@ -1,6 +1,7 @@
 import type { Badge } from '@/utils/types'
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
+import { vfetch } from '@/utils/fetch'
 
 export const useBadgesStore = defineStore('badges', () => {
   const badges = ref<Badge>({
@@ -17,7 +18,7 @@ export const useBadgesStore = defineStore('badges', () => {
 
   const fetchBadges = async () => {
     try {
-      const response = await fetch('/api/badge')
+      const response = await vfetch('/api/badge')
       if (!response.ok) {
         throw new Error('Failed to fetch badges')
       }

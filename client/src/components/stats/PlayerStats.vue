@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import router from '@/router'
+import { vfetch } from '@/utils/fetch'
 
 import EloChart from '@/components/stats/EloChart.vue'
 import GamePerformanceCard from './GamePerformanceCard.vue'
@@ -77,9 +78,9 @@ const shareTitle = computed(() => `Check out my Backgammon stats!`)
 async function fetchUserStats() {
   let response
   if (!props.username) {
-    response = await fetch('/api/stats')
+    response = await vfetch('/api/stats')
   } else {
-    response = await fetch(`/api/player/${props.username}`)
+    response = await vfetch(`/api/player/${props.username}`)
   }
   if (!response.ok) {
     throw new Error('Failed to fetch user stats')
@@ -89,7 +90,7 @@ async function fetchUserStats() {
 }
 
 async function fetchUser() {
-  const response = await fetch('/api/session')
+  const response = await vfetch('/api/session')
   if (!response.ok) {
     throw new Error('Failed to fetch user')
   }

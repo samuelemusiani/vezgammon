@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '@/router'
+import { vfetch } from '@/utils/fetch'
 
 const mail = ref('')
 const passwd1 = ref('')
@@ -17,7 +18,7 @@ async function register() {
   }
 
   try {
-    const response = await fetch('/api/register', {
+    const response = await vfetch('/api/register', {
       method: 'POST',
       body: JSON.stringify({
         mail: mail.value,

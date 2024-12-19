@@ -1,11 +1,12 @@
 import { ref } from 'vue'
+import { vfetch } from '@/utils/fetch'
 
 export function useGameDouble(onDecline?: () => void) {
   const showDoubleModal = ref(false)
 
   const handleDouble = async () => {
     try {
-      const res = await fetch('/api/play/double', {
+      const res = await vfetch('/api/play/double', {
         method: 'POST',
       })
       return res.ok
@@ -17,7 +18,7 @@ export function useGameDouble(onDecline?: () => void) {
 
   const acceptDouble = async () => {
     try {
-      const res = await fetch('/api/play/double', {
+      const res = await vfetch('/api/play/double', {
         method: 'PUT',
       })
       return res.ok
@@ -29,7 +30,7 @@ export function useGameDouble(onDecline?: () => void) {
 
   const declineDouble = async () => {
     try {
-      const res = await fetch('/api/play/double', {
+      const res = await vfetch('/api/play/double', {
         method: 'DELETE',
       })
       if (res.ok) {

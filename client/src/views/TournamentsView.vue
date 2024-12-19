@@ -108,6 +108,7 @@ import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import router from '@/router'
 import type { Tournament } from '@/utils/types'
+import { vfetch } from '@/utils/fetch'
 
 import { useToast } from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
@@ -129,7 +130,7 @@ const myUsername = ref('')
 
 const fetchMe = async () => {
   try {
-    const response = await fetch('/api/session')
+    const response = await vfetch('/api/session')
     const user = await response.json()
     myUsername.value = user.username
   } catch (error) {
@@ -139,7 +140,7 @@ const fetchMe = async () => {
 
 onMounted(async () => {
   try {
-    const response = await fetch('/api/tournament/list')
+    const response = await vfetch('/api/tournament/list')
     tournaments.value = await response.json()
     console.log('Tournaments:', tournaments.value)
   } catch (error) {
@@ -154,11 +155,11 @@ const avatars = ref<string[]>([])
 
 // Open modal with selected tournament
 const openTournamentModal = async (tournament: SimpleTournament) => {
-  const data = await fetch(`/api/tournament/${tournament.id}`)
+  const data = await vfetch(`/api/tournament/${tournament.id}`)
   selectedTournament.value = await data.json()
   if (selectedTournament.value?.users) {
     for (const user of selectedTournament.value.users) {
-      const res = await fetch(`/api/player/${user}/avatar`)
+      const res = await vfetch(`/api/player/${user}/avatar`)
       const avatar = await res.json()
       avatars.value.push(avatar)
     }
@@ -169,7 +170,7 @@ const openTournamentModal = async (tournament: SimpleTournament) => {
 
 // Close modal
 const closeTournamentModal = async () => {
-  const response = await fetch('/api/tournament/list')
+  const response = await vfetch('/api/tournament/list')
   tournaments.value = await response.json()
   const el = document.getElementById('select_tournament') as HTMLDialogElement
   el.close()
@@ -182,7 +183,7 @@ const joinTournament = async (tournamentId: number) => {
     return
   }
   try {
-    const response = await fetch(`/api/tournament/${tournamentId}`, {
+    const response = await vfetch(`/api/tournament/${tournamentId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
     })
@@ -209,9 +210,12 @@ const dateformatter = new Intl.DateTimeFormat('it-IT', {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 </style>
