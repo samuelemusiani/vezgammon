@@ -139,9 +139,9 @@ function validate() {
 
           <div class="col-span-2 text-center">
             <p>Already have an account?</p>
-            <RouterLink to="/login" class="link link-primary">
+            <router-link to="/login" class="link link-primary">
               Go back to Login
-            </RouterLink>
+            </router-link>
           </div>
         </form>
       </div>

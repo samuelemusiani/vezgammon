@@ -74,10 +74,9 @@ function RIMUOVERE() {
   <div class="flex h-full w-full items-center justify-center">
     <div class="card w-96 max-h-[90%] overflow-y-auto border-8 border-primary bg-base-100 shadow-md">
       <div class="card-body">
-        <button
-          class="btn btn-secondary mt-4 border-4 border-primary"
-          @click="RIMUOVERE"
-        >
+        <button class="btn btn-secondary mt-4 border-4 border-primary" @click="RIMUOVERE">
+          adding login def users
+        </button>
         <h2 class="card-title">Login</h2>
         <div class="card-body">
           <!-- Form di Login -->
@@ -118,9 +117,9 @@ function RIMUOVERE() {
           <div class="divider">OR</div>
           <div class="text-center">
             <p>Don't have an account?</p>
-            <RouterLink to="/register" class="link link-primary">
+            <router-link to="/register" class="link link-primary">
               Sign up now
-            </RouterLink>
+            </router-link>
           </div>
         </div>
       </div>
