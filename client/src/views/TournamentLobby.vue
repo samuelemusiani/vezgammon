@@ -14,10 +14,11 @@
           <h1
             class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
           >
-            Tournament {{ showBracket? 'Brackets' : 'Lobby' }}
+            Tournament {{ showBracket ? 'Brackets' : 'Lobby' }}
           </h1>
           <div class="font-bold text-accent md:text-lg lg:text-xl">
-            Owner: {{ tournament?.owner == myUsername ? 'me' : tournament?.owner }}
+            Owner:
+            {{ tournament?.owner == myUsername ? 'me' : tournament?.owner }}
           </div>
         </div>
         <div v-if="!showBracket">
@@ -28,7 +29,7 @@
               class="retro-box p-4"
               :class="{
                 'text-primary': player === myUsername,
-                'italic' : ['Enzo', 'Caterina', 'Giovanni'].includes(player),
+                italic: ['Enzo', 'Caterina', 'Giovanni'].includes(player),
                 'text-black': player !== myUsername,
               }"
             >
@@ -44,7 +45,10 @@
             </div>
           </div>
 
-          <div v-if="tournament?.owner == myUsername" class="mt-2 flex justify-center gap-2">
+          <div
+            v-if="tournament?.owner == myUsername"
+            class="mt-2 flex justify-center gap-2"
+          >
             <button class="retro-button" @click="deleteTournament">
               Delete Tournament
             </button>
@@ -53,7 +57,9 @@
                 class="retro-button"
                 :disabled="showStartButton"
                 :style="{
-                  textShadow: showStartButton ? 'none' : '2px 2px 0 rgba(0, 0, 0, 0.2)',
+                  textShadow: showStartButton
+                    ? 'none'
+                    : '2px 2px 0 rgba(0, 0, 0, 0.2)',
                 }"
                 @click="botDropDown = !botDropDown"
               >
@@ -64,7 +70,7 @@
                 v-if="botDropDown"
                 class="absolute top-full mb-2 w-full rounded-lg"
               >
-                <ul class="py-1.5 flex flex-col gap-1">
+                <ul class="flex flex-col gap-1 py-1.5">
                   <li
                     v-for="bot in ['easy', 'medium', 'hard']"
                     :key="bot"
@@ -75,7 +81,6 @@
                   </li>
                 </ul>
               </div>
-
             </div>
             <button
               class="retro-button"
@@ -119,17 +124,17 @@
                   :key="index"
                   class="retro-box w-full p-3 text-center font-semibold"
                   :style="{
-                  color:
-                    tournament?.games[0]?.status === 'winp1'
-                      ? index === 0
-                        ? 'green'
-                        : 'red'
-                      : tournament?.games[0]?.status === 'winp2'
-                        ? index === 1
+                    color:
+                      tournament?.games[0]?.status === 'winp1'
+                        ? index === 0
                           ? 'green'
                           : 'red'
-                        : '',
-                }"
+                        : tournament?.games[0]?.status === 'winp2'
+                          ? index === 1
+                            ? 'green'
+                            : 'red'
+                          : '',
+                  }"
                 >
                   {{ box }}
                 </div>
@@ -142,17 +147,17 @@
                   :key="index"
                   class="retro-box w-full p-3 text-center font-semibold"
                   :style="{
-                  color:
-                    tournament?.games[1]?.status === 'winp1'
-                      ? index === 0
-                        ? 'green'
-                        : 'red'
-                      : tournament?.games[1]?.status === 'winp2'
-                        ? index === 1
+                    color:
+                      tournament?.games[1]?.status === 'winp1'
+                        ? index === 0
                           ? 'green'
                           : 'red'
-                        : '',
-                }"
+                        : tournament?.games[1]?.status === 'winp2'
+                          ? index === 1
+                            ? 'green'
+                            : 'red'
+                          : '',
+                  }"
                 >
                   {{ box }}
                 </div>
@@ -168,17 +173,17 @@
                   :key="index"
                   class="retro-box h-full w-full p-3 text-center text-2xl font-bold"
                   :style="{
-                  color:
-                    tournament?.games[3]?.status === 'winp1'
-                      ? index === 0
-                        ? 'green'
-                        : 'red'
-                      : tournament?.games[3]?.status === 'winp2'
-                        ? index === 1
+                    color:
+                      tournament?.games[3]?.status === 'winp1'
+                        ? index === 0
                           ? 'green'
                           : 'red'
-                        : '',
-                }"
+                        : tournament?.games[3]?.status === 'winp2'
+                          ? index === 1
+                            ? 'green'
+                            : 'red'
+                          : '',
+                  }"
                 >
                   {{ box }}
                 </div>
@@ -192,17 +197,17 @@
                   :key="index"
                   class="retro-box h-full w-full p-3.5 text-center font-bold"
                   :style="{
-                  color:
-                    tournament?.games[2]?.status === 'winp1'
-                      ? index === 0
-                        ? 'green'
-                        : 'red'
-                      : tournament?.games[2]?.status === 'winp2'
-                        ? index === 1
+                    color:
+                      tournament?.games[2]?.status === 'winp1'
+                        ? index === 0
                           ? 'green'
                           : 'red'
-                        : '',
-                }"
+                        : tournament?.games[2]?.status === 'winp2'
+                          ? index === 1
+                            ? 'green'
+                            : 'red'
+                          : '',
+                  }"
                 >
                   {{ box }}
                 </div>
@@ -213,11 +218,10 @@
       </div>
 
       <div v-else class="flex flex-col items-center gap-6">
-        <h1 class="text-3xl font-bold text-primary">Tournament does not exists</h1>
-        <button
-          class="retro-button"
-          @click="router.push('/')"
-        >
+        <h1 class="text-3xl font-bold text-primary">
+          Tournament does not exists
+        </h1>
+        <button class="retro-button" @click="router.push('/')">
           Return to Home
         </button>
       </div>
@@ -261,7 +265,10 @@ const fetchTournament = async () => {
     const response = await fetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
     showStartButton.value = tournament.value?.users.length === 4
-    if (tournament.value?.status === 'in_progress' || tournament.value?.status === 'ended') {
+    if (
+      tournament.value?.status === 'in_progress' ||
+      tournament.value?.status === 'ended'
+    ) {
       showBracket.value = true
       if (tournament.value?.games[0]) {
         boxes.value[0] = tournament.value?.games[0].player1
@@ -298,7 +305,9 @@ const fetchMe = async () => {
 onMounted(async () => {
   await fetchTournament()
   await fetchMe()
-  showBracket.value = tournament.value?.status === 'in_progress' || tournament.value?.status === 'ended'
+  showBracket.value =
+    tournament.value?.status === 'in_progress' ||
+    tournament.value?.status === 'ended'
   try {
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
@@ -389,14 +398,19 @@ function deleteTournament() {
 }
 
 async function addBot(difficulty: string) {
-  const username = difficulty.toLowerCase() == 'easy' ? 'Enzo' : difficulty == 'medium' ? 'Caterina' : 'Giovanni'
+  const username =
+    difficulty.toLowerCase() == 'easy'
+      ? 'Enzo'
+      : difficulty == 'medium'
+        ? 'Caterina'
+        : 'Giovanni'
   try {
     fetch(`/api/tournament/${tournamentId}/invite`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify([{username}]),
+      body: JSON.stringify([{ username }]),
     })
     botDropDown.value = false
   } catch (error) {
