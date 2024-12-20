@@ -43,11 +43,11 @@ onMounted(() => {
 
 async function logout() {
   await vfetch('/api/logout', { method: 'POST' })
-  router.push({ name: 'login' })
+  await router.push({ name: 'login' })
 }
 
 async function goBack() {
-  router.push({ name: 'home' })
+  await router.push({ name: 'home' })
 }
 </script>
 
@@ -68,7 +68,7 @@ async function goBack() {
             class="m-4 flex flex-col items-center justify-between gap-4 md:flex-row"
           >
             <div
-              class="flex w-full flex-col gap-4 md:text-xl xl:flex-row xl:justify-evenly"
+              class="flex w-full flex-col items-center gap-4 md:text-xl xl:flex-row xl:justify-between"
             >
               <div>
                 <span> Username: </span>
@@ -84,10 +84,8 @@ async function goBack() {
                   {{ session.firstname }} {{ session.lastname }}
                 </span>
               </div>
-            </div>
-            <div>
               <img
-                class="h-32 w-32 rounded-full border-4 border-primary"
+                class="h-32 w-32 rounded-full border-4 border-primary object-cover"
                 :src="session.avatar"
                 alt="User avatar"
               />

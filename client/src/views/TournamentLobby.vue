@@ -144,10 +144,10 @@
                 class="retro-box flex flex-row items-center justify-between p-4"
               >
                 <div
-                  class="flex flex-row items-center gap-1"
+                  class="flex w-[42%] flex-row items-center justify-start gap-1"
                   :style="
                     tournament?.games?.[i * 2 + j]?.status === 'winp2'
-                      ? 'filter: grayscale(100%);'
+                      ? 'filter: grayscale(100%); opacity: 0.5'
                       : ''
                   "
                 >
@@ -158,89 +158,93 @@
                   />
                   <span>{{ boxes[i * 4 + j * 2] }}</span>
                 </div>
-                <span v-if="i === 0">vs</span>
-                <span v-else-if="j === 1">
-                  <svg
-                    height="64"
-                    width="64"
-                    version="1.1"
-                    id="Layer_1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    viewBox="0 0 300.439 300.439"
-                    xml:space="preserve"
-                    fill="#000000"
-                  >
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g
-                      id="SVGRepo_tracerCarrier"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <g>
-                        <path
-                          style="fill: #bf392c"
-                          d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
-                        ></path>
-                        <path
-                          style="fill: #e2574c"
-                          d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
-                        ></path>
-                        <path
-                          style="fill: #efc75e"
-                          d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
-                        ></path>
-                        <path
-                          style="fill: #d7b354"
-                          d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
-                        ></path>
+                <div class="flex w-1/3 items-center justify-center">
+                  <span v-if="i === 0">vs</span>
+                  <span v-else-if="j === 1">
+                    <svg
+                      height="64"
+                      width="64"
+                      version="1.1"
+                      id="Layer_1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                      viewBox="0 0 300.439 300.439"
+                      xml:space="preserve"
+                      fill="#000000"
+                      class="mx-auto"
+                    >
+                      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                      <g
+                        id="SVGRepo_tracerCarrier"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></g>
+                      <g id="SVGRepo_iconCarrier">
+                        <g>
+                          <path
+                            style="fill: #bf392c"
+                            d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
+                          ></path>
+                          <path
+                            style="fill: #e2574c"
+                            d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
+                          ></path>
+                          <path
+                            style="fill: #efc75e"
+                            d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
+                          ></path>
+                          <path
+                            style="fill: #d7b354"
+                            d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
+                          ></path>
+                        </g>
                       </g>
-                    </g>
-                  </svg>
-                </span>
-                <span v-else>
-                  <svg
-                    height="64"
-                    width="64"
-                    version="1.1"
-                    id="Layer_1"
-                    xmlns="http://www.w3.org/2000/svg"
-                    xmlns:xlink="http://www.w3.org/1999/xlink"
-                    viewBox="0 0 300.439 300.439"
-                    xml:space="preserve"
-                    fill="#000000"
-                  >
-                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
-                    <g
-                      id="SVGRepo_tracerCarrier"
-                      stroke-linecap="round"
-                      stroke-linejoin="round"
-                    ></g>
-                    <g id="SVGRepo_iconCarrier">
-                      <g>
-                        <path
-                          style="fill: #bf392c"
-                          d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
-                        ></path>
-                        <path
-                          style="fill: #e2574c"
-                          d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
-                        ></path>
-                        <path
-                          style="fill: #ed9d5d"
-                          d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
-                        ></path>
-                        <path
-                          style="fill: #d58d54"
-                          d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
-                        ></path>
+                    </svg>
+                  </span>
+                  <span v-else>
+                    <svg
+                      height="64"
+                      width="64"
+                      version="1.1"
+                      id="Layer_1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                      viewBox="0 0 300.439 300.439"
+                      xml:space="preserve"
+                      fill="#000000"
+                      class="mx-auto"
+                    >
+                      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                      <g
+                        id="SVGRepo_tracerCarrier"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></g>
+                      <g id="SVGRepo_iconCarrier">
+                        <g>
+                          <path
+                            style="fill: #bf392c"
+                            d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
+                          ></path>
+                          <path
+                            style="fill: #e2574c"
+                            d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
+                          ></path>
+                          <path
+                            style="fill: #ed9d5d"
+                            d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
+                          ></path>
+                          <path
+                            style="fill: #d58d54"
+                            d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
+                          ></path>
+                        </g>
                       </g>
-                    </g>
-                  </svg>
-                </span>
+                    </svg>
+                  </span>
+                </div>
                 <div
-                  class="flex flex-row items-center gap-1"
+                  class="flex w-[42%] flex-row items-center justify-end gap-1"
                   :style="
                     tournament?.games?.[i * 2 + j]?.status === 'winp1'
                       ? 'filter: grayscale(100%); opacity: 0.5'

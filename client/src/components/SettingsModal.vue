@@ -81,25 +81,24 @@
               placeholder="Confirm new password"
             />
           </div>
+          <div class="mt-2 flex items-center justify-between">
+            <span
+              class="text-sm"
+              :class="{
+                'text-success': passwdMessage.includes('successfully'),
+                'text-error': !passwdMessage.includes('successfully'),
+              }"
+              >{{ passwdMessage }}</span
+            >
+            <button
+              @click="handleChangePassword"
+              class="btn btn-primary btn-sm"
+              :disabled="!isFormValid"
+            >
+              Confirm
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div class="mt-2 flex items-center justify-between">
-        <span
-          class="text-sm"
-          :class="{
-            'text-success': passwdMessage.includes('successfully'),
-            'text-error': !passwdMessage.includes('successfully'),
-          }"
-          >{{ passwdMessage }}</span
-        >
-        <button
-          @click="handleChangePassword"
-          class="btn btn-primary btn-sm"
-          :disabled="!isFormValid"
-        >
-          Confirm
-        </button>
       </div>
 
       <!-- Change Avatar -->
@@ -144,25 +143,24 @@
               />
             </label>
           </div>
+          <div class="mt-2 flex items-center justify-between">
+            <span
+              class="text-sm"
+              :class="{
+                'text-success': avatarMessage.includes('successfully'),
+                'text-error': !avatarMessage.includes('successfully'),
+              }"
+              >{{ avatarMessage }}</span
+            >
+            <button
+              @click="handleChangeAvatar"
+              class="btn btn-primary btn-sm"
+              :disabled="!isValid(newAvatar)"
+            >
+              Confirm
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div class="mt-2 flex items-center justify-between">
-        <span
-          class="text-sm"
-          :class="{
-            'text-success': avatarMessage.includes('successfully'),
-            'text-error': !avatarMessage.includes('successfully'),
-          }"
-          >{{ avatarMessage }}</span
-        >
-        <button
-          @click="handleChangeAvatar"
-          class="btn btn-primary btn-sm"
-          :disabled="!isValid(newAvatar)"
-        >
-          Confirm
-        </button>
       </div>
 
       <div class="modal-action">
