@@ -3,12 +3,13 @@ import { onMounted, ref } from 'vue'
 import type { User, Badge } from '@/utils/types'
 import router from '@/router'
 import Badges from '@/components/Badges.vue'
+import { vfetch } from '@/utils/fetch'
 
 const badges = ref<Badge | null>()
 
 const fetchBadges = async () => {
   try {
-    const res = await fetch('/api/badge')
+    const res = await vfetch('/api/badge')
     const data = await res.json()
     badges.value = data
   } catch (e: any) {
@@ -20,7 +21,7 @@ const session = ref<User | undefined>()
 const error = ref<string>('')
 
 const fetchSession = async () => {
-  fetch('/api/session')
+  vfetch('/api/session')
     .then(response => {
       if (!response.ok) {
         throw new Error('During profile fetch: ' + response.statusText)
@@ -41,7 +42,7 @@ onMounted(() => {
 })
 
 async function logout() {
-  await fetch('/api/logout', { method: 'POST' })
+  await vfetch('/api/logout', { method: 'POST' })
   router.push({ name: 'login' })
 }
 

@@ -182,6 +182,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAudioStore } from '@/stores/audio'
 import { useTheme } from '@/composables/useTheme'
+import { vfetch } from '@/utils/fetch'
 
 const audioStore = useAudioStore()
 const { currentTheme, themeOptions, changeTheme } = useTheme()
@@ -199,7 +200,7 @@ const newAvatar = ref('')
 
 const fetchAvatar = async () => {
   try {
-    const res = await fetch('/api/session')
+    const res = await vfetch('/api/session')
     const data = await res.json()
     currentAvatar.value = data.avatar
   } catch (e: any) {
@@ -253,7 +254,7 @@ const handleChangePassword = async () => {
   try {
     passwdMessage.value = ''
 
-    const res = await fetch('/api/pass', {
+    const res = await vfetch('/api/pass', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -282,7 +283,7 @@ const handleChangeAvatar = async () => {
   try {
     avatarMessage.value = ''
 
-    const res = await fetch('/api/avatar', {
+    const res = await vfetch('/api/avatar', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

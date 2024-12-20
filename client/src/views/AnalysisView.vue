@@ -4,6 +4,8 @@ import type { GameState } from '@/utils/game/types'
 import { ref, onMounted } from 'vue'
 import Board from '@/components/game/Board.vue'
 import PlayerInfo from '@/components/game/PlayerInfo.vue'
+import { vfetch } from '@/utils/fetch'
+
 const route = useRoute()
 
 const gameId = Number(route.params.gameId)
@@ -16,9 +18,9 @@ const dices = ref<number[]>([])
 
 async function getAvatars() {
   try {
-    const res1 = await fetch(`/api/player/${gameState.value?.player1}/avatar`)
+    const res1 = await vfetch(`/api/player/${gameState.value?.player1}/avatar`)
     const p1 = await res1.json()
-    const res2 = await fetch(`/api/player/${gameState.value?.player2}/avatar`)
+    const res2 = await vfetch(`/api/player/${gameState.value?.player2}/avatar`)
     const p2 = await res2.json()
     avatars.value = [p1, p2]
   } catch (err) {
@@ -28,7 +30,7 @@ async function getAvatars() {
 
 async function getGame(game_id: number, move: number) {
   try {
-    const res = await fetch('/api/replay', {
+    const res = await vfetch('/api/replay', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

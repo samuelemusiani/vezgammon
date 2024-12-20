@@ -3,6 +3,7 @@ import { useSound } from '@vueuse/sound'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import lostSfx from '@/utils/sounds/lostgame.mp3'
 import type { User } from '@/utils/types'
+import { vfetch } from '@/utils/fetch'
 
 export function useGameEnd() {
   const showResultModal = ref(false)
@@ -14,7 +15,7 @@ export function useGameEnd() {
 
   const fetchWinner = async (): Promise<string | null> => {
     try {
-      const res = await fetch('/api/play/last/winner')
+      const res = await vfetch('/api/play/last/winner')
       const winner = await res.json()
       return winner
     } catch (err) {
@@ -57,7 +58,7 @@ export function useGameEnd() {
 
   const handleRetire = async () => {
     try {
-      const res = await fetch('/api/play/', {
+      const res = await vfetch('/api/play/', {
         method: 'DELETE',
       })
 

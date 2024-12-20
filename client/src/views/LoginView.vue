@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '@/router'
+import { vfetch } from '@/utils/fetch'
 
 const username = ref('')
 const passwd = ref('')
@@ -12,7 +13,7 @@ async function login() {
   }
 
   try {
-    const response = await fetch('/api/login', {
+    const response = await vfetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +55,7 @@ function validate() {
 function RIMUOVERE() {
   const usernames = ['omar', 'samu', 'lele', 'lollo', 'fabio', 'diego']
   usernames.forEach(username => {
-    fetch('/api/register', {
+    vfetch('/api/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

@@ -163,8 +163,12 @@ const handleTriangleClick = async (position: number) => {
   }
 
   if (hasUsedBothDices || hasNoPossibleMoves) {
+    const gameFinished =
+      gameState.value.p1checkers.reduce((sum, e) => sum + e, 0) === 0 ||
+      gameState.value.p2checkers.reduce((sum, e) => sum + e, 0) === 0
+
     try {
-      if (!hasUsedBothDices) {
+      if (!hasUsedBothDices && !gameFinished) {
         showNoMovesModal.value = true
         return
       }

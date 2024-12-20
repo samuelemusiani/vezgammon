@@ -277,6 +277,7 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import router from '@/router'
 import { useWebSocketStore } from '@/stores/websocket'
 import type { Tournament, WSMessage } from '@/utils/types'
+import { vfetch } from '@/utils/fetch'
 
 import { useToast } from 'vue-toast-notification'
 
@@ -306,7 +307,7 @@ const webSocketStore = useWebSocketStore()
 
 const fetchTournament = async () => {
   try {
-    const response = await fetch(`/api/tournament/${tournamentId}`)
+    const response = await vfetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
     console.log(tournament.value)
     showStartButton.value = tournament.value?.users.length === 4
@@ -317,41 +318,41 @@ const fetchTournament = async () => {
       showBracket.value = true
       if (tournament.value?.games[0]) {
         boxes.value[0] = tournament.value?.games[0].player1
-        avatar.value[0] = await fetch(
+        avatar.value[0] = await vfetch(
           `/api/player/${tournament.value?.games[0].player1}/avatar`,
         ).then(res => res.json())
         boxes.value[1] = tournament.value?.games[0].player2
-        avatar.value[1] = await fetch(
+        avatar.value[1] = await vfetch(
           `/api/player/${tournament.value?.games[0].player2}/avatar`,
         ).then(res => res.json())
       }
       if (tournament.value?.games[1]) {
         boxes.value[2] = tournament.value?.games[1].player1
-        avatar.value[2] = await fetch(
+        avatar.value[2] = await vfetch(
           `/api/player/${tournament.value?.games[1].player1}/avatar`,
         ).then(res => res.json())
         boxes.value[3] = tournament.value?.games[1].player2
-        avatar.value[3] = await fetch(
+        avatar.value[3] = await vfetch(
           `/api/player/${tournament.value?.games[1].player2}/avatar`,
         ).then(res => res.json())
       }
       if (tournament.value?.games[2]) {
         boxes.value[4] = tournament.value?.games[2].player1
-        avatar.value[4] = await fetch(
+        avatar.value[4] = await vfetch(
           `/api/player/${tournament.value?.games[2].player1}/avatar`,
         ).then(res => res.json())
         boxes.value[5] = tournament.value?.games[2].player2
-        avatar.value[5] = await fetch(
+        avatar.value[5] = await vfetch(
           `/api/player/${tournament.value?.games[2].player2}/avatar`,
         ).then(res => res.json())
       }
       if (tournament.value?.games[3]) {
         boxes.value[6] = tournament.value?.games[3].player1
-        avatar.value[6] = await fetch(
+        avatar.value[6] = await vfetch(
           `/api/player/${tournament.value?.games[3].player1}/avatar`,
         ).then(res => res.json())
         boxes.value[7] = tournament.value?.games[3].player2
-        avatar.value[7] = await fetch(
+        avatar.value[7] = await vfetch(
           `/api/player/${tournament.value?.games[3].player2}/avatar`,
         ).then(res => res.json())
       }
@@ -363,7 +364,7 @@ const fetchTournament = async () => {
 
 const fetchMe = async () => {
   try {
-    const response = await fetch('/api/session')
+    const response = await vfetch('/api/session')
     const user = await response.json()
     myUsername.value = user.username
   } catch (error) {
@@ -383,7 +384,7 @@ onMounted(async () => {
   } catch (error) {
     console.error('websocket: ' + error)
   }
-  const response = await fetch('/api/play')
+  const response = await vfetch('/api/play')
   if (response.ok) {
     $toast.success('Get ready for the next round!')
     setTimeout(() => {
@@ -427,7 +428,7 @@ const handleMessage = async (message: WSMessage) => {
 
 function startTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}/start`, {
+    vfetch(`/api/tournament/${tournamentId}/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -440,7 +441,7 @@ function startTournament() {
 
 function exitTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}`, {
+    vfetch(`/api/tournament/${tournamentId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -455,7 +456,7 @@ function exitTournament() {
 
 function deleteTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}/cancel`, {
+    vfetch(`/api/tournament/${tournamentId}/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -474,7 +475,7 @@ async function addBot(difficulty: string) {
         ? 'Caterina'
         : 'Giovanni'
   try {
-    fetch(`/api/tournament/${tournamentId}/invite`, {
+    vfetch(`/api/tournament/${tournamentId}/invite`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -489,7 +490,7 @@ async function addBot(difficulty: string) {
 
 function deleteBot(username: string) {
   try {
-    fetch(`/api/tournament/${tournamentId}/deletebot`, {
+    vfetch(`/api/tournament/${tournamentId}/deletebot`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',

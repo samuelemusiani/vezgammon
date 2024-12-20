@@ -142,7 +142,7 @@ func Login(c *gin.Context) {
 	c.SetCookie(
 		"session_token",
 		sessionToken,
-		3600, // scadenza in secondi (1 ora)
+		7*24*60*60, // scadenza in secondi (1 settimana)
 		"/",
 		config.Get().Server.Domain,
 		false, // solo HTTPS

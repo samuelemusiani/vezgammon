@@ -327,6 +327,7 @@ import { useAudioStore } from '@/stores/audio'
 import { useBadgesStore } from '@/stores/badges'
 import type { WSMessage } from '@/utils/types'
 import { useToast } from 'vue-toast-notification'
+import { vfetch } from '@/utils/fetch'
 
 const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
@@ -378,7 +379,7 @@ const startRandomGame = () => {
 
 const createInviteLink = async () => {
   try {
-    const response = await fetch('/api/play/invite')
+    const response = await vfetch('/api/play/invite')
     const data = await response.json()
     inviteLink.value = `${window.location.origin}/invite/${data.Link}`
     linkCopied.value = false
@@ -400,7 +401,7 @@ const copyInviteLink = async () => {
 }
 
 const checkIfInGame = async () => {
-  const response = await fetch('/api/play')
+  const response = await vfetch('/api/play')
   if (response.ok) {
     const resumeModal = document.getElementById(
       'resume_game_modal',
@@ -419,7 +420,7 @@ const resumeGame = () => {
 
 const leaveGame = async () => {
   try {
-    await fetch('/api/play', { method: 'DELETE' })
+    await vfetch('/api/play', { method: 'DELETE' })
     const modal = document.getElementById(
       'resume_game_modal',
     ) as HTMLDialogElement
@@ -430,7 +431,7 @@ const leaveGame = async () => {
 }
 
 const handleCancelMatchmaking = async () => {
-  await fetch('/api/play/search', { method: 'DELETE' })
+  await vfetch('/api/play/search', { method: 'DELETE' })
   const waitingModal = document.getElementById(
     'waiting_modal',
   ) as HTMLDialogElement
@@ -481,7 +482,7 @@ const startGameWithAI = async (
   modals.value = 0
 
   try {
-    await fetch(`/api/play/bot/${difficulty}`)
+    await vfetch(`/api/play/bot/${difficulty}`)
     const destination = variant ? `/game?variant=${variant}` : '/game'
     router.push(destination)
   } catch (error) {
@@ -499,7 +500,7 @@ const startOnlineGame = async () => {
     ) as HTMLDialogElement
     waitingModal.showModal()
 
-    await fetch('/api/play/search')
+    await vfetch('/api/play/search')
   } catch (error) {
     console.error('Error starting online game:', error)
     // In caso di errore, chiudi il modale di attesa
@@ -530,7 +531,7 @@ const startLocalGame = async () => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
 
-  await fetch('/api/play/local')
+  await vfetch('/api/play/local')
   router.push('/game')
 }
 
@@ -545,7 +546,7 @@ function create_tourn() {
   if (tourn_name.value === '') {
     return
   }
-  fetch('/api/tournament/create', {
+  vfetch('/api/tournament/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
