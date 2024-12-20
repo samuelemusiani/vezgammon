@@ -899,6 +899,39 @@ paths:
       summary: Cancel a tournament
       tags:
       - tournament
+  /tournament/{tournament_id}/deletebot:
+    delete:
+      consumes:
+      - application/json
+      description: Delete users and bots from a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      - description: Delete user list object
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/handler.invite'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: deleted
+        "400":
+          description: tournament alredy started
+        "404":
+          description: tournament not found
+        "500":
+          description: internal server error
+      summary: Delete users and bots from a tournament
+      tags:
+      - tournament
   /tournament/{tournament_id}/invite:
     post:
       consumes:

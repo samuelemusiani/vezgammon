@@ -213,7 +213,97 @@ func InviteTournament(c *gin.Context) {
 	// send message to all users
 	for _, u := range tournament.Users {
 		// if u != userID {}
-    	ws.TournamentNewBotEnrolled(u)
+		ws.TournamentNewBotEnrolled(u)
+	}
+}
+
+// @Summary Delete users and bots from a tournament
+// @Description Delete users and bots from a tournament
+// @Tags tournament
+// @Accept  json
+// @Produce  json
+// @Param tournament_id path int true "Tournament ID"
+// @Param request body inviteList true "Delete user list object"
+// @Success 201 "deleted"
+// @Failure 404 "tournament not found"
+// @Failure 400 "user not in the tournament"
+// @Failure 400 "you are not in the owner"
+// @Failure 400 "tournament alredy started"
+// @Failure 500 "internal server error"
+// @Router /tournament/{tournament_id}/deletebot [delete]
+func TournamentDeleteUers(c *gin.Context) {
+	userID := c.MustGet("user_id").(int64)
+	id := c.Param("tournament_id")
+
+	id64, err := strconv.ParseInt(id, 10, 64)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	tournament, err := db.GetTournament(id64)
+	if err != nil {
+		c.JSON(http.StatusNotFound, "tournament not found")
+		return
+	}
+
+	if tournament.Owner != userID {
+		c.JSON(http.StatusBadRequest, "you are not the owner")
+		return
+	}
+
+	if tournament.Status != types.TournamentStatusWaiting {
+		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		return
+	}
+
+	buff, err := io.ReadAll(c.Request.Body)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	var userlist inviteList
+	err = json.Unmarshal(buff, &userlist)
+	if err != nil {
+		c.JSON(http.StatusBadRequest, err)
+		return
+	}
+
+	for _, user := range userlist {
+		user, err := db.GetUserByUsername(user.Username)
+		if err != nil {
+			c.JSON(http.StatusNotFound, "user not found")
+			return
+		}
+
+		if !user.IsBot {
+			c.JSON(http.StatusBadRequest, "only bots can be deleted")
+			return
+		}
+
+		if !slices.Contains(tournament.Users, user.ID) {
+			c.JSON(http.StatusBadRequest, "user not in the tournament")
+			return
+		}
+
+		for i, u := range tournament.Users {
+			if u == user.ID {
+				tournament.Users = append(tournament.Users[:i], tournament.Users[i+1:]...)
+				break
+			}
+		}
+	}
+
+	err = db.UpdateTournament(tournament)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, err)
+		return
+	}
+
+	// send message to all users
+	for _, u := range tournament.Users {
+		ws.TournamentBotLeft(u)
 	}
 }
 
