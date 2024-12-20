@@ -661,7 +661,7 @@ func getTournamentStats(gp []types.ReturnGame) int64 {
 
 	for _, game := range gp {
 		if game.Tournament.Valid {
-			if slices.Contains(tournamentIDs, game.Tournament.Int64) {
+			if !slices.Contains(tournamentIDs, game.Tournament.Int64) {
 				tournamentIDs = append(tournamentIDs, game.Tournament.Int64)
 			}
 		}
