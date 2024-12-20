@@ -80,3 +80,21 @@ Durante questo sprint è stato effettuato un importante refactor della board, ch
 Nonostante una lieve sovrastima del carico di lavoro che si pensava di poter completare, il grafico di Taiga è rimasto coerente e ben strutturato, dimostrando un'adeguata pianificazione complessiva. Tutto ciò che era stato pianificato è stato comunque completato con successo, grazie a un team ben coordinato e a una comunicazione costante e produttiva.
 
 Di comune accordo, il team ha deciso di aggiungere un ultimo sprint. Questo sarà dedicato al completamento delle poche feature ancora presenti nel backlog, nonché a un lavoro intenso di refactor e test. L’obiettivo è garantire che il prodotto finale sia solido, ottimizzato e pronto per l’uso con standard qualitativi elevati.
+
+## Sprint 4
+
+### Completato
+
+- #26: come creatore di tornei, voglio essere in grado di creare, amministrare tornei
+- #164: come utente, vorrei poter usare il sito anche da cellulare
+- #40: come utente, voglio ricevere le notifiche dal sito
+
+### Debito Tecnico
+
+*NULL*
+
+### Problematiche riscontrate
+
+Fine della gestione dei tornei backend. Si sono riscontrati parecchi problemi con il sistema delle statistiche, che sono stati man mano risolit, ma che hanno portato un rallentamento nello sviluppo.
+
+Quest'ultimo sprint si e' rivelato utile per poter portare a termine le ultime task rimaste con debito tecnico nullo. Il team ha lavorato con maggiore coordinazione e ha potuto completare il progetto con successo.

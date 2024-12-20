@@ -139,3 +139,21 @@ Sicuramente il migliore sprint fino ad ora, siamo riusciti a completare quasi tu
 Il team dei developer ha lavorato bene e si è dimostrato molto collaborativo. Il lavoro di squadra è stato fondamentale per il raggiungimento degli obiettivi.
 Il pair programming è stato molto utile per l'integrazione backend-frontend e per risolvere i problemi che si sono presentati durante lo sprint.
 Terminate le task assegnate, ci siamo dedicati al refactor del codice per migliorare la chiarezza e la manutenibilità del codice.
+
+## Sprint 4
+Valutazioni: 😃 😐 😡
+
+| Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
+| ---------------- | -------- | ---------- | --------- | --------| ---------- | ------ |
+| Scrum Master     | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
+| Product Owner    | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
+| Development Team | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
+| Product Backlog  | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
+| Sprint Planning  | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
+| Sprint Goal      | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
+| Self Menagement  | 😃       | 😃         |  😃      | 😃       |  😐        | 😃     |
+
+#### Product Owner - Diego Barbieri
+Sprint molto positivo, quasi quanto il precedente, ovviamente con un carico di lavoro minore. Simao riusciti a portare tutto al termine, grazie ad un ottima organizzazione del team, maturata durante tutto questo viaggio.
+
+
