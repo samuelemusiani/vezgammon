@@ -20,7 +20,7 @@
 
       <!-- Tournaments List -->
       <div
-        v-if="tournaments"
+        v-if="tournaments!.length > 0"
         class="no-scrollbar max-h-[calc(100vh-300px)] w-full max-w-4xl space-y-6 overflow-y-auto p-8"
       >
         <div
@@ -136,6 +136,7 @@ interface SimpleTournament {
   creation_date: string
   owner: string
   user_number: number
+  status: string
 }
 
 const tournaments = ref<SimpleTournament[] | null>(null)
@@ -155,6 +156,9 @@ onMounted(async () => {
   try {
     const response = await fetch('/api/tournament/list')
     tournaments.value = await response.json()
+    tournaments.value = tournaments.value!.filter(
+      (t: SimpleTournament) => t.status === 'waiting',
+    )
     console.log('Tournaments:', tournaments.value)
   } catch (error) {
     console.error('Error fetching tournaments:', error)
