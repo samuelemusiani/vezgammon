@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import type { Move, Checker } from '@/utils/game/types'
+import { vfetch } from '@/utils/fetch'
 
 export function useGameMoves() {
   const selectedChecker = ref<Checker | null>(null)
@@ -8,7 +9,7 @@ export function useGameMoves() {
 
   const submitMoves = async () => {
     try {
-      const res = await fetch('/api/play/moves', {
+      const res = await vfetch('/api/play/moves', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

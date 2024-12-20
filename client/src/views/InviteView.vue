@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { useRoute, useRouter } from 'vue-router'
 import { ref } from 'vue'
+import { vfetch } from '@/utils/fetch'
 
 const route = useRoute()
 const router = useRouter()
@@ -47,7 +48,7 @@ const showError = (message: string) => {
 const acceptInvite = async () => {
   try {
     const code = route.params.code
-    const response = await fetch(`/api/play/invite/${code}`)
+    const response = await vfetch(`/api/play/invite/${code}`)
 
     if (!response.ok) {
       showError(
