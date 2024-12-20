@@ -16,19 +16,28 @@
         >
           Tournaments
         </h1>
+        <div class="font-bold text-accent md:text-lg lg:text-xl">
+          Roll the Dice, Claim the Prize
+        </div>
       </div>
 
       <!-- Tournaments List -->
       <div
-        v-if="tournaments && tournaments.length > 0"
-        class="no-scrollbar max-h-[calc(100vh-300px)] w-full max-w-4xl space-y-6 overflow-y-auto p-8"
+        class="no-scrollbar h-1/2 max-h-[calc(100vh-300px)] w-full max-w-4xl space-y-6 overflow-y-auto p-8"
       >
+        <div
+          v-if="!tournaments || tournaments.length == 0"
+          class="text-center text-2xl font-bold text-accent"
+        >
+          No tournaments found
+        </div>
         <div
           v-for="tournament in tournaments"
           :key="tournament.id"
           class="retro-box relative p-6 hover:scale-[1.02]"
           @mouseenter="play()"
           @click="openTournamentModal(tournament)"
+          :style="tournament.status !== 'waiting' ? 'opacity: 0.7' : ''"
         >
           <div class="flex items-center justify-between">
             <div>
@@ -40,14 +49,24 @@
                 Owner: {{ tournament.owner }}
               </p>
             </div>
-            <div class="text-xl font-semibold text-accent text-primary">
+            <div class="text-xl font-semibold text-primary">
               {{ tournament.user_number }}/4
             </div>
           </div>
         </div>
-      </div>
-      <div v-else class="text-center text-2xl font-bold text-accent">
-        No tournaments found
+        <div
+          class="fixed bottom-16 left-0 right-0 flex items-center justify-center"
+        >
+          <input
+            type="checkbox"
+            id="showEndedTournaments"
+            class="mr-2"
+            @click="toggleTournamentsView"
+          />
+          <label for="showEndedTournaments" class="text-accent">
+            Show tournament already started or ended
+          </label>
+        </div>
       </div>
     </div>
     <dialog id="select_tournament" class="modal">
@@ -95,8 +114,12 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              v-if="selectedTournament?.users.includes(myUsername)"
-              @click="joinTournament(selectedTournament.id)"
+              v-if="
+                selectedTournament?.users.includes(myUsername) ||
+                selectedTournament?.status == 'ended' ||
+                selectedTournament?.status == 'in progress'
+              "
+              @click="seeTournament(selectedTournament.id)"
               class="retro-button"
             >
               SEE TOURNAMENT
@@ -148,7 +171,9 @@ interface SimpleTournament {
 }
 
 const tournaments = ref<SimpleTournament[] | null>(null)
+const tournaments_all = ref<SimpleTournament[] | null>(null)
 const myUsername = ref('')
+const showEndedTournaments = ref(false)
 
 const fetchMe = async () => {
   try {
@@ -163,10 +188,15 @@ const fetchMe = async () => {
 onMounted(async () => {
   try {
     const response = await fetch('/api/tournament/list')
-    tournaments.value = await response.json()
-    tournaments.value = tournaments.value!.filter(
-      (t: SimpleTournament) => t.status === 'waiting',
-    )
+    tournaments_all.value = await response.json()
+    if (showEndedTournaments.value) {
+      tournaments.value = tournaments_all.value
+    } else {
+      tournaments.value =
+        tournaments_all.value?.filter(
+          (tournament: SimpleTournament) => tournament.status === 'waiting',
+        ) || []
+    }
   } catch (error) {
     console.error('Error fetching tournaments:', error)
   }
@@ -195,20 +225,21 @@ const openTournamentModal = async (tournament: SimpleTournament) => {
 // Close modal
 const closeTournamentModal = async () => {
   const response = await fetch('/api/tournament/list')
-  tournaments.value = await response.json()
-  tournaments.value = tournaments.value!.filter(
-    (t: SimpleTournament) => t.status === 'waiting',
-  )
+  tournaments_all.value = await response.json()
+  if (showEndedTournaments.value) {
+    tournaments.value = tournaments_all.value
+  } else {
+    tournaments.value =
+      tournaments_all.value?.filter(
+        (tournament: SimpleTournament) => tournament.status === 'waiting',
+      ) || []
+  }
   const el = document.getElementById('select_tournament') as HTMLDialogElement
   el.close()
   selectedTournament.value = null
 }
 
 const joinTournament = async (tournamentId: number) => {
-  if (selectedTournament.value?.users.includes(myUsername.value)) {
-    await router.push('/tournaments/' + tournamentId)
-    return
-  }
   try {
     const response = await fetch(`/api/tournament/${tournamentId}`, {
       method: 'POST',
@@ -222,6 +253,22 @@ const joinTournament = async (tournamentId: number) => {
     }
   } catch (error) {
     console.error('Error joining tournament:', error)
+  }
+}
+
+const seeTournament = async (tournamentId: number) => {
+  await router.push('/tournaments/' + tournamentId)
+}
+
+const toggleTournamentsView = () => {
+  showEndedTournaments.value = !showEndedTournaments.value
+  if (showEndedTournaments.value) {
+    tournaments.value = tournaments_all.value
+  } else {
+    tournaments.value =
+      tournaments_all.value?.filter(
+        (tournament: SimpleTournament) => tournament.status === 'waiting',
+      ) || []
   }
 }
 

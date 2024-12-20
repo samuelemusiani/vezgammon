@@ -10,7 +10,7 @@
         Back
       </button>
       <div v-if="tournament" class="text-center">
-        <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+        <div class="mb-4 flex flex-col items-center text-center xl:mb-8">
           <h1
             class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
           >
@@ -22,7 +22,7 @@
           </div>
         </div>
         <div v-if="!showBracket">
-          <div class="mb-16 mt-16 grid grid-cols-2 grid-rows-2 gap-4">
+          <div class="mb-8 mt-8 grid grid-cols-2 grid-rows-2 gap-4">
             <div
               v-for="(player, index) in tournament?.users"
               :key="index"
@@ -136,102 +136,123 @@
         </div>
 
         <!-- Tournament Bracket -->
-        <div v-else>
-          <div class="flex flex-row justify-between gap-8">
-            <div class="flex w-1/4 flex-col gap-4">
-              <!-- Semi-Final 1 -->
-              <div class="flex flex-col items-center space-y-2">
-                <div
-                  v-for="(box, index) in boxes.slice(0, 2)"
-                  :key="index"
-                  class="retro-box w-full p-3 text-center font-semibold"
-                  :style="{
-                    color:
-                      tournament?.games[0]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[0]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
-                >
-                  {{ box }}
-                </div>
-              </div>
-
-              <!-- Semi-Final 2 -->
-              <div class="flex flex-col items-center space-y-2">
-                <div
-                  v-for="(box, index) in boxes.slice(2, 4)"
-                  :key="index"
-                  class="retro-box w-full p-3 text-center font-semibold"
-                  :style="{
-                    color:
-                      tournament?.games[1]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[1]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
-                >
-                  {{ box }}
-                </div>
-              </div>
-            </div>
-            <div class="flex w-full flex-col items-center gap-2 space-y-2">
-              <!-- Final 1 place-->
+        <div v-else class="flex flex-col gap-8">
+          <div v-for="i in [0, 1]" :key="i" class="flex flex-col gap-4">
+            <p>{{ i === 0 ? 'Semi-Finals' : 'Finals' }}</p>
+            <div v-for="j in [0, 1]" :key="j" class="flex flex-col gap-2">
               <div
-                class="mt-10 flex h-1/4 w-full flex-row items-center space-x-2"
+                class="retro-box flex flex-row items-center justify-between p-4"
               >
                 <div
-                  v-for="(box, index) in finals.slice(0, 2)"
-                  :key="index"
-                  class="retro-box h-full w-full p-3 text-center text-2xl font-bold"
-                  :style="{
-                    color:
-                      tournament?.games[3]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[3]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                  class="flex flex-row items-center gap-1"
+                  :style="
+                    tournament?.games?.[i * 2 + j]?.status === 'winp2'
+                      ? 'filter: grayscale(100%);'
+                      : ''
+                  "
                 >
-                  {{ box }}
+                  <img
+                    :src="avatar[i * 4 + j * 2]"
+                    alt="avatar"
+                    class="h-12 w-12 rounded-full object-cover"
+                  />
+                  <span>{{ boxes[i * 4 + j * 2] }}</span>
                 </div>
-              </div>
-              <!-- Final 3 place-->
-              <div
-                class="mt-10 flex h-1/4 w-3/4 flex-row items-center space-x-2"
-              >
+                <span v-if="i === 0">vs</span>
+                <span v-else-if="j === 1">
+                  <svg
+                    height="64"
+                    width="64"
+                    version="1.1"
+                    id="Layer_1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 0 300.439 300.439"
+                    xml:space="preserve"
+                    fill="#000000"
+                  >
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g
+                      id="SVGRepo_tracerCarrier"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <g>
+                        <path
+                          style="fill: #bf392c"
+                          d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
+                        ></path>
+                        <path
+                          style="fill: #e2574c"
+                          d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
+                        ></path>
+                        <path
+                          style="fill: #efc75e"
+                          d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
+                        ></path>
+                        <path
+                          style="fill: #d7b354"
+                          d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
+                        ></path>
+                      </g>
+                    </g>
+                  </svg>
+                </span>
+                <span v-else>
+                  <svg
+                    height="64"
+                    width="64"
+                    version="1.1"
+                    id="Layer_1"
+                    xmlns="http://www.w3.org/2000/svg"
+                    xmlns:xlink="http://www.w3.org/1999/xlink"
+                    viewBox="0 0 300.439 300.439"
+                    xml:space="preserve"
+                    fill="#000000"
+                  >
+                    <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                    <g
+                      id="SVGRepo_tracerCarrier"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                    ></g>
+                    <g id="SVGRepo_iconCarrier">
+                      <g>
+                        <path
+                          style="fill: #bf392c"
+                          d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
+                        ></path>
+                        <path
+                          style="fill: #e2574c"
+                          d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
+                        ></path>
+                        <path
+                          style="fill: #ed9d5d"
+                          d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
+                        ></path>
+                        <path
+                          style="fill: #d58d54"
+                          d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
+                        ></path>
+                      </g>
+                    </g>
+                  </svg>
+                </span>
                 <div
-                  v-for="(box, index) in finals.slice(2, 4)"
-                  :key="index"
-                  class="retro-box h-full w-full p-3.5 text-center font-bold"
-                  :style="{
-                    color:
-                      tournament?.games[2]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[2]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                  class="flex flex-row items-center gap-1"
+                  :style="
+                    tournament?.games?.[i * 2 + j]?.status === 'winp1'
+                      ? 'filter: grayscale(100%); opacity: 0.5'
+                      : ''
+                  "
                 >
-                  {{ box }}
+                  <span>{{ boxes[i * 4 + j * 2 + 1] }}</span>
+                  <img
+                    :src="avatar[i * 4 + j * 2 + 1]"
+                    alt="avatar"
+                    class="h-12 w-12 rounded-full object-cover"
+                  />
                 </div>
               </div>
             </div>
@@ -271,13 +292,14 @@ const boxes = ref<Array<string>>([
   'Player 2',
   'Player 3',
   'Player 4',
-])
-const finals = ref<Array<string>>([
   'Finalist 1',
   'Finalist 2',
   'Consolation 1',
   'Consolation 2',
 ])
+const avatar = ref<Array<string>>(
+  new Array(8).fill('https://api.dicebear.com/9.x/icons/svg?seed=Christian'),
+)
 
 const tournamentId = router.currentRoute.value.params.id
 const webSocketStore = useWebSocketStore()
@@ -286,6 +308,7 @@ const fetchTournament = async () => {
   try {
     const response = await fetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
+    console.log(tournament.value)
     showStartButton.value = tournament.value?.users.length === 4
     if (
       tournament.value?.status === 'in_progress' ||
@@ -294,19 +317,43 @@ const fetchTournament = async () => {
       showBracket.value = true
       if (tournament.value?.games[0]) {
         boxes.value[0] = tournament.value?.games[0].player1
+        avatar.value[0] = await fetch(
+          `/api/player/${tournament.value?.games[0].player1}/avatar`,
+        ).then(res => res.json())
         boxes.value[1] = tournament.value?.games[0].player2
+        avatar.value[1] = await fetch(
+          `/api/player/${tournament.value?.games[0].player2}/avatar`,
+        ).then(res => res.json())
       }
       if (tournament.value?.games[1]) {
         boxes.value[2] = tournament.value?.games[1].player1
+        avatar.value[2] = await fetch(
+          `/api/player/${tournament.value?.games[1].player1}/avatar`,
+        ).then(res => res.json())
         boxes.value[3] = tournament.value?.games[1].player2
+        avatar.value[3] = await fetch(
+          `/api/player/${tournament.value?.games[1].player2}/avatar`,
+        ).then(res => res.json())
       }
       if (tournament.value?.games[2]) {
-        finals.value[0] = tournament.value?.games[3].player1
-        finals.value[1] = tournament.value?.games[3].player2
+        boxes.value[4] = tournament.value?.games[2].player1
+        avatar.value[4] = await fetch(
+          `/api/player/${tournament.value?.games[2].player1}/avatar`,
+        ).then(res => res.json())
+        boxes.value[5] = tournament.value?.games[2].player2
+        avatar.value[5] = await fetch(
+          `/api/player/${tournament.value?.games[2].player2}/avatar`,
+        ).then(res => res.json())
       }
       if (tournament.value?.games[3]) {
-        finals.value[2] = tournament.value?.games[2].player1
-        finals.value[3] = tournament.value?.games[2].player2
+        boxes.value[6] = tournament.value?.games[3].player1
+        avatar.value[6] = await fetch(
+          `/api/player/${tournament.value?.games[3].player1}/avatar`,
+        ).then(res => res.json())
+        boxes.value[7] = tournament.value?.games[3].player2
+        avatar.value[7] = await fetch(
+          `/api/player/${tournament.value?.games[3].player2}/avatar`,
+        ).then(res => res.json())
       }
     }
   } catch (error) {
