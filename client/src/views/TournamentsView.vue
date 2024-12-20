@@ -20,7 +20,7 @@
 
       <!-- Tournaments List -->
       <div
-        v-if="tournaments!.length > 0"
+        v-if="tournaments && tournaments.length > 0"
         class="no-scrollbar max-h-[calc(100vh-300px)] w-full max-w-4xl space-y-6 overflow-y-auto p-8"
       >
         <div
@@ -103,11 +103,19 @@
             </button>
             <button
               @mouseenter="(e: MouseEvent) => play()"
-              v-else
+              v-else-if="selectedTournament?.users.length < 4"
               @click="joinTournament(selectedTournament.id)"
               class="retro-button"
             >
               JOIN TOURNAMENT
+            </button>
+            <button
+              v-else
+              class="retro-button"
+              disabled
+              style="text-shadow: none"
+            >
+              FULL
             </button>
           </div>
         </div>
@@ -159,7 +167,6 @@ onMounted(async () => {
     tournaments.value = tournaments.value!.filter(
       (t: SimpleTournament) => t.status === 'waiting',
     )
-    console.log('Tournaments:', tournaments.value)
   } catch (error) {
     console.error('Error fetching tournaments:', error)
   }
@@ -189,6 +196,9 @@ const openTournamentModal = async (tournament: SimpleTournament) => {
 const closeTournamentModal = async () => {
   const response = await fetch('/api/tournament/list')
   tournaments.value = await response.json()
+  tournaments.value = tournaments.value!.filter(
+    (t: SimpleTournament) => t.status === 'waiting',
+  )
   const el = document.getElementById('select_tournament') as HTMLDialogElement
   el.close()
   selectedTournament.value = null

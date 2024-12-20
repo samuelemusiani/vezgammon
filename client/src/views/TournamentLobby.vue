@@ -26,14 +26,36 @@
             <div
               v-for="(player, index) in tournament?.users"
               :key="index"
-              class="retro-box p-4"
+              class="retro-box relative flex min-h-[60px] items-center justify-center p-4"
               :class="{
                 'text-primary': player === myUsername,
                 italic: ['Enzo', 'Caterina', 'Giovanni'].includes(player),
                 'text-black': player !== myUsername,
               }"
             >
-              <span class="font-semibold">{{ player }}</span>
+              <span class="font-semibold"> {{ index + 1 }}. {{ player }} </span>
+              <button
+                v-if="
+                  ['Enzo', 'Caterina', 'Giovanni'].includes(player) &&
+                  myUsername == tournament.owner
+                "
+                class="absolute right-1 top-1 cursor-pointer text-red-500 transition-colors hover:scale-[1.10] hover:text-red-600"
+                @click="deleteBot(player)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="25"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M15.5 8.5l-7 7" />
+                  <path d="M8.5 8.5l7 7" />
+                </svg>
+              </button>
             </div>
 
             <div
@@ -413,6 +435,20 @@ async function addBot(difficulty: string) {
       body: JSON.stringify([{ username }]),
     })
     botDropDown.value = false
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function deleteBot(username: string) {
+  try {
+    fetch(`/api/tournament/${tournamentId}/deletebot`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{ username }]),
+    })
   } catch (error) {
     console.error(error)
   }

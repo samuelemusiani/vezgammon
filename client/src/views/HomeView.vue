@@ -542,6 +542,9 @@ const openRulesModal = () => {
 const tourn_name = ref('')
 
 function create_tourn() {
+  if (tourn_name.value === '') {
+    return
+  }
   fetch('/api/tournament/create', {
     method: 'POST',
     headers: {
