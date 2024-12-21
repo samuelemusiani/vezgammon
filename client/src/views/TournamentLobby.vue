@@ -473,12 +473,17 @@ function deleteTournament() {
 }
 
 async function addBot(difficulty: string) {
-  const username =
-    difficulty.toLowerCase() == 'easy'
-      ? 'Enzo'
-      : difficulty == 'medium'
-        ? 'Caterina'
-        : 'Giovanni'
+  let username
+  switch (difficulty.toLowerCase()) {
+    case 'easy':
+      username = 'Enzo'
+    case 'medium':
+      username = 'Caterina'
+    case 'hard':
+      username = 'Giovanni'
+    default:
+      username = 'Invalid'
+  }
   try {
     vfetch(`/api/tournament/${tournamentId}/invite`, {
       method: 'POST',
