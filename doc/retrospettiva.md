@@ -145,13 +145,13 @@ Valutazioni: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
 | ---------------- | -------- | ---------- | --------- | --------| ---------- | ------ |
-| Scrum Master     | 😃       | 😃         | 😃        |         |            |        |
-| Product Owner    | 😃       | 😃         | 😃        |         |            |        |
-| Development Team | 😃       | 😃         | 😃        |         |            |        |
-| Product Backlog  | 😃       | 😃         | 😃        |         |            |        |
-| Sprint Planning  | 😃       | 😃         | 😃        |         |            |        |
-| Sprint Goal      | 😃       | 😃         | 😃        |         |            |        |
-| Self Menagement  | 😃       | 😃         | 😃        |         |            |        |
+| Scrum Master     | 😃       | 😃         | 😃        |         |            | 😃     |
+| Product Owner    | 😃       | 😃         | 😃        |         |            | 😃     |
+| Development Team | 😃       | 😃         | 😃        |         |            | 😃     |
+| Product Backlog  | 😃       | 😃         | 😃        |         |            | 😃     |
+| Sprint Planning  | 😃       | 😃         | 😃        |         |            | 😃     |
+| Sprint Goal      | 😃       | 😃         | 😃        |         |            | 😃     |
+| Self Menagement  | 😃       | 😃         | 😃        |         |            | 😃     |
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
@@ -169,3 +169,5 @@ Sprint positivo, soprattutto a seguito della conclusione di tutte le US assegnat
 portando a termine ogni compito nel tempo previsto. Si riconfermata la piena padronanza degli strumenti utilizzati e la capacità di coordinarsi per portare a termine
 tutte le task più complesse che richiedevano una collaboraione tra frontend e backend.
 
+### Developer - Omar Ayache
+Questo sprint ha evidenziato l’ottima coesione del team e il rispetto dei principi Agile, con comunicazione efficace e collaborazione continua. Il pair programming e i daily scrum ci hanno permesso di affrontare le sfide e completare tutte le user stories nei tempi previsti, mantenendo alta la qualità del lavoro anche durante il periodo intenso degli impegni personali e lavorativi.
