@@ -998,7 +998,7 @@ const docTemplate = `{
         },
         "/tournament/{tournament_id}/invite": {
             "post": {
-                "description": "Invite a user or a bot a tournament, if it is a bot it accepts the invitation automatically, same bot can be invited multiple times",
+                "description": "Invite a user or a bot a tournament, if it is a bot it accepts\nthe invitation automatically, same bot can be invited multiple times",
                 "consumes": [
                     "application/json"
                 ],
@@ -1035,7 +1035,7 @@ const docTemplate = `{
                         "description": "invited"
                     },
                     "400": {
-                        "description": "you are not in the owner"
+                        "description": "you are not the owner"
                     },
                     "404": {
                         "description": "user not found"
