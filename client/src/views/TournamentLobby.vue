@@ -477,12 +477,16 @@ async function addBot(difficulty: string) {
   switch (difficulty.toLowerCase()) {
     case 'easy':
       username = 'Enzo'
+      break
     case 'medium':
       username = 'Caterina'
+      break
     case 'hard':
       username = 'Giovanni'
+      break
     default:
       username = 'Invalid'
+      break
   }
   try {
     vfetch(`/api/tournament/${tournamentId}/invite`, {
