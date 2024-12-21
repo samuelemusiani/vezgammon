@@ -145,15 +145,21 @@ Valutazioni: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
 | ---------------- | -------- | ---------- | --------- | --------| ---------- | ------ |
-| Scrum Master     | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
-| Product Owner    | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
-| Development Team | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
-| Product Backlog  | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
-| Sprint Planning  | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
-| Sprint Goal      | 😃       | 😃         |  😃      | 😃       |  😃        | 😃     |
-| Self Menagement  | 😃       | 😃         |  😃      | 😃       |  😐        | 😃     |
+| Scrum Master     | 😃       | 😃         |          |          |            |        |
+| Product Owner    | 😃       | 😃         |          |          |            |        |
+| Development Team | 😃       | 😃         |          |          |            |        |
+| Product Backlog  | 😃       | 😃         |          |          |            |        |
+| Sprint Planning  | 😃       | 😃         |          |          |            |        |
+| Sprint Goal      | 😃       | 😃         |          |          |            |        |
+| Self Menagement  | 😃       | 😃         |          |          |            |        |
 
+### Commenti personali
 #### Product Owner - Diego Barbieri
-Sprint molto positivo, quasi quanto il precedente, ovviamente con un carico di lavoro minore. Simao riusciti a portare tutto al termine, grazie ad un ottima organizzazione del team, maturata durante tutto questo viaggio.
+Sprint molto positivo, quasi quanto il precedente, ovviamente con un carico di lavoro minore. Simao riusciti a portare tutto al termine, 
+grazie ad un ottima organizzazione del team, maturata durante tutto questo viaggio.
 
-
+#### Scrum Master - Lorenzo Peronese
+Durante lo sprint il team ha lavorato bene, portando a termine tutte le user stories nei tempi previsti nonostante l'inizio degli esami. 
+Il pair programming tra frontend e backend e i daily scrums sono sono diventate abitudini Agile e si sono rivelate fondamentali per gestire 
+il doppio impegno studio-lavoro senza sacrificare la qualità del codice. Questo e il precedente sprint dimostrano il miglioramento 
+che c'è stato rispetto alle prime settimane, il team è riuscito a prendere il ritmo giusto e concludere il lavoro nel migliore dei modi.

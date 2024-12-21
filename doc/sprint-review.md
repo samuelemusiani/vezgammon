@@ -28,7 +28,7 @@ Entrambi le problematiche dovrebbero essere superate, poichè il team ha acquisi
 ### Home screen
 ![home screen](./imgs/s2-home.png)
 ### Game modes
-![game modes](./imgs/s2-gamemodes)
+![game modes](./imgs/s2-gamemodes.png)
 ### Board
 ![board](./imgs/s2-board.png)
 
@@ -58,6 +58,14 @@ Si è inoltre evidenziato un accumulo significativo di user stories nel backlog,
 
 
 ## Sprint 3
+### Leaderboard
+![leaderboard](./imgs/s3-leaderboard.png)
+### Profile & badges
+![profile & badges](./imgs/s3-profile+badges.png)
+### Rules
+![rules](./imgs/s3-rules.png)
+### Stats
+![stats](./imgs/s3-stats.png)
 
 ### Completato
 - #25: come utente, voglio tener traccia dei miei progressi nel gioco
@@ -82,6 +90,12 @@ Nonostante una lieve sovrastima del carico di lavoro che si pensava di poter com
 Di comune accordo, il team ha deciso di aggiungere un ultimo sprint. Questo sarà dedicato al completamento delle poche feature ancora presenti nel backlog, nonché a un lavoro intenso di refactor e test. L’obiettivo è garantire che il prodotto finale sia solido, ottimizzato e pronto per l’uso con standard qualitativi elevati.
 
 ## Sprint 4
+### Tournaments
+![tournaments-list](./imgs/s4-tournaments.png)
+![tournaments-lobby](./imgs/s4-tournament-lobby.png)
+![tournaments-brackets](./imgs/s4-tournament-brackets.png)
+### Popup responsiveness
+![popup-responsiveness](./imgs/s4-popup-responsiveness.png)
 
 ### Completato
 
@@ -91,10 +105,12 @@ Di comune accordo, il team ha deciso di aggiungere un ultimo sprint. Questo sar�
 
 ### Debito Tecnico
 
-*NULL*
+Nulla
 
 ### Problematiche riscontrate
 
-Fine della gestione dei tornei backend. Si sono riscontrati parecchi problemi con il sistema delle statistiche, che sono stati man mano risolit, ma che hanno portato un rallentamento nello sviluppo.
+Fine della gestione dei tornei backend. Si sono riscontrati parecchi problemi con il sistema delle statistiche, che sono stati man mano risolti, 
+ma che hanno portato un rallentamento nello sviluppo.
 
-Quest'ultimo sprint si e' rivelato utile per poter portare a termine le ultime task rimaste con debito tecnico nullo. Il team ha lavorato con maggiore coordinazione e ha potuto completare il progetto con successo.
+Quest'ultimo sprint si e' rivelato utile per poter portare a termine le ultime task rimaste e sistemare e riorganizzare al meglio il codice preesistenre. 
+Il team ha lavorato con maggiore coordinazione e ha potuto completare il progetto con successo.
