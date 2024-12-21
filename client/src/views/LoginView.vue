@@ -51,24 +51,6 @@ function validate() {
   err.value = message
   return ok
 }
-
-function RIMUOVERE() {
-  const usernames = ['omar', 'samu', 'lele', 'lollo', 'fabio', 'diego']
-  usernames.forEach(username => {
-    vfetch('/api/register', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        username,
-        password: 'omaromar',
-        mail: `${username}@${username}.it`,
-        firstname: username,
-      }),
-    })
-  })
-}
 </script>
 
 <template>
@@ -77,12 +59,6 @@ function RIMUOVERE() {
       class="card max-h-[90%] w-96 overflow-y-auto border-8 border-primary bg-base-100 shadow-md"
     >
       <div class="card-body">
-        <button
-          class="btn btn-secondary mt-4 border-4 border-primary"
-          @click="RIMUOVERE"
-        >
-          adding login def users
-        </button>
         <h2 class="card-title">Login</h2>
         <div class="card-body">
           <!-- Form di Login -->
