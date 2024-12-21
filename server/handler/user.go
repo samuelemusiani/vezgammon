@@ -17,6 +17,9 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
+var ErrUserNotFound = errors.New("User not found")
+var ErrBadReq = errors.New("Bad request")
+
 type customUser struct {
 	Password  string `json:"password" example:"1234"`
 	Username  string `json:"username" example:"gio"`
@@ -113,7 +116,7 @@ func Login(c *gin.Context) {
 	log.Println("login test")
 	if err := c.BindJSON(&loginUser); err != nil {
 		slog.With("err", err).Error("Bad request unmarshal")
-		c.JSON(http.StatusBadRequest, loginResponseType{Message: "Bad request"})
+		c.JSON(http.StatusBadRequest, loginResponseType{Message: ErrBadReq.Error()})
 		return
 	}
 
@@ -235,7 +238,7 @@ func GetSession(c *gin.Context) {
 	userId := c.MustGet("user_id").(int64)
 	user, err := db.GetUser(userId)
 	if err != nil {
-		slog.With("err", err).Error("User not found")
+		slog.With("err", err).Error(ErrUserNotFound.Error())
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -258,7 +261,7 @@ func GetStats(c *gin.Context) {
 
 	userstats, err := db.GetStats(userID)
 	if err != nil {
-		slog.With("err", err).Error("User not found")
+		slog.With("err", err).Error(ErrUserNotFound.Error())
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
@@ -282,7 +285,7 @@ func GetPlayer(c *gin.Context) {
 	u, err := db.GetUserByUsername(username)
 	if err != nil {
 		if errors.Is(err, db.UserNotFound) {
-			c.JSON(http.StatusNotFound, "User not found")
+			c.JSON(http.StatusNotFound, ErrUserNotFound.Error())
 			return
 		}
 		slog.With("err", err).Error("Getting user")
@@ -310,7 +313,7 @@ func GetPlayerAvatar(c *gin.Context) {
 	u, err := db.GetUserByUsername(username)
 	if err != nil {
 		if err == db.UserNotFound {
-			c.JSON(http.StatusNotFound, "User not found")
+			c.JSON(http.StatusNotFound, ErrUserNotFound.Error())
 			return
 		}
 		c.JSON(http.StatusInternalServerError, "")
@@ -418,15 +421,15 @@ func ChangePass(c *gin.Context) {
 
 	user, err := db.GetUser(userID)
 	if err != nil {
-		slog.With("err", err).Error("Bad request")
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		slog.With("err", err).Error(ErrBadReq.Error())
+		c.JSON(http.StatusBadRequest, gin.H{"message": ErrBadReq.Error()})
 		return
 	}
 
 	var s changePasswordType
 	if err := c.BindJSON(&s); err != nil {
 		slog.With("err", err).Error("Bad request unmarshal")
-		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})
+		c.JSON(http.StatusBadRequest, gin.H{"message": ErrBadReq.Error()})
 		return
 	}
 
