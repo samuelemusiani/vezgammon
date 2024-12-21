@@ -1,6 +1,6 @@
 <template>
   <div class="flex h-full items-center justify-center overflow-auto">
-    <div class="card w-4/5 overflow-auto bg-base-100 shadow-xl">
+    <div class="card h-[94%] w-4/5 overflow-y-auto bg-base-100 shadow-xl">
       <div class="card-body w-full">
         <div class="grid grid-cols-1 gap-6 lg:grid-cols-2">
           <GamePerformanceCard :stats="stats" />
@@ -33,6 +33,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue'
 import router from '@/router'
+import { vfetch } from '@/utils/fetch'
 
 import EloChart from '@/components/stats/EloChart.vue'
 import GamePerformanceCard from './GamePerformanceCard.vue'
@@ -43,8 +44,7 @@ import RedditShareButton from '@/components/buttons/RedditShare.vue'
 import WhatsappShareButton from '@/components/buttons/WhatsappShare.vue'
 import TelegramShareButton from '@/components/buttons/TelegramShare.vue'
 
-import type { GameStats } from '@/utils/types'
-import type { User } from '@/utils/types'
+import type { GameStats, User } from '@/utils/types'
 
 const stats = ref<GameStats>({
   games_played: [],
@@ -78,9 +78,9 @@ const shareTitle = computed(() => `Check out my Backgammon stats!`)
 async function fetchUserStats() {
   let response
   if (!props.username) {
-    response = await fetch('/api/stats')
+    response = await vfetch('/api/stats')
   } else {
-    response = await fetch(`/api/player/${props.username}`)
+    response = await vfetch(`/api/player/${props.username}`)
   }
   if (!response.ok) {
     throw new Error('Failed to fetch user stats')
@@ -90,7 +90,7 @@ async function fetchUserStats() {
 }
 
 async function fetchUser() {
-  const response = await fetch('/api/session')
+  const response = await vfetch('/api/session')
   if (!response.ok) {
     throw new Error('Failed to fetch user')
   }

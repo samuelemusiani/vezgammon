@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '@/router'
+import { vfetch } from '@/utils/fetch'
 
 const username = ref('')
 const passwd = ref('')
@@ -12,7 +13,7 @@ async function login() {
   }
 
   try {
-    const response = await fetch('/api/login', {
+    const response = await vfetch('/api/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -54,7 +55,7 @@ function validate() {
 function RIMUOVERE() {
   const usernames = ['omar', 'samu', 'lele', 'lollo', 'fabio', 'diego']
   usernames.forEach(username => {
-    fetch('/api/register', {
+    vfetch('/api/register', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -72,23 +73,26 @@ function RIMUOVERE() {
 
 <template>
   <div class="flex h-full w-full items-center justify-center">
-    <div class="card w-96 border border-8 border-primary bg-base-100 shadow-md">
+    <div
+      class="card max-h-[90%] w-96 overflow-y-auto border-8 border-primary bg-base-100 shadow-md"
+    >
       <div class="card-body">
         <button
-          class="btn btn-secondary mt-4 hidden border-4 border-primary"
+          class="btn btn-secondary mt-4 border-4 border-primary"
           @click="RIMUOVERE"
         >
-          USER omar, lele, lollo, samu, fabio, diego PASS omaromar
+          adding login def users
         </button>
         <h2 class="card-title">Login</h2>
         <div class="card-body">
           <!-- Form di Login -->
           <form @submit.prevent="login">
             <div class="form-control">
-              <label class="label">
+              <label class="label" for="username">
                 <span class="label-text">Username or Email</span>
               </label>
               <input
+                id="username"
                 type="text"
                 placeholder="Enter Username"
                 v-model="username"
@@ -97,17 +101,21 @@ function RIMUOVERE() {
             </div>
 
             <div class="form-control mt-4">
-              <label class="label">
+              <label class="label" for="password">
                 <span class="label-text">Password</span>
               </label>
               <input
+                id="password"
                 type="password"
                 placeholder="Enter Password"
                 v-model="passwd"
                 class="input input-bordered w-full bg-base-200 focus:ring-primary"
               />
-              <label class="label">
-                <a href="#" class="link-hover link label-text-alt"
+              <label class="label" for="forgot-password">
+                <a
+                  href="#"
+                  class="link-hover link label-text-alt"
+                  id="forgot-password"
                   >Forgot password?</a
                 >
               </label>
@@ -133,9 +141,9 @@ function RIMUOVERE() {
           <div class="divider">OR</div>
           <div class="text-center">
             <p>Don't have an account?</p>
-            <RouterLink to="/register" class="link link-primary">
+            <router-link to="/register" class="link link-primary">
               Sign up now
-            </RouterLink>
+            </router-link>
           </div>
         </div>
       </div>

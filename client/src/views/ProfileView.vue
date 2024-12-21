@@ -1,14 +1,15 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
-import type { User } from '@/utils/types'
+import type { User, Badge } from '@/utils/types'
 import router from '@/router'
 import Badges from '@/components/Badges.vue'
+import { vfetch } from '@/utils/fetch'
 
-const badges = ref()
+const badges = ref<Badge | null>()
 
 const fetchBadges = async () => {
   try {
-    const res = await fetch('/api/badge')
+    const res = await vfetch('/api/badge')
     const data = await res.json()
     badges.value = data
   } catch (e: any) {
@@ -20,7 +21,7 @@ const session = ref<User | undefined>()
 const error = ref<string>('')
 
 const fetchSession = async () => {
-  fetch('/api/session')
+  vfetch('/api/session')
     .then(response => {
       if (!response.ok) {
         throw new Error('During profile fetch: ' + response.statusText)
@@ -41,46 +42,50 @@ onMounted(() => {
 })
 
 async function logout() {
-  await fetch('/api/logout', { method: 'POST' })
-  router.push({ name: 'login' })
+  await vfetch('/api/logout', { method: 'POST' })
+  await router.push({ name: 'login' })
 }
 
 async function goBack() {
-  router.push({ name: 'home' })
+  await router.push({ name: 'home' })
 }
 </script>
 
 <template>
   <div class="flex h-full items-center justify-center">
     <div
-      class="card w-3/4 rounded-xl border-8 border-primary bg-base-100 shadow-xl"
+      class="card h-[94%] w-3/4 overflow-y-auto rounded-xl border-8 border-primary bg-base-100 shadow-xl"
     >
       <div class="card-body">
-        <h2 class="text-center text-2xl font-bold">Profile</h2>
+        <h2 class="text-center text-xl font-bold md:text-3xl xl:text-4xl">
+          Profile
+        </h2>
 
         <div class="divider divider-neutral"></div>
 
         <div v-if="session" class="flex flex-col gap-4">
-          <div class="m-8 flex flex-row items-center justify-between">
-            <div class="flex flex-col">
+          <div
+            class="m-4 flex flex-col items-center justify-between gap-4 md:flex-row"
+          >
+            <div
+              class="flex w-full flex-col items-center gap-4 md:text-xl xl:flex-row xl:justify-between"
+            >
               <div>
                 <span> Username: </span>
-                <span class="text-lg font-bold"> {{ session.username }} </span>
+                <span class="font-bold"> {{ session.username }} </span>
               </div>
               <div>
                 <span> Mail: </span>
-                <span class="text-lg font-bold">{{ session.mail }}</span>
+                <span class="font-bold">{{ session.mail }}</span>
               </div>
               <div>
                 <span> Fullname: </span>
-                <span class="text-lg font-bold">
+                <span class="font-bold">
                   {{ session.firstname }} {{ session.lastname }}
                 </span>
               </div>
-            </div>
-            <div>
               <img
-                class="h-32 w-32 rounded-full border-4 border-primary"
+                class="h-32 w-32 rounded-full border-4 border-primary object-cover"
                 :src="session.avatar"
                 alt="User avatar"
               />
@@ -89,9 +94,9 @@ async function goBack() {
 
           <div class="divider divider-neutral">Your Badges</div>
 
-          <Badges :badges="badges" />
+          <Badges v-if="badges" :badges="badges" />
 
-          <div class="mt-10 flex items-center justify-center gap-5">
+          <div class="mt-8 flex items-center justify-center gap-5">
             <button class="btn-seconday btn" @click="goBack">GO BACK</button>
             <button class="btn btn-primary" @click="logout">LOGOUT</button>
           </div>

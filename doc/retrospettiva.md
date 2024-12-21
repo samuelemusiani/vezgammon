@@ -139,3 +139,39 @@ Sicuramente il migliore sprint fino ad ora, siamo riusciti a completare quasi tu
 Il team dei developer ha lavorato bene e si è dimostrato molto collaborativo. Il lavoro di squadra è stato fondamentale per il raggiungimento degli obiettivi.
 Il pair programming è stato molto utile per l'integrazione backend-frontend e per risolvere i problemi che si sono presentati durante lo sprint.
 Terminate le task assegnate, ci siamo dedicati al refactor del codice per migliorare la chiarezza e la manutenibilità del codice.
+
+## Sprint 4
+Valutazioni: 😃 😐 😡
+
+| Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
+| ---------------- | -------- | ---------- | --------- | --------| ---------- | ------ |
+| Scrum Master     | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+| Product Owner    | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+| Development Team | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+| Product Backlog  | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+| Sprint Planning  | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+| Sprint Goal      | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+| Self Menagement  | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+
+### Commenti personali
+#### Product Owner - Diego Barbieri
+Sprint molto positivo, quasi quanto il precedente, ovviamente con un carico di lavoro minore. Simao riusciti a portare tutto al termine, 
+grazie ad un ottima organizzazione del team, maturata durante tutto questo viaggio.
+
+#### Scrum Master - Lorenzo Peronese
+Durante lo sprint il team ha lavorato bene, portando a termine tutte le user stories nei tempi previsti nonostante l'inizio degli esami. 
+Il pair programming tra frontend e backend e i daily scrums sono sono diventate abitudini Agile e si sono rivelate fondamentali per gestire 
+il doppio impegno studio-lavoro senza sacrificare la qualità del codice. Questo e il precedente sprint dimostrano il miglioramento 
+che c'è stato rispetto alle prime settimane, il team è riuscito a prendere il ritmo giusto e concludere il lavoro nel migliore dei modi.
+
+### Developer - Samuele Musiani
+Sprint positivo, soprattutto a seguito della conclusione di tutte le US assegnate. Il team ha lavorato bene nonostante l'inzio degli esami universitari,
+portando a termine ogni compito nel tempo previsto. Si riconfermata la piena padronanza degli strumenti utilizzati e la capacità di coordinarsi per portare a termine
+tutte le task più complesse che richiedevano una collaboraione tra frontend e backend.
+
+### Developer - Omar Ayache
+Questo sprint ha evidenziato l’ottima coesione del team e il rispetto dei principi Agile, con comunicazione efficace e collaborazione continua. Il pair programming e i daily scrum ci hanno permesso di affrontare le sfide e completare tutte le user stories nei tempi previsti, mantenendo alta la qualità del lavoro anche durante il periodo intenso degli impegni personali e lavorativi.
+
+### Developer - Fabio Murer
+Sprint positivo, grazie ai daily scrum frequenti e il lavoro a stretto contatto tra backend e frontend questo sprint 
+è risultato molto positivo permettendoci di risolvere velocemente le task e di risolvere un gran numero di bug.

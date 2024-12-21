@@ -35,8 +35,8 @@ func fill(m [][]types.Move, g *types.Game) (r [][]types.Move, modified bool) {
 			from := m[i][j+1].From
 
 			var previousMoves []types.Move
-			if j >= 2 {
-				previousMoves = m[i][:j-1]
+			if j >= 1 {
+				previousMoves = m[i][:j]
 			} else {
 				previousMoves = []types.Move{}
 			}
@@ -90,6 +90,8 @@ func countMan(pos int64, m []types.Move) int8 {
 			count--
 		} else if m[i].To == pos {
 			count++
+		} else {
+			continue
 		}
 	}
 

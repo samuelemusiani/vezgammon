@@ -1,20 +1,26 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
+      class="flex h-[94%] w-[80%] flex-col items-center overflow-y-auto rounded-md border-8 border-primary bg-base-100 md:justify-center"
     >
       <!-- Game Title -->
-      <div class="mb-16 text-center">
-        <h1 class="retro-title mb-8 p-4 text-7xl font-bold">VezGammon</h1>
-        <div class="text-xl font-bold text-accent">
+      <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+        <h1
+          class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+        >
+          VezGammon
+        </h1>
+        <div class="font-bold text-accent md:text-lg lg:text-xl">
           The Ultimate Backgammon Experience
         </div>
       </div>
 
       <!-- Button Container -->
-      <div class="relative flex w-full max-w-4xl items-center justify-center">
+      <div
+        class="relative flex w-full flex-col items-center justify-center gap-6 md:flex-row lg:max-w-4xl lg:gap-32"
+      >
         <!-- Left Button (Stats) -->
-        <div class="absolute left-8">
+        <div class="">
           <button
             @click="navigateTo('/stats')"
             @mouseenter="(e: MouseEvent) => play()"
@@ -26,7 +32,9 @@
         </div>
 
         <!-- Central Buttons -->
-        <div class="flex w-full max-w-sm flex-col gap-6">
+        <div
+          class="order-first grid w-full max-w-sm grid-cols-2 gap-6 md:order-none lg:grid-cols-1"
+        >
           <button
             @click="(e: MouseEvent) => openPlayModal()"
             @mouseenter="(e: MouseEvent) => play()"
@@ -58,7 +66,7 @@
         </div>
 
         <!-- Right Button (Profile) -->
-        <div class="absolute right-8">
+        <div class="">
           <button
             @mouseenter="(e: MouseEvent) => play()"
             @click="navigateTo('/profile')"
@@ -107,6 +115,13 @@
               class="retro-button"
             >
               Play Tutorial
+            </button>
+            <button
+              @mouseenter="(e: MouseEvent) => play()"
+              @click="showTournamentMenu"
+              class="retro-button"
+            >
+              Tournaments
             </button>
           </template>
 
@@ -309,20 +324,31 @@ import buttonSfx from '@/utils/sounds/button.mp3'
 import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { useWebSocketStore } from '@/stores/websocket'
 import { useAudioStore } from '@/stores/audio'
+import { useBadgesStore } from '@/stores/badges'
 import type { WSMessage } from '@/utils/types'
+import { useToast } from 'vue-toast-notification'
+import { vfetch } from '@/utils/fetch'
 
 const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
 const webSocketStore = useWebSocketStore()
+const badgesStore = useBadgesStore()
 // 0 for base, 1 for bot difficulty, 2 for online options, 3 for tournaments options,
 const modals = ref(0)
 const inviteLink = ref('')
 const linkCopied = ref(false)
 const audioStore = useAudioStore()
 
+const $toast = useToast()
+
 onMounted(() => {
   webSocketStore.connect()
   webSocketStore.addMessageHandler(handleMatchmaking)
   checkIfInGame()
+  badgesStore.fetchBadges().then(() => {
+    if (badgesStore.haveBagesChanged()) {
+      $toast.success('New badges unlocked!')
+    }
+  })
 })
 
 onUnmounted(() => {
@@ -345,15 +371,6 @@ const play = () => {
   }
 }
 
-const showOnlineOptions = () => {
-  const playModal = document.getElementById('play_modal') as HTMLDialogElement
-  playModal.close()
-  const onlineModal = document.getElementById(
-    'online_options_modal',
-  ) as HTMLDialogElement
-  onlineModal.showModal()
-}
-
 const startRandomGame = () => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
@@ -362,7 +379,7 @@ const startRandomGame = () => {
 
 const createInviteLink = async () => {
   try {
-    const response = await fetch('/api/play/invite')
+    const response = await vfetch('/api/play/invite')
     const data = await response.json()
     inviteLink.value = `${window.location.origin}/invite/${data.Link}`
     linkCopied.value = false
@@ -384,7 +401,7 @@ const copyInviteLink = async () => {
 }
 
 const checkIfInGame = async () => {
-  const response = await fetch('/api/play')
+  const response = await vfetch('/api/play')
   if (response.ok) {
     const resumeModal = document.getElementById(
       'resume_game_modal',
@@ -403,7 +420,7 @@ const resumeGame = () => {
 
 const leaveGame = async () => {
   try {
-    await fetch('/api/play', { method: 'DELETE' })
+    await vfetch('/api/play', { method: 'DELETE' })
     const modal = document.getElementById(
       'resume_game_modal',
     ) as HTMLDialogElement
@@ -414,7 +431,7 @@ const leaveGame = async () => {
 }
 
 const handleCancelMatchmaking = async () => {
-  await fetch('/api/play/search', { method: 'DELETE' })
+  await vfetch('/api/play/search', { method: 'DELETE' })
   const waitingModal = document.getElementById(
     'waiting_modal',
   ) as HTMLDialogElement
@@ -465,7 +482,7 @@ const startGameWithAI = async (
   modals.value = 0
 
   try {
-    await fetch(`/api/play/bot/${difficulty}`)
+    await vfetch(`/api/play/bot/${difficulty}`)
     const destination = variant ? `/game?variant=${variant}` : '/game'
     router.push(destination)
   } catch (error) {
@@ -483,7 +500,7 @@ const startOnlineGame = async () => {
     ) as HTMLDialogElement
     waitingModal.showModal()
 
-    await fetch('/api/play/search')
+    await vfetch('/api/play/search')
   } catch (error) {
     console.error('Error starting online game:', error)
     // In caso di errore, chiudi il modale di attesa
@@ -514,7 +531,7 @@ const startLocalGame = async () => {
   const modal = document.getElementById('play_modal') as HTMLDialogElement
   modal.close()
 
-  await fetch('/api/play/local')
+  await vfetch('/api/play/local')
   router.push('/game')
 }
 
@@ -526,7 +543,10 @@ const openRulesModal = () => {
 const tourn_name = ref('')
 
 function create_tourn() {
-  fetch('/api/tournament/create', {
+  if (tourn_name.value === '') {
+    return
+  }
+  vfetch('/api/tournament/create', {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',

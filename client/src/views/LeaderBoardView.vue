@@ -81,6 +81,7 @@ import type { GameStats, LeaderBoardUser } from '@/utils/types'
 import { useSound } from '@vueuse/sound'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import router from '@/router'
+import { vfetch } from '@/utils/fetch'
 
 const { play } = useSound(buttonSfx, { volume: 0.3 })
 
@@ -95,7 +96,7 @@ onMounted(async () => {
 })
 
 async function fetchLeaderboard() {
-  const response = await fetch('/api/stats')
+  const response = await vfetch('/api/stats')
   const stats: GameStats = await response.json()
   leaderboard.value = stats.leaderboard.sort(
     (a: LeaderBoardUser, b: LeaderBoardUser) => {
@@ -124,7 +125,7 @@ async function fetchLeaderboard() {
 const fetchMe = async () => {
   try {
     console.log('fetchMe')
-    const response = await fetch('/api/session')
+    const response = await vfetch('/api/session')
     console.log(response)
     const user = await response.json()
     console.log(user)
@@ -150,9 +151,12 @@ function getColorForRank(index: number) {
 .no-scrollbar::-webkit-scrollbar {
   display: none;
 }
+
 /* Hide scrollbar for IE, Edge and Firefox */
 .no-scrollbar {
-  -ms-overflow-style: none; /* IE and Edge */
-  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none;
+  /* IE and Edge */
+  scrollbar-width: none;
+  /* Firefox */
 }
 </style>

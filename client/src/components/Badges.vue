@@ -1,19 +1,11 @@
 <script setup lang="ts">
 import { ref } from 'vue'
+import type { Badge } from '@/utils/types'
 
 type BadgeCategory = 'bot' | 'elo' | 'pieces' | 'played' | 'time' | 'win'
 
-interface Badges {
-  bot: number[]
-  elo: number[]
-  pieces: number[]
-  played: number[]
-  time: number[]
-  win: number[]
-}
-
 const props = defineProps<{
-  badges: Badges | undefined
+  badges: Badge | undefined
 }>()
 
 const hoveredBadge = ref<{ category: BadgeCategory; level: number } | null>(
@@ -77,7 +69,7 @@ function getEarnedBadgesCount(badges: number[]): number {
 </script>
 
 <template>
-  <div class="grid grid-cols-2 gap-3 md:grid-cols-3">
+  <div class="grid grid-cols-1 gap-3 md:grid-cols-2 lg:grid-cols-3">
     <div
       v-for="(badgeArray, category) in badges"
       :key="category"
@@ -156,6 +148,7 @@ function getEarnedBadgesCount(badges: number[]): number {
 .badge-category {
   @apply rounded-xl border-0 border-primary bg-base-200 p-4 transition-all duration-200;
 }
+
 .badge-category:hover {
   @apply border-2 border-primary bg-base-300 shadow-xl;
 }
@@ -186,6 +179,7 @@ function getEarnedBadgesCount(badges: number[]): number {
     transform: scale(0.4) rotate(-30deg);
     opacity: 0;
   }
+
   100% {
     transform: scale(1) rotate(0deg);
     opacity: 1;
@@ -217,6 +211,7 @@ function getEarnedBadgesCount(badges: number[]): number {
     opacity: 0;
     transform: translate(-50%, -20px);
   }
+
   to {
     opacity: 1;
     transform: translate(-50%, 0);

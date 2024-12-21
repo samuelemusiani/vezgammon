@@ -946,6 +946,56 @@ const docTemplate = `{
                 }
             }
         },
+        "/tournament/{tournament_id}/deletebot": {
+            "delete": {
+                "description": "Delete users and bots from a tournament",
+                "consumes": [
+                    "application/json"
+                ],
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "tournament"
+                ],
+                "summary": "Delete users and bots from a tournament",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "Tournament ID",
+                        "name": "tournament_id",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "description": "Delete user list object",
+                        "name": "request",
+                        "in": "body",
+                        "required": true,
+                        "schema": {
+                            "type": "array",
+                            "items": {
+                                "$ref": "#/definitions/handler.invite"
+                            }
+                        }
+                    }
+                ],
+                "responses": {
+                    "201": {
+                        "description": "deleted"
+                    },
+                    "400": {
+                        "description": "tournament alredy started"
+                    },
+                    "404": {
+                        "description": "tournament not found"
+                    },
+                    "500": {
+                        "description": "internal server error"
+                    }
+                }
+            }
+        },
         "/tournament/{tournament_id}/invite": {
             "post": {
                 "description": "Invite a user or a bot a tournament, if it is a bot it accepts the invitation automatically, same bot can be invited multiple times",
@@ -1226,23 +1276,6 @@ const docTemplate = `{
                 }
             }
         },
-        "types.LeaderBoardEntry": {
-            "type": "object",
-            "properties": {
-                "lose": {
-                    "type": "integer",
-                    "example": 1
-                },
-                "user": {
-                    "type": "string",
-                    "example": "Giorgio"
-                },
-                "win": {
-                    "type": "integer",
-                    "example": 1
-                }
-            }
-        },
         "types.LeaderboardUser": {
             "type": "object",
             "properties": {
@@ -1394,12 +1427,6 @@ const docTemplate = `{
                     "type": "integer",
                     "example": 1
                 },
-                "leader_board": {
-                    "type": "array",
-                    "items": {
-                        "$ref": "#/definitions/types.LeaderBoardEntry"
-                    }
-                },
                 "name": {
                     "type": "string",
                     "example": "Tournament name"
@@ -1487,6 +1514,10 @@ const docTemplate = `{
                 "owner": {
                     "type": "string",
                     "example": "Giorgio"
+                },
+                "status": {
+                    "type": "string",
+                    "example": "open"
                 },
                 "user_number": {
                     "type": "integer",

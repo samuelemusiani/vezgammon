@@ -19,16 +19,14 @@ watchEffect(() => {
   currentDice.value = props.dicesReplay || props.displayedDice
 })
 
-defineEmits<{
-  (e: 'roll'): void
-}>()
+defineEmits<(e: 'roll') => void>()
 </script>
 
 <template>
   <div>
     <div
       v-show="canRoll && !dicesReplay && !diceRolled"
-      class="mb-4 flex justify-center"
+      class="flex justify-center"
     >
       <button @click="$emit('roll')" class="retro-button">Roll Dice</button>
     </div>

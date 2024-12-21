@@ -45,7 +45,21 @@
 - badge digitali
 - chat partita
 - risorse di addestramento (breve tutorial)
-- condivisione dei progressi sui sociaò
+- condivisione dei progressi sui social
+
+#### Debito tecnico
+Nulla
+
+
+## Sprint 4
+![backlog-graph](./imgs/s4-backlog-burndown.png)
+![backlog-snapshot-1](./imgs/s4-backlog-snapshot-1.png)
+![backlog-snapshot-2](./imgs/s4-backlog-snapshot-2.png)
+
+#### Completato
+- gestione tornei con utenti e/o bot
+- layout mobile dell'intero sito
+- notifiche dal sito (toasts)
 
 #### Debito tecnico
 Nulla

@@ -43,8 +43,8 @@ func invertPlayer(currentPlayer string) string {
 	}
 }
 
-func calculateElo(elo1, elo2 int64, winner1 bool) (int64, int64) {
-	diff := float64((elo2 - elo1) / 400)
+func calculateElo(elo1, elo2 int64, winner1 bool, double uint64) (int64, int64) {
+	diff := float64(elo2-elo1) / 400
 	pow := math.Pow(10, diff)
 
 	var w1 float64 = 0
@@ -54,18 +54,33 @@ func calculateElo(elo1, elo2 int64, winner1 bool) (int64, int64) {
 
 	ea := w1 - 1/(1+pow)
 
+	var doubleFixed uint64 = uint64(math.Log2(float64(double)) + 1)
+
 	K := 32
-	elo1 += int64(float64(K) * ea)
-	elo2 -= int64(float64(K) * ea)
+	elo1 += int64(doubleFixed) * int64(float64(K)*ea)
+	elo2 -= int64(doubleFixed) * int64(float64(K)*ea)
 
 	return elo1, elo2
+}
+
+func getTournamentUserIndex(tournament *types.Tournament, userId int64) int64 {
+	for index, user := range tournament.Users {
+		if user == userId {
+			return int64(index)
+		}
+	}
+	return -1
+}
+
+func getTournamentIndexUser(tournament *types.Tournament, index int64) int64 {
+	return tournament.Users[index]
 }
 
 func tournamentMatchCreate(user1, user2 int64, tournament sql.NullInt64) error {
 
 	// if both players are bots
 	if (db.GetBotLevel(user1) != 0) && (db.GetBotLevel(user2) != 0) {
-		err, game := matchmaking.CreateGame(user1, user2, tournament)
+		game, err := matchmaking.CreateGame(user1, user2, tournament)
 		if err != nil {
 			return err
 		}
@@ -84,7 +99,7 @@ func tournamentMatchCreate(user1, user2 int64, tournament sql.NullInt64) error {
 		}
 		ws.GameTournamentReady(user1)
 	} else {
-		err, _ := matchmaking.CreateGame(user1, user2, tournament)
+		_, err := matchmaking.CreateGame(user1, user2, tournament)
 		if err != nil {
 			return err
 		}
@@ -121,18 +136,21 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 
 		// found third/fourth place users
 		var losers []int64
-		for _, user := range tournament.Users {
-			if user != tournament.Winners[0] && user != tournament.Winners[1] {
-				losers = append(losers, user)
+		for index := range tournament.Users {
+			if int64(index) != tournament.Winners[0] && int64(index) != tournament.Winners[1] {
+				losers = append(losers, int64(index))
 			}
 		}
-		err = tournamentMatchCreate(losers[0], losers[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
+		err = tournamentMatchCreate(getTournamentIndexUser(tournament, losers[0]),
+			getTournamentIndexUser(tournament, losers[1]), sql.NullInt64{Valid: true, Int64: tournament.ID})
 		if err != nil {
 			return err
 		}
 
 		// start finals last
-		err = tournamentMatchCreate(tournament.Winners[0], tournament.Winners[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
+		err = tournamentMatchCreate(getTournamentIndexUser(tournament, tournament.Winners[0]),
+			getTournamentIndexUser(tournament, tournament.Winners[1]),
+			sql.NullInt64{Valid: true, Int64: tournament.ID})
 		if err != nil {
 			return err
 		}
@@ -147,7 +165,7 @@ func tournamentGameEndHandler(tournamentId int64, winnerId int64) error {
 		return err
 	}
 
-	tournament.Winners = append(tournament.Winners, winnerId)
+	tournament.Winners = append(tournament.Winners, getTournamentUserIndex(tournament, winnerId))
 
 	if len(tournament.Winners) == 4 {
 		tournament.Status = types.TournamentStatusEnded
@@ -343,7 +361,7 @@ func endGame(g *types.Game, winnerID int64) error {
 			return err
 		}
 
-		elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1)
+		elo1, elo2 := calculateElo(u1.Elo, u2.Elo, winnerID == g.Player1, g.DoubleValue)
 
 		err = db.UpdateUserElo(g.Player1, elo1)
 		if err != nil {

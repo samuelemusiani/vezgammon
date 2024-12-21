@@ -30,8 +30,14 @@ var clients sync.Map
 var users sync.Map
 var disconnect sync.Map
 
-func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
-	slog.Info("Starting WebSocket connection", "user_id", user_id)
+type Websocket struct{}
+
+func GetWebsocket() Websocket {
+	return Websocket{}
+}
+
+func WSHandler(w http.ResponseWriter, r *http.Request, userID int64) {
+	slog.Info("Starting WebSocket connection", "user_id", userID)
 	slog.Debug("Request headers", "headers", r.Header)
 
 	conn, err := upgrader.Upgrade(w, r, nil)
@@ -40,21 +46,21 @@ func WSHandler(w http.ResponseWriter, r *http.Request, user_id int64) {
 		return
 	}
 
-	go chat(conn, user_id)
+	go chat(conn, userID)
 
 	// Add client connection to clients connention array
 	clients.Store(conn, true)
-	users.Store(user_id, conn)
-	SendMessage(user_id, Message{Type: "connection_esatablished"})
+	users.Store(userID, conn)
+	SendMessage(userID, Message{Type: "connection_esatablished"})
 	slog.Debug("test")
 }
 
 // Send messsage to user
-func SendMessage(user_id int64, message Message) error {
-	value, ok := users.Load(user_id)
+func SendMessage(userID int64, message Message) error {
+	value, ok := users.Load(userID)
 	if !ok {
 		slog.Debug("SendMessage error: connection not found for user",
-			"user_id", user_id,
+			"user_id", userID,
 			"error", ErrConnNotFoundForUser)
 		return ErrConnNotFoundForUser
 	}
@@ -63,7 +69,7 @@ func SendMessage(user_id int64, message Message) error {
 	value, ok = clients.Load(conn)
 	if !ok {
 		slog.Debug("SendMessage error: connection not found in clients map",
-			"user_id", user_id,
+			"user_id", userID,
 			"error", ErrConnNotFound)
 		return ErrConnNotFound
 	}
@@ -71,7 +77,7 @@ func SendMessage(user_id int64, message Message) error {
 
 	if !active {
 		slog.Debug("SendMessage error: inactive connection",
-			"user_id", user_id,
+			"user_id", userID,
 			"error", ErrConnNotFound)
 		return ErrConnNotFound
 	}
@@ -79,13 +85,13 @@ func SendMessage(user_id int64, message Message) error {
 	err := conn.WriteJSON(message)
 	if err != nil {
 		slog.Debug("SendMessage error: failed to write JSON",
-			"user_id", user_id,
+			"user_id", userID,
 			"error", err)
 		return err
 	}
 
 	slog.Debug("SendMessage: message sent successfully",
-		"user_id", user_id)
+		"user_id", userID)
 	return nil
 }
 
@@ -94,54 +100,66 @@ type Message struct {
 	Payload interface{} `json:"payload"`
 }
 
-func SendGameFound(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "game_found"})
+func SendGameFound(userID int64) error {
+	return SendMessage(userID, Message{Type: "game_found"})
 }
 
-func GameNotFound(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "game_not_found"})
+func GameNotFound(userID int64) error {
+	return SendMessage(userID, Message{Type: "game_not_found"})
 }
 
-func TurnMade(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "turn_made"})
+func TurnMade(userID int64) error {
+	return SendMessage(userID, Message{Type: "turn_made"})
 }
 
-func WantToDouble(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "want_to_double"})
+func WantToDouble(userID int64) error {
+	return SendMessage(userID, Message{Type: "want_to_double"})
 }
 
-func DoubleAccepted(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "double_accepted"})
+func DoubleAccepted(userID int64) error {
+	return SendMessage(userID, Message{Type: "double_accepted"})
 }
 
-func GameEnd(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "game_end"})
+func GameEnd(userID int64) error {
+	return SendMessage(userID, Message{Type: "game_end"})
 }
 
-func AddDisconnectHandler(user_id int64, f func(int64) error) {
-	disconnect.Store(user_id, f)
+func AddDisconnectHandler(userID int64, f func(int64) error) {
+	disconnect.Store(userID, f)
 }
 
-func SendBotMessage(user_id int64, message string) error {
-	return SendMessage(user_id, Message{Type: "chat_message", Payload: message})
+func SendBotMessage(userID int64, message string) error {
+	return SendMessage(userID, Message{Type: "chat_message", Payload: message})
 }
 
-func GameTournamentReady(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "game_tournament_ready"})
+func GameTournamentReady(userID int64) error {
+	return SendMessage(userID, Message{Type: "game_tournament_ready"})
 }
 
-func TournamentEnded(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "tournament_ended"})
+func TournamentEnded(userID int64) error {
+	return SendMessage(userID, Message{Type: "tournament_ended"})
 }
 
-func TournamentCancelled(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "tournament_cancelled"})
+func TournamentCancelled(userID int64) error {
+	return SendMessage(userID, Message{Type: "tournament_cancelled"})
 }
 
-func TournamentNewUserEnrolled(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "tournament_new_user_enrolled"})
+func TournamentNewUserEnrolled(userID int64) error {
+	return SendMessage(userID, Message{Type: "tournament_new_user_enrolled"})
 }
 
-func TournamentUserLeft(user_id int64) error {
-	return SendMessage(user_id, Message{Type: "tournament_user_left"})
+func TournamentNewBotEnrolled(userID int64) error {
+	return SendMessage(userID, Message{Type: "tournament_new_bot_enrolled"})
+}
+
+func TournamentUserLeft(userID int64) error {
+	return SendMessage(userID, Message{Type: "tournament_user_left"})
+}
+
+func TournamentBotLeft(userID int64) error {
+	return SendMessage(userID, Message{Type: "tournament_bot_left"})
+}
+
+func (ws Websocket) SendGameFound(userID int64) error {
+	return SendGameFound(userID)
 }

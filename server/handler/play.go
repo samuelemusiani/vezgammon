@@ -35,16 +35,16 @@ var ErrDoubleNotPossible = errors.New("Double not possible")
 // @Router /play/search [get]
 func StartPlaySearch(c *gin.Context) {
 	slog.Debug("Inizio a cercare un game")
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
 	//send to db the user [searching]
-	err := matchmaking.SearchGame(user_id)
+	err := matchmaking.SearchGame(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
 	}
 
-	ws.AddDisconnectHandler(user_id, matchmaking.StopSearch)
+	ws.AddDisconnectHandler(userID, matchmaking.StopSearch)
 
 	c.JSON(http.StatusOK, "Search started")
 }
@@ -59,9 +59,9 @@ func StartPlaySearch(c *gin.Context) {
 // @Failure 400 "Not searching"
 // @Router /play/search [delete]
 func StopPlaySearch(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
-	err := matchmaking.StopSearch(user_id)
+	err := matchmaking.StopSearch(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -79,9 +79,9 @@ func StopPlaySearch(c *gin.Context) {
 // @Success 201 "Link created"
 // @Router /play/invite [get]
 func StartPlayInviteSearch(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
-	link, err := matchmaking.GenerateLink(user_id)
+	link, err := matchmaking.GenerateLink(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 		return
@@ -106,11 +106,11 @@ func StartPlayInviteSearch(c *gin.Context) {
 // @Failure 404 "Link not found"
 // @Router /play/invite/{id} [get]
 func PlayInvite(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
 	uuid := c.Param("id")
 
-	err := matchmaking.JoinLink(uuid, user_id)
+	err := matchmaking.JoinLink(uuid, userID)
 	if err != nil {
 		slog.With("error", err).Error("Joining link")
 		c.JSON(http.StatusInternalServerError, err)
@@ -531,7 +531,7 @@ func PlayMoves(c *gin.Context) {
 				"Muovo il mio pedone...",
 			}
 
-			send := rand.Intn(3)
+			send := rand.Intn(6)
 			if send == 0 {
 				m := messages[rand.Intn(len(messages))]
 				err = ws.SendBotMessage(userId, m)
@@ -601,10 +601,11 @@ func WantToDouble(c *gin.Context) {
 		return
 	}
 
-	if (g.DoubleOwner != types.GameDoubleOwnerAll &&
-		g.DoubleOwner != g.CurrentPlayer) ||
-		g.DoubleValue == 64 ||
-		(g.DoubleOwner == types.GameDoubleOwnerAll && currentPlayerID != userId) {
+	invalidDoubleOwner := g.DoubleOwner != types.GameDoubleOwnerAll && g.DoubleOwner != g.CurrentPlayer
+	maxDoubleValueReached := g.DoubleValue == 64
+	invalidDoubleForCurrentPlayer := g.DoubleOwner == types.GameDoubleOwnerAll && currentPlayerID != userId
+
+	if invalidDoubleOwner || maxDoubleValueReached || invalidDoubleForCurrentPlayer {
 		c.JSON(http.StatusBadRequest, ErrDoubleNotPossible.Error())
 		return
 	}

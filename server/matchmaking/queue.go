@@ -26,9 +26,7 @@ var (
 )
 
 func push(e qel) error {
-
 	if end+1%qlen == start {
-
 		return ErrQueueFull
 	}
 
@@ -39,9 +37,7 @@ func push(e qel) error {
 }
 
 func pop() (qel, error) {
-
 	if isEmpty() {
-
 		return qel{}, ErrEmptyQueue
 	}
 
@@ -52,11 +48,10 @@ func pop() (qel, error) {
 }
 
 func remove(e qel) error {
-
 	if isEmpty() {
-
 		return ErrEmptyQueue
 	}
+
 	// search element to remove
 	for i := range length() {
 		// element founded

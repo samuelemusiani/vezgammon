@@ -31,7 +31,7 @@ func initGame() error {
     current_player  BPCHAR DEFAULT 'p1',
 
 		dices INTEGER [],
-		tournament INTEGER REFERENCES tournaments(id) DEFAULT NULL
+		tournament INTEGER REFERENCES tournaments(id) ON DELETE SET NULL DEFAULT NULL
 	)
 	`
 	_, err := Conn.Exec(q)
@@ -222,7 +222,8 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
     JOIN
     	users u2 ON g.p2_id = u2.id
     WHERE
-    	g.status = 'open' AND (g.p1_id = $1 OR g.p2_id = $1)
+        g.status = 'open' AND (g.p1_id = $1 OR g.p2_id = $1)
+    ORDER BY g.start DESC
     LIMIT 1
 	`
 
@@ -274,11 +275,11 @@ func GetCurrentGame(userId int64) (*types.ReturnGame, error) {
 	return &g, nil
 }
 
-func getGameType(p1_id, p2_id int64) string {
+func getGameType(p1ID, p2ID int64) string {
 	var gameType string
-	if p1_id == p2_id {
+	if p1ID == p2ID {
 		gameType = types.GameTypeLocal
-	} else if GetBotLevel(p1_id) != 0 || GetBotLevel(p2_id) != 0 {
+	} else if GetBotLevel(p1ID) != 0 || GetBotLevel(p2ID) != 0 {
 		gameType = types.GameTypeBot
 	} else {
 		gameType = types.GameTypeOnline

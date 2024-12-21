@@ -130,18 +130,6 @@ definitions:
           type: array
         type: array
     type: object
-  types.LeaderBoardEntry:
-    properties:
-      lose:
-        example: 1
-        type: integer
-      user:
-        example: Giorgio
-        type: string
-      win:
-        example: 1
-        type: integer
-    type: object
   types.LeaderboardUser:
     properties:
       elo:
@@ -248,10 +236,6 @@ definitions:
       id:
         example: 1
         type: integer
-      leader_board:
-        items:
-          $ref: '#/definitions/types.LeaderBoardEntry'
-        type: array
       name:
         example: Tournament name
         type: string
@@ -312,6 +296,9 @@ definitions:
         type: string
       owner:
         example: Giorgio
+        type: string
+      status:
+        example: open
         type: string
       user_number:
         example: 3
@@ -910,6 +897,39 @@ paths:
         "404":
           description: tournament not found
       summary: Cancel a tournament
+      tags:
+      - tournament
+  /tournament/{tournament_id}/deletebot:
+    delete:
+      consumes:
+      - application/json
+      description: Delete users and bots from a tournament
+      parameters:
+      - description: Tournament ID
+        in: path
+        name: tournament_id
+        required: true
+        type: integer
+      - description: Delete user list object
+        in: body
+        name: request
+        required: true
+        schema:
+          items:
+            $ref: '#/definitions/handler.invite'
+          type: array
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: deleted
+        "400":
+          description: tournament alredy started
+        "404":
+          description: tournament not found
+        "500":
+          description: internal server error
+      summary: Delete users and bots from a tournament
       tags:
       - tournament
   /tournament/{tournament_id}/invite:

@@ -6,6 +6,7 @@ import type {
   MovesResponse,
 } from '@/utils/game/types'
 import type { WSMessage } from '@/utils/types'
+import Modal from '@/components/Modal.vue'
 
 import DiceContainer from '@/components/game/DiceContainer.vue'
 import CapturedCheckers from '@/components/game/CapturedCheckers.vue'
@@ -38,6 +39,7 @@ const $props = defineProps<{
 
 const availableMoves = ref($props.availableMoves)
 const gameState = ref($props.gameState)
+const showNoMovesModal = ref(false)
 
 watch(
   () => $props.availableMoves,
@@ -150,14 +152,26 @@ const handleTriangleClick = async (position: number) => {
   selectedChecker.value = null
   possibleMoves.value = []
 
-  const hasPossibleMoves = availableMoves.value.possible_moves?.length > 0
+  const hasNoPossibleMoves =
+    availableMoves.value.possible_moves?.length == 0 ||
+    availableMoves.value.possible_moves.every(
+      (sequence: Move[]) => sequence.length === 0,
+    )
   let hasUsedBothDices = movesToSubmit.value.length === 2
   if (availableMoves.value.dices[0] == availableMoves.value.dices[1]) {
     hasUsedBothDices = movesToSubmit.value.length === 4
   }
 
-  if (hasUsedBothDices || !hasPossibleMoves) {
+  if (hasUsedBothDices || hasNoPossibleMoves) {
+    const gameFinished =
+      gameState.value.p1checkers.reduce((sum, e) => sum + e, 0) === 0 ||
+      gameState.value.p2checkers.reduce((sum, e) => sum + e, 0) === 0
+
     try {
+      if (!hasUsedBothDices && !gameFinished) {
+        showNoMovesModal.value = true
+        return
+      }
       await submitMoves()
       $props.resetDiceState()
       if (gameState.value.game_type !== 'online') {
@@ -276,10 +290,7 @@ const handleCheckerClick = async (checker: Checker) => {
     console.log(
       'No possible moves or all sequences are empty, passing the turn',
     )
-    await submitMoves()
-    $props.resetDiceState()
-    $emits('fetch-moves')
-    $emits('fetch-game-state')
+    showNoMovesModal.value = true
     return
   }
 
@@ -293,6 +304,18 @@ const handleCheckerClick = async (checker: Checker) => {
     ),
   ]
   console.log('mosse posibili', possibleMoves.value)
+}
+
+const handleNoMovesConfirm = async () => {
+  showNoMovesModal.value = false
+  await submitMoves()
+  $props.resetDiceState()
+  if (gameState.value.game_type !== 'online') {
+    $emits('fetch-game-state')
+    $emits('fetch-moves')
+  } else {
+    $emits('stop-timer')
+  }
 }
 
 const getOutCheckers = (player: 'p1' | 'p2' | string) => {
@@ -319,9 +342,9 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 </script>
 
 <template>
-  <div class="flex flex-1 justify-between gap-6">
+  <div class="flex flex-1 justify-between gap-2 lg:gap-6">
     <div class="flex-1">
-      <div class="retro-box h-full rounded-lg p-4 shadow-xl">
+      <div class="retro-box h-full w-full rounded-lg p-2 shadow-xl">
         <svg
           viewBox="0 0 800 600"
           preserveAspectRatio="xMidYMid meet"
@@ -398,34 +421,49 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
     </div>
     <!-- Right Container -->
     <div
-      class="retro-box flex w-48 flex-col justify-evenly rounded-lg bg-white p-2 shadow-xl"
+      class="retro-box flex w-1/6 max-w-48 justify-center overflow-y-auto rounded-lg bg-white shadow-xl"
     >
-      <!-- Captured Checkers -->
-      <CapturedCheckers
-        player="p1"
-        :checkerCount="getOutCheckers('p1')"
-        :isHighlighted="possibleMoves.includes(25)"
-        @click="handleTriangleClick(25)"
-      />
+      <div
+        class="flex scale-[0.55] flex-col justify-center md:scale-[0.57] lg:scale-[0.80] xl:scale-100"
+      >
+        <!-- Captured Checkers -->
+        <CapturedCheckers
+          player="p1"
+          :checkerCount="getOutCheckers('p1')"
+          :isHighlighted="possibleMoves.includes(25)"
+          @click="handleTriangleClick(25)"
+        />
 
-      <!-- Roll Dice Button -->
-      <DiceContainer
-        :diceRolled="diceRolled || false"
-        :displayedDice="displayedDice || [0, 0]"
-        :isRolling="isRolling || false"
-        :canRoll="isMyTurn as boolean"
-        :dicesReplay="dicesReplay"
-        @roll="handleDiceRoll(availableMoves, gameState.game_type === 'online')"
-      />
+        <!-- Roll Dice Button -->
+        <DiceContainer
+          :diceRolled="diceRolled || false"
+          :displayedDice="displayedDice || [0, 0]"
+          :isRolling="isRolling || false"
+          :canRoll="isMyTurn as boolean"
+          :dicesReplay="dicesReplay"
+          @roll="
+            handleDiceRoll(availableMoves, gameState.game_type === 'online')
+          "
+        />
 
-      <!-- Captured Checkers -->
-      <CapturedCheckers
-        player="p2"
-        :checkerCount="getOutCheckers('p2')"
-        :isHighlighted="possibleMoves.includes(25)"
-        @click="handleTriangleClick(25)"
-      />
+        <!-- Captured Checkers -->
+        <CapturedCheckers
+          player="p2"
+          :checkerCount="getOutCheckers('p2')"
+          :isHighlighted="possibleMoves.includes(25)"
+          @click="handleTriangleClick(25)"
+        />
+      </div>
     </div>
+    <Modal
+      :show="showNoMovesModal"
+      title="No Moves Available"
+      confirm-text="OK"
+      confirm-variant="primary"
+      @confirm="handleNoMovesConfirm"
+    >
+      <p>No possible moves left. Your turn is over.</p>
+    </Modal>
   </div>
 </template>
 
@@ -469,7 +507,7 @@ const getOutCheckers = (player: 'p1' | 'p2' | string) => {
 }
 
 .retro-box {
-  @apply rounded-lg border-4 border-8 border-primary bg-base-100 shadow-md;
+  @apply rounded-lg border-4 border-primary bg-base-100 shadow-md lg:border-8;
 }
 
 .retro-button {

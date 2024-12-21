@@ -142,7 +142,7 @@ func Login(c *gin.Context) {
 	c.SetCookie(
 		"session_token",
 		sessionToken,
-		3600, // scadenza in secondi (1 ora)
+		7*24*60*60, // scadenza in secondi (1 settimana)
 		"/",
 		config.Get().Server.Domain,
 		false, // solo HTTPS
@@ -254,9 +254,9 @@ func GetSession(c *gin.Context) {
 // @Failure 500 "error"
 // @Router /stats [get]
 func GetStats(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
-	userstats, err := db.GetStats(user_id)
+	userstats, err := db.GetStats(userID)
 	if err != nil {
 		slog.With("err", err).Error("User not found")
 		c.JSON(http.StatusInternalServerError, err)
@@ -344,9 +344,9 @@ func GetAllUsers(c *gin.Context) {
 // @Failure 500 "error"
 // @Router /badge [get]
 func GetBadge(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
-	badge, err := db.GetBadge(user_id)
+	badge, err := db.GetBadge(userID)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, err)
 	}
@@ -369,7 +369,7 @@ type Avatar struct {
 // @Failure 500 "error"
 // @Router /avatar [patch]
 func ChangeAvatar(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
 	buff, err := io.ReadAll(c.Request.Body)
 	slog.With("buff", buff).Debug("Ohh allora")
@@ -388,7 +388,7 @@ func ChangeAvatar(c *gin.Context) {
 	}
 
 	slog.With("avatar reading", a).Debug("Avatar")
-	err = db.ChangeAvatar(user_id, a.Avatar)
+	err = db.ChangeAvatar(userID, a.Avatar)
 	if err != nil {
 		slog.With("err", err).Error("Chaning avatar")
 		c.JSON(http.StatusBadRequest, "Error chaning avatar")
@@ -414,9 +414,9 @@ type changePasswordType struct {
 // @Failure 500 "error"
 // @Router /pass [patch]
 func ChangePass(c *gin.Context) {
-	user_id := c.MustGet("user_id").(int64)
+	userID := c.MustGet("user_id").(int64)
 
-	user, err := db.GetUser(user_id)
+	user, err := db.GetUser(userID)
 	if err != nil {
 		slog.With("err", err).Error("Bad request")
 		c.JSON(http.StatusBadRequest, gin.H{"message": "Bad request"})

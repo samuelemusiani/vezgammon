@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import router from '@/router'
+import { vfetch } from '@/utils/fetch'
 
 const mail = ref('')
 const passwd1 = ref('')
@@ -17,7 +18,7 @@ async function register() {
   }
 
   try {
-    const response = await fetch('/api/register', {
+    const response = await vfetch('/api/register', {
       method: 'POST',
       body: JSON.stringify({
         mail: mail.value,
@@ -74,11 +75,14 @@ function validate() {
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="card h-[90%] w-[40%] min-w-96 overflow-auto border border-8 border-primary bg-base-100 shadow-md"
+      class="card max-h-[90%] min-w-96 max-w-[60%] overflow-auto border-8 border-primary bg-base-100 shadow-md"
     >
       <div class="card-body">
         <h2 class="card-title">Register</h2>
-        <form @submit.prevent="register" class="grid grid-cols-2 gap-4">
+        <form
+          @submit.prevent="register"
+          class="grid grid-cols-2 gap-4 lg:grid-cols-1"
+        >
           <div class="form-control">
             <label for="input-mail" class="label">
               <span class="label-text">Email</span>
@@ -159,7 +163,7 @@ function validate() {
             />
           </div>
 
-          <div class="col-span-2 mt-6 text-error">
+          <div class="col-span-2 mt-6 text-error lg:col-span-1">
             {{ err }}
           </div>
 
@@ -176,9 +180,9 @@ function validate() {
 
           <div class="col-span-2 text-center">
             <p>Already have an account?</p>
-            <RouterLink to="/login" class="link link-primary">
+            <router-link to="/login" class="link link-primary">
               Go back to Login
-            </RouterLink>
+            </router-link>
           </div>
         </form>
       </div>

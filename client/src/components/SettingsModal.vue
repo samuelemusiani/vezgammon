@@ -16,10 +16,11 @@
       </div>
 
       <div class="form-control">
-        <label class="label">
+        <label class="label" for="theme-selector">
           <span class="label-text">Theme</span>
         </label>
         <select
+          id="theme-selector"
           class="select select-bordered w-full bg-base-100"
           :value="currentTheme"
           @change="e => changeTheme((e.target as HTMLSelectElement).value)"
@@ -43,10 +44,11 @@
 
         <div v-if="showPasswordSection" class="mt-4 space-y-2">
           <div>
-            <label class="label">
+            <label class="label" for="current-password">
               <span class="label-text">Current Password</span>
             </label>
             <input
+              id="current-password"
               type="password"
               v-model="currentPassword"
               class="input input-bordered w-full"
@@ -55,10 +57,11 @@
           </div>
 
           <div>
-            <label class="label">
+            <label class="label" for="new-password">
               <span class="label-text">New Password</span>
             </label>
             <input
+              id="new-password"
               type="password"
               v-model="newPassword"
               class="input input-bordered w-full"
@@ -67,35 +70,35 @@
           </div>
 
           <div>
-            <label class="label">
+            <label class="label" for="new-password-confirm">
               <span class="label-text">Confirm New Password</span>
             </label>
             <input
+              id="new-password-confirm"
               type="password"
               v-model="confirmPassword"
               class="input input-bordered w-full"
               placeholder="Confirm new password"
             />
           </div>
+          <div class="mt-2 flex items-center justify-between">
+            <span
+              class="text-sm"
+              :class="{
+                'text-success': passwdMessage.includes('successfully'),
+                'text-error': !passwdMessage.includes('successfully'),
+              }"
+              >{{ passwdMessage }}</span
+            >
+            <button
+              @click="handleChangePassword"
+              class="btn btn-primary btn-sm"
+              :disabled="!isFormValid"
+            >
+              Confirm
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div class="mt-2 flex items-center justify-between">
-        <span
-          class="text-sm"
-          :class="{
-            'text-success': passwdMessage.includes('successfully'),
-            'text-error': !passwdMessage.includes('successfully'),
-          }"
-          >{{ passwdMessage }}</span
-        >
-        <button
-          @click="handleChangePassword"
-          class="btn btn-primary btn-sm"
-          :disabled="!isFormValid"
-        >
-          Confirm
-        </button>
       </div>
 
       <!-- Change Avatar -->
@@ -109,9 +112,10 @@
 
         <div v-if="showAvatarSection" class="mt-4 space-y-2">
           <div>
-            <label class="label">
+            <label class="label" for="current-avatar">
               <span class="label-text">Current Avatar</span>
               <input
+                id="current-avatar"
                 type="text"
                 readonly
                 class="input input-bordered w-full"
@@ -123,9 +127,10 @@
                 alt="Current avatar"
               />
             </label>
-            <label class="label">
+            <label class="label" for="new-avatar">
               <span class="label-text">New Avatar</span>
               <input
+                id="new-avatar"
                 type="text"
                 class="input input-bordered w-full"
                 v-model="newAvatar"
@@ -138,25 +143,24 @@
               />
             </label>
           </div>
+          <div class="mt-2 flex items-center justify-between">
+            <span
+              class="text-sm"
+              :class="{
+                'text-success': avatarMessage.includes('successfully'),
+                'text-error': !avatarMessage.includes('successfully'),
+              }"
+              >{{ avatarMessage }}</span
+            >
+            <button
+              @click="handleChangeAvatar"
+              class="btn btn-primary btn-sm"
+              :disabled="!isValid(newAvatar)"
+            >
+              Confirm
+            </button>
+          </div>
         </div>
-      </div>
-
-      <div class="mt-2 flex items-center justify-between">
-        <span
-          class="text-sm"
-          :class="{
-            'text-success': avatarMessage.includes('successfully'),
-            'text-error': !avatarMessage.includes('successfully'),
-          }"
-          >{{ avatarMessage }}</span
-        >
-        <button
-          @click="handleChangeAvatar"
-          class="btn btn-primary btn-sm"
-          :disabled="!isValid(newAvatar)"
-        >
-          Confirm
-        </button>
       </div>
 
       <div class="modal-action">
@@ -176,6 +180,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useAudioStore } from '@/stores/audio'
 import { useTheme } from '@/composables/useTheme'
+import { vfetch } from '@/utils/fetch'
 
 const audioStore = useAudioStore()
 const { currentTheme, themeOptions, changeTheme } = useTheme()
@@ -193,7 +198,7 @@ const newAvatar = ref('')
 
 const fetchAvatar = async () => {
   try {
-    const res = await fetch('/api/session')
+    const res = await vfetch('/api/session')
     const data = await res.json()
     currentAvatar.value = data.avatar
   } catch (e: any) {
@@ -247,7 +252,7 @@ const handleChangePassword = async () => {
   try {
     passwdMessage.value = ''
 
-    const res = await fetch('/api/pass', {
+    const res = await vfetch('/api/pass', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',
@@ -276,7 +281,7 @@ const handleChangeAvatar = async () => {
   try {
     avatarMessage.value = ''
 
-    const res = await fetch('/api/avatar', {
+    const res = await vfetch('/api/avatar', {
       method: 'PATCH',
       headers: {
         'Content-Type': 'application/json',

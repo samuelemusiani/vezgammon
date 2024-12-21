@@ -50,3 +50,12 @@ export interface GameStats {
   tournament: number
   leaderboard: LeaderBoardUser[]
 }
+
+export interface Badge {
+  bot: number[]
+  elo: number[]
+  pieces: number[]
+  played: number[]
+  time: number[]
+  win: number[]
+}

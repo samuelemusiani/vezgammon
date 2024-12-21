@@ -9,6 +9,13 @@ export default mergeConfig(
       environment: 'jsdom',
       exclude: [...configDefaults.exclude, 'e2e/**'],
       root: fileURLToPath(new URL('./', import.meta.url)),
+      coverage: {
+        reporter: ['text', 'lcov', 'html'],
+      },
+      reporters: ['json', 'verbose', 'vitest-sonar-reporter'],
+      outputFile: {
+        'vitest-sonar-reporter': 'coverage/sonar-report.xml',
+      },
     },
   }),
 )

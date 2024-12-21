@@ -1,25 +1,61 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="flex h-[90%] w-[80%] flex-col items-center justify-center rounded-md border-8 border-primary bg-base-100"
+      class="flex h-[94%] w-[80%] flex-col items-center justify-center overflow-y-auto rounded-md border-8 border-primary bg-base-100"
     >
+      <button
+        @click="router.push('/tournaments')"
+        class="retro-button absolute left-[12%] top-[10%] p-2"
+      >
+        Back
+      </button>
       <div v-if="tournament" class="text-center">
+        <div class="mb-4 flex flex-col items-center text-center xl:mb-8">
+          <h1
+            class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+          >
+            Tournament {{ showBracket ? 'Brackets' : 'Lobby' }}
+          </h1>
+          <div class="font-bold text-accent md:text-lg lg:text-xl">
+            Owner:
+            {{ tournament?.owner == myUsername ? 'me' : tournament?.owner }}
+          </div>
+        </div>
         <div v-if="!showBracket">
-          <h1 class="retro-title mb-6 text-5xl font-bold">Tournament Lobby</h1>
-          <p class="font-semibold text-accent">
-            Owner: {{ owner ? 'me' : tournament?.owner }}
-          </p>
-          <div class="mb-16 mt-16 grid grid-cols-2 grid-rows-2 gap-4">
+          <div class="mb-8 mt-8 grid grid-cols-2 grid-rows-2 gap-4">
             <div
               v-for="(player, index) in tournament?.users"
               :key="index"
-              class="retro-box p-4"
+              class="retro-box relative flex min-h-[60px] items-center justify-center p-4"
               :class="{
                 'text-primary': player === myUsername,
+                italic: ['Enzo', 'Caterina', 'Giovanni'].includes(player),
                 'text-black': player !== myUsername,
               }"
             >
-              <span class="font-semibold">{{ player }}</span>
+              <span class="font-semibold"> {{ index + 1 }}. {{ player }} </span>
+              <button
+                v-if="
+                  ['Enzo', 'Caterina', 'Giovanni'].includes(player) &&
+                  myUsername == tournament.owner
+                "
+                class="absolute right-1 top-1 cursor-pointer text-red-500 transition-colors hover:scale-[1.10] hover:text-red-600"
+                @click="deleteBot(player)"
+              >
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="25"
+                  height="25"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                >
+                  <rect x="3" y="3" width="18" height="18" rx="2" />
+                  <path d="M15.5 8.5l-7 7" />
+                  <path d="M8.5 8.5l7 7" />
+                </svg>
+              </button>
             </div>
 
             <div
@@ -31,10 +67,43 @@
             </div>
           </div>
 
-          <div v-if="owner" class="mt-2 flex justify-center gap-2">
+          <div
+            v-if="tournament?.owner == myUsername"
+            class="mt-2 flex justify-center gap-2"
+          >
             <button class="retro-button" @click="deleteTournament">
               Delete Tournament
             </button>
+            <div class="relative">
+              <button
+                class="retro-button"
+                :disabled="showStartButton"
+                :style="{
+                  textShadow: showStartButton
+                    ? 'none'
+                    : '2px 2px 0 rgba(0, 0, 0, 0.2)',
+                }"
+                @click="botDropDown = !botDropDown"
+              >
+                Add Bot
+              </button>
+
+              <div
+                v-if="botDropDown"
+                class="absolute top-full mb-2 w-full rounded-lg"
+              >
+                <ul class="flex flex-col gap-1 py-1.5">
+                  <li
+                    v-for="bot in ['easy', 'medium', 'hard']"
+                    :key="bot"
+                    class="retro-button w-full"
+                    @click="addBot(bot)"
+                  >
+                    {{ bot }}
+                  </li>
+                </ul>
+              </div>
+            </div>
             <button
               class="retro-button"
               @click="startTournament"
@@ -67,108 +136,129 @@
         </div>
 
         <!-- Tournament Bracket -->
-        <div v-else class="flex h-full w-full flex-col space-y-4">
-          <h2 class="retro-title mb-4 text-5xl font-bold">
-            Tournament Bracket
-          </h2>
-          <p class="font-semibold text-accent">
-            Owner: {{ owner ? 'me' : tournament?.owner }}
-          </p>
-          <div class="flex flex-row justify-between gap-8">
-            <div class="flex w-1/4 flex-col gap-4">
-              <!-- Semi-Final 1 -->
-              <div class="flex flex-col items-center space-y-2">
-                <div
-                  v-for="(box, index) in boxes.slice(0, 2)"
-                  :key="index"
-                  class="retro-box w-full p-3 text-center font-semibold"
-                  :style="{
-                    color:
-                      tournament?.games[0]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[0]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
-                >
-                  {{ box }}
-                </div>
-              </div>
-
-              <!-- Semi-Final 2 -->
-              <div class="flex flex-col items-center space-y-2">
-                <div
-                  v-for="(box, index) in boxes.slice(2, 4)"
-                  :key="index"
-                  class="retro-box w-full p-3 text-center font-semibold"
-                  :style="{
-                    color:
-                      tournament?.games[1]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[1]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
-                >
-                  {{ box }}
-                </div>
-              </div>
-            </div>
-            <div class="flex w-full flex-col items-center gap-2 space-y-2">
-              <!-- Final 1 place-->
+        <div v-else class="flex flex-col gap-8">
+          <div v-for="i in [0, 1]" :key="i" class="flex flex-col gap-4">
+            <p class="text-lg font-bold text-[#8b4513]">
+              {{ i === 0 ? 'Semi-Finals' : 'Finals' }}
+            </p>
+            <div v-for="j in [0, 1]" :key="j" class="flex flex-col gap-2">
               <div
-                class="mt-10 flex h-1/4 w-full flex-row items-center space-x-2"
+                class="retro-box flex flex-row items-center justify-between p-4"
               >
                 <div
-                  v-for="(box, index) in finals.slice(0, 2)"
-                  :key="index"
-                  class="retro-box h-full w-full p-3 text-center text-2xl font-bold"
-                  :style="{
-                    color:
-                      tournament?.games[2]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[2]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                  class="flex w-[42%] flex-row items-center justify-start gap-1"
+                  :style="
+                    tournament?.games?.[i * 2 + j]?.status === 'winp2'
+                      ? 'filter: grayscale(100%); opacity: 0.5'
+                      : ''
+                  "
                 >
-                  {{ box }}
+                  <img
+                    :src="avatar[i * 4 + j * 2]"
+                    alt="avatar"
+                    class="h-12 w-12 rounded-full object-cover"
+                  />
+                  <span>{{ boxes[i * 4 + j * 2] }}</span>
                 </div>
-              </div>
-              <!-- Final 3 place-->
-              <div
-                class="mt-10 flex h-1/4 w-3/4 flex-row items-center space-x-2"
-              >
+                <div class="flex w-1/3 items-center justify-center">
+                  <span v-if="i === 0">vs</span>
+                  <span v-else-if="j === 1">
+                    <svg
+                      height="64"
+                      width="64"
+                      version="1.1"
+                      id="Layer_1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                      viewBox="0 0 300.439 300.439"
+                      xml:space="preserve"
+                      fill="#000000"
+                      class="mx-auto"
+                    >
+                      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                      <g
+                        id="SVGRepo_tracerCarrier"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></g>
+                      <g id="SVGRepo_iconCarrier">
+                        <g>
+                          <path
+                            style="fill: #bf392c"
+                            d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
+                          ></path>
+                          <path
+                            style="fill: #e2574c"
+                            d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
+                          ></path>
+                          <path
+                            style="fill: #efc75e"
+                            d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
+                          ></path>
+                          <path
+                            style="fill: #d7b354"
+                            d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
+                          ></path>
+                        </g>
+                      </g>
+                    </svg>
+                  </span>
+                  <span v-else>
+                    <svg
+                      height="64"
+                      width="64"
+                      version="1.1"
+                      id="Layer_1"
+                      xmlns="http://www.w3.org/2000/svg"
+                      xmlns:xlink="http://www.w3.org/1999/xlink"
+                      viewBox="0 0 300.439 300.439"
+                      xml:space="preserve"
+                      fill="#000000"
+                      class="mx-auto"
+                    >
+                      <g id="SVGRepo_bgCarrier" stroke-width="0"></g>
+                      <g
+                        id="SVGRepo_tracerCarrier"
+                        stroke-linecap="round"
+                        stroke-linejoin="round"
+                      ></g>
+                      <g id="SVGRepo_iconCarrier">
+                        <g>
+                          <path
+                            style="fill: #bf392c"
+                            d="M276.967,0h-84.498L70.415,178.385h84.498L276.967,0z"
+                          ></path>
+                          <path
+                            style="fill: #e2574c"
+                            d="M23.472,0h84.498l122.053,178.385h-84.498L23.472,0z"
+                          ></path>
+                          <path
+                            style="fill: #ed9d5d"
+                            d="M154.914,93.887c57.271,0,103.276,46.005,103.276,103.276s-46.005,103.276-103.276,103.276 S51.638,254.434,51.638,197.163S97.643,93.887,154.914,93.887z"
+                          ></path>
+                          <path
+                            style="fill: #d58d54"
+                            d="M154.914,122.053c-41.31,0-75.11,33.799-75.11,75.11s33.799,75.11,75.11,75.11 s75.11-33.799,75.11-75.11S196.224,122.053,154.914,122.053z M154.914,253.495c-30.983,0-56.332-25.35-56.332-56.332 s25.35-56.332,56.332-56.332s56.332,25.35,56.332,56.332S185.896,253.495,154.914,253.495z"
+                          ></path>
+                        </g>
+                      </g>
+                    </svg>
+                  </span>
+                </div>
                 <div
-                  v-for="(box, index) in finals.slice(2, 4)"
-                  :key="index"
-                  class="retro-box h-full w-full p-3.5 text-center font-bold"
-                  :style="{
-                    color:
-                      tournament?.games[3]?.status === 'winp1'
-                        ? index === 0
-                          ? 'green'
-                          : 'red'
-                        : tournament?.games[3]?.status === 'winp2'
-                          ? index === 1
-                            ? 'green'
-                            : 'red'
-                          : '',
-                  }"
+                  class="flex w-[42%] flex-row items-center justify-end gap-1"
+                  :style="
+                    tournament?.games?.[i * 2 + j]?.status === 'winp1'
+                      ? 'filter: grayscale(100%); opacity: 0.5'
+                      : ''
+                  "
                 >
-                  {{ box }}
+                  <span>{{ boxes[i * 4 + j * 2 + 1] }}</span>
+                  <img
+                    :src="avatar[i * 4 + j * 2 + 1]"
+                    alt="avatar"
+                    class="h-12 w-12 rounded-full object-cover"
+                  />
                 </div>
               </div>
             </div>
@@ -177,11 +267,10 @@
       </div>
 
       <div v-else class="flex flex-col items-center gap-6">
-        <h1 class="text-3xl font-bold text-primary">Not in Tournament</h1>
-        <button
-          class="rounded-lg bg-blue-500 px-6 py-3 text-white transition-colors duration-300 hover:bg-blue-600"
-          @click="router.push('/')"
-        >
+        <h1 class="text-3xl font-bold text-primary">
+          Tournament does not exists
+        </h1>
+        <button class="retro-button" @click="router.push('/')">
           Return to Home
         </button>
       </div>
@@ -194,14 +283,15 @@ import { onMounted, onUnmounted, ref } from 'vue'
 import router from '@/router'
 import { useWebSocketStore } from '@/stores/websocket'
 import type { Tournament, WSMessage } from '@/utils/types'
+import { vfetch } from '@/utils/fetch'
 
 import { useToast } from 'vue-toast-notification'
-import 'vue-toast-notification/dist/theme-sugar.css'
 
 const $toast = useToast()
 
 const tournament = ref<Tournament | null>(null)
 const myUsername = ref('')
+const botDropDown = ref(false)
 const showBracket = ref(false)
 const showStartButton = ref(false)
 const boxes = ref<Array<string>>([
@@ -209,40 +299,67 @@ const boxes = ref<Array<string>>([
   'Player 2',
   'Player 3',
   'Player 4',
-])
-const finals = ref<Array<string>>([
-  'Finalist 1',
-  'Finalist 2',
   'Consolation 1',
   'Consolation 2',
+  'Finalist 1',
+  'Finalist 2',
 ])
+const avatar = ref<Array<string>>(
+  new Array(8).fill('https://api.dicebear.com/9.x/icons/svg?seed=Christian'),
+)
 
 const tournamentId = router.currentRoute.value.params.id
-const owner = ref<boolean>(false)
 const webSocketStore = useWebSocketStore()
 
 const fetchTournament = async () => {
   try {
-    const response = await fetch(`/api/tournament/${tournamentId}`)
+    const response = await vfetch(`/api/tournament/${tournamentId}`)
     tournament.value = await response.json()
-    if (tournament.value?.users.length === 4) showStartButton.value = true
-    if (tournament.value?.status === 'in_progress') {
-      showBracket.value = true
+    console.log(tournament.value)
+    showStartButton.value = tournament.value?.users.length === 4
+    if (
+      tournament.value?.status === 'in_progress' ||
+      tournament.value?.status === 'ended'
+    ) {
       if (tournament.value?.games[0]) {
         boxes.value[0] = tournament.value?.games[0].player1
+        avatar.value[0] = await vfetch(
+          `/api/player/${tournament.value?.games[0].player1}/avatar`,
+        ).then(res => res.json())
         boxes.value[1] = tournament.value?.games[0].player2
+        avatar.value[1] = await vfetch(
+          `/api/player/${tournament.value?.games[0].player2}/avatar`,
+        ).then(res => res.json())
       }
       if (tournament.value?.games[1]) {
         boxes.value[2] = tournament.value?.games[1].player1
+        avatar.value[2] = await vfetch(
+          `/api/player/${tournament.value?.games[1].player1}/avatar`,
+        ).then(res => res.json())
         boxes.value[3] = tournament.value?.games[1].player2
+        avatar.value[3] = await vfetch(
+          `/api/player/${tournament.value?.games[1].player2}/avatar`,
+        ).then(res => res.json())
       }
       if (tournament.value?.games[2]) {
-        finals.value[0] = tournament.value?.games[3].player1
-        finals.value[1] = tournament.value?.games[3].player2
+        boxes.value[4] = tournament.value?.games[2].player1
+        avatar.value[4] = await vfetch(
+          `/api/player/${tournament.value?.games[2].player1}/avatar`,
+        ).then(res => res.json())
+        boxes.value[5] = tournament.value?.games[2].player2
+        avatar.value[5] = await vfetch(
+          `/api/player/${tournament.value?.games[2].player2}/avatar`,
+        ).then(res => res.json())
       }
       if (tournament.value?.games[3]) {
-        finals.value[2] = tournament.value?.games[2].player1
-        finals.value[3] = tournament.value?.games[2].player2
+        boxes.value[6] = tournament.value?.games[3].player1
+        avatar.value[6] = await vfetch(
+          `/api/player/${tournament.value?.games[3].player1}/avatar`,
+        ).then(res => res.json())
+        boxes.value[7] = tournament.value?.games[3].player2
+        avatar.value[7] = await vfetch(
+          `/api/player/${tournament.value?.games[3].player2}/avatar`,
+        ).then(res => res.json())
       }
     }
   } catch (error) {
@@ -252,7 +369,7 @@ const fetchTournament = async () => {
 
 const fetchMe = async () => {
   try {
-    const response = await fetch('/api/session')
+    const response = await vfetch('/api/session')
     const user = await response.json()
     myUsername.value = user.username
   } catch (error) {
@@ -263,13 +380,21 @@ const fetchMe = async () => {
 onMounted(async () => {
   await fetchTournament()
   await fetchMe()
-  owner.value = tournament.value?.owner === myUsername.value
-  showBracket.value = tournament.value?.status === 'in_progress'
+  showBracket.value =
+    tournament.value?.status === 'in_progress' ||
+    tournament.value?.status === 'ended'
   try {
     webSocketStore.connect()
     webSocketStore.addMessageHandler(handleMessage)
   } catch (error) {
     console.error('websocket: ' + error)
+  }
+  const response = await vfetch('/api/play')
+  if (response.ok) {
+    $toast.success('Get ready for the next round!')
+    setTimeout(() => {
+      router.push('/game')
+    }, 5000)
   }
 })
 
@@ -278,16 +403,21 @@ onUnmounted(() => {
 })
 
 const handleMessage = async (message: WSMessage) => {
-  console.log('TOURNAMENTS: Received message:', message)
   if (message.type === 'tournament_cancelled') {
     $toast.error('Tournament has been cancelled')
     await router.push('/')
   } else if (message.type === 'tournament_new_user_enrolled') {
     await fetchTournament()
     $toast.info('Someone joined the tournament :)')
+  } else if (message.type === 'tournament_new_bot_enrolled') {
+    await fetchTournament()
+    $toast.info('A bot has been added to the tournament')
   } else if (message.type === 'tournament_user_left') {
     await fetchTournament()
     $toast.warning('Someone left the tournament :(')
+  } else if (message.type == 'tournament_bot_left') {
+    await fetchTournament()
+    $toast.warning('A bot has been removed from the tournament')
   } else if (message.type === 'game_tournament_ready') {
     await fetchTournament()
     if (!showBracket.value) $toast.success('Tournament is starting!')
@@ -297,13 +427,13 @@ const handleMessage = async (message: WSMessage) => {
     showBracket.value = true
     setTimeout(() => {
       router.push('/game')
-    }, 3000)
+    }, 5000)
   }
 }
 
 function startTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}/start`, {
+    vfetch(`/api/tournament/${tournamentId}/start`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -316,7 +446,7 @@ function startTournament() {
 
 function exitTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}`, {
+    vfetch(`/api/tournament/${tournamentId}`, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json',
@@ -331,11 +461,55 @@ function exitTournament() {
 
 function deleteTournament() {
   try {
-    fetch(`/api/tournament/${tournamentId}/cancel`, {
+    vfetch(`/api/tournament/${tournamentId}/cancel`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
+    })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+async function addBot(difficulty: string) {
+  let username
+  switch (difficulty.toLowerCase()) {
+    case 'easy':
+      username = 'Enzo'
+      break
+    case 'medium':
+      username = 'Caterina'
+      break
+    case 'hard':
+      username = 'Giovanni'
+      break
+    default:
+      username = 'Invalid'
+      break
+  }
+  try {
+    vfetch(`/api/tournament/${tournamentId}/invite`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{ username }]),
+    })
+    botDropDown.value = false
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+function deleteBot(username: string) {
+  try {
+    vfetch(`/api/tournament/${tournamentId}/deletebot`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify([{ username }]),
     })
   } catch (error) {
     console.error(error)
