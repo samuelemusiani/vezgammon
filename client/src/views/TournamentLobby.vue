@@ -138,7 +138,9 @@
         <!-- Tournament Bracket -->
         <div v-else class="flex flex-col gap-8">
           <div v-for="i in [0, 1]" :key="i" class="flex flex-col gap-4">
-            <p>{{ i === 0 ? 'Semi-Finals' : 'Finals' }}</p>
+            <p class="text-lg font-bold text-[#8b4513]">
+              {{ i === 0 ? 'Semi-Finals' : 'Finals' }}
+            </p>
             <div v-for="j in [0, 1]" :key="j" class="flex flex-col gap-2">
               <div
                 class="retro-box flex flex-row items-center justify-between p-4"
@@ -297,10 +299,10 @@ const boxes = ref<Array<string>>([
   'Player 2',
   'Player 3',
   'Player 4',
-  'Finalist 1',
-  'Finalist 2',
   'Consolation 1',
   'Consolation 2',
+  'Finalist 1',
+  'Finalist 2',
 ])
 const avatar = ref<Array<string>>(
   new Array(8).fill('https://api.dicebear.com/9.x/icons/svg?seed=Christian'),
@@ -319,7 +321,6 @@ const fetchTournament = async () => {
       tournament.value?.status === 'in_progress' ||
       tournament.value?.status === 'ended'
     ) {
-      showBracket.value = true
       if (tournament.value?.games[0]) {
         boxes.value[0] = tournament.value?.games[0].player1
         avatar.value[0] = await vfetch(
@@ -393,7 +394,7 @@ onMounted(async () => {
     $toast.success('Get ready for the next round!')
     setTimeout(() => {
       router.push('/game')
-    }, 3000)
+    }, 5000)
   }
 })
 
@@ -426,7 +427,7 @@ const handleMessage = async (message: WSMessage) => {
     showBracket.value = true
     setTimeout(() => {
       router.push('/game')
-    }, 3000)
+    }, 5000)
   }
 }
 
