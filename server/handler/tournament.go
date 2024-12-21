@@ -15,6 +15,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+var ErrTournamentNotFound = "tournament not found"
+
 type createTurnamentRequest struct {
 	Name string `json:"name" example:"Tournament name"`
 }
@@ -157,7 +159,7 @@ func InviteTournament(c *gin.Context) {
 
 	tournament, err := db.GetTournament(id64)
 	if err != nil {
-		c.JSON(http.StatusNotFound, "tournament not found")
+		c.JSON(http.StatusNotFound, ErrTournamentNotFound)
 		return
 	}
 
@@ -243,7 +245,7 @@ func TournamentDeleteUers(c *gin.Context) {
 
 	tournament, err := db.GetTournament(id64)
 	if err != nil {
-		c.JSON(http.StatusNotFound, "tournament not found")
+		c.JSON(http.StatusNotFound, ErrTournamentNotFound)
 		return
 	}
 
@@ -330,7 +332,7 @@ func LeaveTournament(c *gin.Context) {
 
 	t, err := db.GetTournament(id64)
 	if err != nil {
-		c.JSON(http.StatusNotFound, "tournament not found")
+		c.JSON(http.StatusNotFound, ErrTournamentNotFound)
 		return
 	}
 
