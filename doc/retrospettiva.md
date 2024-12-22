@@ -145,13 +145,13 @@ Valutazioni: 😃 😐 😡
 
 | Cards            | Diego PO | Lorenzo SM | Samuele D | Fabio D | Emanuele D | Omar D |
 | ---------------- | -------- | ---------- | --------- | --------| ---------- | ------ |
-| Scrum Master     | 😃       | 😃         | 😃        | 😃      |            | 😃     |
-| Product Owner    | 😃       | 😃         | 😃        | 😃      |            | 😃     |
-| Development Team | 😃       | 😃         | 😃        | 😃      |            | 😃     |
-| Product Backlog  | 😃       | 😃         | 😃        | 😃      |            | 😃     |
-| Sprint Planning  | 😃       | 😃         | 😃        | 😃      |            | 😃     |
-| Sprint Goal      | 😃       | 😃         | 😃        | 😃      |            | 😃     |
-| Self Menagement  | 😃       | 😃         | 😃        | 😃      |            | 😃     |
+| Scrum Master     | 😃       | 😃         | 😃        | 😃      | 😃           | 😃     |
+| Product Owner    | 😃       | 😃         | 😃        | 😃      | 😃           | 😃     |
+| Development Team | 😃       | 😃         | 😃        | 😃      | 😃           | 😃     |
+| Product Backlog  | 😃       | 😃         | 😃        | 😃      | 😃           | 😃     |
+| Sprint Planning  | 😃       | 😃         | 😃        | 😃      | 😃           | 😃     |
+| Sprint Goal      | 😃       | 😃         | 😃        | 😃      | 😃           | 😃     |
+| Self Menagement  | 😃       | 😃         | 😃        | 😃      | 😃           | 😃     |
 
 ### Commenti personali
 #### Product Owner - Diego Barbieri
@@ -175,3 +175,8 @@ Questo sprint ha evidenziato l’ottima coesione del team e il rispetto dei prin
 ### Developer - Fabio Murer
 Sprint positivo, grazie ai daily scrum frequenti e il lavoro a stretto contatto tra backend e frontend questo sprint 
 è risultato molto positivo permettendoci di risolvere velocemente le task e di risolvere un gran numero di bug.
+
+### Developer - Emanuele Argonni
+Questo sprint, come il precedente, ha evidenziato un netto miglioramento rispetto alle prime settimane del progetto. Siamo riusciti a portare a termine tutte le US
+assegnate nei tempi stabiliti. Il pair programming tra backend e frontend ha garantito la collaborazione di tutti i developer e ha facilitato la risoluzione di bug.
+L'ottima sinergia tra i membri del team e la comunicazione costante ci hanno permesso di affrontare le difficoltà e di gestire al meglio il carico di lavoro.
