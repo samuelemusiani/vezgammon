@@ -30,6 +30,9 @@ const handleKeydown = (event: KeyboardEvent) => {
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  setTimeout(() => {
+    isModalOpen.value = true
+  }, 500)
 })
 
 onUnmounted(() => {
