@@ -8,7 +8,7 @@ import Rotate from '@/components/Rotate.vue'
 
 <template>
   <div
-    class="h-screen w-screen border-8 border-primary bg-neutral bg-retro-pattern"
+    class="h-screen w-screen border-2 border-primary bg-neutral bg-retro-pattern lg:border-8"
   >
     <RouterView />
     <Rotate />
