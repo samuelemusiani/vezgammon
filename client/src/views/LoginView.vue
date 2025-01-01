@@ -26,13 +26,13 @@ async function login() {
 
     if (!response.ok) {
       const message = await response.json()
-      throw new Error(message?.message || 'Error during login')
+      throw new Error('Username/Email or Password are invalid')
     }
 
     router.push({ name: 'home' })
   } catch (e) {
     console.error(e)
-    err.value = e instanceof Error ? e.message : 'Unexpected error'
+    err.value = 'Username or Password are invalid'
   }
 }
 
@@ -73,14 +73,9 @@ function RIMUOVERE() {
 
 <template>
   <div class="flex h-full w-full items-center justify-center">
-    <div
-      class="card max-h-[90%] w-96 overflow-y-auto border-8 border-primary bg-base-100 shadow-md"
-    >
+    <div class="card max-h-[90%] w-96 overflow-y-auto border-8 border-primary bg-base-100 shadow-md">
       <div class="card-body">
-        <button
-          class="btn btn-secondary mt-4 border-4 border-primary"
-          @click="RIMUOVERE"
-        >
+        <button class="btn btn-secondary mt-4 border-4 border-primary" @click="RIMUOVERE">
           adding login def users
         </button>
         <h2 class="card-title">Login</h2>
@@ -91,33 +86,18 @@ function RIMUOVERE() {
               <label class="label" for="username">
                 <span class="label-text">Username or Email</span>
               </label>
-              <input
-                id="username"
-                type="text"
-                placeholder="Enter Username"
-                v-model="username"
-                class="input input-bordered w-full bg-base-200 focus:ring-primary"
-              />
+              <input id="username" type="text" placeholder="Enter Username" v-model="username"
+                class="input input-bordered w-full bg-base-200 focus:ring-primary" />
             </div>
 
             <div class="form-control mt-4">
               <label class="label" for="password">
                 <span class="label-text">Password</span>
               </label>
-              <input
-                id="password"
-                type="password"
-                placeholder="Enter Password"
-                v-model="passwd"
-                class="input input-bordered w-full bg-base-200 focus:ring-primary"
-              />
+              <input id="password" type="password" placeholder="Enter Password" v-model="passwd"
+                class="input input-bordered w-full bg-base-200 focus:ring-primary" />
               <label class="label" for="forgot-password">
-                <a
-                  href="#"
-                  class="link-hover link label-text-alt"
-                  id="forgot-password"
-                  >Forgot password?</a
-                >
+                <a href="#" class="link-hover link label-text-alt" id="forgot-password">Forgot password?</a>
               </label>
             </div>
 
@@ -128,10 +108,7 @@ function RIMUOVERE() {
 
             <!-- Pulsante di invio -->
             <div class="form-control mt-6">
-              <button
-                type="submit"
-                class="btn btn-primary border-4 border-secondary"
-              >
+              <button type="submit" class="btn btn-primary border-4 border-secondary">
                 Login
               </button>
             </div>
