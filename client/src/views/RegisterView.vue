@@ -36,7 +36,7 @@ async function register() {
     router.push({ name: 'login' })
   } catch (e) {
     console.error(e)
-    err.value = "Mail or Username already exists"
+    err.value = 'Mail or Username already exists'
   }
 }
 
@@ -74,56 +74,93 @@ function validate() {
 
 <template>
   <div class="flex h-full w-full items-center justify-center">
-    <div class="card max-h-[90%] min-w-96 max-w-[60%] overflow-auto border-8 border-primary bg-base-100 shadow-md">
+    <div
+      class="card max-h-[90%] min-w-96 max-w-[60%] overflow-auto border-8 border-primary bg-base-100 shadow-md"
+    >
       <div class="card-body">
         <h2 class="card-title">Register</h2>
-        <form @submit.prevent="register" class="grid grid-cols-2 gap-4 lg:grid-cols-1">
+        <form
+          @submit.prevent="register"
+          class="grid grid-cols-2 gap-4 lg:grid-cols-1"
+        >
           <div class="form-control">
             <label for="input-mail" class="label">
               <span class="label-text">Email</span>
             </label>
-            <input id="input-mail" type="email" placeholder="email@example.com" v-model="mail"
-              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary" />
+            <input
+              id="input-mail"
+              type="email"
+              placeholder="email@example.com"
+              v-model="mail"
+              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary"
+            />
           </div>
 
           <div class="form-control">
             <label for="input-username" class="label">
               <span class="label-text">Username</span>
             </label>
-            <input id="input-username" type="text" placeholder="Master725" v-model="username"
-              class="input input-bordered w-full bg-base-200 focus:ring-primary" />
+            <input
+              id="input-username"
+              type="text"
+              placeholder="Master725"
+              v-model="username"
+              class="input input-bordered w-full bg-base-200 focus:ring-primary"
+            />
           </div>
 
           <div class="form-control">
             <label for="input-password1" class="label">
               <span class="label-text">Password</span>
             </label>
-            <input id="input-password1" type="password" placeholder="Choose a password" v-model="passwd1" minlength="8"
-              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary" />
+            <input
+              id="input-password1"
+              type="password"
+              placeholder="Choose a password"
+              v-model="passwd1"
+              minlength="8"
+              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary"
+            />
           </div>
 
           <div class="form-control">
             <label for="input-password2" class="label">
               <span class="label-text">Confirm Password</span>
             </label>
-            <input id="input-password2" type="password" placeholder="Confirm password" v-model="passwd2" minlength="8"
-              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary" />
+            <input
+              id="input-password2"
+              type="password"
+              placeholder="Confirm password"
+              v-model="passwd2"
+              minlength="8"
+              class="input input-bordered w-full bg-base-200 invalid:border-error invalid:text-error focus:ring-primary"
+            />
           </div>
 
           <div class="form-control">
             <label for="input-name" class="label">
               <span class="label-text">First Name</span>
             </label>
-            <input id="input-name" type="text" placeholder="Alex" v-model="firstname"
-              class="input input-bordered w-full bg-base-200 focus:ring-primary" />
+            <input
+              id="input-name"
+              type="text"
+              placeholder="Alex"
+              v-model="firstname"
+              class="input input-bordered w-full bg-base-200 focus:ring-primary"
+            />
           </div>
 
           <div class="form-control">
             <label for="input-surname" class="label">
               <span class="label-text">Last Name</span>
             </label>
-            <input id="input-surname" type="text" placeholder="Harrison" v-model="lastname"
-              class="input input-bordered w-full bg-base-200 focus:ring-primary" />
+            <input
+              id="input-surname"
+              type="text"
+              placeholder="Harrison"
+              v-model="lastname"
+              class="input input-bordered w-full bg-base-200 focus:ring-primary"
+            />
           </div>
 
           <div class="col-span-2 mt-6 text-error lg:col-span-1">
@@ -131,7 +168,10 @@ function validate() {
           </div>
 
           <div class="form-control col-span-2 mt-2">
-            <button type="submit" class="btn btn-primary border-4 border-secondary">
+            <button
+              type="submit"
+              class="btn btn-primary border-4 border-secondary"
+            >
               Register
             </button>
           </div>
