@@ -132,6 +132,10 @@ func TestStatsAndBadge(t *testing.T) {
 	err = UpdateGame(rgameonline)
 	assert.NilError(t, err)
 
+	badge, err := GetBadge(retuser1.ID)
+	assert.NilError(t, err)
+	assert.Equal(t, badge.Wontime[0], 1)
+
 	gamebot := types.Game{
 		Player1: retuser1.ID,
 		Player2: GetEasyBotID(),
@@ -143,8 +147,15 @@ func TestStatsAndBadge(t *testing.T) {
 	rgamebot.Status = types.GameStatusWinP1
 	err = UpdateGame(rgamebot)
 
-	_, err = GetStats(retuser1.ID)
+	p1stats, err := GetStats(retuser1.ID)
 	assert.NilError(t, err)
+	assert.Equal(t, p1stats.Won, int64(1))
+	assert.Equal(t, p1stats.Lost, int64(0))
+	assert.Equal(t, p1stats.Winrate, float32(100.0))
+	assert.Equal(t, p1stats.Online, int64(1))
+	assert.Equal(t, p1stats.Local, int64(0))
+	assert.Equal(t, p1stats.Cpu, int64(1))
+
 	_, err = GetStats(retuser2.ID)
 	assert.NilError(t, err)
 	_, err = GetBadge(retuser1.ID)
