@@ -5,15 +5,15 @@
 - __Scenario:__ L'utente crea una partita con il bot difficile
 - __Passaggi:__
    1. creare una partita utente-bot
-- __Risultato atteso:__ la partita viene creata con le caratteristiche sopraelencate
+- __Risultato atteso:__ la partita viene creata con le caratteristiche sopra elencate
 
 - __Titolo:__ Calcolo corretto delle mosse per il bot difficile
-- __Obbiettivo:__ Verificare il bot difficile giochi le migiori mosse secondo l'api utillizzata
+- __Obbiettivo:__ Verificare il bot difficile giochi le migliori mosse secondo l'api utilizzata
 - __Scenario:__ Il bot calcola la propria mossa nella configurazione iniziale della board
 - __Passaggi:__
    1. creare una partita con il bot difficile come giocatore
    2. fare calcolare la propria mossa al bot
-- __Risultato atteso:__ il bot gioca la mossa uguale alla miglioremossa secondo l'api bgweb
+- __Risultato atteso:__ il bot gioca la mossa uguale alla migliore mossa secondo l'api bgweb
 
 ## come creatore di tornei, voglio essere in grado di creare, amministrare tornei
 
@@ -24,7 +24,7 @@
    1. navigare all'interfaccia di creazione tornei
    2. inserire il nome del torneo che si vuole creare
    2. creare un torneo utilizzando l'apposito bottone
-- __Risultato atteso:__ un nuovo torneo deve essere cerato con i seguenti campi: l'utente che lo ha creato come owner, come unico utente l'owner e come stato waiting.
+- __Risultato atteso:__ un nuovo torneo deve essere creato con i seguenti campi: l'utente che lo ha creato come owner, come unico utente l'owner e come stato waiting.
 
 - __Titolo:__ Verificare che un nuovo utente possa unirsi ad un torneo
 - __Obbiettivo:__ Verificare che un utente possa unirsi ad un torneo non ancora iniziato
@@ -63,7 +63,7 @@
    1. manda delle mosse errate al server
 - __Risultato atteso:__ il server ritorna un messaggio di errore 400, le mosse non vengono effettuate
 
-## come giocatore, voglio avere un'interfaccia front-end per navigare all'interno del sito
+## come giocatore, voglio avere un interfaccia front-end per navigare all'interno del sito
 
 - __Titolo:__ Navigabilità del sito
 - __Obbiettivo:__ Controllare che tutte le pagine siano renderizzate correttamente e che siano raggiungibili
@@ -75,7 +75,7 @@
 ## come giocatore, voglio poter scegliere vari temi grafici e ambientazioni
 
 - __Titolo:__ Verificare il cambio dei temi grafici
-- __Obbiettivo:__ Verificare il cambio tema sia ripettato in tutte le pagine
+- __Obbiettivo:__ Verificare il cambio tema sia rispettato in tutte le pagine
 - __Scenario:__ Un utente vuole cambiare il tema del sito cambiando l'apposita impostazione
 - __Passaggi:__
    1. navigare nelle impostazioni
@@ -119,7 +119,7 @@
    1. accedere alla pagina statistics del sito
    2. selezionare il metodo telegram per la condivisione
    3. mandare il messaggio
-- __Risultato atteso:__ il messaggio deve creato correttaente e inviato
+- __Risultato atteso:__ il messaggio deve creato correttamente e inviato
 
 ## come utente, voglio ricevere le notifiche dal sito
 
@@ -161,7 +161,7 @@
    1. simulare una partita online
    2. simulare una partita contro un bot
    3. richiedere i dati delle statistiche
-- __Risultato atteso:__ i dati delle statistiche devono essere fedeli a qelli reali
+- __Risultato atteso:__ i dati delle statistiche devono essere fedeli a quelli reali
 
 ## come utente, voglio poter avere un profilo per tenere traccia delle partite giocate e delle statistiche
 
@@ -174,4 +174,5 @@
    3. Inserire tutti i campi correttamente
    4. Premere _Register_
    5. effettuare il login
-- __Risultato atteso:__ l'utente deve essere creato correttamente e il login deve andare a buon file.
+- __Risultato atteso:__ l'utente deve essere creato correttamente e il login deve andare a buon fine.
+
