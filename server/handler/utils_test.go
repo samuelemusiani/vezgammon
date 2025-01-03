@@ -107,3 +107,79 @@ func TestIsGameEnded(t *testing.T) {
 	assert.Equal(t, isended, false)
 	assert.Equal(t, winner, int64(0))
 }
+
+func TestCreateBotUserGame(t *testing.T) {
+	u1 := types.User{
+		Username:  "vsbot",
+		Firstname: "vsbot",
+		Lastname:  "vsbot",
+		Mail:      "vsbot@mail.it",
+	}
+
+	retuser1, err := db.CreateUser(u1, "vsbot")
+	assert.NilError(t, err)
+
+	err, _, _ = createBotUserGame(retuser1.ID, db.GetHardBotID(), sql.NullInt64{Valid: false})
+	assert.NilError(t, err)
+
+	retgame, err := db.GetCurrentGame(retuser1.ID)
+	assert.NilError(t, err)
+
+	assert.Equal(t, retgame.Player1, "vsbot")
+	assert.Equal(t, retgame.Player2, "Giovanni")
+
+	assert.Equal(t, retgame.CurrentPlayer, types.GameCurrentPlayerP1)
+
+	assert.Equal(t, retgame.GameType, types.GameTypeBot)
+}
+
+func TestReconstructGameFromTurns(t *testing.T) {
+	basegame := types.Game{
+		P1Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+		P2Checkers:    [25]int8{0, 0, 0, 0, 0, 0, 5, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2},
+		CurrentPlayer: types.GameCurrentPlayerP1,
+	}
+
+	var gamone types.Game
+	gamone = basegame
+
+	var gametwo types.Game
+	gametwo = basegame
+
+	turns := []types.Turn{
+		{
+			Moves: []types.Move{
+				{
+					From: 6,
+					To:   1,
+				},
+				{
+					From: 6,
+					To:   2,
+				},
+			},
+			Dices: types.Dices{6, 5},
+		},
+		{
+			Moves: []types.Move{
+				{
+					From: 6,
+					To:   2,
+				},
+				{
+					From: 6,
+					To:   3,
+				},
+			},
+			Dices: types.Dices{5, 4},
+		},
+	}
+
+	g1, dices1 := reconstructGameFromTurns(turns, &gamone, 1)
+	assert.Equal(t, dices1, types.Dices{6, 5})
+	assert.Equal(t, g1.P1Checkers, [25]int8{0, 1, 1, 0, 0, 0, 3, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2})
+
+	g2, dices2 := reconstructGameFromTurns(turns, &gametwo, 2)
+	assert.Equal(t, dices2, types.Dices{5, 4})
+	assert.Equal(t, g2.P2Checkers, [25]int8{0, 0, 1, 1, 0, 0, 3, 0, 3, 0, 0, 0, 0, 5, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 2})
+}
