@@ -2,6 +2,7 @@
 \usepackage[italian]{babel}
 \usepackage{hyperref}
 \usepackage{graphicx}
+\usepackage{float}
 \graphicspath{ {./imgs/} }
 
 \title{VezGammon - Report finale Team 1 \\ \large Progetto di Ingegneria del Software}
@@ -17,7 +18,7 @@
 
 \section{Descrizione del prodotto}
 \subsection{Scope}
-Per il progetto del corso di Ingegneria del Software, il team ha scelto di lavorare a VezGammon\copyright, un'applicazione web di backgammon. Il progetto ha diversi riferimenti 
+Per il progetto del corso di Ingegneria del Software, il team ha scelto di lavorare a VezGammon\textsuperscript{\texttrademark}, un'applicazione web di backgammon. Il progetto ha diversi riferimenti 
 alla città di Bologna, in cui è nato e si è sviluppato: in primis ovviamente il nome (\textit{"vez"} viene usato a Bologna come intercalare e significa amico, fratello); 
 inoltre una volta nel sito il cursore diventa un simpatico tortellino e la board utilizza i colori rosso e blu, rappresentativi della città. \par
 L'applicazione offre un'esperienza di gioco completa con diverse modalità: gli utenti possono sfidarsi in partite locali sullo stesso dispositivo, mettere alla prova 
@@ -27,13 +28,18 @@ Il sistema di classificazione si basa sul metodo Elo, ampiamente utilizzato negl
 aggiornati dopo ogni partita online o torneo. Il calcolo dell'aggiornamento tiene conto di diversi fattori: l'esito della partita, l'utilizzo del dado double 
 e il punteggio Elo di entrambi i giocatori. Questo sistema garantisce una competizione equilibrata e permette di mantenere una classifica globale, 
 dove ogni giocatore può aspirare a raggiungere le posizioni più alte. \par
-VezGammon\copyright \: include anche ricche funzionalità social e di progressione. Gli utenti possono consultare (e condividere sui social) in ogni momento statistiche dettagliate delle proprie partite, 
+VezGammon\textsuperscript{\texttrademark} include anche ricche funzionalità social e di progressione. Gli utenti possono consultare (e condividere sui social) in ogni momento statistiche dettagliate delle proprie partite, 
 visualizzare grafici che mostrano l'andamento del proprio Elo nel tempo e analizzare i match recenti. Il sistema premia inoltre i giocatori con speciali badge 
 al raggiungimento di specifici obiettivi, come vincere un determinato numero di partite o raggiungere certi livelli di punteggio Elo, aggiungendo un ulteriore 
 elemento di coinvolgimento e progressione al gioco.
 
-\subsection{Backlog}
-\includegraphics[width=12cm, height=14cm]{backlog}
+\subsection{Backlog} \label{sec:bl}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=12cm, height=14cm]{backlog}
+    \caption{Backlog di Taiga di Vezgammon\textsuperscript{\texttrademark}}
+    \label{fig:backlog}
+\end{figure}
 
 \subsection{UML}
 \subsubsection{Casi d'uso}
@@ -44,78 +50,150 @@ elemento di coinvolgimento e progressione al gioco.
 
 \subsubsection{Tornei}
 
-\section{Sprint 0}
+\section{Processo Scrum}
 
-\section{Sprint 1}
+\subsection{Sprint 0}
+Vedi \ref{sec:teambuilding}
 
-\subsection{Goal}
+\subsection{Sprint 1}
 
-\subsection{Backlog}
+\subsubsection{Goal}
 
-\subsection{Incremento}
+\subsubsection{Backlog}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{backlog1}
+    \caption{Backlog del primo sprint}
+    \label{fig:backlog-s1}
+\end{figure}
 
-\subsection{Definition of Done}
+\subsubsection{Incremento}
 
-\subsection{Esempio di test fatti}
+\subsubsection{Definition of Done}
 
-\subsection{Burndown}
+\subsubsection{Esempio di test fatti}
 
-\subsection{Retrospettiva}
+\subsubsection{Burndown}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{burndown1}
+    \caption{Burndown del primo sprint}
+    \label{fig:burndown1}
+\end{figure}
 
-\section{Sprint 2}
+\subsubsection{Retrospettiva}
 
-\subsection{Goal}
+\subsection{Sprint 2}
 
-\subsection{Backlog}
+\subsubsection{Goal}
 
-\subsection{Incremento}
+\subsubsection{Backlog}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{backlog2}
+    \caption{Backlog del secondo sprint}
+    \label{fig:backlog2}
+\end{figure}
 
-\subsection{Definition of Done}
+\subsubsection{Incremento}
 
-\subsection{Esempio di test fatti}
+\subsubsection{Definition of Done}
 
-\subsection{Burndown}
+\subsubsection{Esempio di test fatti}
 
-\subsection{Retrospettiva}
+\subsubsection{Burndown}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{burndown2}
+    \caption{Burndown del secondo sprint}
+    \label{fig:burndown2}
+\end{figure}
 
-\section{Sprint 3}
+\subsubsection{Retrospettiva}
 
-\subsection{Goal}
+\subsection{Sprint 3}
 
-\subsection{Backlog}
+\subsubsection{Goal}
 
-\subsection{Incremento}
+\subsubsection{Backlog}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{backlog3_1}
+    \caption{Backlog del terzo sprint - parte 1}
+    \label{fig:backlog3_1}
+\end{figure}
 
-\subsection{Definition of Done}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{backlog3_2}
+    \caption{Backlog del terzo sprint - parte 2}
+    \label{fig:backlog3_2}
+\end{figure}
 
-\subsection{Esempio di test fatti}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{backlog3_3}
+    \caption{Backlog del terzo sprint - parte 3}
+    \label{fig:backlog3_3}
+\end{figure}
 
-\subsection{Burndown}
+\subsubsection{Incremento}
 
-\subsection{Retrospettiva}
+\subsubsection{Definition of Done}
 
-\section{Sprint 4}
+\subsubsection{Esempio di test fatti}
 
-\subsection{Goal}
+\subsubsection{Burndown}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{burndown3}
+    \caption{Burndown del terzo sprint}
+    \label{fig:burndown3}
+\end{figure}
 
-\subsection{Backlog}
+\subsubsection{Retrospettiva}
 
-\subsection{Incremento}
+\subsection{Sprint 4}
 
-\subsection{Definition of Done}
+\subsubsection{Goal}
 
-\subsection{Esempio di test fatti}
+\subsubsection{Backlog}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{backlog4_1}
+    \caption{Backlog del quarto sprint - parte 1}
+    \label{fig:backlog4_1}
+\end{figure}
 
-\subsection{Burndown}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{backlog4_2}
+    \caption{Backlog del quarto sprint - parte 2}
+    \label{fig:backlog4_2}
+\end{figure}
 
-\subsection{Retrospettiva}
+\subsubsection{Incremento}
 
-\section{Release sprint}
+\subsubsection{Definition of Done}
+
+\subsubsection{Esempio di test fatti}
+
+\subsubsection{Burndown}
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{burndown4}
+    \caption{Burndown del quarto sprint}
+    \label{fig:burndown4}
+\end{figure}
+
+\subsubsection{Retrospettiva}
+
+\subsection{Release sprint}
 
 \section{Descrizione del processo}
 
 Il team ha deciso di comune accordo e su richiesta del \textit{Product Owner} di dedicare al progetto quattro sprint di due settimane ciascuno, in aggiunta allo sprint 0, dedicato alle attività di teambuilding
-e alla familiarizzazione dell'ambiente di sviluppo, e al release sprint, in cui il focus è andato sulla risoluzione dei bug, qualità del codice e stesura di questo report finale.
+e alla familiarizzazione con l'ambiente di sviluppo, e al release sprint, in cui il focus è andato sulla risoluzione dei bug, qualità del codice e stesura di questo report finale.
 
 \subsection{Il team}
 
@@ -133,59 +211,118 @@ alcuni di noi avevano già collaborato durante precedenti attività, sia univers
 di approfondire la conoscenza reciproca in un contesto diverso dal solito, rafforzando il rapporto e favorendo una collaborazione più efficace. \par
 Prima di iniziare lo sprint 0, il team si è riunito di persona per definire i ruoli; questi sono stati rispettati per la maggior parte, ma con un approccio flessibile: 
 lo Scrum Master e il Product Owner hanno aiutato nello sviluppo del frontend, mentre il DevOps ha supportato sia il frontend che il backend quando necessario. 
-Questa versatilità si è rivelata vincente e ha permesso di ottimizzare il lavoro e affrontare le sfide che si sono presentate in modo più efficace e collaborativo.
+Questa versatilità si è rivelata vincente e ha permesso di ottimizzare il lavoro e affrontare le sfide che si sono presentate in modo più efficace.
 
-\subsection{Teambuilding}
+\subsection{Teambuilding} \label{sec:teambuilding}
 
 \subsection{Gitinspector}
 
-\subsection{Strumenti di comunicazione}
+\subsection{Strumenti di comunicazione} \label{sec:mm}
 Per comunicare tra noi abbiamo deciso di usare MatterMost, una piattaforma di chat e condivisione interamente open-source. Come per gli altri servizi, anche MatterMost 
 è stato self-hostato sotto il dominio vezgammon.it per avere un maggiore controllo sui dati. Questa scelta ha permesso al team di gestire in autonomia 
 l'infrastruttura di comunicazione, evitando dipendenze da servizi esterni e assicurando la personalizzazione dell'ambiente in base alle necessità del progetto. \par
 MatterMost è stato utilizzato per la comunicazione quotidiana, la condivisione di aggiornamenti e l'organizzazione degli incontri di persona, che si sono svolti con frequenza. 
 Gli incontri hanno avuto luogo presso il laboratorio del gruppo ADMstaff, situato nel seminterrato del Dipartimento di Informatica, in Mura Anteo Zamboni 7. \par
 Il laboratorio è diventato il punto di riferimento per il team, che vi si è riunito interi pomeriggi per daily scrum, sessioni di pair programming e discussioni sull'avanzamento 
-generale del progetto. Questa modalità di lavoro ha favorito una collaborazione continua e diretta, contribuendo significativamente alla coesione del gruppo e al progresso del progetto.
+generale del progetto. Questa modalità di lavoro ha favorito una collaborazione continua e diretta, contribuendo significativamente alla coesione del gruppo e al progresso del progetto. \par
+Come strumento di comunicazione secondario è stato usato Telegram per comunicazioni meno "ufficiali" e sopratutto per ricevere notifiche relative allo stato dei vari servizi tramite 
+\textit{Status} (vedi \ref{sec:status}).
 
 \subsection{Uso di LLM}
 
-\subsection{Deployment del prodotto}
+\subsection{SonarQube} \label{sec:sq}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{sq_overview}
+    \caption{Vista generale di SonarQube, che mostra un riepilogo delle metriche del progetto, tra cui copertura del codice, vulnerabilità, codice duplicato e molto altro. \\
+    L'obiettivo di una copertura del 50\% è stato abbondantemente superato; tuttavia le aree di codice meno coperte dai test riguardano principalmente le API e le parti che fanno
+    uso dei web socket, in quanto più difficili da testare.}
+    \label{fig:sq_overview}
+\end{figure}
+
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{sq_issues}
+    \caption{Grafico delle issue rilevate nel tempo: c'è un picco verso il 15 novembre, quando abbiamo terminato di self-hostare il tool e risolvere i problemi che ne sono derivati; per il resto dello
+    sviluppo il numero delle issue è stato mantenuto sotto controllo e i problemi sono stati risolti a intervalli regolari.}
+    \label{fig:sq_issues}
+\end{figure}
+
 
 \subsection{Retrospettiva finale con Essence}
 
 \section{Demo 3 min}
 Link qui
 
-\section{Artefatti realizzati}
+\section{Artefatti realizzati ?? Software utilizzato}
 
-Per il progetto sono stati realizzati e resi disponibili diversi artefatti, sia di prodotto che di processo. Tutto l'ambiente è stato self-hostato per X motivi TODO 
+Per il progetto sono stati realizzati e resi disponibili diversi artefatti, sia di prodotto che di processo. Tutto l'ambiente è stato self-hostato per avere maggior controllo sull'infrastruttura
+e avere meno dipendenze possibili con l'esterno. Questo ha inizialmente richiesto un notevole sforzo ma a lungo termine sono emersi i benefici di questa scelta.
 
 \subsection{Artefatti di processo}
 
-\subsubsection{GitLab (\href{https://gitlab.vezgammon.it}{\texttt{gitlab.vezgammon.it}})}
+\subsubsection{GitLab}
 GitLab è stato utilizzato per la gestione del codice sorgente e per il versioning. Sono stati utilizzati i tag per denotare il Minimun Value Product di ogni sprint.
-Il team ha qui configurato il repository, gestito le merge request e segnalato e risolto le issue.  
+Il team ha qui configurato il repository, gestito le merge request e segnalato e risolto le issue. \\
+Il repository è accessibile all'indirizzo \href{https://gitlab.vezgammon.it}{\texttt{gitlab.vezgammon.it}}  
 
-\subsubsection{Taiga (\href{https://taiga.vezgammon.it}{\texttt{taiga.vezgammon.it}})}
-Taiga è stato scelto per la gestione del project management. È stato utilizzato per tracciare le attività, gestire i backlog, definire le storie utente e 
-monitorare lo stato di avanzamento del progetto durante gli sprint.
+\subsubsection{Taiga}
+Taiga è stato scelto per la gestione del project management. È stato utilizzato per tracciare le attività, gestire il backlog (vedi \ref{sec:bl}), definire le storie utente e 
+monitorare lo stato di avanzamento del progetto durante gli sprint. \\
+Il progetto Taiga è accessibile all'indirizzo \href{https://taiga.vezgammon.it}{\texttt{taiga.vezgammon.it}}
 
-\subsubsection{MatterMost (\href{https://mattermost.vezgammon.it}{\texttt{mattermost.vezgammon.it}})}
-MatterMost è stato utilizzato per la comunicazione interna del team. È stata la piattaforma principale per gli scambi di messaggi, la condivisione di aggiornamenti 
-e per accordarsi sugli incontri quotidiani.
+\subsubsection{MatterMost}
+Come precedentemente descritto nella Sezione \ref{sec:mm},MatterMost è stato utilizzato per la comunicazione interna del team. È stata la piattaforma principale per gli scambi di messaggi, la condivisione di aggiornamenti 
+e per accordarsi sugli incontri quotidiani. \\
+MatterMost self-hosted è accessibile all'indirizzo \href{https://mattermost.vezgammon.it}{\texttt{mattermost.vezgammon.it}}
 
-\subsubsection{Jenkins (\href{https://jenkins.vezgammon.it}{\texttt{jenkins.vezgammon.it}})}
-Jenkins è stato utilizzato per l'automazione del flusso di lavoro tramite CI/CD e dei processi di build e deployment. Il team ha configurato job automatici per 
-costruire, testare e distribuire l'applicazione.
+\subsubsection{Jenkins}
+Jenkins è stato utilizzato come \textit{core} per l'automazione del flusso di lavoro tramite CI/CD e dei processi di build e deployment. Il team ha configurato job automatici per 
+costruire, testare e distribuire l'applicazione. \\
+Jenkins self-hosted è accessibile all'indirizzo \href{https://jenkins.vezgammon.it}{\texttt{jenkins.vezgammon.it}}
 
-\subsubsection{SonarQube (\href{https://sonarqube.vezgammon.it}{\texttt{sonarqube.vezgammon.it}})}
-SonarQube è stato utilizzato per l'analisi della qualità del codice. Il team ha configurato SonarQube per eseguire analisi statiche e rilevare eventuali problematiche 
-riguardanti la qualità del codice, la copertura dei test e la manutenzione.
+\begin{figure}[H]
+    \centering
+    \includegraphics[width=1\textwidth]{jk_pipeline}
+    \caption{Pipeline di Jenkins: viene lanciata a ogni evento push su GitLab e controlla formattazione, build e test; sui commit delle branch \textit{main} e \textit{develop} viene anche eseguito
+    il controllo statico del codice con SonarQube e il deploy sul relativo server, di produzione o di sviluppo.}
+    \label{fig:jk_pipeline}
+\end{figure}
 
-\subsubsection{Status (\href{https://status.vezgammon.it}{\texttt{status.vezgammon.it}})}
-Il sistema di monitoraggio dei servizi è stato sviluppato per tenere traccia della disponibilità dei vari strumenti utilizzati nel progetto. 
-\'E stato inoltre sviluppato un bot Telegram per avvisare tempestivamente il team di eventuali problemi con il server e/o i singoli servizi.
+\subsubsection{SonarQube}
+Come precedentemente descritto nella Sezione \ref{sec:sq}, SonarQube è stato utilizzato per l'analisi della qualità del codice. Il team ha configurato SonarQube per eseguire analisi statiche e rilevare eventuali problematiche 
+riguardanti la qualità del codice, la copertura dei test e la manutenzione. \\
+SonarQube self-hosted è accessibile all'indirizzo \href{https://sonarqube.vezgammon.it}{\texttt{sonarqube.vezgammon.it}}
+
+\subsubsection{Swagger}
+
+Per la documentazione delle API implementate e il testing più rapido, il team ha scelto di utilizzare il tool \textit{Swagger} (\url{https://swagger.io/}). \\
+Vengono riportate alcune immagini che ne illustrano il funzionamento; per la documentazione completa si rimanda al file \textbf{SWAGGER-FILE}
+
+\begin{figure}[H]
+    \centering
+    \begin{minipage}[t]{0.48\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{sw_overview}
+        \caption{API utilizzate per gestire una generica partita}
+        \label{fig:sw_overview}
+    \end{minipage}
+    \hfill
+    \begin{minipage}[t]{0.49\textwidth}
+        \centering
+        \includegraphics[width=\textwidth]{sw_joinTournament}
+        \caption{Nel dettaglio, l'interfaccia di Swagger per ogni API}
+        \label{fig:sw_joinTournament}
+    \end{minipage}    
+\end{figure}
+
+
+\subsubsection{Status}
+\label{sec:status}
+Il sistema di monitoraggio dei servizi è stato sviluppato per tenere traccia della disponibilità dei vari strumenti utilizzati nel progetto. \\
+\'E stato inoltre sviluppato un bot Telegram per avvisare tempestivamente il team di eventuali problemi con il server e/o i singoli servizi. \\
+Questo artefatto è accessibile all'indirizzo \href{https://status.vezgammon.it}{\texttt{status.vezgammon.it}}
 
 \subsection{Artefatti di prodotto}
 
