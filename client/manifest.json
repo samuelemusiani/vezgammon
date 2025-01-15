@@ -1,0 +1,22 @@
+{
+  "name": "VezGammon",
+  "short_name": "Vez",
+  "icons": [
+    {
+      "src": "public/img/icons/vezgammon128.png",
+      "sizes": "128x128",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "public/img/icons/vezgammon512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    }
+  ],
+  "start_url": "/index.html",
+  "background_color": "#ffffff",
+  "display": "standalone",
+  "theme_color": "#4DBA87"
+}
