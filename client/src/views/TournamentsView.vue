@@ -152,6 +152,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useSound } from '@vueuse/sound'
+import { useAudioStore } from '@/stores/audio'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import router from '@/router'
 import type { Tournament } from '@/utils/types'
@@ -161,8 +162,11 @@ import { useToast } from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
 
 const $toast = useToast()
-
-const { play } = useSound(buttonSfx, { volume: 0.3 })
+const audioStore = useAudioStore()
+const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
+const play = () => {
+  if (audioStore.isAudioEnabled) playSound()
+}
 
 interface SimpleTournament {
   id: number

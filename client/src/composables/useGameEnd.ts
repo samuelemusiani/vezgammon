@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { useSound } from '@vueuse/sound'
+import { useAudioStore } from '@/stores/audio'
 import victorySfx from '@/utils/sounds/victory.mp3'
 import lostSfx from '@/utils/sounds/lostgame.mp3'
 import type { User } from '@/utils/types'
@@ -9,9 +10,20 @@ export function useGameEnd() {
   const showResultModal = ref(false)
   const isWinner = ref(false)
   const isExploding = ref(false)
+  const audioStore = useAudioStore()
 
   const { play: playVictory } = useSound(victorySfx)
   const { play: playLost } = useSound(lostSfx)
+  const play = (sound: string) => {
+    if (audioStore.isAudioEnabled) {
+      if (sound === 'victory') {
+        playVictory()
+      }
+      if (sound === 'lost') {
+        playLost()
+      }
+    }
+  }
 
   const fetchWinner = async (): Promise<string | null> => {
     try {
@@ -28,7 +40,7 @@ export function useGameEnd() {
     isWinner.value = true
     showResultModal.value = true
     if (playSound) {
-      playVictory()
+      play('victory')
     }
     isExploding.value = true
     setTimeout(() => {
@@ -40,7 +52,7 @@ export function useGameEnd() {
     isWinner.value = false
     showResultModal.value = showResModal
     if (playSound) {
-      playLost()
+      play('lost')
     }
   }
 

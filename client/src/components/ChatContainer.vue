@@ -88,6 +88,7 @@ import { useWebSocketStore } from '@/stores/websocket'
 import tinSfx from '@/utils/sounds/tintin.mp3'
 import type { WSMessage } from '@/utils/types'
 import { useSound } from '@vueuse/sound'
+import { useAudioStore } from '@/stores/audio'
 
 const props = defineProps<{
   myUsername: string
@@ -95,7 +96,11 @@ const props = defineProps<{
   gameType: string
 }>()
 
+const audioStore = useAudioStore()
 const { play: playTin } = useSound(tinSfx, { volume: 0.5 })
+const play = () => {
+  if (audioStore.isAudioEnabled) playTin()
+}
 
 const webSocketStore = useWebSocketStore()
 const isOpen = ref(false)
@@ -150,7 +155,7 @@ const handleIncomingMessage = (message: WSMessage) => {
       payload: message.payload,
     })
     if (!isOpen.value) {
-      playTin()
+      play()
       console.log(message.payload)
       unreadMessages.value++
     }
