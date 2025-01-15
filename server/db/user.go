@@ -227,6 +227,12 @@ func CreateUser(u types.User, password string) (types.User, error) {
 	var id int64
 	err := res.Scan(&id)
 	if err != nil {
+		errMsg := err.Error()
+		if strings.Contains(errMsg, "username") {
+			return u, fmt.Errorf("Username already in use")
+		} else if strings.Contains(errMsg, "mail") {
+			return u, fmt.Errorf("Mail already in use")
+		}
 		return u, err
 	}
 
