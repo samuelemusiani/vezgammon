@@ -12,7 +12,7 @@ defineEmits<(e: 'double') => void>()
 <template>
   <div class="flex flex-col items-center">
     <div class="flex h-16 w-16 items-center justify-center rounded-lg p-2">
-      <svg viewBox="0 0 60 60">
+      <svg viewBox="0 0 60 60" width="100%" height="100%">
         <!-- Dice border -->
         <rect
           x="1"
