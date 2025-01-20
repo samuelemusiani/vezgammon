@@ -25,11 +25,9 @@ classDiagram
 
     class TournamentState {
         <<enumeration>>
-        CREATED
-        WAITING_FOR_PLAYERS
+        WAITING
         IN_PROGRESS
-        COMPLETED
-        CANCELLED
+        ENDED
     }
 
     class Player {
@@ -41,15 +39,6 @@ classDiagram
         +leaveTournament()
         +getCurrentScore(): int
         +updateStatus(status: PlayerStatus)
-    }
-
-    class PlayerStatus {
-        <<enumeration>>
-        WAITING
-        READY
-        PLAYING
-        FINISHED
-        DISCONNECTED
     }
 
     class Match {
@@ -67,10 +56,9 @@ classDiagram
 
     class MatchState {
         <<enumeration>>
-        SCHEDULED
-        IN_PROGRESS
-        COMPLETED
-        CANCELLED
+        OPEN
+        WINP1
+        WINP2
     }
 
     class MatchResult {
@@ -100,4 +88,8 @@ classDiagram
         +startMatch(matchId: String)
         +submitMatchResult(matchId: String, result: MatchResult)
         +getTournamentResults(tournamentId: String): TournamentResult
+        +CancelTournament(tournamentId: String)
+        +inviteTournament(players: String[])
+        +TournamentDeleteUsers(users: String[])
+        +LeaveTournament(playerId: String)
     }
