@@ -2,123 +2,67 @@
 title: Backgammon Game Class Diagram
 ---
 classDiagram
-    User <|-- Player
-    Player "1" *-- "1" Stats
-    Player "1" *-- "0..*" Achievement
-    Player "1" -- "0..*" Game
-    Game "1" *-- "1" Board
-    Game "1" *-- "2" PlayerElo
-    Game "1" *-- "0..*" Turn
-    Turn "1" *-- "2" Dice
-    Board "1" *-- "24" Point
-    Point "1" *-- "0..*" Checker
+    Users "1" --o "*" Sessions
+    Users "1" --o "*" Games
+    Users "1" --o "*" Tournaments
+    Users "1" --o "*" Turns
+    Games "1" --* "*" Turns
+    Tournaments "1" --o "*" Games
 
-    class User {
-        +Integer id
-        +String username
-        +String password
-        +String email
-        +String avatar
-        +login()
-        +logout()
-        +updateProfile()
+    class Users {
+        +SERIAL id PK
+        +BPCHAR username UNIQUE
+        +BPCHAR password
+        +BPCHAR firstname
+        +BPCHAR lastname
+        +BPCHAR mail UNIQUE
+        +INTEGER elo
+        +BPCHAR avatar
+        +BOOL is_bot DEFAULT FALSE
     }
 
-    class Player {
-        +Stats statistics
-        +List~Achievement~ achievements
-        +List~Game~ games
-        +getRanking()
-        +getWinRate()
+    class Sessions {
+        +SERIAL id PK
+        +INTEGER user_id FK
+        +TEXT token UNIQUE
+        +TIMESTAMP expires_at
     }
 
-    class Stats {
-        +Integer ranking
-        +Integer gamesPlayed
-        +Integer gamesWon
-        +Integer checkersEaten
-        +Double winRate
-        +updateStats(Game)
+    class Games {
+        +SERIAL id PK
+        +INTEGER p1_id FK
+        +INTEGER p1elo
+        +INTEGER p2_id FK
+        +INTEGER p2elo
+        +TIMESTAMP start
+        +TIMESTAMP endtime
+        +BPCHAR status DEFAULT 'open'
+        +INTEGER[] p1checkers
+        +INTEGER[] p2checkers
+        +INTEGER double_value DEFAULT 1
+        +BPCHAR double_owner DEFAULT 'all'
+        +BOOL want_to_double DEFAULT FALSE
+        +BPCHAR current_player DEFAULT 'p1'
+        +INTEGER[] dices
+        +INTEGER tournament FK
     }
 
-    class PlayerElo {
-        +Integer beforeGame
-        +Integer afterGame
-        +calculateEloChange()
+    class Tournaments {
+        +SERIAL id PK
+        +BPCHAR name
+        +INTEGER owner FK
+        +BPCHAR status DEFAULT 'waiting'
+        +INTEGER[] users
+        +INTEGER[] winners DEFAULT '[]'
+        +TIMESTAMP creation_date
     }
 
-    class Game {
-        +Integer id
-        +Player player1
-        +Player player2
-        +PlayerElo player1Elo
-        +PlayerElo player2Elo
-        +Board board
-        +GameStatus status
-        +List~Turn~ turns
-        +DateTime startTime
-        +DateTime endTime
-        +makeMove(Turn)
-        +undoLastMove()
-        +calculateScore()
-    }
-    
-    class Achievement {
-        +String name
-        +String description
-        +DateTime unlocked
-        +String iconPath
-        +checkUnlockCondition()
-    }
-
-    class Turn {
-        +List~Dice~ dice
-        +List~Move~ moves
-        +Player player
-        +validateMove()
-        +execute()
-    }
-
-    class Dice {
-        +Integer value
-        +roll()
-    }
-
-    class Board {
-        +List~Point~ points
-        +Point bar
-        +Point bearOff
-        +validateMove(Move)
-        +makeMove(Move)
-        +getBearOffMoves()
-    }
-
-    class Point {
-        +Integer position
-        +List~Checker~ checkers
-        +Color pointColor
-        +addChecker(Checker)
-        +removeChecker()
-    }
-
-    class Checker {
-        +Color color
-        +Boolean isBearOff
-        +move(Point)
-    }
-
-    class Move {
-        +Point from
-        +Point to
-        +Checker checker
-        +validate()
-        +execute()
-    }
-
-    class GameStatus {
-        <<enumeration>>
-        WAITING_FOR_PLAYER
-        IN_PROGRESS
-        FINISHED
-        ABANDONED
+    class Turns {
+        +SERIAL id PK
+        +INTEGER game_id FK
+        +INTEGER user_id FK
+        +TIMESTAMP time
+        +INTEGER[] dices
+        +BOOL double
+        +INTEGER[] moves
     }
