@@ -18,7 +18,7 @@ async function register() {
   }
 
   try {
-    const response = await fetch('/api/register', {
+    const response = await vfetch('/api/register', {
       method: 'POST',
       body: JSON.stringify({
         mail: mail.value,
