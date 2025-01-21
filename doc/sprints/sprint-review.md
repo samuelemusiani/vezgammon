@@ -1,9 +1,9 @@
 # Sprint review
 ## Sprint 1
 ### Game view
-![first demo](./imgs/s1-demo.png)
+![first demo](../imgs/demo1-board.png)
 ### Login screen
-![login](./imgs/s1-login.png)
+![login](../imgs/demo1-login.png)
 
 ### Completato
 Alla fine del primo sprint, il team ha completato con successo le seguenti user stories:
@@ -26,11 +26,11 @@ Entrambi le problematiche dovrebbero essere superate, poichè il team ha acquisi
 
 ## Sprint 2
 ### Home screen
-![home screen](./imgs/s2-home.png)
+![home screen](../imgs/demo2-home.png)
 ### Game modes
-![game modes](./imgs/s2-gamemodes.png)
+![game modes](../imgs/demo2-gamemodes.png)
 ### Board
-![board](./imgs/s2-board.png)
+![board](../imgs/demo2-board.png)
 
 ### Completato
 Alla fine del secondo sprint, il team ha completato con successo le seguenti user stories:
@@ -59,13 +59,13 @@ Si è inoltre evidenziato un accumulo significativo di user stories nel backlog,
 
 ## Sprint 3
 ### Leaderboard
-![leaderboard](./imgs/s3-leaderboard.png)
+![leaderboard](../imgs/demo3-leaderboard.png)
 ### Profile & badges
-![profile & badges](./imgs/s3-profile+badges.png)
+![profile & badges](../imgs/demo3-profile_badges.png)
 ### Rules
-![rules](./imgs/s3-rules.png)
+![rules](../imgs/demo3-rules.png)
 ### Stats
-![stats](./imgs/s3-stats.png)
+![stats](../imgs/demo3-stats.png)
 
 ### Completato
 - #25: come utente, voglio tener traccia dei miei progressi nel gioco
@@ -91,11 +91,11 @@ Di comune accordo, il team ha deciso di aggiungere un ultimo sprint. Questo sar�
 
 ## Sprint 4
 ### Tournaments
-![tournaments-list](./imgs/s4-tournaments.png)
-![tournaments-lobby](./imgs/s4-tournament-lobby.png)
-![tournaments-brackets](./imgs/s4-tournament-brackets.png)
+![tournaments-list](../imgs/demo4-tournaments.png)
+![tournaments-lobby](../imgs/demo4-tournament_lobby.png)
+![tournaments-brackets](../imgs/demo4-tournament_brackets.png)
 ### Popup responsiveness
-![popup-responsiveness](./imgs/s4-popup-responsiveness.png)
+![popup-responsiveness](../imgs/demo4-popup_responsiveness.png)
 
 ### Completato
 
