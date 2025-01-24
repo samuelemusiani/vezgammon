@@ -2,67 +2,121 @@
 title: Backgammon Game Class Diagram
 ---
 classDiagram
-    Users "1" --o "*" Sessions
-    Users "1" --o "*" Games
-    Users "1" --o "*" Tournaments
-    Users "1" --o "*" Turns
-    Games "1" --* "*" Turns
-    Tournaments "1" --o "*" Games
+    User "2" --o "*" Game
+    User "1" --o "*" Tournament
+    User "1" --o "*" Turn
+    User "1" *-- "1" Statistiche
+    User "1" *-- "1" Bedge
 
-    class Users {
-        +SERIAL id PK
-        +BPCHAR username UNIQUE
-        +BPCHAR password
-        +BPCHAR firstname
-        +BPCHAR lastname
-        +BPCHAR mail UNIQUE
-        +INTEGER elo
-        +BPCHAR avatar
-        +BOOL is_bot DEFAULT FALSE
+    Turn "1" *-- "1" Move
+    Turn "1" *-- "2" Dice
+    
+    Game "1" --* "*" Turn
+    Tournament "1" --o "*" Game
+
+    class Statistiche {
+        +[]Game      Gameplayed
+        +int64             Won          
+        +int64             Lost         
+        +[]int64           Elo          
+        +float32           Winrate      
+        +int64             Online       
+        +int64             Local        
+        +int64             Cpu          
+        +int64             Tournament   
+        +[]LeaderboardUser Leaderboard
+        +GetPlayerStats(id:int)
+    }
+    class Bedge {
+        +[3]int  Bot        
+        +[3]int  Homepieces 
+        +[3]int  Wongames   
+        +[3]int  Elo        
+        +[3]int  Wontime    
+        +[3]int  Gameplayed
+        +GetBedge()
+    }
+    class User {
+        +int64 id PK
+        +string username UNIQUE
+        +string password
+        +string firstname
+        +string lastname
+        +string mail UNIQUE
+        +int64 elo
+        +string avatar
+        +bool is_bot
+        +GetPlayerAvatar(username:string)
+        +GetPlayer(username:string)
+        +Login(username: String, password: String)
+        +Logout(token: String)
     }
 
-    class Sessions {
-        +SERIAL id PK
-        +INTEGER user_id FK
-        +TEXT token UNIQUE
-        +TIMESTAMP expires_at
+    class Game {
+        +int64   ID
+        +string  Player1
+        +int64   Elo1
+        +string  Player2
+        +int64   Elo2
+        +time.Time Start
+        +time.Time End
+        +string  Status
+        +[25]int8 P1Checkers
+        +[25]int8 P2Checkers
+        +uint64  DoubleValue
+        +string  DoubleOwner
+        +bool    WantToDouble
+        +string  CurrentPlayer
+        +string  GameType
+        +StartPlaySearch(id:int)
+        +StopPlaySearch(id:int)
+        +StartPlayInviteSearch(id:int)
+        +StartGameLocally(id:int)
+        +GetCurrentGame(id:int)
+        +SurrendToCurrentGame(id:int)
+        +GetPossibleMoves(id:int)
+        +PlayMoves(id: int, Move[] wantoToMoves)
+        +WantToDouble(id: int)
+        +AcceptDouble()
+        +RefuseDouble()
+        +GetLastGameWinner()
+        +PlayBot(Enum difficulty)
     }
 
-    class Games {
-        +SERIAL id PK
-        +INTEGER p1_id FK
-        +INTEGER p1elo
-        +INTEGER p2_id FK
-        +INTEGER p2elo
-        +TIMESTAMP start
-        +TIMESTAMP endtime
-        +BPCHAR status DEFAULT 'open'
-        +INTEGER[] p1checkers
-        +INTEGER[] p2checkers
-        +INTEGER double_value DEFAULT 1
-        +BPCHAR double_owner DEFAULT 'all'
-        +BOOL want_to_double DEFAULT FALSE
-        +BPCHAR current_player DEFAULT 'p1'
-        +INTEGER[] dices
-        +INTEGER tournament FK
-    }
-
-    class Tournaments {
+    class Tournament {
         +SERIAL id PK
         +BPCHAR name
         +INTEGER owner FK
         +BPCHAR status DEFAULT 'waiting'
         +INTEGER[] users
-        +INTEGER[] winners DEFAULT '[]'
+        +INTEGER[] winners
         +TIMESTAMP creation_date
+
+        +createTournament(name: String): Tournament
+        +getTournament(tournamentId: String): Tournament
+        +listActiveTournaments(): Tournament[]
+        +joinTournament(tournamentId: String, playerId: String)
+        +startMatch(matchId: String)
+        +submitMatchResult(matchId: String, result: MatchResult)
+        +getTournamentResults(tournamentId: String): TournamentResult
+        +CancelTournament(tournamentId: String)
+        +inviteTournament(players: String[])
+        +TournamentDeleteUsers(users: String[])
+        +LeaveTournament(playerId: String)
     }
 
-    class Turns {
-        +SERIAL id PK
-        +INTEGER game_id FK
-        +INTEGER user_id FK
+    class Turn {
+        +int id PK
         +TIMESTAMP time
-        +INTEGER[] dices
         +BOOL double
-        +INTEGER[] moves
+    }
+
+    class Move {
+        int from
+        int to
+    }
+
+    class Dice {
+        +int[2] dices
+        +sum() int
     }
