@@ -54,27 +54,25 @@ un ulteriore elemento di coinvolgimento e progressione al gioco.
 \subsection{UML}
 \subsubsection{Casi d'uso}
 
+\vspace{70pt}
+
 \begin{figure}[H]
     \centering
-    \includegraphics[width=1\textwidth]{uml-usecase}
+    \includegraphics[width=16cm]{uml-usecase}
     \caption{Diagramma UML use-case}
     \label{fig:use-case}
 \end{figure}
-
 \subsubsection{Deployment}
-
 \begin{figure}[H]
     \centering
-    \includegraphics[width=12cm]{uml-deployment}
+    \includegraphics[width=1\textwidth]{uml-deployment}
     \caption{Diagramma UML di deployment}
     \label{fig:deployment}
 \end{figure}
-
 \subsubsection{Classi}
-
 \begin{figure}[H]
     \centering
-    \includegraphics[width=12cm, width=8cm]{uml-classes}
+    \includegraphics[width=14cm, height=19cm]{uml-classes}
     \caption{Diagramma UML delle classi}
     \label{fig:class-diagram}
 \end{figure}
@@ -94,7 +92,7 @@ essere resettate su richiesta.
 \subsubsection{GitLab}
 GitLab è stato utilizzato per la gestione del codice sorgente e per il versioning. Sono stati utilizzati i tag per denotare 
 il Minimun Value Product di ogni sprint. 
-Il team ha qui configurato il repository, gestito le merge request e segnalato e risolto le issue.
+Qui è stato creato il repository, gestito le merge request e segnalato e risolto le issue.
 
 Il repository è accessibile all'indirizzo \href{https://gitlab.vezgammon.it}{\texttt{gitlab.vezgammon.it}}  
 
@@ -112,7 +110,7 @@ MatterMost self-hosted è accessibile all'indirizzo \href{https://mattermost.vez
 
 \subsubsection{Jenkins}
 Jenkins è stato utilizzato come \textit{core} per l'automazione del flusso di lavoro tramite CI/CD e dei processi di build 
-e deployment. Il team ha configurato job automatici per costruire, testare e distribuire l'applicazione.
+e deployment. Sono stati configurati job automatici per costruire, testare e distribuire l'applicazione.
 
 Jenkins self-hosted è accessibile all'indirizzo \href{https://jenkins.vezgammon.it}{\texttt{jenkins.vezgammon.it}}
 
@@ -126,19 +124,16 @@ Jenkins self-hosted è accessibile all'indirizzo \href{https://jenkins.vezgammon
 \end{figure}
 
 \subsubsection{SonarQube}
-Come descritto nella Sezione \ref{sec:sq}, SonarQube è stato utilizzato per l'analisi della qualità del codice. Il team ha 
+Come descritto nella Sezione \ref{sec:sq}, SonarQube è stato utilizzato per l'analisi della qualità del codice. \'E stato 
 configurato SonarQube per eseguire analisi statiche e rilevare eventuali problematiche riguardanti la qualità del codice, 
 la copertura dei test e la manutenzione.
 
 SonarQube self-hosted è accessibile all'indirizzo \href{https://sonarqube.vezgammon.it}{\texttt{sonarqube.vezgammon.it}}
 
-\newpage
-
 \subsubsection{Swagger} \label{sec:swagger}
 
-Per la documentazione delle API implementate e il testing più rapido, il team ha scelto di utilizzare il tool 
-\textit{Swagger}(\url{https://swagger.io/}).
-
+Per la documentazione delle API implementate e il testing più rapido è stato utilizzato il tool 
+\textit{Swagger}(\url{https://swagger.io/}). \\
 Vengono di seguito riportate alcune immagini che ne illustrano il funzionamento.
 
 \begin{figure}[H]
@@ -158,13 +153,14 @@ Vengono di seguito riportate alcune immagini che ne illustrano il funzionamento.
     \end{minipage}    
 \end{figure}
 
+\newpage
 
 \subsubsection{Status}
 \label{sec:status}
 È stato configurato un sistema di monitoraggio dei servizi interamente open-source per tenere traccia della disponibilità 
 dei vari strumenti utilizzati nel progetto.
 
-\'E stato inoltre integrato con un bot Telegram per avvisare tempestivamente il team di eventuali problemi con il server 
+\'E stato inoltre integrato con un bot Telegram per avvisare tempestivamente di eventuali problemi con il server 
 e/o i singoli servizi.
 
 Il sito che riassume lo stato dei servizi è accessibile all'indirizzo \href{https://status.vezgammon.it}{\texttt{status.vezgammon.it}}
@@ -207,7 +203,7 @@ un wrapper del software utilizzato da \texttt{GNU-Backgammon} compatibile con il
 
 \subsection{Server di gioco}
 
-Il team ha configurato due server principali per ospitare l'applicazione:
+Sono stati configurati due server principali per ospitare l'applicazione:
 \begin{itemize}
     \item \textbf{Server di produzione}: \href{https://vezgammon.it}{\texttt{vezgammon.it}}
     \item \textbf{Server di sviluppo}: \href{https://dev.vezgammon.it}{\texttt{dev.vezgammon.it}}
@@ -232,7 +228,7 @@ al release sprint, in cui il focus è andato su risoluzione dei bug, qualità de
     \item \textbf{Backend Developer}: Omar Ayache
 \end{itemize}
 
-Il team è composto da sei membri ed è la prima volta che lavoriamo tutti insieme su un progetto di questa portata. Sebbene non ci 
+Il gruppo è composto da sei membri ed è la prima volta che lavoriamo tutti insieme su un progetto di questa portata. Sebbene non ci 
 conoscessimo tutti a vicenda inizialmente, alcuni di noi avevano già collaborato durante precedenti attività, sia universitarie 
 che non. Durante gli sprint abbiamo avuto modo di approfondire la conoscenza reciproca in un contesto diverso dal solito, rafforzando 
 il rapporto e favorendo una collaborazione più efficace.
@@ -244,12 +240,12 @@ e affrontare le sfide che si sono presentate in modo più efficace.
 
 \subsection{Teambuilding} \label{sec:teambuilding}
 
-Per lo sprint 0 il team si è riunito in due giornate diverse per partecipare alle due attività di teambuilding: \textit{Scrumble} e 
+Durante lo sprint 0, in due giornate diverse, sono state organizzate le due attività di teambuilding: \textit{Scrumble} e 
 \textit{Escape The Boom!}.
 
 Il primo gioco, \textit{Scrumble}, si è rivelato inizialmente complicato da comprendere; tuttavia, una volta avviata l'attività, i membri 
 del team hanno rapidamente preso il ritmo. Nonostante gli obiettivi prefissati del gioco non siano stati minimamente raggiunti, l'esperienza 
-si è rivelata piacevole e coinvolgente. Il team ha avuto l'opportunità di familiarizzare con la metodologia Scrum, un "assaggio" pratico 
+si è rivelata piacevole e coinvolgente. Il gruppo ha avuto l'opportunità di familiarizzare con la metodologia Scrum, un "assaggio" pratico 
 di come funziona il lavoro in sprint.
 
 Il secondo gioco, \textit{Escape The Boom!}, è stato più intuitivo da avviare ma non meno impegnativo. Il team si è suddiviso in due gruppi: 
@@ -342,14 +338,14 @@ la tabella appena citata.
 \subsection{Strumenti di comunicazione} \label{sec:mm}
 Per comunicare tra noi abbiamo deciso di usare MatterMost, una piattaforma di chat e condivisione interamente open-source. Come per gli altri 
 servizi, anche MatterMost è stato self-hostato sotto il dominio \texttt{vezgammon.it} per avere un maggiore controllo sui dati. Questa scelta ha permesso 
-al team di gestire in autonomia l'infrastruttura di comunicazione, evitando dipendenze da servizi esterni e assicurando la personalizzazione 
+di gestire in autonomia l'infrastruttura di comunicazione, evitando dipendenze da servizi esterni e assicurando la personalizzazione 
 dell'ambiente in base alle necessità del progetto.
 
 MatterMost è stato utilizzato per la comunicazione quotidiana, la condivisione di aggiornamenti e l'organizzazione degli incontri di persona, 
 che si sono svolti con frequenza. Gli incontri hanno avuto luogo presso il laboratorio del gruppo ADMstaff, situato nel seminterrato del 
 Dipartimento di Informatica, in Mura Anteo Zamboni 7.
 
-Il laboratorio è diventato il punto di riferimento per il team, che vi si è riunito interi pomeriggi per daily scrum, sessioni di pair programming 
+Il laboratorio è diventato il punto di riferimento per il team, che vi si è riunito interi pomeriggi per \textit{Daily Scrum}, sessioni di \textit{pair programming} 
 e discussioni sull'avanzamento generale del progetto. Questa modalità di lavoro ha favorito una collaborazione continua e diretta, contribuendo 
 significativamente alla coesione del gruppo e al progresso del progetto.
 
@@ -366,7 +362,7 @@ L'approccio all'utilizzo di questi strumenti è stato mirato: per ogni problema,
 nell'esplorazione delle possibili soluzioni o come strumento per risolvere un particolare problema o perfezionare un'implementazione già esistente, 
 evitando la sovrapposizione dei due metodi.
 
-Nonostante questi strumenti abbiano contribuito a incrementare la produttività del team, il loro impiego ha richiesto particolare attenzione: le 
+Nonostante questi strumenti abbiano contribuito a incrementare la produttività generale, il loro impiego ha richiesto particolare attenzione: le 
 "allucinazioni" e gli errori nel codice generato hanno reso necessaria un'attenta verifica delle risposte e in diverse occasioni il tempo dedicato 
 al debugging del codice generato ha superato il risparmio di tempo ottenuto nella sua scrittura.
 
@@ -419,7 +415,7 @@ Di seguito sono riportati alcuni esempi a titolo esemplificativo dei prompt util
 
 \subsection{Definition of Done}
 Durante lo sprint 0 il \textit{Product Owner} ha definito i requisiti per dichiarare una user story come conclusa;
-questi requisiti sono stati accettati dal team e sono rimasti invariati durante tutta la durata dello sviluppo.
+questi requisiti sono stati accettati dai developers e sono rimasti invariati durante tutta la durata dello sviluppo.
 
 Vengono quindi riportati di seguito:
 
@@ -520,7 +516,7 @@ Come si può vedere dallo snapshot di Taiga, lo sprint goal era piuttosto ambizi
 \end{figure}
 
 \subsubsection{Incremento}
-Alla fine dello sprint, il team ha completato con successo la user story che riguarda creazione e gestione dell'account 
+Alla fine dello sprint, è stata completata con successo la user story che riguarda creazione e gestione dell'account 
 (con autenticazione) ed era inoltre possibile giocare una partita locale molto semplice, tuttavia l'implementazione delle 
 altre funzionalità chiave ha incontrato significative difficoltà:
 \begin{itemize}
@@ -649,7 +645,7 @@ Purtroppo l'immagine originale era molto sfocata, quindi ho riprodotto il proget
 Per questo motivo i numeri sulle user stories e sui task non coincidono con quelli delle altre immagini.
 
 \subsubsection{Incremento}
-Questi sono i risultati ottenuti dal team, le user stories completate:
+Queste sono le user stories completate:
 \begin{itemize}
     \item interfaccia front-end strutturata per la navigazione del sito;
     \item partita locale (su un unico schermo);
@@ -703,7 +699,7 @@ con i progressi di gioco.
     e della sua importanza. Lo stesso e' successo quando un developer ha mergiato direttamente sul main parte dello sviluppo ancora non pienamente completato.
 
     \item \underline{Scrum Master - Lorenzo Peronese}: \\
-    Il team ha lavorato di più e meglio, con maggior comunicazione e aiuto reciproco.
+    Tutti hanno lavorato di più e meglio, con maggior comunicazione e aiuto reciproco.
     I daily scrum sono stati strutturati meglio e sono passati da una frequenza irregolare a una cadenza fissa ogni due giorni; sono stati un momento utile per
     tutti di confronto e discussione.
     Unica nota negativa è stata ancora una volta una cattiva pianificazione dello sprint: 3 user stories su 6 complessive non sono state
@@ -826,10 +822,10 @@ tutte le user stories sono state completate con successo, senza debito tecnico.
     supportato dai tre daily scrum settimanali e da una comunicazione efficace, sia in chat che di persona in laboratorio. Il pair programming si è rivelato 
     un grande successo, consentendo di risolvere molte problematiche in modo rapido ed efficace.
     \item \underline{Developer - Samuele Musiani}: \\
-    Sprint decisamente positivo sotto molteplici aspetti. Il team di sviluppo ha dimostrato un'ottima cooperazione che ha portato al completamento di quasi tutte le US 
+    Sprint decisamente positivo sotto molteplici aspetti. Il gruppo ha dimostrato un'ottima cooperazione che ha portato al completamento di quasi tutte le US 
     con un anticipo notevole rispetto alle tempistiche preventivate. Il team ha inoltre dimostrato una completa padronanza degli strumenti utilizzati, potendo quindi 
     focalizzare le proprie risorse principalmente sulle attività di implementazione, ottimizzando così l'efficienza dell'intero processo di sviluppo. Questo sprint 
-    testimonia la maturità del team e pone solide basi per il proseguimento del progetto.
+    testimonia la maturità del gruppo e pone solide basi per il proseguimento del progetto.
     \item \underline{Developer - Emanuele Argonni}: \\
     Sicuramente il migliore sprint fino ad ora, siamo riusciti a completare quasi tutte le task assegnate, nonostante avessimo un importante debito derivato 
     dagli sprint precedenti.
@@ -907,7 +903,7 @@ sessione invernale d'esami.
     Sprint molto positivo, quasi quanto il precedente, ovviamente con un carico di lavoro minore. Simao riusciti a portare tutto al termine, 
     grazie ad un ottima organizzazione del team, maturata durante tutto questo viaggio.
     \item \underline{Scrum Master - Lorenzo Peronese}: \\
-    Durante lo sprint il team ha lavorato bene, portando a termine tutte le user stories nei tempi previsti nonostante l'inizio degli esami. 
+    Durante lo sprint tutti hanno lavorato bene e in sinergia, portando a termine tutte le user stories nei tempi previsti nonostante l'inizio degli esami. 
     Il pair programming tra frontend e backend e i daily scrums sono sono diventate abitudini Agili e si sono rivelate fondamentali per gestire 
     il doppio impegno studio-lavoro senza sacrificare la qualità del codice. Questo e il precedente sprint dimostrano il miglioramento 
     che c'è stato rispetto alle prime settimane, il team è riuscito a prendere il ritmo giusto e concludere il lavoro nel migliore dei modi.
@@ -921,7 +917,7 @@ sessione invernale d'esami.
     \item \underline{Developer - Emanuele Argonni}: \\
     Questo sprint, come il precedente, ha evidenziato un netto miglioramento rispetto alle prime settimane del progetto. Siamo riusciti a portare a termine tutte le US
     assegnate nei tempi stabiliti. Il pair programming tra backend e frontend ha garantito la collaborazione di tutti i developer e ha facilitato la risoluzione di bug.
-    L'ottima sinergia tra i membri del team e la comunicazione costante ci hanno permesso di affrontare le difficoltà e di gestire al meglio il carico di lavoro.
+    L'ottima sinergia tra i membri del gruppo e la comunicazione costante ci hanno permesso di affrontare le difficoltà e di gestire al meglio il carico di lavoro.
     \item \underline{Developer - Omar Ayache}:\\
     Questo sprint ha evidenziato l’ottima coesione del team e il rispetto dei principi Agile, con comunicazione efficace e collaborazione continua. Il pair programming e 
     i daily scrum ci hanno permesso di affrontare le sfide e completare tutte le user stories nei tempi previsti, mantenendo alta la qualità del lavoro anche durante 
