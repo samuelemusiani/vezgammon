@@ -5,6 +5,7 @@
 \usepackage{float}
 \usepackage[x11names,table]{xcolor}
 \usepackage{array}
+\usepackage[margin=3cm]{geometry}
 \graphicspath{ {./imgs/} }
 
 \title{VezGammon - Report finale Team 1 \\ \large Progetto di Ingegneria del Software}
@@ -28,7 +29,7 @@ volta nel sito il cursore diventa un simpatico tortellino e la board utilizza i 
 L'applicazione offre un'esperienza di gioco completa con diverse modalità: gli utenti possono sfidarsi in partite locali sullo 
 stesso dispositivo, mettere alla prova le proprie abilità contro intelligenze artificiali di vari livelli di difficoltà e confrontarsi 
 online con altri giocatori attraverso un sistema di matchmaking o mediante link di invito diretti. È inoltre possibile organizzare 
-tornei a quattro partecipanti, combinando liberamente giocatori reali e agenti intelligenti.
+tornei a quattro partecipanti, combinando liberamente giocatori reali e bot di diversa difficoltà.
 
 Il sistema di classificazione si basa sul metodo Elo, ampiamente utilizzato negli scacchi. Ogni nuovo account parte da una base 
 di 800 punti, che vengono poi aggiornati dopo ogni partita online o torneo. Il calcolo dell'aggiornamento tiene conto di diversi 
@@ -45,7 +46,7 @@ un ulteriore elemento di coinvolgimento e progressione al gioco.
 \subsection{Backlog} \label{sec:bl}
 \begin{figure}[H]
     \centering
-    \includegraphics[width=12cm, height=14cm]{backlog}
+    \includegraphics[width=1\textwidth]{backlog}
     \caption{Backlog di Taiga di Vezgammon\textsuperscript{\texttrademark}}
     \label{fig:backlog}
 \end{figure}
@@ -55,7 +56,7 @@ un ulteriore elemento di coinvolgimento e progressione al gioco.
 
 \begin{figure}[H]
     \centering
-    \includegraphics[width=12cm]{uml-usecase}
+    \includegraphics[width=1\textwidth]{uml-usecase}
     \caption{Diagramma UML use-case}
     \label{fig:use-case}
 \end{figure}
@@ -91,9 +92,9 @@ un ulteriore elemento di coinvolgimento e progressione al gioco.
 
 \subsection{CAS: ambiente di sviluppo agile}
 
-Il team ha adottato un approccio completamente open source, basandosi sull'ambiente CAS consigliato dai docenti. 
-Tutti software sono stati self-hostati sotto il dominio \href{https://vezgammon.it}{\texttt{vezgammon.it}} per garantire 
-un maggiore controllo e personalizzazione e per avere meno dipendenze possibili con l'esterno. Questo ha inizialmente richiesto 
+Il team ha adottato un approccio completamente open-source, basandosi sull'ambiente CAS consigliato dai docenti. 
+Tutti i software sono stati self-hostati sotto il dominio \href{https://vezgammon.it}{\texttt{vezgammon.it}} per garantire 
+un controllo completo sui dati e per avere meno dipendenze possibili con l'esterno. Questo ha inizialmente richiesto 
 un notevole sforzo ma a lungo termine sono emersi i benefici di questa scelta.
 
 Le credenziali di accesso sono state fornite agli stakeholder al momento della creazione dell'infrastruttura ma possono 
@@ -117,8 +118,6 @@ Come descritto nella Sezione \ref{sec:mm}, MatterMost è stato utilizzato per la
 la piattaforma principale per gli scambi di messaggi, la condivisione di aggiornamenti e per accordarsi sugli incontri quotidiani.
 
 MatterMost self-hosted è accessibile all'indirizzo \href{https://mattermost.vezgammon.it}{\texttt{mattermost.vezgammon.it}}
-
-\newpage
 
 \subsubsection{Jenkins}
 Jenkins è stato utilizzato come \textit{core} per l'automazione del flusso di lavoro tramite CI/CD e dei processi di build 
@@ -171,35 +170,35 @@ Vengono di seguito riportate alcune immagini che ne illustrano il funzionamento.
 
 \subsubsection{Status}
 \label{sec:status}
-Il sistema di monitoraggio dei servizi è stato sviluppato per tenere traccia della disponibilità dei vari strumenti 
-utilizzati nel progetto.
+È stato configurato un sistema di monitoraggio dei servizi interamente open-source per tenere traccia della disponibilità 
+dei vari strumenti utilizzati nel progetto.
 
-\'E stato inoltre sviluppato un bot Telegram per avvisare tempestivamente il team di eventuali problemi con il server 
+\'E stato inoltre integrato con un bot Telegram per avvisare tempestivamente il team di eventuali problemi con il server 
 e/o i singoli servizi.
 
 Il sito che riassume lo stato dei servizi è accessibile all'indirizzo \href{https://status.vezgammon.it}{\texttt{status.vezgammon.it}}
 
 \subsubsection{bgweb-api}
-Il team ha utilizzato \href{https://github.com/foochu/bgweb-api}{\texttt{bgweb-api}} come software open source di validazione delle mosse, 
+Il team ha utilizzato \href{https://github.com/foochu/bgweb-api}{\texttt{bgweb-api}} come software open-source di validazione delle mosse, 
 un wrapper del software utilizzato da \texttt{GNU-Backgammon} compatibile con il linguaggio Go.
 
 \subsection{Stack Web}
 
 \paragraph{Frontend}
 \begin{itemize}
-    \item \textbf{Framework}: \href{https://vuejs.org/}{\texttt{Vue.js}}
-    \item \textbf{Libreria di styling}: \href{https://tailwindcss.com/}{\texttt{Tailwind CSS}}
+    \item \textbf{Framework}: \href{https://github.com/vuejs/core/}{\texttt{Vue.js}}
+    \item \textbf{Libreria di styling}: \href{https://github.com/tailwindlabs/tailwindcss}{\texttt{Tailwind CSS}}
 \end{itemize}
 
 \paragraph{Backend}
 \begin{itemize}
-    \item \textbf{Linguaggio}: \href{https://go.dev/}{\texttt{Go}}
-    \item \textbf{Framework}: \href{https://gin-gonic.com/}{\texttt{Gin}}
+    \item \textbf{Linguaggio}: \href{https://github.com/golang/go}{\texttt{Go}}
+    \item \textbf{Framework}: \href{https://github.com/gin-gonic/gin}{\texttt{Gin}}
 \end{itemize}
 
 \paragraph{Database}
 \begin{itemize}
-    \item \textbf{Tipo}: \href{https://www.postgresql.org/}{\texttt{PostgreSQL}}
+    \item \textbf{Tipo}: \href{https://github.com/postgres/postgres}{\texttt{PostgreSQL}}
     \item \textbf{Interfaccia web}: \href{https://github.com/sosedoff/pgweb}{\texttt{Pgweb}}
 \end{itemize}
 
@@ -209,7 +208,13 @@ un wrapper del software utilizzato da \texttt{GNU-Backgammon} compatibile con il
     \item \textbf{Documentazione}: \texttt{Swagger} (vedi \ref{sec:swagger})
 \end{itemize}
 
-\subsection{Server di deploy}
+\paragraph{Deploy}
+\begin{itemize}
+    \item \textbf{Containerizzazione}: \href{https://github.com/docker}{Docker}
+    \item \textbf{Proxy HTTP}: \href{https://github.com/caddyserver/caddy}{Caddy}
+\end{itemize}
+
+\subsection{Server di gioco}
 
 Il team ha configurato due server principali per ospitare l'applicazione:
 \begin{itemize}
@@ -223,17 +228,17 @@ al debug e alle fasi di sviluppo continuo.
 
 Il team ha deciso di comune accordo e su richiesta del \textit{Product Owner} di dedicare al progetto quattro sprint di due settimane 
 ciascuno, in aggiunta allo sprint 0, dedicato alle attività di teambuilding e alla familiarizzazione con l'ambiente di sviluppo, e 
-al release sprint, in cui il focus è andato sulla risoluzione dei bug, qualità del codice e stesura di questo report finale.
+al release sprint, in cui il focus è andato su risoluzione dei bug, qualità del codice e stesura di questo report finale.
 
 \subsection{Il team}
 
 \begin{itemize}
     \item \textbf{Product Owner}: Diego Barbieri
     \item \textbf{Scrum Master}: Lorenzo Peronese
-    \item \textbf{DevOps}: Samuele Musiani
-    \item \textbf{Developer frontend}: Emanuele Argonni
-    \item \textbf{Developer backend}: Fabio Murer
-    \item \textbf{Developer backend}: Omar Ayache
+    \item \textbf{Full-stack Developer + DevOps}: Samuele Musiani
+    \item \textbf{Frontend Developer}: Emanuele Argonni
+    \item \textbf{Backend Developer}: Fabio Murer
+    \item \textbf{Backend Developer}: Omar Ayache
 \end{itemize}
 
 Il team è composto da sei membri ed è la prima volta che lavoriamo tutti insieme su un progetto di questa portata. Sebbene non ci 
@@ -242,9 +247,9 @@ che non. Durante gli sprint abbiamo avuto modo di approfondire la conoscenza rec
 il rapporto e favorendo una collaborazione più efficace.
 
 Prima di iniziare lo sprint 0, il team si è riunito di persona per definire i ruoli; questi sono stati rispettati per la maggior parte, 
-ma con un approccio flessibile: lo Scrum Master e il Product Owner hanno aiutato nello sviluppo del frontend, mentre il DevOps ha supportato 
-sia il frontend che il backend quando necessario. Questa versatilità ha permesso di ottimizzare il lavoro e affrontare le sfide che si sono 
-presentate in modo più efficace.
+ma con un approccio flessibile: lo Scrum Master e il Product Owner hanno aiutato nello sviluppo del frontend, mentre il developer full-stack
+si è spostato tra frontend e backend in base alle necessità dello sprint. Questa versatilità ha permesso di ottimizzare il lavoro 
+e affrontare le sfide che si sono presentate in modo più efficace.
 
 \subsection{Teambuilding} \label{sec:teambuilding}
 
@@ -272,7 +277,7 @@ Di seguito la tabella dell'autovalutazione di \textit{Scrumble}, compilata da tu
 
 \subsection{Gitinspector}
 
-Le statistiche fornite dal Professor/Stakeholder Missiroli, generate tramite Gitinspector, non risultano essere accurate (il numero di commit 
+Le statistiche fornite dallo stakeholder Missiroli, generate tramite Gitinspector, non risultano essere accurate (il numero di commit 
 segnalato da Gitinspector è di molto inferiore al numero reale). Non siamo riusciti a determinare con certezza se il problema risieda nel nostro 
 repository o nel software stesso. Tuttavia, dopo aver effettuato ulteriori analisi indipendenti utilizzando Gitinspector, abbiamo riscontrato 
 gli stessi risultati non corretti. Per completezza, i dati originali sono disponibili su 
@@ -374,7 +379,7 @@ Nonostante questi strumenti abbiano contribuito a incrementare la produttività 
 "allucinazioni" e gli errori nel codice generato hanno reso necessaria un'attenta verifica delle risposte e in diverse occasioni il tempo dedicato 
 al debugging del codice generato ha superato il risparmio di tempo ottenuto nella sua scrittura.
 
-Con l'esperienza, siamo giunti a un equilibrio efficace che ci ha permesso di sfruttare le potenzialità di questi potenti strumenti mantenendo al 
+Con l'esperienza, siamo giunti a un equilibrio efficace che ci ha permesso di sfruttare i punti di forza di questi potenti strumenti mantenendo al 
 contempo un controllo adeguato per cercare di arginarne i lati negativi.
 
 \subsubsection{Esempi di Prompt Utilizzati}
@@ -531,11 +536,11 @@ altre funzionalità chiave ha incontrato significative difficoltà:
     \item sottostima del carico di lavoro;
     \item inefficace assegnazione delle user stories, troppo impegnative e generiche;
     \item complessità di integrazione con le nuove tecnologie;
-    \item rallentamenti causati dal self-hostating dell'intero ambiente.
+    \item rallentamenti causati dal self-hosting dell'intero ambiente.
 \end{itemize}
 
-Un fattore critico è stato l'utilizzo di \texttt{Bgweb-api} per permettere di giocare contro un agente intelligente, che ha introdotto 
-vincoli architetturali nella rappresentazione delle classi, in particolare le proprietà della partita. 
+Un fattore critico è stato l'utilizzo di \texttt{Bgweb-api} per permettere di validare le mosse e giocare contro dei bot, 
+che ha introdotto vincoli architetturali nella rappresentazione delle classi, in particolare le proprietà della partita. 
 Questa scelta ha generato dipendenze che hanno rallentato lo sviluppo del backend anche durante gli sprint successivi.
 
 \subsubsection{Esempio di test fatti}
@@ -938,12 +943,19 @@ prodotto solido e interamente funzionante.
 
 Inoltre questo periodo è stato dedicato alla stesura del presente documento, riassuntivo dell'intero progetto.
 
-\section{Video demo}
+\section{Video demo e prodotto finale}
 A questo \href{https://www.youtube.com/watch?v=dQw4w9WgXcQ}{link} si trova la demo di VezGammon\textsuperscript{\texttrademark} girata dal \textit{Product Owner}, 
 in circa 3 minuti vengono riassunte le funzionalità di base e ci si può fare un'idea del funzionamento.
 
 Il prodotto è online e raggiungibile all'url \url{https://vezgammon.it}.
 
-\section{Conclusione???}
+\section{Conclusione}
+Nel corso dello sviluppo di VezGammon\textsuperscript{\texttrademark}, il nostro team ha affrontato inizialmente importanti sfide organizzative. 
+Le differenze nei ruoli e nei metodi di lavoro hanno generato momenti di disaccordo che hanno rallentato lo sviluppo e causato diverse incomprensioni. Tuttavia, con il tempo, 
+siamo riusciti progressivamente a trovare un equilibrio e una sinergia più efficace che ci ha permesso di superare le difficoltà iniziali, consentendoci di migliorare 
+costantemente la nostra collaborazione e, infine, di completare con successo il progetto. 
+
+Questa esperienza ha avuto alti e bassi, ma è stata per tutti un percorso di crescita professionale e personale e ci ha dimostrato come la flessibilità e la disponibilità 
+al dialogo e al confronto siano elementi cruciali nel lavoro di squadra.
 
 \end{document}
