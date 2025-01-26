@@ -1,0 +1,28 @@
+Checklist S3
+Prodotto online: https://vezgammon.it/ 
+	Provato un gioco vs. AI. Funziona (ho anche vinto) ma si blocca a fine partita. Vedi schermata
+	
+User Stories (Taiga/Text)
+	US SEMBRANO AGGIORNATE - ultima attività un mese fa
+Documenti: 
+	   OK
+Sprint preparation: 
+	Backlog grooming ?
+	DOD: OK
+	DOR: Ok
+Sprint review: 
+	S1:Presente
+	S2:Presente
+	S3:Presente
+Retrospective: 
+	S1:Presente come documento, Esplicitare meglio le azioni che sono finite in un altro file
+	S2:Presente. Pare che le azioni dello S1 abbiano ottenuto il risultato voluto 
+	S3:Presente. Idilliaco!
+Git Stats: 
+        Git tag OK
+	I contributi paiono provenire prevalentemente da Murer, Musiani e Peroni (si conferma impressione)
+
+SQ: Attivo, funzionante, Unit testing coverage buono su BE, limitato su FE. Qualità codice buona
+    Per la consegna eliminate il fattore di rischio di sicurezza E, limitate il debito tecnico, 
+Devops: OK
+

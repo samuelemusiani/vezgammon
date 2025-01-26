@@ -436,3 +436,17 @@ func createBotUserGame(userId, botId int64, tournament sql.NullInt64) (error, *t
 
 	return err, &startdicesP1, &startdicesP2
 }
+
+func reconstructGameFromTurns(turns []types.Turn, game *types.Game, movenum int64) (*types.Game, types.Dices) {
+	var dices types.Dices
+
+	for i := range movenum {
+		t := turns[i]
+		if t.Double {
+			continue
+		}
+		game.PlayMove(t.Moves)
+		dices = t.Dices
+	}
+	return game, dices
+}

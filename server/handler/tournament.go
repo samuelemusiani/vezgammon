@@ -2,6 +2,7 @@ package handler
 
 import (
 	"encoding/json"
+	"errors"
 	"io"
 	"log/slog"
 	"net/http"
@@ -15,7 +16,9 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-var ErrTournamentNotFound = "tournament not found"
+var ErrTournamentNotFound = errors.New("tournament not found")
+var ErrTournamentAlredyStarted = errors.New("tournament alredy started")
+var ErrNotOwner = errors.New("you are not the owner")
 
 type createTurnamentRequest struct {
 	Name string `json:"name" example:"Tournament name"`
@@ -135,7 +138,8 @@ type invite struct {
 type inviteList []invite
 
 // @Summary Invite a user or a bot a tournament
-// @Description Invite a user or a bot a tournament, if it is a bot it accepts the invitation automatically, same bot can be invited multiple times
+// @Description Invite a user or a bot a tournament, if it is a bot it accepts
+// @Description the invitation automatically, same bot can be invited multiple times
 // @Tags tournament
 // @Accept  json
 // @Produce  json
@@ -144,7 +148,7 @@ type inviteList []invite
 // @Success 201 "invited"
 // @Failure 404 "user not found"
 // @Failure 400 "user alredy in the tournament"
-// @Failure 400 "you are not in the owner"
+// @Failure 400 "you are not the owner"
 // @Failure 500 "internal server error"
 // @Router /tournament/{tournament_id}/invite [post]
 func InviteTournament(c *gin.Context) {
@@ -159,17 +163,17 @@ func InviteTournament(c *gin.Context) {
 
 	tournament, err := db.GetTournament(id64)
 	if err != nil {
-		c.JSON(http.StatusNotFound, ErrTournamentNotFound)
+		c.JSON(http.StatusNotFound, ErrTournamentNotFound.Error())
 		return
 	}
 
 	if tournament.Owner != userID {
-		c.JSON(http.StatusBadRequest, "you are not the owner")
+		c.JSON(http.StatusBadRequest, ErrNotOwner.Error())
 		return
 	}
 
 	if tournament.Status != types.TournamentStatusWaiting {
-		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		c.JSON(http.StatusBadRequest, ErrTournamentAlredyStarted)
 		return
 	}
 
@@ -245,17 +249,17 @@ func TournamentDeleteUers(c *gin.Context) {
 
 	tournament, err := db.GetTournament(id64)
 	if err != nil {
-		c.JSON(http.StatusNotFound, ErrTournamentNotFound)
+		c.JSON(http.StatusNotFound, ErrTournamentNotFound.Error())
 		return
 	}
 
 	if tournament.Owner != userID {
-		c.JSON(http.StatusBadRequest, "you are not the owner")
+		c.JSON(http.StatusBadRequest, ErrNotOwner.Error())
 		return
 	}
 
 	if tournament.Status != types.TournamentStatusWaiting {
-		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		c.JSON(http.StatusBadRequest, ErrTournamentAlredyStarted.Error())
 		return
 	}
 
@@ -332,12 +336,12 @@ func LeaveTournament(c *gin.Context) {
 
 	t, err := db.GetTournament(id64)
 	if err != nil {
-		c.JSON(http.StatusNotFound, ErrTournamentNotFound)
+		c.JSON(http.StatusNotFound, ErrTournamentNotFound.Error())
 		return
 	}
 
 	if t.Status != types.TournamentStatusWaiting {
-		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		c.JSON(http.StatusBadRequest, ErrTournamentAlredyStarted.Error())
 		return
 	}
 
@@ -403,12 +407,12 @@ func StartTournament(c *gin.Context) {
 	}
 
 	if tournament.Owner != userID {
-		c.JSON(http.StatusBadRequest, "you are not the owner")
+		c.JSON(http.StatusBadRequest, ErrNotOwner.Error())
 		return
 	}
 
 	if tournament.Status != types.TournamentStatusWaiting {
-		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		c.JSON(http.StatusBadRequest, ErrTournamentAlredyStarted.Error())
 		return
 	}
 
@@ -460,12 +464,12 @@ func CancelTournament(c *gin.Context) {
 	}
 
 	if tournament.Owner != userID {
-		c.JSON(http.StatusBadRequest, "you are not the owner")
+		c.JSON(http.StatusBadRequest, ErrNotOwner.Error())
 		return
 	}
 
 	if tournament.Status != types.TournamentStatusWaiting {
-		c.JSON(http.StatusBadRequest, "tournament alredy started")
+		c.JSON(http.StatusBadRequest, ErrTournamentAlredyStarted.Error())
 		return
 	}
 

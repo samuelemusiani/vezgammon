@@ -936,7 +936,8 @@ paths:
     post:
       consumes:
       - application/json
-      description: Invite a user or a bot a tournament, if it is a bot it accepts
+      description: |-
+        Invite a user or a bot a tournament, if it is a bot it accepts
         the invitation automatically, same bot can be invited multiple times
       parameters:
       - description: Tournament ID
@@ -958,7 +959,7 @@ paths:
         "201":
           description: invited
         "400":
-          description: you are not in the owner
+          description: you are not the owner
         "404":
           description: user not found
         "500":
