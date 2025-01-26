@@ -408,9 +408,21 @@ func createBotUserGame(userId, botId int64, tournament sql.NullInt64) (error, *t
 
 	firstdices := types.NewDices()
 
+	userElo, err := db.GetUser(userId)
+	if err != nil {
+		return err, nil, nil
+	}
+
+	botElo, err := db.GetUser(botId)
+	if err != nil {
+		return err, nil, nil
+	}
+
 	g := types.Game{
 		Player1:       userId,
 		Player2:       botId,
+		Elo1:          userElo.Elo,
+		Elo2:          botElo.Elo,
 		Start:         time.Now(),
 		Status:        types.GameStatusOpen,
 		CurrentPlayer: startPlayer,
@@ -418,7 +430,9 @@ func createBotUserGame(userId, botId int64, tournament sql.NullInt64) (error, *t
 		Tournament:    tournament,
 	}
 
-	_, err := db.CreateGame(g)
+	slog.With("game", g).Debug("Creating game")
+
+	_, err = db.CreateGame(g)
 
 	return err, &startdicesP1, &startdicesP2
 }

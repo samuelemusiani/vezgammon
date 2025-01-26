@@ -89,17 +89,17 @@ func InitUser() error {
 	}
 
 	// Insert easy bot
-	err = insertBotIfNotExists("Enzo", "Re", "Enzo", "enzo@vezgammon.it", 1000)
+	err = insertBotIfNotExists("Enzo", "Re", "Enzo", "enzo@vezgammon.it", 700)
 	if err != nil {
 		return err
 	}
 
-	err = insertBotIfNotExists("Caterina", "Caterina", "De Vigri", "caterina@vezgammon.it", 2000)
+	err = insertBotIfNotExists("Caterina", "Caterina", "De Vigri", "caterina@vezgammon.it", 1200)
 	if err != nil {
 		return err
 	}
 
-	err = insertBotIfNotExists("Giovanni", "Giovanni", "Bentivoglio", "giovanni@vezgammon.it", 3000)
+	err = insertBotIfNotExists("Giovanni", "Giovanni", "Bentivoglio", "giovanni@vezgammon.it", 1700)
 	if err != nil {
 		return err
 	}
@@ -222,7 +222,13 @@ func ValidateSessionToken(token string) (int64, error) {
 func CreateUser(u types.User, password string) (types.User, error) {
 	q := `INSERT INTO users(username, password, firstname, lastname, mail, elo, avatar, is_bot)
     VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING id`
-	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, types.DefaultElo, u.Avatar, u.IsBot)
+	var elo int64
+	if !u.IsBot {
+		elo = types.DefaultElo
+	} else {
+		elo = u.Elo
+	}
+	res := Conn.QueryRow(q, u.Username, password, u.Firstname, u.Lastname, u.Mail, elo, u.Avatar, u.IsBot)
 
 	var id int64
 	err := res.Scan(&id)
