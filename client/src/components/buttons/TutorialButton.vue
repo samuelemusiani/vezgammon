@@ -30,6 +30,9 @@ const handleKeydown = (event: KeyboardEvent) => {
 
 onMounted(() => {
   document.addEventListener('keydown', handleKeydown)
+  setTimeout(() => {
+    isModalOpen.value = true
+  }, 500)
 })
 
 onUnmounted(() => {
@@ -40,26 +43,22 @@ onUnmounted(() => {
   <div class="fixed bottom-4 left-4 z-50">
     <!-- Floating Button -->
     <button
-      class="retro-button circle rounded-full bg-primary"
+      class="btn btn-circle btn-primary btn-lg"
       @click="isModalOpen = true"
     >
       <i class="fas fa-info"></i>
     </button>
 
     <!-- Modal -->
-    <div
-      v-if="isModalOpen"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50"
-    >
+    <dialog v-if="isModalOpen" class="modal modal-open">
       <div
-        class="retro-box relative flex min-h-[50%] w-full max-w-[60%] flex-col rounded-lg bg-white p-6"
+        class="modal-box w-full max-w-[60%] border-2 border-primary bg-base-200"
       >
         <!-- Modal Headers -->
         <div class="mb-4 flex items-center justify-between">
-          <h3 class="text-xl font-bold text-gray-700">Tutorial Videos</h3>
-          <!-- Close Button -->
-          <button class="text-gray-400 hover:text-gray-600" @click="closeModal">
-            <i class="fas fa-times fa-lg"></i>
+          <h3 class="text-xl font-bold">Tutorial Videos</h3>
+          <button class="btn btn-circle btn-ghost btn-sm" @click="closeModal">
+            <i class="fas fa-times"></i>
           </button>
         </div>
 
@@ -69,11 +68,10 @@ onUnmounted(() => {
             <span
               v-for="step in totalSteps"
               :key="step"
-              class="flex h-8 w-8 items-center justify-center rounded-full border-2"
+              class="flex h-8 w-8 items-center justify-center rounded-full"
               :class="{
-                'border-primary bg-primary text-white': currentStep === step,
-                'border-gray-300 bg-gray-200 text-gray-500':
-                  currentStep !== step,
+                'bg-primary text-primary-content': currentStep === step,
+                'bg-base-300 text-base-content': currentStep !== step,
               }"
             >
               {{ step }}
@@ -87,7 +85,7 @@ onUnmounted(() => {
               src="/tutorial-dice.gif"
               alt="tutorial-dice"
             />
-            <p class="text-xl">Step 1: Roll the dice!</p>
+            <p class="mt-2 text-xl">Step 1: Roll the dice!</p>
           </div>
           <div v-else-if="currentStep === 2">
             <img
@@ -95,7 +93,7 @@ onUnmounted(() => {
               src="/tutorial-move.gif"
               alt="tutorial-move"
             />
-            <p class="text-xl">Step 2: move the checkers!</p>
+            <p class="mt-2 text-xl">Step 2: move the checkers!</p>
           </div>
           <div v-else-if="currentStep === 3">
             <img
@@ -103,70 +101,48 @@ onUnmounted(() => {
               src="/tutorial-exit.gif"
               alt="tutorial-exit"
             />
-            <p class="text-xl">Step 3: Exiting</p>
+            <p class="mt-2 text-xl">Step 3: Exiting</p>
           </div>
           <div
             v-else-if="currentStep === 4"
             class="flex min-h-[400px] w-full flex-col items-center justify-center"
           >
-            <h1 class="text-center text-2xl font-bold text-gray-700">
-              Tutorial Completed!
-            </h1>
-            <h2 class="mb-5 text-center text-lg font-semibold text-gray-600">
+            <h1 class="text-center text-2xl font-bold">Tutorial Completed!</h1>
+            <h2 class="mb-5 text-center text-lg font-semibold opacity-75">
               Go win your first match!
             </h2>
           </div>
         </div>
 
         <!-- Step Navigation -->
-        <div class="mt-auto flex w-full justify-between">
+        <div class="modal-action">
           <button
             :disabled="currentStep === 1"
-            class="retro-button bg-gray-300"
+            class="btn btn-neutral"
             @click="goToPreviousStep"
           >
             I'll go back
           </button>
           <button
             v-if="currentStep < totalSteps"
-            class="retro-button bg-primary"
+            class="btn btn-primary"
             @click="goToNextStep"
           >
             Understood
           </button>
           <button
             v-if="currentStep === totalSteps"
-            class="retro-button bg-green-500"
+            class="btn btn-success"
             @click="closeModal"
           >
             Finish
           </button>
         </div>
       </div>
-    </div>
+
+      <form method="dialog" class="modal-backdrop" @click="closeModal">
+        <button>close</button>
+      </form>
+    </dialog>
   </div>
 </template>
-<style scoped>
-.retro-button {
-  @apply btn btn-primary btn-lg border-4 border-accent text-white;
-  text-transform: uppercase;
-  text-shadow: 2px 2px 0 rgba(0, 0, 0, 0.2);
-  box-shadow: 0 2px 0 #8b4513;
-  font-size: 1.1rem;
-  height: 6vh;
-
-  &.circle {
-    width: 60px;
-    height: 60px;
-    border-radius: 50%;
-  }
-
-  &:hover {
-    transform: translateY(2px);
-    box-shadow:
-      inset 0 0 10px rgba(0, 0, 0, 0.2),
-      0 0px 0 #8b4513;
-    cursor: url('/tortellino.png'), auto;
-  }
-}
-</style>

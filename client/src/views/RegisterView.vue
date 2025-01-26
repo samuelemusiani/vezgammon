@@ -30,13 +30,14 @@ async function register() {
     })
 
     if (!response.ok) {
-      throw new Error('During registration: ' + (await response.text()))
+      const error = (await response.json()).message
+      err.value = error
+      throw new Error(error)
     }
 
     router.push({ name: 'login' })
   } catch (e) {
     console.error(e)
-    err.value = 'Error during registration'
   }
 }
 

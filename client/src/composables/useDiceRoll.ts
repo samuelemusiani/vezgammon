@@ -1,5 +1,6 @@
 import { ref } from 'vue'
 import { useSound } from '@vueuse/sound'
+import { useAudioStore } from '@/stores/audio'
 import diceSfx from '@/utils/sounds/dice.mp3'
 import type { MovesResponse } from '@/utils/game/types'
 import { useWebSocketStore } from '@/stores/websocket'
@@ -9,7 +10,13 @@ export function useDiceRoll() {
   const diceRolled = ref(false)
   const displayedDice = ref<number[]>([])
   const webSocketStore = useWebSocketStore()
+  const audioStore = useAudioStore()
   const { play: playDice } = useSound(diceSfx)
+  const play = () => {
+    if (audioStore.isAudioEnabled) {
+      playDice()
+    }
+  }
 
   const resetDiceState = () => {
     isRolling.value = false
@@ -26,7 +33,7 @@ export function useDiceRoll() {
 
     isRolling.value = true
     diceRolled.value = true
-    playDice()
+    play()
 
     const rollInterval = setInterval(() => {
       displayedDice.value = [
@@ -54,7 +61,7 @@ export function useDiceRoll() {
   const showDiceFromOpponent = (dices: number[]) => {
     isRolling.value = true
     diceRolled.value = true
-    playDice()
+    play()
 
     const rollInterval = setInterval(() => {
       displayedDice.value = [

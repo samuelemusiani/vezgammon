@@ -6,15 +6,35 @@ graph TB
     api[Container 1<br/>Deploys<br/>API Server & HTTP Server<br/>Single Binary Go Application]
     db[Container 2<br/>Deploys<br/>Database]
 
-    subgraph docker_env[Docker Environment]
+    docker_test[Docker Test Server]
+    api_test[Container 3<br/>Deploys<br/>API Server & HTTP Server<br/>Single Binary Go Application]
+    db_test[Container 4<br/>Deploys<br/>Database]
+
+    jenkins[Jenkins Server]
+    git[Git Repository]
+
+    subgraph docker_env[Docker Production Environment]
         docker --> api
         docker --> db
         api <--> |docker network| db
     end
 
+    subgraph docker_test_env[Docker Test Environment]
+        docker_test --> api_test
+        docker_test --> db_test
+        api_test <--> |docker network| db_test
+    end
+    
+    subgraph ci_cd[CI/CD Pipeline]
+        git --> |triggers| jenkins
+        jenkins --> |deploy to test<br/>develop branch| docker_test
+        jenkins --> |deploy to prod<br/>main branch| docker
+    end
+
     clients <--> |HTTPS traffic| firewall
     firewall <--> |HTTPS traffic| proxy
     proxy <--> |HTTP traffic| docker
+    proxy <--> |HTTP traffic| docker_test
     
     %% Styling
     style clients fill:#f9f,stroke:#333,stroke-width:2px,color:#000
@@ -23,3 +43,5 @@ graph TB
     style docker fill:#cfc,stroke:#333,stroke-width:2px,color:#000
     style api fill:#fcf,stroke:#333,stroke-width:2px,color:#000
     style db fill:#fcc,stroke:#333,stroke-width:2px,color:#000
+    style jenkins fill:#ff9,stroke:#333,stroke-width:2px,color:#000
+    style git fill:#c9c,stroke:#333,stroke-width:2px,color:#000

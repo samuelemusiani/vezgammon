@@ -6,11 +6,12 @@ defineProps<{
 </script>
 
 <template>
-  <div
-    class="retro-box flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16"
-    :class="{ 'dice-rolling': isRolling }"
-  >
-    <svg viewBox="0 0 60 60">
+  <div class="dice" :class="{ 'dice-rolling': isRolling }">
+    <svg
+      viewBox="0 0 60 60"
+      xmlns="http://www.w3.org/2000/svg"
+      class="h-full w-full"
+    >
       <!-- Dice border -->
       <rect
         x="1"
@@ -66,6 +67,12 @@ defineProps<{
   </div>
 </template>
 <style scoped>
+.dice {
+  @apply flex h-12 w-12 items-center justify-center rounded-lg bg-white p-2 shadow-lg sm:h-16 sm:w-16;
+  @apply border-4 border-primary;
+  transition: all 0.3s ease;
+}
+
 @keyframes dice-shake {
   0% {
     transform: rotate(0deg);

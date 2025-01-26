@@ -1,4 +1,4 @@
-graph TD
+graph LR
     %% Actors
     TAdmin[Tournament Admin]
     User[User]
@@ -14,7 +14,6 @@ graph TD
     ManageAccount[Manage Account]
     PlayBackgammon[Play Backgammon]
     ChatPlayers[Chat with Players]
-    DailyChallenges[Daily Challenges]
     AnalyzeGames[Analyze Games]
     AccessChallenges[Access Challenges]
     EarnBadges[Earn Digital Badges]
@@ -24,31 +23,34 @@ graph TD
     %% Relationships
     TAdmin --> CreateTournament
     TAdmin --> ManageTournament
-    TAdmin --> User
     
     User --> TrackImprovement
     User --> ShareProgress
     User --> ReceiveUpdates
     User --> ManageAccount
     User --> ExploreThemes
-    
-    Player --> User
+    User --> Player
+    User --> TAdmin
+
     Player --> PlayBackgammon
     
     ShareProgress --> Friend
     
     %% Include relationships
-    PlayBackgammon -.-> GameTree
-    PlayBackgammon --> DailyChallenges
+    GameTree -.-> PlayBackgammon
     PlayBackgammon --> AnalyzeGames
     PlayBackgammon --> AccessChallenges
     PlayBackgammon --> EarnBadges
     PlayBackgammon --> ChatPlayers
+    PlayBackgammon --> Bot
     CreateTournament -.-> GameTree
+    ManageTournament --> Add
+    Add --> Bot
+    Add --> Player
 
     %% Styling
     classDef actor fill:#dae8fc,stroke:#6c8ebf,color:#000
     classDef useCase fill:#fff,stroke:#000,color:#000
     
-    class TAdmin,User,Player,Friend actor
-    class CreateTournament,ManageTournament,TrackImprovement,ShareProgress,ReceiveUpdates,ManageAccount,PlayBackgammon,ChatPlayers,DailyChallenges,AnalyzeGames,AccessChallenges,EarnBadges,ExploreThemes,GameTree useCase
+    class TAdmin,User,Player,Friend,Bot,Player actor
+    class CreateTournament,Add,ManageTournament,TrackImprovement,ShareProgress,ReceiveUpdates,ManageAccount,PlayBackgammon,ChatPlayers,AnalyzeGames,AccessChallenges,EarnBadges,ExploreThemes,GameTree useCase

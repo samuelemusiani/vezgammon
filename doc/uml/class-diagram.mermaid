@@ -1,124 +1,119 @@
----
-title: Backgammon Game Class Diagram
----
 classDiagram
-    User <|-- Player
-    Player "1" *-- "1" Stats
-    Player "1" *-- "0..*" Achievement
-    Player "1" -- "0..*" Game
-    Game "1" *-- "1" Board
-    Game "1" *-- "2" PlayerElo
-    Game "1" *-- "0..*" Turn
+    User "2" --o "*" Game
+    User "1" --o "*" Tournament
+    User "1" --o "*" Turn
+    User "1" *-- "1" Statistiche
+    User "1" *-- "1" Bedge
+
+    Turn "1" *-- "1" Move
     Turn "1" *-- "2" Dice
-    Board "1" *-- "24" Point
-    Point "1" *-- "0..*" Checker
+    
+    Game "1" --* "*" Turn
+    Tournament "1" --o "*" Game
 
+    class Statistiche {
+        +[]Game      Gameplayed
+        +int64             Won          
+        +int64             Lost         
+        +[]int64           Elo          
+        +float32           Winrate      
+        +int64             Online       
+        +int64             Local        
+        +int64             Cpu          
+        +int64             Tournament   
+        +[]LeaderboardUser Leaderboard
+        +GetPlayerStats(id:int)
+    }
+    class Bedge {
+        +[3]int  Bot        
+        +[3]int  Homepieces 
+        +[3]int  Wongames   
+        +[3]int  Elo        
+        +[3]int  Wontime    
+        +[3]int  Gameplayed
+        +GetBedge()
+    }
     class User {
-        +Integer id
-        +String username
-        +String password
-        +String email
-        +String avatar
-        +login()
-        +logout()
-        +updateProfile()
-    }
-
-    class Player {
-        +Stats statistics
-        +List~Achievement~ achievements
-        +List~Game~ games
-        +getRanking()
-        +getWinRate()
-    }
-
-    class Stats {
-        +Integer ranking
-        +Integer gamesPlayed
-        +Integer gamesWon
-        +Integer checkersEaten
-        +Double winRate
-        +updateStats(Game)
-    }
-
-    class PlayerElo {
-        +Integer beforeGame
-        +Integer afterGame
-        +calculateEloChange()
+        +int64 id PK
+        +string username UNIQUE
+        +string password
+        +string firstname
+        +string lastname
+        +string mail UNIQUE
+        +int64 elo
+        +string avatar
+        +bool is_bot
+        +GetPlayerAvatar(username:string)
+        +GetPlayer(username:string)
+        +Login(username: String, password: String)
+        +Logout(token: String)
     }
 
     class Game {
-        +Integer id
-        +Player player1
-        +Player player2
-        +PlayerElo player1Elo
-        +PlayerElo player2Elo
-        +Board board
-        +GameStatus status
-        +List~Turn~ turns
-        +DateTime startTime
-        +DateTime endTime
-        +makeMove(Turn)
-        +undoLastMove()
-        +calculateScore()
+        +int64   ID
+        +string  Player1
+        +int64   Elo1
+        +string  Player2
+        +int64   Elo2
+        +time.Time Start
+        +time.Time End
+        +string  Status
+        +[25]int8 P1Checkers
+        +[25]int8 P2Checkers
+        +uint64  DoubleValue
+        +string  DoubleOwner
+        +bool    WantToDouble
+        +string  CurrentPlayer
+        +string  GameType
+        +StartPlaySearch(id:int)
+        +StopPlaySearch(id:int)
+        +StartPlayInviteSearch(id:int)
+        +StartGameLocally(id:int)
+        +GetCurrentGame(id:int)
+        +SurrendToCurrentGame(id:int)
+        +GetPossibleMoves(id:int)
+        +PlayMoves(id: int, Move[] wantoToMoves)
+        +WantToDouble(id: int)
+        +AcceptDouble()
+        +RefuseDouble()
+        +GetLastGameWinner()
+        +PlayBot(Enum difficulty)
     }
-    
-    class Achievement {
-        +String name
-        +String description
-        +DateTime unlocked
-        +String iconPath
-        +checkUnlockCondition()
+
+    class Tournament {
+        +SERIAL id PK
+        +BPCHAR name
+        +INTEGER owner FK
+        +BPCHAR status DEFAULT 'waiting'
+        +INTEGER[] users
+        +INTEGER[] winners
+        +TIMESTAMP creation_date
+
+        +createTournament(name: String): Tournament
+        +getTournament(tournamentId: String): Tournament
+        +listActiveTournaments(): Tournament[]
+        +joinTournament(tournamentId: String, playerId: String)
+        +startMatch(matchId: String)
+        +submitMatchResult(matchId: String, result: MatchResult)
+        +getTournamentResults(tournamentId: String): TournamentResult
+        +CancelTournament(tournamentId: String)
+        +inviteTournament(players: String[])
+        +TournamentDeleteUsers(users: String[])
+        +LeaveTournament(playerId: String)
     }
 
     class Turn {
-        +List~Dice~ dice
-        +List~Move~ moves
-        +Player player
-        +validateMove()
-        +execute()
-    }
-
-    class Dice {
-        +Integer value
-        +roll()
-    }
-
-    class Board {
-        +List~Point~ points
-        +Point bar
-        +Point bearOff
-        +validateMove(Move)
-        +makeMove(Move)
-        +getBearOffMoves()
-    }
-
-    class Point {
-        +Integer position
-        +List~Checker~ checkers
-        +Color pointColor
-        +addChecker(Checker)
-        +removeChecker()
-    }
-
-    class Checker {
-        +Color color
-        +Boolean isBearOff
-        +move(Point)
+        +int id PK
+        +TIMESTAMP time
+        +BOOL double
     }
 
     class Move {
-        +Point from
-        +Point to
-        +Checker checker
-        +validate()
-        +execute()
+        int from
+        int to
     }
 
-    class GameStatus {
-        <<enumeration>>
-        WAITING_FOR_PLAYER
-        IN_PROGRESS
-        FINISHED
-        ABANDONED
+    class Dice {
+        +int[2] dices
+        +sum() int
     }

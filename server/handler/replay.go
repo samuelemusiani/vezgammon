@@ -83,14 +83,7 @@ func GetReplay(c *gin.Context) {
 	}
 
 	var dices types.Dices
-	for i := range tmp.Move {
-		t := turns[i]
-		if t.Double {
-			continue
-		}
-		g.PlayMove(t.Moves)
-		dices = t.Dices
-	}
+	g, dices = reconstructGameFromTurns(turns, g, tmp.Move)
 
 	u1, err := db.GetUser(g.Player1)
 	if err != nil {

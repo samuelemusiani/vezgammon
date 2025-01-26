@@ -78,7 +78,9 @@ func Register(c *gin.Context) {
 	retu, err := db.CreateUser(u, string(hash))
 	if err != nil {
 		slog.With("err", err).Error("Creating user in db")
-		c.JSON(http.StatusInternalServerError, err)
+		c.JSON(http.StatusInternalServerError, gin.H{
+			"message": err.Error(), // o qualsiasi altro messaggio
+		})
 		return
 	}
 

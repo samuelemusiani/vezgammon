@@ -1,7 +1,7 @@
 <template>
   <div class="flex h-full w-full items-center justify-center">
     <div
-      class="flex h-[94%] w-[80%] flex-col items-center justify-center overflow-y-auto rounded-md border-8 border-primary bg-base-100"
+      class="flex h-[94%] w-[80%] flex-col items-center overflow-y-auto rounded-md border-4 border-primary bg-base-100 lg:justify-center lg:border-8"
     >
       <button
         @click="router.push('/')"
@@ -10,9 +10,11 @@
         Back
       </button>
       <!-- Page Title -->
-      <div class="mb-8 flex flex-col items-center text-center xl:mb-16">
+      <div
+        class="mb-2 flex flex-col items-center justify-center text-center xl:mb-16"
+      >
         <h1
-          class="retro-title mb-8 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
+          class="retro-title mb-4 w-60 text-2xl font-bold md:w-full md:p-4 md:text-3xl lg:text-4xl xl:text-7xl"
         >
           Tournaments
         </h1>
@@ -23,7 +25,7 @@
 
       <!-- Tournaments List -->
       <div
-        class="no-scrollbar h-1/2 max-h-[calc(100vh-300px)] w-full max-w-4xl space-y-6 overflow-y-auto p-8"
+        class="no-scrollbar h-1/2 w-full max-w-4xl space-y-6 overflow-y-auto p-8"
       >
         <div
           v-if="!tournaments || tournaments.length == 0"
@@ -150,6 +152,7 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import { useSound } from '@vueuse/sound'
+import { useAudioStore } from '@/stores/audio'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import router from '@/router'
 import type { Tournament } from '@/utils/types'
@@ -159,8 +162,11 @@ import { useToast } from 'vue-toast-notification'
 import 'vue-toast-notification/dist/theme-sugar.css'
 
 const $toast = useToast()
-
-const { play } = useSound(buttonSfx, { volume: 0.3 })
+const audioStore = useAudioStore()
+const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
+const play = () => {
+  if (audioStore.isAudioEnabled) playSound()
+}
 
 interface SimpleTournament {
   id: number

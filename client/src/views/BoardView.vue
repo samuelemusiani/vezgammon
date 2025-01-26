@@ -232,8 +232,10 @@ function sendWSMessage(message: WSMessage) {
           <PlayerInfo
             :username="gameState?.player2 || ''"
             :elo="gameState?.elo2 || 0"
-            :isCurrentTurn="gameState?.current_player === 'p1'"
-            :isOpponent="true"
+            :isCurrentTurn="
+              (gameState?.player2 === session?.username && isMyTurn) ||
+              (gameState?.player2 !== session?.username && !isMyTurn)
+            "
             :avatar="avatars[1]"
           />
 
@@ -258,7 +260,10 @@ function sendWSMessage(message: WSMessage) {
           <PlayerInfo
             :username="gameState?.player1 || ''"
             :elo="gameState?.elo1 || 0"
-            :isCurrentTurn="gameState?.current_player === 'p2'"
+            :isCurrentTurn="
+              (gameState?.player1 === session?.username && isMyTurn) ||
+              (gameState?.player1 !== session?.username && !isMyTurn)
+            "
             :avatar="avatars[0]"
           />
         </div>

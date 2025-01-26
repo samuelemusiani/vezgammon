@@ -26,13 +26,13 @@ async function login() {
 
     if (!response.ok) {
       const message = await response.json()
-      throw new Error(message?.message || 'Error during login')
+      throw new Error('Username/Email or Password are invalid')
     }
 
     router.push({ name: 'home' })
   } catch (e) {
     console.error(e)
-    err.value = e instanceof Error ? e.message : 'Unexpected error'
+    err.value = 'Username or Password are invalid'
   }
 }
 
@@ -87,14 +87,6 @@ function validate() {
                 v-model="passwd"
                 class="input input-bordered w-full bg-base-200 focus:ring-primary"
               />
-              <label class="label" for="forgot-password">
-                <a
-                  href="#"
-                  class="link-hover link label-text-alt"
-                  id="forgot-password"
-                  >Forgot password?</a
-                >
-              </label>
             </div>
 
             <!-- Errore -->

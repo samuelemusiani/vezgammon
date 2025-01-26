@@ -79,11 +79,18 @@
 import { onMounted, ref } from 'vue'
 import type { GameStats, LeaderBoardUser } from '@/utils/types'
 import { useSound } from '@vueuse/sound'
+import { useAudioStore } from '@/stores/audio'
 import buttonSfx from '@/utils/sounds/button.mp3'
 import router from '@/router'
 import { vfetch } from '@/utils/fetch'
 
-const { play } = useSound(buttonSfx, { volume: 0.3 })
+const audioStore = useAudioStore()
+const { play: playSound } = useSound(buttonSfx, { volume: 0.3 })
+const play = () => {
+  if (audioStore.isAudioEnabled) {
+    playSound()
+  }
+}
 
 const leaderboard = ref<LeaderBoardUser[] | null>(null)
 const myUsername = ref<string | null>(null)

@@ -1,7 +1,7 @@
 # Backlog grooming
 ## Sprint 1
-![backlog-graph](./imgs/s1-backlog-burndown.png)
-![backlog-snapshot](./imgs/s1-backlog-snapshot.png)
+![backlog-graph](../imgs/burndown1.png)
+![backlog-snapshot](../imgs/backlog1.png)
 
 #### Completato
 - creazione account
@@ -15,8 +15,8 @@
 
 
 ## Sprint 2
-![backlog-graph](./imgs/s2-backlog-burndown.png)
-![backlog-snapshot](./imgs/s2-backlog-snapshot.jpg)
+![backlog-graph](../imgs/burndown2.png)
+![backlog-snapshot](../imgs/backlog2.jpg)
 
 #### Completato
 - partita locale con validazione mosse
@@ -32,10 +32,10 @@
 
 
 ## Sprint 3
-![backlog-graph](./imgs/s3-backlog-burndown.png)
-![backlog-snapshot-1](./imgs/s3-backlog-snapshot-1.png)
-![backlog-snapshot-2](./imgs/s3-backlog-snapshot-2.png)
-![backlog-snapshot-3](./imgs/s3-backlog-snapshot-3.png)
+![backlog-graph](../imgs/burndown3.png)
+![backlog-snapshot-1](../imgs/backlog3_1.png)
+![backlog-snapshot-2](../imgs/backlog3_2.png)
+![backlog-snapshot-3](../imgs/backlog3_3.png)
 
 #### Completato
 - progressi e statistiche
@@ -52,9 +52,9 @@ Nulla
 
 
 ## Sprint 4
-![backlog-graph](./imgs/s4-backlog-burndown.png)
-![backlog-snapshot-1](./imgs/s4-backlog-snapshot-1.png)
-![backlog-snapshot-2](./imgs/s4-backlog-snapshot-2.png)
+![backlog-graph](../imgs/burndown4.png)
+![backlog-snapshot-1](../imgs/backlog4_1.png)
+![backlog-snapshot-2](../imgs/backlog4_2.png)
 
 #### Completato
 - gestione tornei con utenti e/o bot

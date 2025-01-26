@@ -299,7 +299,7 @@ func GetLastGameWinner(userID int64) (string, error) {
     FROM games g
     JOIN users u1 ON g.p1_id = u1.id
     JOIN users u2 ON g.p2_id = u2.id
-    WHERE p1_id = $1 OR p2_id = $1
+    WHERE (p1_id = $1 OR p2_id = $1) AND status != 'open'
     ORDER BY start DESC LIMIT 1`
 
 	row := Conn.QueryRow(q, userID)
