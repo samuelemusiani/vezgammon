@@ -25,7 +25,6 @@ async function login() {
     })
 
     if (!response.ok) {
-      const message = await response.json()
       throw new Error('Username/Email or Password are invalid')
     }
 
