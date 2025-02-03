@@ -64,6 +64,7 @@ func calculateElo(elo1, elo2 int64, winner1 bool, double uint64) (int64, int64) 
 }
 
 func getTournamentUserIndex(tournament *types.Tournament, userId int64) int64 {
+	slog.With("tournament.Users", tournament.Users, "userID", userId).Debug("IMPORTANTE")
 	for index, user := range tournament.Users {
 		if user == userId {
 			return int64(index)
@@ -120,6 +121,7 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 
 	// no games, start the tournament
 	if len(tournament.Winners) == 0 {
+		slog.With("Winner:", tournament.Winners).Debug("Creating tournament matches 1")
 		err = tournamentMatchCreate(tournament.Users[0], tournament.Users[1], sql.NullInt64{Valid: true, Int64: tournament.ID})
 		if err != nil {
 			return err
@@ -133,6 +135,7 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 
 	// start finals and third/fourth place match
 	if len(tournament.Winners) == 2 {
+		slog.With("Winner:", tournament.Winners).Debug("Creating tournament matches 2")
 
 		// found third/fourth place users
 		var losers []int64
@@ -148,6 +151,7 @@ func tournamentMatchCreator(tournament *types.Tournament) error {
 		}
 
 		// start finals last
+		slog.With("Winner:", tournament.Winners).Debug("Creating tournament matches 3")
 		err = tournamentMatchCreate(getTournamentIndexUser(tournament, tournament.Winners[0]),
 			getTournamentIndexUser(tournament, tournament.Winners[1]),
 			sql.NullInt64{Valid: true, Int64: tournament.ID})
@@ -165,7 +169,16 @@ func tournamentGameEndHandler(tournamentId int64, winnerId int64) error {
 		return err
 	}
 
-	tournament.Winners = append(tournament.Winners, getTournamentUserIndex(tournament, winnerId))
+	slog.With("getTournamentUserIndex", getTournamentUserIndex(tournament, winnerId), "winnerID", winnerId).Debug("getTorunamentUserIndex")
+
+	userIndex := getTournamentUserIndex(tournament, winnerId)
+	if len(tournament.Winners) == 0 {
+		tournament.Winners = append(tournament.Winners, userIndex)
+	} else {
+		if tournament.Winners[0] != userIndex {
+			tournament.Winners = append(tournament.Winners, userIndex)
+		}
+	}
 
 	if len(tournament.Winners) == 4 {
 		tournament.Status = types.TournamentStatusEnded
@@ -377,6 +390,7 @@ func endGame(g *types.Game, winnerID int64) error {
 	}
 
 	if g.Tournament.Valid {
+		slog.With("tournament", g.Tournament.Int64, "winnerID", winnerID).Debug("Tournament game ended")
 		err = tournamentGameEndHandler(g.Tournament.Int64, winnerID)
 		if err != nil {
 			return err
