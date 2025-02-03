@@ -6,7 +6,7 @@
           <GamePerformanceCard :stats="stats" />
           <RecentGamesCard
             :games="stats.games_played"
-            :currentUser="currentUsername as string"
+            :currentUser="currentUsername || (props.username as string)"
             :can-analyze="!generalStats"
           />
         </div>
